@@ -37,6 +37,8 @@ import socket
 import sys
 import threading
 import traceback
+from werkzeug.debug import DebuggedApplication
+from werkzeug.debug.tbtools import get_current_traceback
 
 import werkzeug.serving
 import werkzeug.contrib.fixers
@@ -44,6 +46,7 @@ import werkzeug.contrib.fixers
 import openerp
 import openerp.tools.config as config
 import websrv_lib
+from lxml import etree
 
 _logger = logging.getLogger(__name__)
 
@@ -214,6 +217,58 @@ def application(environ, start_response):
         return werkzeug.contrib.fixers.ProxyFix(application_unproxied)(environ, start_response)
     else:
         return application_unproxied(environ, start_response)
+
+class WerkzeugDebugger(DebuggedApplication):
+    def debug_application(self, environ, start_response):
+        """Run the application and conserve the traceback frames."""
+        app_iter = None
+        try:
+            app_iter = self.app(environ, start_response)
+            for item in app_iter:
+                yield item
+            if hasattr(app_iter, 'close'):
+                app_iter.close()
+        except Exception:
+            if hasattr(app_iter, 'close'):
+                app_iter.close()
+            traceback = get_current_traceback(skip=1, show_hidden_frames=
+                                              self.show_hidden_frames,
+                                              ignore_system_exceptions=True)
+            for frame in traceback.frames:
+                self.frames[frame.id] = frame
+            self.tracebacks[traceback.id] = traceback
+
+            try:
+                start_response('500 INTERNAL SERVER ERROR', [
+                    ('Content-Type', 'text/html; charset=utf-8')
+                ])
+            except Exception:
+                # if we end up here there has been output but an error
+                # occurred.  in that situation we can do nothing fancy any
+                # more, better log something into the error log and fall
+                # back gracefully.
+                environ['wsgi.errors'].write(
+                    'Debugging middleware caught exception in streamed '
+                    'response at a point where response headers were already '
+                    'sent.\n')
+            else:
+                debug_page = traceback.render_full(evalex=self.evalex,
+                                            secret=self.secret) \
+                               .encode('utf-8', 'replace')
+                page_tree = etree.HTML(debug_page)
+                script = page_tree.findall(".//script")
+                if script:
+                    script[-1].text = "$.noConflict();\n" + script[-1].text
+                    debug_page =  etree.tostring(page_tree, pretty_print=True, method="html")
+                yield debug_page
+
+            traceback.log(environ['wsgi.errors'])
+
+def debug_application():
+    if 'werkzeug:DEBUG' in config['log_handler']:
+        return WerkzeugDebugger(application, evalex=True)
+    else:
+        return application
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

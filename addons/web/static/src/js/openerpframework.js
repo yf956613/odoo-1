@@ -1163,6 +1163,7 @@ openerp.Session = openerp.Class.extend(openerp.PropertiesMixin, {
                         self.trigger('response_failed');
                     var nerror = {
                         code: -32098,
+                        status: error.status,
                         message: "XmlHttpRequestError " + errorThrown,
                         data: {type: "xhr"+textStatus, debug: error.responseText, objects: [error, errorThrown] }
                     };

@@ -251,6 +251,10 @@ instance.web.CrashManager = instance.web.Class.extend({
         if (!this.active) {
             return;
         }
+        if (error.status === 500){
+           this.internal_server_error(error);
+           return;
+        }
         var handler = instance.web.crash_manager_registry.get_object(error.data.name, true);
         if (handler) {
             new (handler)(this, error).display();
@@ -265,6 +269,20 @@ instance.web.CrashManager = instance.web.Class.extend({
         } else {
             this.show_error(error);
         }
+    },
+    internal_server_error:function(error){
+        if (!this.active) {
+            return;
+        }
+        var dialog = new instance.web.Dialog(this, {
+            title: "Odoo " + _.str.capitalize(error.type),
+            width: '90%',
+            height: '50%',
+            min_width: '800px',
+            min_height: '600px',
+            buttons: [{ text: _t("Ok"), click: function() { this.parents('.modal').modal('hide'); }},]
+        }).open();
+        dialog.$el.html(error.data.debug);
     },
     show_warning: function(error) {
         if (!this.active) {
