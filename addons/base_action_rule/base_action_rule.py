@@ -172,9 +172,9 @@ class base_action_rule(osv.osv):
                 if context and context.get('action'):
                     return create.origin(self, cr, uid, vals, context=context)
 
-                # call original method with a modified context
-                context = dict(context or {}, action=True)
                 new_id = create.origin(self, cr, uid, vals, context=context, **kwargs)
+
+                context = dict(context or {}, action=True)
 
                 # as it is a new record, we do not consider the actions that have a prefilter
                 action_model = self.pool.get('base.action.rule')
@@ -214,7 +214,7 @@ class base_action_rule(osv.osv):
                     pre_ids[action] = action_model._filter(cr, uid, action, action.filter_pre_id, ids, context=context)
 
                 # call original method
-                write.origin(self, cr, uid, ids, vals, context=context, **kwargs)
+                write.origin(self, cr, uid, ids, vals, context=dict(context, action=False), **kwargs)
 
                 # check postconditions, and execute actions on the records that satisfy them
                 for action in actions:
