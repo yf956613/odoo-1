@@ -199,7 +199,7 @@
                     </tr>
                 </table>
             </form>
-            <form id="db_backup" name="backup_db_form" target="backup-target" action="/web/database/backup" style="display: none;">
+            <form id="db_backup" name="backup_db_form" target="backup-target" action="{{ widget._root }}/backup" style="display: none;">
                 <div class="oe_view_manager oe_view_manager_current">
                     <div class="oe_view_manager_header" style="padding: 8px;">
                         <div class="oe_header_row">

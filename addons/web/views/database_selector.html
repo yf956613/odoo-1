@@ -48,7 +48,9 @@
             </noscript>
 
             <div class="oe_single_form_footer">
-                <a class="oe_login_manage_db" href="/web/database/manager{% if debug %}?debug{% endif %}">Manage Databases</a> |
+                {% if db_manager_root -%}
+                <a class="oe_login_manage_db" href="{{ db_manager_root }}/manager{% if debug %}?debug{% endif %}">Manage Databases</a> |
+                {%- endif %}
                 <a href="http://www.openerp.com" target="_blank">Powered by <span>OpenERP</span></a>
             </div>
         </form>

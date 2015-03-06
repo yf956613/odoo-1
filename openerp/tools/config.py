@@ -253,6 +253,11 @@ class configmanager(object):
                          help="specify the the maximum number of physical connections to posgresql")
         group.add_option("--db-template", dest="db_template", my_default="template1",
                          help="specify a custom database template to create a new database")
+        default_manager_url = '/web/database'
+        group.add_option('--database-manager', dest='database_manager', default=default_manager_url,
+                         help="Root URL for the Web Client's database manager (default: '%s')" % default_manager_url)
+        group.add_option('--no-database-manager', action='store_false', dest='database_manager',
+                         help="Disable the Web Client's database manager")
         parser.add_option_group(group)
 
         group = optparse.OptionGroup(parser, "Internationalisation options",
@@ -441,7 +446,7 @@ class configmanager(object):
             'list_db', 'xmlrpcs', 'proxy_mode',
             'test_file', 'test_enable', 'test_commit', 'test_report_directory',
             'osv_memory_count_limit', 'osv_memory_age_limit', 'max_cron_threads', 'unaccent',
-            'data_dir',
+            'data_dir', 'database_manager',
         ]
 
         posix_keys = [
@@ -527,6 +532,9 @@ class configmanager(object):
                 self.options['db_host'] = 'localhost'
             #if self.options['db_host']:
             #    self._generate_pgpassfile()
+
+        if self.options['database_manager'] and not self.options['database_manager'].startswith('/'):
+            self.parser.error("If set, the database_manager option must start with a '/'")
 
         if opt.save:
             self.save()

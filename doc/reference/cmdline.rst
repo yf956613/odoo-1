@@ -286,6 +286,19 @@ Advanced options
     enable auto-reloading of python files and xml files without having to
     restart the server. Requires pyinotify_.
 
+.. option:: --no-database-manager
+
+    removes access to the database manager UI of the web client (creation,
+    removal, dump, restore), removes links to it from the login pages.
+
+.. option:: --database-manager <url>
+
+    changes the access URL for the database manager, roots it at ``<url>``.
+    By default, all database management URLs are rooted at ``/web/database``.
+
+    .. note:: the database selector url (``/web/database/selector``) is not
+              impacted by this setting or the previous one.
+
 .. _reference/cmdline/scaffold:
 
 Scaffolding

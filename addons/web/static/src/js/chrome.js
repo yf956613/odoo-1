@@ -410,17 +410,18 @@ instance.web.Loading = instance.web.Widget.extend({
 });
 
 instance.web.DatabaseManager = instance.web.Widget.extend({
-    init: function(parent) {
+    init: function(parent, action) {
         this._super(parent);
         this.unblockUIFunction = instance.web.unblockUI;
         $.validator.addMethod('matches', function (s, _, re) {
             return new RegExp(re).test(s);
         }, _t("Invalid database name"));
+        this._root = action.params.root;
     },
     start: function() {
         var self = this;
         $('.oe_secondary_menus_container,.oe_user_menu_placeholder').empty();
-        var fetch_db = this.rpc("/web/database/get_list", {}).then(
+        var fetch_db = this.rpc(this._root + '/get_list', {}).then(
             function(result) {
                 self.db_list = result;
             },
@@ -508,7 +509,7 @@ instance.web.DatabaseManager = instance.web.Widget.extend({
     do_create: function(form) {
         var self = this;
         var fields = $(form).serializeArray();
-        self.rpc("/web/database/create", {'fields': fields}).done(function(result) {
+        self.rpc(this._root + '/create', {'fields': fields}).done(function(result) {
             if (result) {
                 instance.web.redirect('/web');
             } else {
@@ -519,7 +520,7 @@ instance.web.DatabaseManager = instance.web.Widget.extend({
     do_duplicate: function(form) {
         var self = this;
         var fields = $(form).serializeArray();
-        self.rpc("/web/database/duplicate", {'fields': fields}).then(function(result) {
+        self.rpc(this._root + '/duplicate', {'fields': fields}).then(function(result) {
             if (result.error) {
                 self.display_error(result);
                 return;
@@ -537,7 +538,7 @@ instance.web.DatabaseManager = instance.web.Widget.extend({
         if (!db || !confirm(_.str.sprintf(_t("Do you really want to delete the database: %s ?"), db))) {
             return;
         }
-        self.rpc("/web/database/drop", {'fields': fields}).done(function(result) {
+        self.rpc(this._root + '/drop', {'fields': fields}).done(function(result) {
             if (result.error) {
                 self.display_error(result);
                 return;
@@ -568,7 +569,7 @@ instance.web.DatabaseManager = instance.web.Widget.extend({
         var self = this;
         self.blockUI();
         $(form).ajaxSubmit({
-            url: '/web/database/restore',
+            url: this._root + '/restore',
             type: 'POST',
             resetForm: true,
             success: function (body) {
@@ -595,7 +596,7 @@ instance.web.DatabaseManager = instance.web.Widget.extend({
     },
     do_change_password: function(form) {
         var self = this;
-        self.rpc("/web/database/change_password", {
+        self.rpc(this._root + '/change_password', {
             'fields': $(form).serializeArray()
         }).done(function(result) {
             if (result.error) {

@@ -66,7 +66,11 @@
         <script type="text/javascript">
             $(function() {
                 var s = new openerp.init({{ modules|safe }});
-                var wc = new s.web.WebClient(null, { action: 'database_manager' });
+                var wc = new s.web.WebClient(null, { action: {
+                    type: 'ir.actions.client',
+                    tag: 'database_manager',
+                    params: { root: '{{db_manager_root}}' }
+                }});
                 wc.setElement($(document.body));
                 wc.start();
             });
