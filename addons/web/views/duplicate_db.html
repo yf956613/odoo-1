@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<form id="duplicate_db" name="duplicate_db_form" class="form-horizontal">
+    <h3>
+        Duplicate Database
+    </h3>
+    <div class="form-group">
+        <label for="super_admin_pwd" class="col-sm-3 control-label">Master password:</label>
+        <div class="col-sm-3">
+              <input type="password" class="form-control" required value="admin" name="super_admin_pwd">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="db_original_name" class="col-sm-3 control-label">Original database name::</label>
+        <div class="col-sm-3">
+              <input type="text" class="form-control" required name="db_original_name" matches="^[a-zA-Z][a-zA-Z0-9_-]+$" autofocus="true">
+    </div>
+    </div>
+    <div class="form-group">
+        <label for="db_name" class="col-sm-3 control-label">New database name:</label>
+        <div class="col-sm-3">
+              <input type="text" class="form-control" required name="db_name" matches="^[a-zA-Z][a-zA-Z0-9_-]+$">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-10">
+            <button type="submit" class="btn btn-default db_duplicate">Duplicate</button>
+        </div>
+    </div>
+</form>

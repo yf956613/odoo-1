@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<form id="drop_db" name="drop_db_form" class="form-horizontal">
+
+    <h3 class="oe_view_title">
+        Drop Database
+    </h3>
+    <div class="form-group">
+        <label for="drop_db" class="col-sm-3 control-label">Database:</label>
+        <div class="col-sm-3">
+            {% if db_list %}
+                <select name="drop_db" class="form-control" autofocus="true">
+
+                    {% for db in db_list %}
+                        <option value="{{db}}">
+                            {{db}}
+                        </option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            {% if not db_list %}
+                <input type="text" class="form-control" required name="drop_db" autofocus="true">
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="drop_pwd" class="col-sm-3 control-label">Master password:</label>
+        <div class="col-sm-3">
+              <input type="password" class="form-control" required name="drop_pwd">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-10">
+            <button type="submit" class="btn btn-default db_drop">Drop</button>
+        </div>
+    </div>
+</form>

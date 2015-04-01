@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<form id="restore_db" enctype="multipart/form-data" name="restore_db_form" class="form-horizontal">
+
+    <h3>
+        Restore Database
+    </h3>
+    <div class="form-group">
+        <label for="restore_pwd" class="col-sm-3 control-label">Master password:</label>
+        <div class="col-sm-3">
+              <input type="password" class="form-control" required name="restore_pwd" autofocus="true">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="db_file" class="col-sm-3 control-label">File:</label>
+        <div class="col-sm-3">
+              <input type="file" class="form-control" required name="db_file">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="new_db" class="col-sm-3 control-label">New database name:</label>
+        <div class="col-sm-3">
+              <input type="text" class="form-control" required name="new_db">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="mode" class="col-sm-3 control-label">Mode:</label>
+        <div class="col-sm-3">
+            <select name="mode" class="form-control">
+                <option value="restore">Backup Restore</option>
+                <option value="copy">Copy of an existing database</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-10">
+            <button type="submit" class="btn btn-default db_restore">Restore</button>
+        </div>
+    </div>
+</form>

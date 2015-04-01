@@ -671,15 +671,6 @@ class Database(http.Controller):
         })
 
     if db_manager_root:
-        @http.route(db_manager_root + '/manager', type='http', auth="none")
-        def manager(self, **kw):
-            # TODO: migrate the webclient's database manager to server side views
-            request.session.logout()
-            return env.get_template("database_manager.html").render({
-                'modules': simplejson.dumps(module_boot()),
-                'db_manager_root': db_manager_root,
-            })
-
         @http.route(db_manager_root + '/get_list', type='json', auth="none")
         def get_list(self):
             # TODO change js to avoid calling this method if in monodb mode
@@ -770,6 +761,32 @@ class Database(http.Controller):
                 return {'error': 'AccessDenied', 'title': _('Change Password')}
             except Exception:
                 return {'error': _('Error, password not changed !'), 'title': _('Change Password')}
+
+        @http.route([db_manager_root + '/manager',
+            db_manager_root + '/manager/<action>',
+            ], type='http', auth="none")
+        def manager(self, action='create_db', **kw):
+            # TODO: migrate the webclient's database manager to server side views
+            request.session.logout()
+            db_list, lang_list = None, None
+            try:
+                db_list = http.db_list()
+            except openerp.exceptions.AccessDenied:
+                monodb = db_monodb()
+                if monodb:
+                    db_list = [monodb]
+                raise
+            try:
+                lang_list = request.session.proxy("db").list_lang() or []
+            except Exception, e:
+                lang_list = {"error": e, "title": _("Languages")}
+            return env.get_template("database_manager.html").render({
+                'modules': simplejson.dumps(module_boot()),
+                'db_manager_root': db_manager_root,
+                'action': action,
+                'db_list': db_list,
+                'lang_list': lang_list
+            })
 
 class Session(http.Controller):
 

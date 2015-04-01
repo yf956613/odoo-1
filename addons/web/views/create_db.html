@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<form id="create_db" name="create_db_form" class="form-horizontal">
+    <h3>
+        Create a New Database
+    </h3>
+    <p class="oe_grey" style="margin: 10px">
+        Fill in this form to create an Odoo database. You can
+        create databases for different companies or for different
+        goals (testing, production). Once the database is created,
+        you will be able to install your first application.
+    </p>
+    <p class="oe_grey" style="margin: 10px">
+            By default, the master password is 'admin'. This password
+            is required to create, delete, dump or restore databases.
+    </p>
+    <div class="form-group">
+        <label for="super_admin_pwd" class="col-sm-3 control-label">Master password:</label>
+        <div class="col-sm-3">
+            <input type="password" class="form-control" required value="admin" name="super_admin_pwd">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="db_name" class="col-sm-3 control-label">Select a database name:</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control" required name="db_name" matches="^[a-zA-Z0-9][a-zA-Z0-9_-]+$" autofocus="true" placeholder="e.g. mycompany">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="demo_data" class="col-sm-3 control-label">Load demonstration data:</label>
+        <div class="col-sm-3">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="demo_data"> Check this box to evaluate Odoo.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="db_lang" class="col-sm-3 control-label">Default language:</label>
+        <div class="col-sm-3">
+            {% if lang_list %}
+                <select name="db_lang" class="form-control">
+                    {% for lang in lang_list %}
+                        {% if lang[0] == 'en_US' %}
+                            <option value="{{lang[0]}}" selected>
+                        {% else %}
+                            <option value="{{lang[0]}}">
+                        {% endif %}
+                        {{lang[1]}}
+                    </option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="create_admin_pwd" class="col-sm-3 control-label">Choose a password:</label>
+        <div class="col-sm-3">
+            <input type="password" class="form-control" required name="create_admin_pwd">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="create_confirm_pwd" class="col-sm-3 control-label">Confirm password:</label>
+        <div class="col-sm-3">
+            <input type="password" class="form-control" required name="create_confirm_pwd" equalTo="input[name=create_admin_pwd]">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-10">
+            <button type="submit" class="btn btn-default db_create">Create Database</button>
+        </div>
+    </div>
+</form>

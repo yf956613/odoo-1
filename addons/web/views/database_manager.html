@@ -6,30 +6,15 @@
         <title>Odoo</title>
         <link rel="shortcut icon" href="/web/static/src/img/favicon.ico" type="image/x-icon"/>
         <link rel="stylesheet" href="/web/static/src/css/full.css" />
-        <script src="/web/static/lib/es5-shim/es5-shim.min.js" type="text/javascript"></script>
         <script src="/web/static/lib/underscore/underscore.js" type="text/javascript"></script>
         <script src="/web/static/lib/underscore.string/lib/underscore.string.js" type="text/javascript"></script>
-        <script src="/web/static/lib/datejs/globalization/en-US.js" type="text/javascript"></script>
-        <script src="/web/static/lib/spinjs/spin.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery/jquery.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery.blockUI/jquery.blockUI.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery.hotkeys/jquery.hotkeys.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.placeholder/jquery.placeholder.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.timeago/jquery.timeago.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.form/jquery.form.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery.ba-bbq/jquery.ba-bbq.js" type="text/javascript"></script>
-        <script src="/web/static/lib/datejs/core.js" type="text/javascript"></script>
-        <script src="/web/static/lib/datejs/parser.js" type="text/javascript"></script>
-        <script src="/web/static/lib/datejs/sugarpak.js" type="text/javascript"></script>
-        <script src="/web/static/lib/datejs/extras.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery.validate/jquery.validate.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.autosize/jquery.autosize.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.scrollTo/jquery.scrollTo-min.js" type="text/javascript"></script>
-        <script src="/web/static/lib/cleditor/jquery.cleditor.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.textext/jquery.textext.js" type="text/javascript"></script>
-        <script src="/web/static/lib/select2/select2.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery.ui/js/jquery-ui-1.9.1.custom.js" type="text/javascript"></script>
-        <script src="/web/static/lib/jquery.ui.timepicker/js/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+        <script src="/web/static/lib/jquery.form/jquery.form.js" type="text/javascript"></script>
         <script src="/web/static/lib/jquery.ui.notify/js/jquery.notify.js" type="text/javascript"></script>
         <script src="/web/static/lib/bootstrap/js/bootstrap.js" type="text/javascript"></script>
         <script src="/web/static/lib/backbone/backbone.js" type="text/javascript"></script>
@@ -41,40 +26,10 @@
         <script src="/web/static/src/js/pyeval.js" type="text/javascript"></script>
         <script src="/web/static/src/js/core.js" type="text/javascript"></script>
         <script src="/web/static/src/js/formats.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/chrome.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/views.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/data.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/data_export.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/search.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/view_list.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/view_form.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/view_list_editable.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/view_tree.js" type="text/javascript"></script>
-        <script src="/base/static/src/js/apps.js" type="text/javascript"></script>
-        <script src="/web/static/src/js/tour.js" type="text/javascript"></script>
         <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-        <link href="/web/static/lib/cleditor/jquery.cleditor.css" rel="stylesheet"/>
-        <link href="/web/static/lib/jquery.textext/jquery.textext.css" rel="stylesheet"/>
-        <link href="/web/static/lib/select2/select2.css" rel="stylesheet"/>
-        <link href="/web/static/lib/jquery.ui.bootstrap/css/custom-theme/jquery-ui-1.9.0.custom.css" rel="stylesheet"/>
-        <link href="/web/static/lib/jquery.ui.timepicker/css/jquery-ui-timepicker-addon.css" rel="stylesheet"/>
-        <link href="/web/static/lib/jquery.ui.notify/css/ui.notify.css" rel="stylesheet"/>
         <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
         <link href="/web/static/src/css/base.css" rel="stylesheet"/>
-        <link href="/web/static/src/css/data_export.css" rel="stylesheet"/>
-        <link href="/base/static/src/css/modules.css" rel="stylesheet"/>
-        <script type="text/javascript">
-            $(function() {
-                var s = new openerp.init({{ modules|safe }});
-                var wc = new s.web.WebClient(null, { action: {
-                    type: 'ir.actions.client',
-                    tag: 'database_manager',
-                    params: { root: '{{db_manager_root}}' }
-                }});
-                wc.setElement($(document.body));
-                wc.start();
-            });
-        </script>
+
     </head>
     <body>
         <nav id="oe_main_menu_navbar" class="navbar navbar-inverse" role="navigation">
@@ -85,40 +40,169 @@
                     <span class="icon-bar"></span>
                 </button>    
             </div>
-            <div class="navbar-collapse collapse" id="oe_main_menu_placeholder">              
-                <ul class="nav navbar-nav navbar-right oe_user_menu_placeholder"></ul>
+            <div class="navbar-collapse collapse" id="oe_main_menu_placeholder">
+                <ul class="nav navbar-nav navbar-right oe_user_menu_placeholder">
+                    <li>
+                         <a href="#" id="back-to-login">Back to Login</a>
+                    </li>
+                </ul>
             </div>
         </nav>
-        <div class="openerp openerp_webclient_container">
-        <table class="oe_webclient">
-            <tr>
-                <td class="oe_leftbar" valign="top">
-                    <div>
-                        <a class="oe_logo">
-                            <span class="oe_logo_edit">Edit Company data</span>
-                            <img src='/web/binary/company_logo'/>
-                        </a>
-
-                        <div>
-                            <div>
-                                <div class="oe_secondary_menus_container"></div>
-                            </div>
-                        </div>
-
-                        <div class="oe_footer">
-                            Powered by <a href="http://www.odoo.com" target="_blank"><span>Odoo</span></a>
-                        </div>
-                    </div>
-                </td>
-                <td class="oe_application">
-                </td>
-            </tr>
-        </table>
+        <div class="row" style="height:100%;float:none">
+            <div class="col-md-3" style="background:#f0eeee;border-right:1px solid #afafb6;height:100%">
+                <img src='/web/binary/company_logo'/>
+                <ul class="nav nav-pills nav-stacked">
+                    <li id="create_db"><a href="{{db_manager_root}}/manager/create_db">Create</a></li>
+                    <li id="duplicate_db"><a href="{{db_manager_root}}/manager/duplicate_db">Duplicate</a></li>
+                    <li id="drop_db"><a href="{{db_manager_root}}/manager/drop_db">Drop</a></li>
+                    <li id="backup_db"><a href="{{db_manager_root}}/manager/backup_db">Backup</a></li>
+                    <li id="restore_db"><a href="{{db_manager_root}}/manager/restore_db">Restore</a></li>
+                    <li id="change_db_password"><a href="{{db_manager_root}}/manager/change_db_password">Password</a></li>
+                </ul>
+                <div style="position:fixed;bottom:0;text-align:center !important">
+                    Powered by <a href="http://www.odoo.com" target="_blank" style="color:#a24689"><strong>Odoo</strong></a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                {% if action == 'create_db' %}
+                    {% include 'create_db.html' %}
+                {% elif action == 'duplicate_db' %}
+                    {% include 'duplicate_db.html' %}
+                {% elif action == 'drop_db' %}
+                    {% include 'drop_db.html' %}
+                {% elif action == 'backup_db' %}
+                    {% include 'backup_db.html' %}
+                {% elif action == 'restore_db' %}
+                    {% include 'restore_db.html' %}
+                {% elif action == 'change_db_password' %}
+                    {% include 'change_db_password.html' %}
+                {% endif %}
+            </div>
         </div>
+
 
         <!--[if lte IE 8]>
         <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
         <script>CFInstall.check({mode: "overlay"});</script>
         <![endif]-->
     </body>
+    <script type="text/javascript">
+        $(function() {
+            var form_id = $('form').attr('id');
+            $('ul.nav-stacked > li#'+form_id).addClass('active').siblings().removeClass('active');
+            var s = new openerp.init({{ modules|safe }});
+            var _t = s.web._t;
+            $('#back-to-login').click(function(){
+                window.location = '/web';
+            });
+            $("form[name=create_db_form]").validate({ submitHandler: function(form) {
+                var fields = $(form).serializeArray();
+                s.jsonRpc('{{db_manager_root}}/create', 'call', {'fields': fields}).done(function(result) {
+                    if (result) {
+                        s.web.redirect('/web');
+                    } else {
+                        alert("Failed to create database");
+                    }
+                });
+            }});
+            $("form[name=duplicate_db_form]").validate({ submitHandler: function(form) {
+                var fields = $(form).serializeArray();
+                s.jsonRpc('{{db_manager_root}}/duplicate', 'call', {'fields': fields}).done(function(result) {
+                    if (result.error) {
+                        // call (to be implemented) display error method here
+                    } else {
+                        // call (to be implemented) notify method here
+                    }
+                });
+            }});
+            $("form[name=drop_db_form]").validate({ submitHandler: function(form) {
+                var $form = $(form),
+                fields = $form.serializeArray(),
+                $db_list = $form.find('[name=drop_db]'),
+                db = $db_list.val();
+                if (!db || !confirm(_.str.sprintf("Do you really want to delete the database: %s ?", db))) {
+                    return;
+                }
+
+                s.jsonRpc('{{db_manager_root}}/drop', 'call', {'fields': fields}).done(function(result) {
+                    if (result.error) {
+                        // call (to be implemented) display error method here
+                    } else {
+                        // call (to be implemented) notify method here
+                    }
+                });
+                location.reload();
+            }});
+            $("form[name=backup_db_form]").validate({ submitHandler: function(form) {
+                $.blockUI();
+                s.session.get_file({
+                    form: form,
+                    success: function () {
+                        //self.do_notify(_t("Backed"), _t("Database backed up successfully"));
+                    },
+                    error: function(error){
+                        if (error && error[1]) {
+                            //self.display_error(error[1][0]);
+                        }
+                    },
+                    complete: function() {
+                        $.unblockUI();
+                    }
+                });
+            }});
+            $("form[name=restore_db_form]").validate({ submitHandler: function(form) {
+                var restore_url = '{{db_manager_root}}/restore';
+                $.blockUI();
+                $(form).ajaxSubmit({
+                    url: restore_url,
+                    type: 'POST',
+                    resetForm: true,
+                    mimeType:"multipart/form-data",
+                    success: function (body) {
+                        // If empty body, everything went fine
+                        if (!body) { return; }
+
+                        if (body.indexOf('403 Forbidden') !== -1) {
+                            /* display_error to be implemented
+                            self.display_error({
+                                title: _t("Access Denied"),
+                                error: _t("Incorrect super-administrator password")
+                            });*/
+                        } else {
+                            /* display_error to be implemented
+                            self.display_error({
+                                title: _t("Restore Database"),
+                                error: _t("Could not restore the database")
+                            });*/
+                        }
+                    },
+                    complete: function() {
+                        $.unblockUI();
+                        // notify to be implemented
+                        //self.do_notify(_t("Restored"), _t("Database restored successfully"));
+                    }
+                });
+            }});
+            $("form[name=change_pwd_form]").validate({ messages: {
+                    old_pwd: _t("Please enter your previous password"),
+                    new_pwd: _t("Please enter your new password"),
+                    confirm_pwd: {
+                    required: _t("Please confirm your new password"),
+                    equalTo: _t("The confirmation does not match the password")
+                    }
+                }, submitHandler: function(form) {
+                s.jsonRpc('{{db_manager_root}}/change_password','call', {
+                    'fields': $(form).serializeArray()
+                }).done(function(result) {
+                    if (result.error) {
+                        // display_error to be implemented
+                        //self.display_error(result);
+                        return;
+                    }
+                    // notify to be implemented
+                    //self.do_notify(_t("Changed Password"), _t("Password has been changed successfully"));
+                });
+            }});
+        });
+    </script>
 </html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<form id="backup_db" name="backup_db_form" target="backup-target" action="{{ db_manager_root }}/backup" class="form-horizontal">
+
+    <input type="hidden" name="token" />
+    <h3 class="oe_view_title">
+        Backup Database
+    </h3>
+    <div class="form-group">
+        <label for="backup_db" class="col-sm-3 control-label">Database:</label>
+        <div class="col-sm-3">
+            {% if db_list %}
+                <select name="backup_db" class="form-control" autofocus="true">
+                    {% for db in db_list %}
+                        <option value="{{db}}">
+                            {{db}}
+                        </option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            {% if not db_list %}
+                <input type="text" class="form-control" required name="backup_db" autofocus="true">
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="backup_format" class="col-sm-3 control-label">Backup format:</label>
+        <div class="col-sm-3">
+            <select name="backup_format" class="form-control">
+                <option value="zip">zip (includes filestore)</option>
+                <option value="dump">pg_dump custom format (without filestore)</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="backup_pwd" class="col-sm-3 control-label">Master password:</label>
+        <div class="col-sm-3">
+              <input type="password" class="form-control" required name="backup_pwd">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-10">
+            <button type="submit" class="btn btn-default db_backup">Backup</button>
+        </div>
+    </div>
+</form>
