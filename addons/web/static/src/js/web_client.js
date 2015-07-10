@@ -13,6 +13,7 @@ var Notification = require('web.Notification');
 var session = require('web.session');
 var SystrayMenu = require('web.SystrayMenu');
 var UserMenu = require('web.UserMenu');
+var SwitchCompany = require('web.SwitchCompany');
 var utils = require('web.utils');
 var Widget = require('web.Widget');
 var BarcodeEvents = require('web.BarcodeEvents');
@@ -179,8 +180,10 @@ var WebClient = Widget.extend({
         self.menu.on('menu_click', this, this.on_menu_action);
 
         // Create the user menu (rendered client-side)
+        var user_menu_container = this.$el.parents().find('.oe_user_menu_placeholder');
+        var switch_comp_menu_loaded = new SwitchCompany().appendTo(user_menu_container);
         self.user_menu = new UserMenu(self);
-        var user_menu_loaded = self.user_menu.appendTo(this.$el.parents().find('.oe_user_menu_placeholder'));
+        var user_menu_loaded = self.user_menu.appendTo(user_menu_container);
         self.user_menu.on('user_logout', self, self.on_logout);
         self.user_menu.do_update();
 
@@ -191,7 +194,7 @@ var WebClient = Widget.extend({
 
         // Start the menu once both systray and user menus are rendered
         // to prevent overflows while loading
-        $.when(systray_menu_loaded, user_menu_loaded).done(function() {
+        $.when(systray_menu_loaded, user_menu_loaded, switch_comp_menu_loaded).done(function() {
             self.menu.start();
         });
 

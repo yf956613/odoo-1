@@ -35,7 +35,6 @@ var SwitchCompany = Widget.extend({
     },
 });
 
-// Put SwitchCompany widget in the systray menu.
-SystrayMenu.Items.push(SwitchCompany);
+return SwitchCompany;
 
 });
