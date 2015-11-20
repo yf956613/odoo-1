@@ -604,9 +604,9 @@ class SaleOrderLine(models.Model):
                 # sure we only select the taxes related to the company of the partner. This should only
                 # apply if the partner is linked to a company.
                 if self.env.uid == SUPERUSER_ID and line.order_id.company_id:
-                    taxes = fpos.map_tax(line.product_id.taxes_id).filtered(lambda r: r.company_id == line.order_id.company_id)
+                    taxes = fpos.with_context(product_id=line.product_id.id, partner_id=line.order_id.partner_id.id).map_tax(line.product_id.taxes_id).filtered(lambda r: r.company_id == line.order_id.company_id)
                 else:
-                    taxes = fpos.map_tax(line.product_id.taxes_id)
+                    taxes = fpos.with_context(product_id=line.product_id.id, partner_id=line.order_id.partner_id.id).map_tax(line.product_id.taxes_id)
                 line.tax_id = taxes
             else:
                 line.tax_id = line.product_id.taxes_id if line.product_id.taxes_id else False
