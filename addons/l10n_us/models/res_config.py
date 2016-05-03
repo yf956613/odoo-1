@@ -6,6 +6,6 @@ from odoo import fields, models
 class AccountConfigSettings(models.TransientModel):
     _inherit = 'account.config.settings'
 
-    module_account_taxcloud = fields.Boolean("Compute sales tax automatically using TaxCloud.",
-        help='Compute sales tax automatically using TaxCloud based on customer address in United States.\n'
-                                          '-that installs the module account_taxcloud.')
+    module_account_taxcloud = fields.Boolean("Compute sales tax automatically in the United States using TaxCloud.",
+        help='TaxCloud is an online provider that is committed to making it easy for retailers to collect sales tax online'
+             'in the United States.')
