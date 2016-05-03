@@ -58,7 +58,7 @@ class AccountAnalyticLine(models.Model):
         last_sequence = last_so_line.sequence + 1 if last_so_line else 100
 
         fpos = order.fiscal_position_id or order.partner_id.property_account_position_id
-        taxes = fpos.with_context(product_id=self.product_id.id, partner_id=order.partner_id.id).map_tax(self.product_id.taxes_id)
+        taxes = fpos.map_tax(self.product_id.taxes_id, product_id=self.product_id.id, partner_id=order.partner_id.id)
         price = self._get_invoice_price(order)
 
         return {
