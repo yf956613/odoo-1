@@ -56,7 +56,7 @@ class Graph(dict):
         ## Then we get the values from the database
         cr.execute('SELECT name, id, state, demo AS dbdemo, latest_version AS installed_version'
                    '  FROM ir_module_module'
-                   ' WHERE name IN %s',(tuple(additional_data),)
+                   ' WHERE name IN %s order by sequence',(tuple(additional_data),)
                    )
 
         ## and we update the default values with values from the database

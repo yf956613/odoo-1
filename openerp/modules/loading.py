@@ -230,7 +230,7 @@ def load_marked_modules(cr, graph, states, force, progressdict, report, loaded_m
        ``loaded_modules`` and returns a list of installed/upgraded modules."""
     processed_modules = []
     while True:
-        cr.execute("SELECT name from ir_module_module WHERE state IN %s" ,(tuple(states),))
+        cr.execute("SELECT name from ir_module_module WHERE state IN %s order by sequence",(tuple(states),))
         module_list = [name for (name,) in cr.fetchall() if name not in graph]
         if not module_list:
             break
