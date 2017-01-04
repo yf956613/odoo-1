@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template name="Salary Package Configurator" id="website.salary-package-configurator" page="True">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <script>
+                    $(function () {
+                        $('[data-toggle="tooltip"]').tooltip()
+                    })
+                </script>
+
+                <style>
+                    form .col-md-1,
+                    form .col-md-3,
+                    form .col-md-6,
+                    form .col-md-8 {
+                        margin-top: 5px;
+                        margin-bottom: 5px;
+                    }
+                    .tooltip .tooltip-inner{
+                        text-align: left;
+                        max-width: 200px;
+                        width: 200px;
+                    }
+                    .fa-info-circle {
+                        font-size: 1.35em;
+                    }
+
+                </style>
+
+                <div class="container mt48 mb48">
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <h1>My Salary Package</h1>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <h4><img src="https://www.odoo.com/web/image?model=hr.employee&amp;field=image_medium&amp;id=751&amp;unique=20161222142312" class="img img-circle" width="50px"/> John DOE</h4>
+                                </div>
+                                <div class="col-md-11">
+                                        <div class="alert alert-success mt32" role="alert">
+                                            <p>Please note that the information may be inaccurate and should be used for reference only.<br/> The amounts are calculated  based on a full time permanent contract.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form class="form-inline row">
+
+                                    <div class="col-md-11">
+                                        <h2 class="page-header">Monthly</h2>
+                                    </div>
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-3">
+                                            <label for="disabledInput">Gross Salary</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            Full-time
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="2560" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1"/>
+                                    </div>
+                                
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-3">
+                                            <label for="disabledInput">Transport</label><br/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="transport" t-att-value="1" checked="checked"/>
+                                                Company car
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="transport" t-att-value="2"/>
+                                                Public transport
+                                            </label>
+
+                                            <label class="radio-inline">
+                                                <input type="radio" name="transport" t-att-value="3"/>
+                                                Others
+                                            </label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="440,41" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="(1) [If 3 cars or more available] You can choose a car within this list.  The cost of the car is based on its age and will evolve over years. (2) [If less than 3 cars available] You can choose an existing car within this list or order a new one. The cost of the car is based on its age and will evolve over years.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!-- Single button -->
+                                            <div class="btn-group mb16" style="width:100%;">
+                                                <button type="button" class="btn btn-default btn-block dropdown-toggle" style="text-align: left;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <b>Opel Corsa</b> - GTC Edition
+                                                    <i class="fa fa-caret-down mt4 pull-right"/></button>
+                                                <ul class="dropdown-menu" style="width:100%;">
+                                                    <li class="mt4"><a href="#"><i class="fa fa-1x fa-fw fa-car text-primary mr4"/> <b>Opel Astra</b> - Euro 6 TDI
+                                                    <span class="pull-right">€ 330</span></a></li>
+                                                    <li role="separator" class="divider"></li>
+                                                    <li><a href="#"><i class="fa fa-1x fa-fw fa-car text-primary mr4"/> <b>Audi A1</b> - Limited Edition 3P
+                                                    <span class="pull-right">€ 330</span></a></li>
+                                                    <li role="separator" class="divider"></li>
+                                                    <li class="mb4"><a href="#"><i class="fa fa-1x fa-fw fa-plus mr4"/> Buy a new one</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group mb32" style="width:100%;">
+                                        <div class="col-md-3">
+                                            <label for="disabledInput">Fuel card</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="progress mb0">
+                                                <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
+                                                    <span class="sr-only">20% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="150" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1"/>
+                                    </div>
+
+                                    <div class="col-md-11">
+                                        <legend>Benefits</legend>
+                                    </div>
+                                        
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-3">
+                                            <label for="disabledInput">Internet</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="internet" value="option1" checked="checked"/> Yes
+                                            </label>
+
+                                            <label class="radio-inline">
+                                                <input type="radio" name="internet" value="option2"/> No
+                                            </label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="38" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a  role="button" data-toggle="tooltip" data-placement="top" title="Note that you will be charged an ATN of 5€ per month if you benefit from this advantage.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-3">
+                                            <label>Mobile</label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="mobile" value="option1" checked="checked"/> Yes
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="mobile" value="option2"/> No
+                                            </label>
+                                        </div>                                            
+                                        <div class="col-md-4">
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="mobile-ic" value="option1"/> International Communication
+                                            </label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="30" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="Note that you will be charged an ATN of 12.5€ per month if you benefit from this advantage.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>Representation Fees</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="150" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This is a monthly net amount.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>Commissions on target</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="500" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This is the comission you will get if you reach your target.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+                                                                        <!--  -->
+                                    <div class="form-group mb32" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>Meal Voucher</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="149" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This amount is based on 20 days worked per month. You receive 7.45€ on your meal voucher card per worked day, 6.36€ is at the charge of the company">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-11">
+                                        <legend>Employee's participation</legend>
+                                    </div>
+                                    
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>ATN</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="21.80" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1"/>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group mb32" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>Meal Voucher</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="12.50" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This amount is based on 20 days worked per month. You receive 7.45€ on your meal voucher card per worked day, 1.09€ is at your charge.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-11">
+                                        <legend>Net Salary</legend>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-9"/>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="1720" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="The amount displayed may be inaccurate and should be used for reference only.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-11">
+                                        <h2 class="page-header">Yearly</h2>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-3">
+                                            <label>Holidays</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="progress mb0">
+                                                <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
+                                                    <span class="sr-only">50% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">x</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="20" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a  role="button" data-toggle="tooltip" data-placement="top" title="Twenty days of legal holidays will be allocated to you. This is a legal requirement. However, if you do not use your 20 days, you will receive this compensation at the end of the year.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>Eco-Chèques</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="250" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This amount will be paid once a year, in June, and is calculated on a basis of 240 worked days per year.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>13th Month</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="2560" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This amount will be paid once a year, in December, and is calculated on a basis of 240 worked days per year.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!--  -->
+                                    <div class="form-group mb32" style="width:100%;">
+                                        <div class="col-md-9">
+                                            <label>Double Holidays</label>
+                                        </div>
+                                        <div class="col-md-2 text-right">
+                                            <div class="input-group" style="width:120px;">
+                                                <div class="input-group-addon bg-white">€</div>
+                                                <input class="form-control text-black input-sm text-right" id="" type="text" value="2355.20" disabled="disabled"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a role="button" data-toggle="tooltip" data-placement="top" title="This amount will be paid once a year, in June, and is calculated on a basis of 240 worked days per year.">
+                                                <i class="fa fa-1x fa-info-circle"/>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <hr/>
+                                    </div>
+                                    <div class="col-md-3 col-md-offset-5">
+                                        <button type="button" id="submit" class="btn btn-primary btn-block">Print</button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" id="submit" class="btn btn-success btn-block">Sign &amp; Send</button>
+                                    </div>
+                                </form>
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </t>
+    </template>
+</odoo>
