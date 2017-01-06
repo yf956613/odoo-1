@@ -1,64 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-
     <template name="Salary Package Configurator" id="website.salary-package-configurator" page="True">
         <t t-call="website.layout">
+
             <div id="wrap">
-                <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-                <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+
                 <script>
-                    $(function () {
+                    $(document).ready(function() {
                         $('[data-toggle="tooltip"]').tooltip();
-                        $( "#slider-range-max" ).slider({
-                            range: "max",
-                            min: 0,
-                            max: 500,
-                            value: 150,
-                            step: 50,
-                            slide: function( event, ui ) {
-                                $( "#fuel-card" ).val( ui.value );
-                            }
+
+                        $("input[name='mobility']").on( "change", function() {
+                            var mobility = $(this).val();
+                            $(".mobility-options").hide();
+                            $(".mobility-options#"+mobility).show();
                         });
-                        $( "#fuel-card" ).val( "$" + $( "#slider-range-max" ).slider( "value" ) );
-                        $( "#slider-range-max-2" ).slider({
-                            range: "max",
-                            min: 0,
-                            max: 30,
-                            value: 20,
-                            step: 1,
-                            slide: function( event, ui ) {
-                                $( "#holidays" ).val( ui.value );
-                            }
-                        });
-                        $( "#fuel-card" ).val( "$" + $( "#slider-range-max-2" ).slider( "value" ) );
-                    } );
+                    });
                 </script>
 
                 <style>
-                    .tooltip .tooltip-inner{
-                        text-align: left;
-                        max-width: 200px;
-                        width: 200px;
-                    }
-
                     .fa-info-circle {
                         font-size: 1.35em;
                     }
-
                     .fa-eur {
                         vertical-align: middle;
                     }
-
-                    .form-control[disabled] { 
-                        background-color:#fff; 
+                    .form-control[disabled] {
+                        background-color:#fff;
                         color: #000;
                     }
-
                     .form-group:hover {
                         background-color: #f5f5f5;
                     }
-
                     form .form-group {
                         display: flex;
                         flex-wrap: wrap;
@@ -73,14 +45,12 @@
                     form .form-group label {
                         margin-bottom: 0;
                     }
-
-
                 </style>
 
                 <div class="container mt48 mb48">
                     <div class="row">
                         <div class="col-md-10 col-md-offset-1">
-                     
+
                             <div class="row">
                                 <div class="col-md-5">
                                     <h1>My Salary package</h1>
@@ -100,9 +70,7 @@
                                     <div class="col-md-11">
                                         <h2 class="page-header">Monthly Package</h2>
                                     </div>
-                                    
                                     <div class="clearfix"/>
-                                    
                                     <!--  -->
                                     <div class="form-group">
                                         <div class="col-md-3">
@@ -119,7 +87,7 @@
                                         </div>
                                         <div class="col-md-1"/>
                                     </div>
-                                
+
                                     <!--  -->
                                     <div class="form-group">
                                         <div class="col-md-3">
@@ -127,16 +95,16 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="radio-inline">
-                                                <input type="radio" name="transport" t-att-value="1" checked="checked"/>
+                                                <input type="radio" name="mobility" value="company-car" checked="checked"/>
                                                 Company car
                                             </label>
                                             <label class="radio-inline">
-                                                <input type="radio" name="transport" t-att-value="2"/>
+                                                <input type="radio" name="mobility" value="public-transport"/>
                                                 Public transport
                                             </label>
 
                                             <label class="radio-inline">
-                                                <input type="radio" name="transport" t-att-value="3"/>
+                                                <input type="radio" name="mobility" value="others"/>
                                                 Others
                                             </label>
                                         </div>
@@ -151,12 +119,13 @@
                                                 <i class="fa fa-1x fa-info-circle"/>
                                             </a>
                                         </div>
-                                        <div class="col-md-8 col-md-offset-3">
-                                            <!-- Single button -->
-                                            <div class="btn-group mb16">
-                                                <button type="button" class="btn btn-default btn-block dropdown-toggle" style="text-align: left;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <b>Opel Corsa</b> - GTC Edition
+
+                                        <!-- Company car -->
+                                        <div id="company-car" class="mobility-options col-md-6 col-md-offset-3">
+                                            <div class="btn-group mb16" style="width:100%;">
+                                                <button type="button" class="btn btn-default btn-block dropdown-toggle" style="text-align: left;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-1x fa-fw fa-car text-primary mr4"/> <b>Opel Corsa</b> - GTC Edition
                                                     <i class="fa fa-caret-down mt4 pull-right"/></button>
-                                                <ul class="dropdown-menu">
+                                                <ul class="dropdown-menu" style="width:100%;">
                                                     <li class="mt4"><a href="#"><i class="fa fa-1x fa-fw fa-car text-primary mr4"/> <b>Opel Astra</b> - Euro 6 TDI
                                                     <span class="pull-right">€ 330</span></a></li>
                                                     <li role="separator" class="divider"></li>
@@ -167,6 +136,17 @@
                                                 </ul>
                                             </div>
                                         </div>
+
+                                        <!-- Public transport -->
+                                        <div id="public-transport" class="mobility-options col-md-6 col-md-offset-3" style="display: none;">
+                                            <div class="mb16">
+                                                <label>Monthly amount paid by Employee</label>
+                                                <input class="form-control input-sm text-right" type="text" value="0"/>
+                                                <label>Reimbursed by the company</label>
+                                                <input class="form-control input-sm text-right" type="text" value="0"/>
+                                            </div>
+                                        </div>
+
                                     </div>
 
                                     <!--  -->
@@ -175,8 +155,8 @@
                                             <label>Fuel card</label>
                                         </div>
                                         <div class="col-md-6" style="display: block;">
-                                            <div class="mt16">
-                                                <div id="slider-range-max"/>
+                                            <div style="margin-top:10px;">
+                                                <input type="range"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2 text-right">
@@ -205,7 +185,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                        
+
                                     <div class="form-group">
                                         <div class="col-md-3">
                                             <label for="disabledInput">Internet</label>
@@ -243,7 +223,7 @@
                                             <label class="radio-inline">
                                                 <input type="radio" name="mobile" value="option2"/> No
                                             </label>
-                                        </div>                                            
+                                        </div>
                                         <div class="col-md-4">
                                             <label class="checkbox-inline">
                                                 <input type="checkbox" name="mobile-ic" value="option1"/> International Communication
@@ -284,7 +264,7 @@
                                     </div>
 
                                     <div class="clearfix"/>
-                                    
+
                                     <div class="form-group">
                                         <div class="col-md-3">
                                             <label>Gross Salary</label>
@@ -461,17 +441,17 @@
                                     <div class="col-md-11">
                                         <h2 class="page-header">Yearly advantages</h2>
                                     </div>
-                                    
+
                                     <div class="clearfix"/>
-                                    
+
                                     <!--  -->
                                     <div class="form-group">
                                         <div class="col-md-3">
                                             <label>Holidays</label>
-                                        </div>                                        
+                                        </div>
                                         <div class="col-md-6" style="display: block;">
-                                            <div class="mt16">
-                                                <div id="slider-range-max-2"/>
+                                            <div style="margin-top:12px;">
+                                                <input type="range"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2 text-right">
@@ -532,7 +512,6 @@
                                             <div class="input-group has-success">
                                                 <div class="input-group-addon"><i class="fa fa-eur"/></div>
                                                 <input class="form-control input-sm text-right" id="" type="text" value="2355.20" disabled="disabled"/>
-                                                
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -556,7 +535,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </t>
     </template>

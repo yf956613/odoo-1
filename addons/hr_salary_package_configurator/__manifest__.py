@@ -8,7 +8,7 @@
     'summary': 'Allow employees to manage their salary package - Front-End',
     'depends': ['website_portal'],
     'data': [
-        'views/salary_package_configurator_templates.xml',
+        'views/hr_salary_package_configurator_templates.xml',
     ],
     'application': True,
 }
