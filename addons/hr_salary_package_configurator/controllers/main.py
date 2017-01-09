@@ -11,4 +11,6 @@ class SalaryPackage(website_account):
 
     @http.route(['/my/salary-package', '/my/salary-package/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_salary_package(self, page=1, date_begin=None, date_end=None, sortby=None):
-        return request.render("hr_salary_package_configurator.portal_my_salary_package")
+    	values = self._prepare_portal_layout_values()
+        partner = request.env.user.partner_id
+        return request.render("hr_salary_package_configurator.portal_my_salary_package", values)
