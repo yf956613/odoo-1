@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template name="Salary Package Configurator" id="website.salary-package-configurator" page="True">
-        <t t-call="website.layout">
+
+    <template id="portal_my_home_menu_salary_package" name="Portal layout : Salary Package menu entries" inherit_id="website_portal.portal_layout" priority="25">
+        <xpath expr="//ul[contains(@class,'o_portal_submenu')]" position="inside">
+            <li t-att-class="page_name == 'quote' and 'active'">
+                <a href="/my/salary-package">Salary Package</a>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_salary_package" name="My Salary Package Configurator">
+        <t t-call="website_portal.portal_layout">
 
             <div id="wrap">
 
