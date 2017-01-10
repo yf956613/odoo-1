@@ -6,9 +6,13 @@
     'version': '1',
     'category': 'HR',
     'summary': 'Allow employees to manage their salary package - Front-End',
+    'description': """
+Salary Package Configurator for Employees
+    """,
     'depends': ['website_portal'],
     'data': [
         'views/hr_salary_package_configurator_templates.xml',
     ],
+    'installable': True,
     'application': True,
 }
