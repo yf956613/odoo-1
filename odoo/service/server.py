@@ -1,6 +1,7 @@
 #-----------------------------------------------------------
 # Threaded, Gevent and Prefork Servers
 #-----------------------------------------------------------
+import cStringIO
 import datetime
 import errno
 import logging
@@ -11,12 +12,14 @@ import random
 import select
 import signal
 import socket
+import struct
 import subprocess
 import sys
 import threading
 import time
 import unittest
 
+import simplejson as json
 import werkzeug.serving
 from werkzeug.debug import DebuggedApplication
 
@@ -644,6 +647,92 @@ class PreforkServer(CommonServer):
                 self.stop(False)
                 return -1
 
+class RPCDrivenServer(CommonServer):
+    """ Socket driven server.
+    RPCDrivenServer spawns only one worker and fetches
+    instructions from a given socket.
+    """
+    def __init__(self, app):
+        self.app = app
+        self.pid = os.getpid()
+        # TODO: check if zeromq could be used even for the chunk based response.
+        #       meanwhile using an abstract named unix socket
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect('\0%s' % config['rpc_socket'])
+        self.rpc_socket = sock
+
+    def run(self, preload=None, stop=False):
+        sock = self.rpc_socket
+        while 1:
+            rpc_call = self.rpc_recv(sock)
+            method = rpc_call.pop('method', '')
+            func = getattr(self, method, None)
+            error = None
+            if not callable(func):
+                error = "Wrong method '%s'" % method
+            else:
+                try:
+                    func(sock, **rpc_call['params'])
+                except Exception as e:
+                    error = e
+            if error:
+                self.rpc_answer(sock, error=e)
+
+    def handle_request(self, sock, env, body):
+        env['wsgi.errors'] = sys.stderr
+        env['wsgi.input'] = cStringIO.StringIO(body)
+        # TODO: https://www.python.org/dev/peps/pep-0333/#optional-platform-specific-file-handling
+        # env['wsgi.file_wrapper'] =
+
+        response_kwargs = {}
+        def start_response(status, headers, exc_info=None):
+            response_kwargs['status'] = status
+            response_kwargs['headers'] = headers
+            if exc_info:
+                # TODO: https://www.python.org/dev/peps/pep-0333/#the-start-response-callable
+                pass
+            def write(data):
+                print("TODO IMPLEMENT")
+                from pudb import set_trace; set_trace()  # *** Breakpoint ***
+            return write
+
+        response = self.app(env, start_response)
+
+        self.rpc_answer(sock, **response_kwargs)
+        for chunk in response:
+            if chunk:
+                self.socket_send(sock, chunk)
+        self.socket_send(sock, '')  # mark the end of the response body
+
+    def rpc_answer(self, sock, error=None, **result):
+        # TODO: normalize the request/response like in jsonrpc
+        payload = {}
+        if error:
+            payload['error'] = str(error)
+        payload['result'] = result
+        jpayload = json.dumps(payload)
+        self.socket_send(sock, jpayload)
+
+    def socket_send(self, sock, payload):
+        length = struct.pack('!I', len(payload))
+        sock.send(length + payload)
+
+    def rpc_recv(self, sock):
+        # TODO: maybe use zeromq after all !?
+        payload = self.socket_recv(sock)
+        return json.loads(payload)
+
+    def socket_recv(self, sock, length=None):
+        payload = ''
+        if length is not None:
+            while len(payload) < length:
+                payload += sock.recv(length - len(payload))
+        else:
+            next_len = self.socket_recv(sock, 4)
+            length = struct.unpack('!I', next_len)[0]
+            payload = self.socket_recv(sock, length)
+        return payload
+
 class Worker(object):
     """ Workers """
     def __init__(self, multi):
@@ -956,6 +1045,8 @@ def start(preload=None, stop=False):
             _logger.warning("Unit testing in workers mode could fail; use --workers 0.")
 
         server = PreforkServer(odoo.service.wsgi_server.application)
+    elif config['rpc_socket']:
+        server = RPCDrivenServer(odoo.service.wsgi_server.application)
     else:
         server = ThreadedServer(odoo.service.wsgi_server.application)
 

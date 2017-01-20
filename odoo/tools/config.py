@@ -291,6 +291,11 @@ class configmanager(object):
                              type="int")
             parser.add_option_group(group)
 
+            group = optparse.OptionGroup(parser, "RPC driven server")
+            group.add_option("--rpc-socket", dest="rpc_socket", my_default=False,
+                    help="Specify a socket (WIP: only unix abstract named socket) to get commands from.")
+            parser.add_option_group(group)
+
         # Copy all optparse options (i.e. MyOption) into self.options.
         for group in parser.option_groups:
             for option in group.option_list:
@@ -418,7 +423,7 @@ class configmanager(object):
         ]
 
         posix_keys = [
-            'workers',
+            'rpc_socket', 'workers',
             'limit_memory_hard', 'limit_memory_soft',
             'limit_time_cpu', 'limit_time_real', 'limit_request', 'limit_time_real_cron'
         ]
