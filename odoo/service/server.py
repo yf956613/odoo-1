@@ -685,15 +685,17 @@ class RPCDrivenServer(CommonServer):
         # env['wsgi.file_wrapper'] =
 
         response_kwargs = {}
+
         def start_response(status, headers, exc_info=None):
             response_kwargs['status'] = status
             response_kwargs['headers'] = headers
             if exc_info:
-                # TODO: https://www.python.org/dev/peps/pep-0333/#the-start-response-callable
-                pass
+                # https://www.python.org/dev/peps/pep-0333/#the-start-response-callable
+                raise exc_info[0], exc_info[1], exc_info[2]
+
             def write(data):
-                print("TODO IMPLEMENT")
-                from pudb import set_trace; set_trace()  # *** Breakpoint ***
+                # https://www.python.org/dev/peps/pep-0333/#the-write-callable
+                self.socket_send(sock, data)
             return write
 
         response = self.app(env, start_response)
