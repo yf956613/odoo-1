@@ -1,11 +1,10 @@
 #-----------------------------------------------------------
 # Threaded, Gevent and Prefork Servers
 #-----------------------------------------------------------
-import base64
-import cStringIO
 import datetime
 import errno
 import logging
+import _multiprocessing
 import os
 import os.path
 import platform
@@ -679,10 +678,10 @@ class RPCDrivenServer(CommonServer):
             if error:
                 self.rpc_answer(sock, error=e)
 
-    def handle_request(self, sock, env, body):
-        body = base64.decodestring(body)
+    def handle_request(self, sock, env):
+        input_fd = _multiprocessing.recvfd(sock.fileno())
         env['wsgi.errors'] = sys.stderr
-        env['wsgi.input'] = cStringIO.StringIO(body)
+        env['wsgi.input'] = os.fdopen(input_fd, 'r')
         # TODO: https://www.python.org/dev/peps/pep-0333/#optional-platform-specific-file-handling
         # env['wsgi.file_wrapper'] =
 
