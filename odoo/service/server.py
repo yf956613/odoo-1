@@ -1,6 +1,8 @@
 #-----------------------------------------------------------
 # Threaded, Gevent and Prefork Servers
 #-----------------------------------------------------------
+import base64
+import cStringIO
 import datetime
 import errno
 import logging
@@ -17,6 +19,7 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 import unittest
 
 import simplejson as json
@@ -679,40 +682,72 @@ class RPCDrivenServer(CommonServer):
             if error:
                 self.rpc_answer(sock, error=e)
 
-    def handle_request(self, sock, env):
-        input_fd = _multiprocessing.recvfd(sock.fileno())
+    def handle_request(self, sock, env, use_socket=True, body=None):
+        response = {}
+
+        if use_socket:
+            socket_fd = _multiprocessing.recvfd(sock.fileno())
+            # flag = fcntl.fcntl(socket_fd, fcntl.F_GETFD)
+            # fcntl.fcntl(socket_fd, fcntl.F_SETFL, flag & ~os.O_NONBLOCK)
+            wsgi_input = os.fdopen(socket_fd, 'r')
+            wsgi_output = os.fdopen(socket_fd, 'a')
+        else:
+            wsgi_input = cStringIO.StringIO(base64.decodestring(body))
+
         env['wsgi.errors'] = sys.stderr
-        env['wsgi.input'] = os.fdopen(input_fd, 'r')
+        env['wsgi.input'] = wsgi_input
         # TODO: https://www.python.org/dev/peps/pep-0333/#optional-platform-specific-file-handling
         # env['wsgi.file_wrapper'] =
 
-        response_kwargs = {}
-
         def start_response(status, headers, exc_info=None):
-            response_kwargs['status'] = status
-            response_kwargs['headers'] = headers
+            response['status'] = status
+            response['headers'] = headers
             if exc_info:
                 # https://www.python.org/dev/peps/pep-0333/#the-start-response-callable
                 raise exc_info[0], exc_info[1], exc_info[2]
 
             def write(data):
                 # https://www.python.org/dev/peps/pep-0333/#the-write-callable
-                self.socket_send(sock, data)
+                if not use_socket:
+                    raise Exception("WSGI start_response().write() is not supported if no socket is provided")
+                wsgi_output.write(data)
             return write
 
-        response = self.app(env, start_response)
+        app_response = self.app(env, start_response)
+        assert 'status' in response, "start_response() was not called"
 
-        self.rpc_answer(sock, **response_kwargs)
-        for chunk in response:
-            if chunk:
-                self.socket_send(sock, chunk)
-        self.socket_send(sock, '')  # mark the end of the response body
+        if env.get('DEBUG'):
+            response['headers'].append(('X-Served-By', 'Odoo'))
+
+        if use_socket:
+            # # TODO: should use werkzeug for the response
+            wsgi_output.write("%s %s\r\n" % (env['SERVER_PROTOCOL'], response['status']))
+            for key, val in response['headers']:
+                wsgi_output.write("%s: %s\r\n" % (key, val))
+            wsgi_output.write('\r\n')
+            for chunk in app_response:
+                if chunk:
+                    wsgi_output.write(chunk)
+            wsgi_output.flush()
+            wsgi_input.close()
+            try:
+                wsgi_output.close()
+            except IOError:
+                pass  # file already closed
+
+        self.rpc_answer(sock, **response)
+
+        if not use_socket:
+            for chunk in app_response:
+                if chunk:
+                    self.socket_send(sock, chunk)
+            self.socket_send(sock, '')  # mark the end of the response body
 
     def rpc_answer(self, sock, error=None, **result):
         # TODO: normalize the request/response like in jsonrpc
         payload = {}
         if error:
-            payload['error'] = str(error)
+            payload['error'] = traceback.format_exc()
         payload['result'] = result
         jpayload = json.dumps(payload)
         self.socket_send(sock, jpayload)
