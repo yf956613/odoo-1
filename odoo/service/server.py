@@ -662,6 +662,7 @@ class RPCDrivenServer(CommonServer):
         self.rpc_socket = sock
 
     def run(self, preload=None, stop=False):
+        signal.signal(signal.SIGQUIT, dumpstacks)
         sock = self.rpc_socket
         while 1:
             rpc_call = self.rpc_recv(sock)
