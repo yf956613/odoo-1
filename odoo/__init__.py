@@ -24,6 +24,10 @@ if len(sys.argv) > 1 and sys.argv[1] == 'gevent':
 # locks between threads.
 multi_process = False
 
+# If True, disable the Bus polling and make /longpolling/poll http
+# requests query directly the bus.bus object.
+disable_bus_polling = False
+
 #----------------------------------------------------------
 # libc UTC hack
 #----------------------------------------------------------

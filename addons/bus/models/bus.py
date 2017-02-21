@@ -128,7 +128,7 @@ class ImDispatch(object):
             env = api.Environment(cr, SUPERUSER_ID, {})
             notifications = env['bus.bus'].poll(channels, last, options)
         # or wait for future ones
-        if not notifications:
+        if not notifications and not odoo.disable_bus_polling:
             event = self.Event()
             for channel in channels:
                 self.channels.setdefault(hashable(channel), []).append(event)
@@ -173,7 +173,9 @@ class ImDispatch(object):
                 time.sleep(TIMEOUT)
 
     def start(self):
-        if odoo.evented:
+        if odoo.disable_bus_polling:
+            return self
+        elif odoo.evented:
             # gevent mode
             import gevent
             self.Event = gevent.event.Event

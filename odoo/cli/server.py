@@ -149,7 +149,7 @@ def main(args):
 
     # This needs to be done now to ensure the use of the multiprocessing
     # signaling mecanism for registries loaded with -d
-    if config['workers']:
+    if config['workers'] or config['rpc_socket']:
         odoo.multi_process = True
 
     stop = config["stop_after_init"]

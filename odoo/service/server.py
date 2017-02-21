@@ -754,7 +754,7 @@ class RPCDrivenServer(CommonServer):
 
     def socket_send(self, sock, payload):
         length = struct.pack('!I', len(payload))
-        sock.send(length + payload)
+        sock.sendall(length + payload)
 
     def rpc_recv(self, sock):
         # TODO: maybe use zeromq after all !?
@@ -1085,6 +1085,7 @@ def start(preload=None, stop=False):
 
         server = PreforkServer(odoo.service.wsgi_server.application)
     elif config['rpc_socket']:
+        odoo.disable_bus_polling = True
         server = RPCDrivenServer(odoo.service.wsgi_server.application)
     else:
         server = ThreadedServer(odoo.service.wsgi_server.application)
