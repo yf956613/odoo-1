@@ -743,6 +743,20 @@ class RPCDrivenServer(CommonServer):
                     self.socket_send(sock, chunk)
             self.socket_send(sock, '')  # mark the end of the response body
 
+    def trigger_cronjobs(self, sock, db_name):
+        start_time = time.time()
+        start_rss, start_vms = memory_info(psutil.Process(os.getpid()))
+
+        odoo.registry(db_name).check_signaling()
+        odoo.addons.base.ir.ir_cron.ir_cron._acquire_job(db_name)
+
+        run_time = time.time() - start_time
+        end_rss, end_vms = memory_info(psutil.Process(os.getpid()))
+        vms_diff = (end_vms - start_vms) / 1024
+        _logger.debug("RPC Cron %stime:%.3fs mem: %sk -> %sk (diff: %sk)",
+                      db_name, run_time, start_vms / 1024, end_vms / 1024, vms_diff)
+        self.rpc_answer(sock, run_time=run_time)
+
     def rpc_answer(self, sock, error=None, **result):
         # TODO: normalize the request/response like in jsonrpc
         payload = {}
