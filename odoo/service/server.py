@@ -662,13 +662,14 @@ class RPCDrivenServer(CommonServer):
         #       meanwhile using an abstract named unix socket
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         sock.connect('\0%s' % config['rpc_socket'])
+        _logger.info("Connected to RPC socket")
         self.rpc_socket = sock
+        self.running = True
 
     def run(self, preload=None, stop=False):
         signal.signal(signal.SIGQUIT, dumpstacks)
-        sock = self.rpc_socket
-        while 1:
-            rpc_call = self.rpc_recv(sock)
+        while self.running:
+            rpc_call = self.rpc_recv()
             method = rpc_call.pop('method', '')
             func = getattr(self, method, None)
             error = None
@@ -676,17 +677,17 @@ class RPCDrivenServer(CommonServer):
                 error = "Wrong method '%s'" % method
             else:
                 try:
-                    func(sock, **rpc_call['params'])
+                    func(**rpc_call['params'])
                 except Exception as e:
                     error = e
             if error:
-                self.rpc_answer(sock, error=e)
+                self.rpc_answer(error=e)
 
-    def handle_request(self, sock, env, use_socket=True, body=None):
+    def handle_request(self, env, use_socket=True, body=None):
         response = {}
 
         if use_socket:
-            socket_fd = _multiprocessing.recvfd(sock.fileno())
+            socket_fd = _multiprocessing.recvfd(self.rpc_socket.fileno())
             # flag = fcntl.fcntl(socket_fd, fcntl.F_GETFD)
             # fcntl.fcntl(socket_fd, fcntl.F_SETFL, flag & ~os.O_NONBLOCK)
             wsgi_input = os.fdopen(socket_fd, 'r')
@@ -735,15 +736,15 @@ class RPCDrivenServer(CommonServer):
             except IOError:
                 pass  # file already closed
 
-        self.rpc_answer(sock, **response)
+        self.rpc_answer(**response)
 
         if not use_socket:
             for chunk in app_response:
                 if chunk:
-                    self.socket_send(sock, chunk)
-            self.socket_send(sock, '')  # mark the end of the response body
+                    self.socket_send(chunk)
+            self.socket_send('')  # mark the end of the response body
 
-    def trigger_cronjobs(self, sock, db_name):
+    def trigger_cronjobs(self, db_name):
         start_time = time.time()
         start_rss, start_vms = memory_info(psutil.Process(os.getpid()))
 
@@ -755,35 +756,39 @@ class RPCDrivenServer(CommonServer):
         vms_diff = (end_vms - start_vms) / 1024
         _logger.debug("RPC Cron %stime:%.3fs mem: %sk -> %sk (diff: %sk)",
                       db_name, run_time, start_vms / 1024, end_vms / 1024, vms_diff)
-        self.rpc_answer(sock, run_time=run_time)
+        self.rpc_answer(run_time=run_time)
 
-    def rpc_answer(self, sock, error=None, **result):
+    def quit(self):
+        self.rpc_answer(status='ok')
+        self.rpc_socket.shutdown(socket.SHUT_RDWR)
+        self.running = False
+
+    def rpc_answer(self, error=None, **result):
         # TODO: normalize the request/response like in jsonrpc
         payload = {}
         if error:
             payload['error'] = traceback.format_exc()
         payload['result'] = result
         jpayload = json.dumps(payload)
-        self.socket_send(sock, jpayload)
+        self.socket_send(jpayload)
 
-    def socket_send(self, sock, payload):
+    def socket_send(self, payload):
         length = struct.pack('!I', len(payload))
-        sock.sendall(length + payload)
+        self.rpc_socket.sendall(length + payload)
 
-    def rpc_recv(self, sock):
-        # TODO: maybe use zeromq after all !?
-        payload = self.socket_recv(sock)
+    def rpc_recv(self):
+        payload = self.socket_recv()
         return json.loads(payload)
 
-    def socket_recv(self, sock, length=None):
+    def socket_recv(self, length=None):
         payload = ''
         if length is not None:
             while len(payload) < length:
-                payload += sock.recv(length - len(payload))
+                payload += self.rpc_socket.recv(length - len(payload))
         else:
-            next_len = self.socket_recv(sock, 4)
+            next_len = self.socket_recv(4)
             length = struct.unpack('!I', next_len)[0]
-            payload = self.socket_recv(sock, length)
+            payload = self.socket_recv(length)
         return payload
 
 class Worker(object):
