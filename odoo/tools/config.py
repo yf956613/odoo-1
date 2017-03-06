@@ -208,6 +208,9 @@ class configmanager(object):
                          help="specify the database port", type="int")
         group.add_option("--db_maxconn", dest="db_maxconn", type='int', my_default=64,
                          help="specify the the maximum number of physical connections to posgresql")
+        group.add_option("--db-list", dest="db_list", my_default=False,
+                         help="specify a comma seperated list of available databases "
+                              "(prevents Odoo to probe this list in postgresql)")
         group.add_option("--db-template", dest="db_template", my_default="template1",
                          help="specify a custom database template to create a new database")
         parser.add_option_group(group)
@@ -389,7 +392,7 @@ class configmanager(object):
         # if defined dont take the configfile value even if the defined value is None
         keys = ['xmlrpc_interface', 'xmlrpc_port', 'longpolling_port',
                 'db_name', 'db_user', 'db_password', 'db_host',
-                'db_port', 'db_template', 'logfile', 'pidfile', 'smtp_port',
+                'db_port', 'db_template', 'db_list', 'logfile', 'pidfile', 'smtp_port',
                 'email_from', 'smtp_server', 'smtp_user', 'smtp_password',
                 'db_maxconn', 'import_partial', 'addons_path',
                 'xmlrpc', 'syslog', 'without_demo',

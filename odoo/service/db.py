@@ -326,6 +326,8 @@ def exp_db_exist(db_name):
 def list_dbs(force=False):
     if not odoo.tools.config['list_db'] and not force:
         raise odoo.exceptions.AccessDenied()
+    if odoo.tools.config['db_list']:
+        return odoo.tools.config['db_list'].split(',')
     chosen_template = odoo.tools.config['db_template']
     templates_list = tuple(set(['postgres', chosen_template]))
     db = odoo.sql_db.db_connect('postgres')
