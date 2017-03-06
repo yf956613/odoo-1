@@ -668,6 +668,7 @@ class RPCDrivenServer(CommonServer):
 
     def run(self, preload=None, stop=False):
         signal.signal(signal.SIGQUIT, dumpstacks)
+        preload_registries(preload)
         while self.running:
             rpc_call = self.rpc_recv()
             method = rpc_call.pop('method', '')
@@ -680,6 +681,7 @@ class RPCDrivenServer(CommonServer):
                     func(**rpc_call['params'])
                 except Exception as e:
                     error = e
+                    _logger.exception(e)
             if error:
                 self.rpc_answer(error=e)
 
@@ -759,9 +761,8 @@ class RPCDrivenServer(CommonServer):
         self.rpc_answer(run_time=run_time)
 
     def quit(self):
-        self.rpc_answer(status='ok')
-        self.rpc_socket.shutdown(socket.SHUT_RDWR)
         self.running = False
+        self.rpc_socket.shutdown(socket.SHUT_RDWR)
 
     def rpc_answer(self, error=None, **result):
         # TODO: normalize the request/response like in jsonrpc
