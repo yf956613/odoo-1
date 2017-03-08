@@ -65,6 +65,7 @@ class MailActivity(models.Model):
     icon = fields.Char('Icon', related='activity_type_id.icon')
     summary = fields.Char('Summary')
     note = fields.Html('Note')
+    feedback = fields.Text('Feedback')
     date_deadline = fields.Date('Deadline', index=True, required=True, default=fields.Date.today)
     # description
     user_id = fields.Many2one(
@@ -115,6 +116,12 @@ class MailActivity(models.Model):
             for activity in self:
                 self.env[activity.res_model].browse(activity.res_id).message_subscribe(partner_ids=[activity.user_id.partner_id.id])
         return res
+
+    @api.multi
+    def feedback_action_done(self, feedback=False):
+        for activity in self:
+            activity.feedback = feedback
+        return self.action_done()
 
     @api.multi
     def action_done(self):
