@@ -177,7 +177,7 @@ class MailActivityMixin(models.AbstractModel):
         search='_search_activity_type_id')
     activity_date_deadline = fields.Date(
         'Next Activity Deadline', related='activity_ids.date_deadline',
-        readonly=True, store=True)  # store to enable ordering + search
+        store=True)  # store to enable ordering + search
     activity_summary = fields.Char(
         'Next Activity Summary', related='activity_ids.summary',
         search='_search_activity_summary')
