@@ -99,7 +99,10 @@ class ImBus(models.Model):
                     'id': -1,
                     'channel': (self._cr.dbname, 'bus.presence'),
                     'message': {'id': r.id, 'im_status': r.im_status}} for r in partners]
-        return result
+        if options.get('return_channels'):
+            return dict(notifications=result, channels=channels)
+        else:
+            return notifications
 
 
 #----------------------------------------------------------
