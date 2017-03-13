@@ -658,11 +658,13 @@ class RPCDrivenServer(CommonServer):
     def __init__(self, app):
         self.app = app
         self.pid = os.getpid()
-        # TODO: check if zeromq could be used even for the chunk based response.
-        #       meanwhile using an abstract named unix socket
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.connect('\0%s' % config['rpc_socket'])
-        _logger.info("Connected to RPC socket")
+        socket_file = config['rpc_socket']
+        if socket_file.startswith('0'):
+            # If rpc_socket begins with 0, use a unix abstract namespace
+            socket_file = '\0%s' % socket_file[1:]
+        sock.connect(socket_file)
+        _logger.info("Connected to RPC socket %s" % socket_file)
         self.rpc_socket = sock
         self.running = True
 
