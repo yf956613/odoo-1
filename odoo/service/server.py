@@ -752,7 +752,8 @@ class RPCDrivenServer(CommonServer):
         start_time = time.time()
         start_rss, start_vms = memory_info(psutil.Process(os.getpid()))
 
-        odoo.registry(db_name).check_signaling()
+        db = odoo.registry(db_name)
+        db.check_signaling()
         odoo.addons.base.ir.ir_cron.ir_cron._acquire_job(db_name)
 
         run_time = time.time() - start_time
@@ -760,7 +761,15 @@ class RPCDrivenServer(CommonServer):
         vms_diff = (end_vms - start_vms) / 1024
         _logger.debug("RPC Cron %stime:%.3fs mem: %sk -> %sk (diff: %sk)",
                       db_name, run_time, start_vms / 1024, end_vms / 1024, vms_diff)
-        self.rpc_answer(run_time=run_time)
+
+        nextcall = None
+        with db.cursor() as cr:
+            cr.execute("SELECT MIN(nextcall) as nextcall FROM ir_cron WHERE active")
+            row = cr.dictfetchone()
+            if row:
+                nextcall = row['nextcall']
+
+        self.rpc_answer(run_time=run_time, nextcall=nextcall)
 
     def quit(self):
         self.running = False
