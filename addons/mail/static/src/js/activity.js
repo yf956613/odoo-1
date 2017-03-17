@@ -124,6 +124,40 @@ var Activity = form_common.AbstractField.extend({
             });
     },
 
+    log_and_scheule_next: function(activity_type_id,enable_recommended_activity){
+        event.preventDefault();
+        var self = this;
+        return new Model("ir.model.data")
+            .call("xmlid_to_res_model_res_id",["mail.mail_activity_recommended_next_form_popup"])
+            .then(function(data){
+                var action = {
+                    type: 'ir.actions.act_window',
+                    res_model: 'mail.activity',
+                    view_mode: 'form',
+                    view_type: 'form',
+                    views: [
+                        [data[1], 'form']
+                    ],
+                    target: 'new',
+                    context: _.extend({
+                        default_res_id: self.get_res_id(),
+                        default_res_model: self.model,
+                        default_last_activity_type_id: activity_type_id,
+                        enable_recommended_activity: enable_recommended_activity,
+                    }, {'mark_done': true}, self.context),
+                    res_id: false,
+                };
+                return self.do_action(action, {
+                    on_close: function() {
+                        self.fetch_and_render_value();
+                        self.chatter.refresh_followers();
+                        ChatManager.get_messages({model: self.model, res_id: self.get_res_id()});
+                    },
+                });
+        });
+
+    },
+
     on_activity_schedule: function (event) {
         event.preventDefault();
         var self = this;
@@ -201,11 +235,13 @@ var Activity = form_common.AbstractField.extend({
                 trigger:'click',
                 content : function() {
                     var activity_id = $popover_el.data('activity-id');
+                    var activity_type_id = $popover_el.data('activity-type-id');
+                    var enable_recommended_activity = $popover_el.data('enable-recommended-activity');
                     var $activity_feedback = $(QWeb.render("mail.activity_feedback", {'activity_id': activity_id}));
                     $activity_feedback.find('.o_activity_popover_done_next').on('click', function(e) {
                         var feedback = $activity_feedback.find('#activity_feedback').val();
                         self.on_activity_done(activity_id, feedback);
-                        self.on_activity_schedule(e);
+                        self.log_and_scheule_next(activity_type_id,enable_recommended_activity);
                     });
                     $activity_feedback.find('.o_activity_popover_done').on('click', function() {
                         var feedback = $activity_feedback.find('#activity_feedback').val();
