@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_activity_feedback_view_form" model="ir.ui.view">
+        <field name="name">mail.activity.feedback.form</field>
+        <field name="model">mail.activity.feedback</field>
+        <field name="arch" type="xml">
+            <form string="Activity Feedback">
+                <sheet>
+                    <field name="activity_id" invisible="1"/>
+                    <label for="feedback"/>
+                    <field name="feedback" placeholder="Log a Feedback..."/>
+                    <footer>
+                        <button string="Mark As Done &amp; Schedule Next" name="action_done_schedule_next"
+                            type="object" class="btn-primary"/>
+                        <button string="Mark as Done" name="action_done"
+                            type="object" class="btn-primary"/>
+                        <button string="Discard" class="btn-default" special="cancel" />
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

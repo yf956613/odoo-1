@@ -29,6 +29,7 @@ Main Features
     'data': [
         'wizard/invite_view.xml',
         'wizard/mail_compose_message_view.xml',
+        'wizard/activity_feedback_view.xml',
         'views/mail_message_subtype_views.xml',
         'views/mail_tracking_views.xml',
         'views/mail_message_views.xml',

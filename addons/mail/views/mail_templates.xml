@@ -61,6 +61,7 @@
         <span t-if="activity.summary" t-field="activity.summary"/>
     </p>
     <div t-field="activity.note"/>
+    <div t-if="activity.feedback"><strong> Feedback : </strong><span t-field="activity.feedback"></span></div>
 </div>
         </template>
 

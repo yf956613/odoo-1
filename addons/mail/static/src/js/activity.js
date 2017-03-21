@@ -194,22 +194,27 @@ var Activity = form_common.AbstractField.extend({
         event.preventDefault();
         var self = this;
         var activity_id = this.$(event.currentTarget).data('activity-id');
-        this.Activity
-            .call("action_done", [[activity_id]])
-            .then(function (msg_id) {
+        var action = {
+            name : _t('Log Activity Feedback'),
+            type: 'ir.actions.act_window',
+            res_model: 'mail.activity.feedback',
+            view_mode: 'form',
+            view_type: 'form',
+            views: [
+                [false, 'form']
+            ],
+            target: 'new',
+            context: _.extend({
+                default_activity_id: activity_id,
+            }, this.context),
+        };
+        return this.do_action(action, {
+            on_close: function() {
                 self.fetch_and_render_value();
-
-                self.chatter.msg_ids.unshift(msg_id);
-
-                // to stop scrollbar flickering add min height of the thread and remove after
-                // render. on render thread it will remove and add all it's element which cause flickering
-                var thread = self.chatter.thread;
-                thread.$el.css('min-height', thread.$el.height());
-                self.chatter.fetch_and_render_thread(self.chatter.msg_ids).then(function () {
-                    thread.$el.css('min-height', '');
-                });
-
-            });
+                self.chatter.refresh_followers();
+                ChatManager.get_messages({model: self.model, res_id: self.get_res_id()});
+            },
+        });
     },
 });
 
