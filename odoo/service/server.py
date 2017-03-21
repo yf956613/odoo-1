@@ -774,6 +774,7 @@ class RPCDrivenServer(CommonServer):
     def quit(self):
         self.running = False
         self.rpc_socket.shutdown(socket.SHUT_RDWR)
+        _logger.info("Worker received the quit command from the RPC socket")
 
     def rpc_answer(self, error=None, **result):
         # TODO: normalize the request/response like in jsonrpc
