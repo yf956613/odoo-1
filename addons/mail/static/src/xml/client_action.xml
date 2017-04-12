@@ -6,7 +6,7 @@
         <div class="o_mail_chat">
             <div class="o_mail_chat_sidebar"/>
             <div class="o_mail_chat_content">
-                <t t-if="widget.notification_bar">
+                <t t-if="widget.notification_bar &amp;&amp; !widget.is_mobile">
                     <div class="o_mail_annoying_notification_bar">
                         <span class="o_mail_request_permission">Odoo needs your permission to <a href="#"> enable desktop notifications</a>.</span>
                         <span class="fa fa-close"></span>
@@ -128,7 +128,7 @@
             <button type="button" class="btn btn-default btn-sm o_mail_chat_button_mark_read hidden-xs" title="Mark all as read">Mark all read</button>
             <button type="button" class="btn btn-primary btn-sm o_mail_chat_button_unstar_all" title="Unstar all messages">Unstar all</button>
             <button type="button" class="btn btn-default btn-sm o_mail_chat_button_unsubscribe" title="Unsubscribe from channel">Unsubscribe</button>
-            <button type="button" class="btn btn-default btn-sm o_mail_chat_button_settings" title="Open channel settings">Settings</button>
+            <button t-if="debug" type="button" class="btn btn-default btn-sm o_mail_chat_button_settings" title="Open channel settings">Settings</button>
         </div>
     </t>
 

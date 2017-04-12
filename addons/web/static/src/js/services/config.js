@@ -78,6 +78,8 @@ function _updateSizeProps() {
 _.invoke(medias, 'addListener', _updateSizeProps);
 _updateSizeProps();
 
+config.is_mobile = config.device.size_class <= config.device.SIZES.XS;
+
 return config;
 
 });

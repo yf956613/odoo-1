@@ -16,6 +16,7 @@ var dom = require('web.dom');
 var pyeval = require('web.pyeval');
 var SearchView = require('web.SearchView');
 var Widget = require('web.Widget');
+var session = require('web.session');
 
 var QWeb = core.qweb;
 var _t = core._t;
@@ -173,6 +174,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
         this.throttled_renderSidebar = _.throttle(this.renderSidebar.bind(this), 100, { leading: false });
         this.notification_bar = (window.Notification && window.Notification.permission === "default");
         this.selected_message = null;
+        this.is_mobile = config.is_mobile;
     },
 
     willStart: function () {
@@ -210,7 +212,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             display_help: true,
         });
 
-        this.$buttons = $(QWeb.render("mail.chat.ControlButtons", {}));
+        this.$buttons = $(QWeb.render("mail.chat.ControlButtons", {'debug': session.debug}));
         this.$buttons.find('button').css({display:"inline-block"});
         this.$buttons.on('click', '.o_mail_chat_button_invite', this.on_click_button_invite);
         this.$buttons.on('click', '.o_mail_chat_button_unsubscribe', this.on_click_button_unsubscribe);
