@@ -670,7 +670,11 @@ class RPCDrivenServer(CommonServer):
 
     def run(self, preload=None, stop=False):
         signal.signal(signal.SIGQUIT, dumpstacks)
-        preload_registries(preload)
+        rc = preload_registries(preload)
+
+        if stop:
+            return rc
+
         while self.running:
             rpc_call = self.rpc_recv()
             method = rpc_call.pop('method', '')
