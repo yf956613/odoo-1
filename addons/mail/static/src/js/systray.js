@@ -2,45 +2,13 @@ odoo.define('mail.systray', function (require) {
 "use strict";
 
 var core = require('web.core');
+var framework = require('web.framework');
 var SystrayMenu = require('web.SystrayMenu');
 var Widget = require('web.Widget');
 
 var chat_manager = require('mail.chat_manager');
 
 var QWeb = core.qweb;
-
-/**
- * Menu item appended in the systray part of the navbar, redirects to the Inbox in Discuss
- * Also displays the needaction counter (= Inbox counter)
- */
-var InboxItem = Widget.extend({
-    template:'mail.chat.InboxItem',
-    events: {
-        "click": "on_click",
-    },
-    start: function () {
-        this.$needaction_counter = this.$('.o_notification_counter');
-        chat_manager.bus.on("update_needaction", this, this.update_counter);
-        chat_manager.is_ready.then(this.update_counter.bind(this));
-        return this._super();
-    },
-    update_counter: function () {
-        var counter = chat_manager.get_needaction_counter();
-        this.$needaction_counter.text(counter);
-        this.$el.toggleClass('o_no_notification', !counter);
-    },
-    on_click: function (event) {
-        event.preventDefault();
-        chat_manager.is_ready.then(this.discuss_redirect.bind(this));
-    },
-    discuss_redirect: _.debounce(function () {
-        var self = this;
-        this.do_action('mail.mail_channel_action_client_chat', {clear_breadcrumbs: true}).then(function () {
-            self.trigger_up('hide_app_switcher');
-            core.bus.trigger('change_menu_section', chat_manager.get_discuss_menu_id());
-        });
-    }, 1000, true),
-});
 
 /**
  * Menu item appended in the systray part of the navbar
@@ -62,6 +30,7 @@ var MessagingMenu = Widget.extend({
         this.$filter_buttons = this.$('.o_filter_button');
         this.$channels_preview = this.$('.o_mail_navbar_dropdown_channels');
         this.filter = false;
+        chat_manager.bus.on("update_needaction", this, this.update_counter);
         chat_manager.bus.on("update_channel_unread_counter", this, this.update_counter);
         chat_manager.is_ready.then(this.update_counter.bind(this));
         return this._super();
@@ -70,7 +39,7 @@ var MessagingMenu = Widget.extend({
         return this.$el.hasClass('open');
     },
     update_counter: function () {
-        var counter = chat_manager.get_unread_conversation_counter();
+        var counter =  chat_manager.get_needaction_counter() + chat_manager.get_unread_conversation_counter();
         this.$('.o_notification_counter').text(counter);
         this.$el.toggleClass('o_no_notification', !counter);
         this.$el.toggleClass('o_unread_chat', !!chat_manager.get_chat_unread_counter());
@@ -86,7 +55,9 @@ var MessagingMenu = Widget.extend({
 
         chat_manager.is_ready.then(function () {
             var channels = _.filter(chat_manager.get_channels(), function (channel) {
-                if (self.filter === 'chat') {
+                if (self.filter === 'channel_inbox') {
+                    return channel.is_inbox;
+                } else if (self.filter === 'chat') {
                     return channel.is_chat;
                 } else if (self.filter === 'channels') {
                     return !channel.is_chat && channel.type !== 'static';
@@ -94,8 +65,23 @@ var MessagingMenu = Widget.extend({
                     return channel.type !== 'static';
                 }
             });
-
-            chat_manager.get_channels_preview(channels).then(self._render_channels_preview.bind(self));
+            chat_manager.get_messages({channel_id: 'channel_inbox'}).then(function(result) {
+                var res = [];
+                _.each(result, function(message) {
+                    message.unread_counter = 1;
+                    var duplicate_message = _.findWhere(res, {model: message.model, 'res_id': message.res_id});
+                    if (message.model && message.res_id && duplicate_message) {
+                        message.unread_counter = duplicate_message.unread_counter + 1;
+                        res[_.findIndex(res, duplicate_message)] = message;
+                    } else {
+                        res.push(message);
+                    }
+                });
+                if (self.filter === 'channel_inbox' || !self.filter) {
+                    channels = _.union(channels, res);
+                }
+                chat_manager.get_channels_preview(channels).then(self._render_channels_preview.bind(self));
+            });
         });
     },
     _render_channels_preview: function (channels_preview) {
@@ -138,14 +124,17 @@ var MessagingMenu = Widget.extend({
     },
     on_click_channel: function (event) {
         var channel_id = $(event.currentTarget).data('channel_id');
-        var channel = chat_manager.get_channel(channel_id);
-        if (channel) {
-            chat_manager.open_channel(channel);
+        if (channel_id == 'channel_inbox') {
+            var message_id = $(event.currentTarget).data('message_id');
+            framework.redirect('mail/view?message_id='+message_id);
+        } else {
+            var channel = chat_manager.get_channel(channel_id);
+            if (channel) {
+                chat_manager.open_channel(channel);
+            }
         }
     },
 });
 
 SystrayMenu.Items.push(MessagingMenu);
-SystrayMenu.Items.push(InboxItem);
-
 });

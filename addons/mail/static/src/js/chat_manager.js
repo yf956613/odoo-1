@@ -137,6 +137,7 @@ function make_message (data) {
         model: data.model,
         res_id: data.res_id,
         url: session.url("/mail/view?message_id=" + data.id),
+        module_icon:data.module_icon,
     };
 
     _.each(_.keys(emoji_substitutions), function (key) {
@@ -1120,6 +1121,21 @@ var ChatManager =  Class.extend(Mixins.EventDispatcherMixin, ServicesMixin, {
 
     get_channels_preview: function (channels) {
         var channels_preview = _.map(channels, function (channel) {
+            if (channel.channel_ids && _.contains(channel.channel_ids,"channel_inbox")) {
+                // map inbox(mail_message) data with existing channel/chat template
+                var info = _.pick(channel, 'id', 'body', 'avatar_src', 'module_icon', 'subject','date', 'record_name', 'status', 'displayed_author', 'email_from', 'unread_counter');
+                info.last_message = {
+                    body: info.body,
+                    date: info.date,
+                    displayed_author: info.displayed_author || info.email_from,
+                };
+                info.name = info.record_name || info.subject || info.displayed_author;
+                info.image_src = info.module_icon || info.avatar_src;
+                info.message_id = info.id;
+                info.id = 'channel_inbox';
+                info.is_inbox = true;
+                return info;
+            }
             var info = _.pick(channel, 'id', 'is_chat', 'name', 'status', 'unread_counter');
             info.last_message = _.last(channel.cache['[]'].messages);
             if (!info.is_chat) {

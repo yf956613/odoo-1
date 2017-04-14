@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
 
-    <t t-name="mail.chat.InboxItem">
-        <li class="o_mail_navbar_item">
-            <a href="#" title="Inbox">
-                <i class="fa fa-at"/> <span class="o_notification_counter"/>
-            </a>
-        </li>
-    </t>
-
     <t t-name="mail.chat.MessagingMenu">
         <li class="o_mail_navbar_item">
             <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="Conversations" href="#">
@@ -20,6 +12,7 @@
                         <button type="button" class="btn btn-sm o_filter_button o_selected"> All </button>
                         <button type="button" class="btn btn-sm o_filter_button" data-filter='chat'> Chat </button>
                         <button type="button" class="btn btn-sm o_filter_button" data-filter='channels'> Channels </button>
+                        <button type="button" class="btn btn-sm o_filter_button" data-filter='channel_inbox'> Inbox </button>
                     </div>
                     <button type="button" class="btn btn-sm o_new_message"> New message </button>
                 </li>
@@ -31,7 +24,7 @@
     <t t-name="mail.chat.ChannelsPreview">
         <t t-foreach="channels" t-as="channel">
             <div t-attf-class="o_mail_channel_preview #{channel.unread_counter ? 'o_channel_unread' : ''}"
-                 t-att-data-channel_id="channel.id">
+                 t-att-data-channel_id="channel.id" t-att-data-message_id="channel.message_id">
                 <img class="o_channel_image" t-att-src="channel.image_src"/>
                 <div class="o_channel_info">
                     <div class="o_channel_title">
