@@ -150,6 +150,25 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
                 on_reverse_breadcrumb: this.on_reverse_breadcrumb,
             });
         },
+        "click .o_mail_chat_mobile_tab_item": function(event){
+            event.preventDefault();
+            var tab = this.$(event.currentTarget);
+            var channel_id = tab.data("channel-id");
+            if(!_.isUndefined(channel_id)){
+                this.set_channel(chat_manager.get_channel(channel_id));
+            }else{
+                var channel_type = tab.data("type");
+                console.log("Channle type - >> ", channel_type);
+            }
+        },
+        "click .o_channel_inbox_item": function (event) {
+            this.$(".o_channel_inbox_item").removeClass("btn-primary").addClass("btn-default");
+            event.preventDefault();
+            var el = this.$(event.currentTarget);
+            el.removeClass("btn-default").addClass("btn-primary");
+            var channel_id = el.data('channel-id');
+            this.set_channel(chat_manager.get_channel(channel_id));
+        },
     },
 
     on_attach_callback: function () {
@@ -212,7 +231,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             display_help: true,
         });
 
-        this.$buttons = $(QWeb.render("mail.chat.ControlButtons", {'debug': session.debug}));
+        this.$buttons = $(QWeb.render("mail.chat.ControlButtons", {'is_mobile': this.is_mobile, 'debug': session.debug}));
         this.$buttons.find('button').css({display:"inline-block"});
         this.$buttons.on('click', '.o_mail_chat_button_invite', this.on_click_button_invite);
         this.$buttons.on('click', '.o_mail_chat_button_unsubscribe', this.on_click_button_unsubscribe);
@@ -252,6 +271,17 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
         var def4 = this.searchview.appendTo($("<div>")).then(function () {
             self.$searchview_buttons = self.searchview.$buttons.contents();
         });
+
+
+        if(this.is_mobile){
+            this.mail_control_panel = $("<div/>");
+            this.mail_control_panel.addClass("o_mail_chat_control_panel");
+
+            this.mobileInboxStarredButtons = $(QWeb.render("mail.chat.InboxStarredMobileButtons",{'is_mobile': this.is_mobile}));
+            this.mobileInboxStarredButtons.prependTo(this.$(".o_mail_chat_content"));
+            this.mobileTabs = $(QWeb.render("mail.chat.MobileBottomTabs", {'widget': this}));
+            this.mobileTabs.appendTo(this.$(".o_mail_chat_content"));
+        }
 
         this.renderSidebar();
 
@@ -305,6 +335,11 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
     },
 
     renderSidebar: function () {
+        if(this.is_mobile){
+            //TODO: Bind tabs
+            return;
+        }
+
         var self = this;
         var $sidebar = this._renderSidebar({
             active_channel_id: this.channel ? this.channel.id: undefined,
@@ -462,7 +497,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
 
             // Update control panel before focusing the composer, otherwise focus is on the searchview
             self.update_cp();
-            if (config.device.size_class === config.device.SIZES.XS) {
+            if (this.is_mobile) {
                 self.$('.o_mail_chat_sidebar').hide();
             }
 
@@ -549,7 +584,23 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
                 $searchview_buttons: this.$searchview_buttons,
             },
             searchview: this.searchview,
+            hidden: this.is_mobile
         });
+        if(this.is_mobile){
+            var self = this;
+            this.$buttons.addClass("o_mail_panel_action_buttons");
+            this.$buttons.prependTo(this.mail_control_panel);
+            this.searchview.$el.prependTo(this.mail_control_panel);
+            var $enable_searchview = $('<button/>', {type: 'button'})
+                .addClass('o_enable_searchview btn fa fa-search')
+                .on('click', function() {
+                    self.searchview_displayed = !self.searchview_displayed || false;
+                    self.searchview.$el.toggleClass('o_hidden', !self.searchview_displayed);
+                    self.$buttons.toggleClass('o_hidden', self.searchview_displayed);
+                });
+            $enable_searchview.insertAfter(this.searchview.$el);
+            this.mail_control_panel.prependTo(this.$(".o_mail_chat_content"));
+        }
     },
 
     do_show: function () {

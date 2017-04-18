@@ -26,6 +26,7 @@
 
                 <link rel="stylesheet" href="/mail/static/src/less/announcement.less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/client_action.less" type="text/less"/>
+                <link rel="stylesheet" href="/mail/static/src/less/client_action_mobile.less" type="text/less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/chat_window.less" type="text/less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/extended_chat_window.less" type="text/less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/composer.less" type="text/less"/>

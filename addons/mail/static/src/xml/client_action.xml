@@ -4,7 +4,7 @@
     <!-- Client Action -->
     <t t-name="mail.client_action">
         <div class="o_mail_chat">
-            <div class="o_mail_chat_sidebar"/>
+            <div t-if="!widget.is_mobile" class="o_mail_chat_sidebar"/>
             <div class="o_mail_chat_content">
                 <t t-if="widget.notification_bar &amp;&amp; !widget.is_mobile">
                     <div class="o_mail_annoying_notification_bar">
@@ -56,6 +56,36 @@
                 <t t-set="input_placeholder">Add a channel</t>
                 <t t-set="display_hash" t-value="true"/>
             </t>
+        </div>
+    </t>
+
+    <t t-name="mail.chat.InboxStarredMobileButtons">
+        <div class="o_mail_chat_mobile_inbox_starred_button">
+            <button type="button" class="btn btn-primary btn-sm visible-xs-inline o_channel_inbox_item" title="Inbox" data-channel-id="channel_inbox">Inbox</button><button type="button" class="btn btn-default btn-sm visible-xs-inline o_channel_inbox_item" title="Starred" data-channel-id="channel_starred">Starred</button>
+        </div>
+    </t>
+    <t t-name="mail.chat.MobileBottomTabs">
+        <div class="o_mail_chat_mobile_tabs">
+            <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item active" data-channel-id="channel_inbox">
+                <span class="fa fa-envelope"/>
+                <span class="o_tab_title">Inbox</span>
+            </div>
+             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="dm">
+                <span class="fa fa-comments"/>
+                <span class="o_tab_title">Conversation</span>
+            </div>
+             <div class="o_mail_chat_mobile_tab o_mail_open_channels" data-type="public">
+                <span class="fa fa-users"/>
+                <span class="o_tab_title">Channels</span>
+            </div>
+             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="private">
+                <span class="fa fa-lock"/>
+                <span class="o_tab_title">Private&amp;nbsp;Channels</span>
+            </div>
+             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="live">
+                <span class="fa fa-comments"/>
+                <span class="o_tab_title">Live&amp;nbsp;chat</span>
+            </div>
         </div>
     </t>
     <t t-name="mail.chat.SidebarNeedaction">
@@ -123,7 +153,7 @@
     <!-- Buttons of the Control Panel -->
     <t t-name="mail.chat.ControlButtons">
         <div>
-            <button type="button" class="btn btn-primary btn-sm o_mail_toggle_channels visible-xs-inline" title="Toggle Channels">Channels</button>
+            <button t-if="!is_mobile" type="button" class="btn btn-primary btn-sm o_mail_toggle_channels visible-xs-inline" title="Toggle Channels">Channels</button>
             <button type="button" class="btn btn-primary btn-sm o_mail_chat_button_invite" title="Invite people">Invite</button>
             <button type="button" class="btn btn-default btn-sm o_mail_chat_button_mark_read hidden-xs" title="Mark all as read">Mark all read</button>
             <button type="button" class="btn btn-primary btn-sm o_mail_chat_button_unstar_all" title="Unstar all messages">Unstar all</button>
