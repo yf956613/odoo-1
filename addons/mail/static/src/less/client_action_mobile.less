@@ -120,5 +120,89 @@
                 }
             }
         }
+
+        .o_mail_chat_tab_container {
+            .o-flex-display();
+            .o-flex-flow(column, nowrap);
+            height: 100%;
+            margin-left: @mail-chat-sidebar-width;
+            position: relative;
+            @media (min-width: @screen-sm-min) {
+                overflow: auto;
+            }
+
+            @media (max-width: @screen-xs-max) {
+                margin-left: 0;
+            }
+
+            .o_mail_thread {
+                .o-flex(1, 0, 0);
+                overflow: auto;
+                padding: 0 0 15px 0;
+                .o_chat_help_message {
+                    padding: 25px 0;
+                    text-align: justify;
+                }
+            }
+
+            .o_tab_container {
+                display: none;
+                &.active {
+                    display: block;
+                }
+
+                .o_mail_chat_dm_item {
+                    padding: 15px;
+                    border-bottom: 1px solid #ebebeb;
+
+                    .item_avatar_status {
+                        display: inline-block;
+                        position: relative;
+                        img {
+                            border-radius: 4px;
+                            max-width: 55px;
+                        }
+
+                        .o_mail_user_status {
+                            position: absolute;
+                            bottom: 5px;
+                            right: -8px;
+                            font-size: 13px;
+                            color: #cc0000;
+                            border-radius: 30px;
+                            background: #fff;
+                            padding: 2px;
+
+                            &.o_user_online {
+                                color: #21b799;
+                            }
+                        }
+                    }
+
+                    .chat_user_detail {
+                        display: inline-block;
+                        width: calc(~"100% - 80px");
+                        vertical-align: middle;
+                        margin-left: 10px;
+                        padding-top: 5px;
+                        h2 {
+                            font-size: 17px;
+                            display: block;
+                            font-weight: 500;
+                            margin: 0px;
+                            padding: 0px;
+                            color: #414141;
+
+                            small {
+                                float: right;
+                            }
+                        }
+                        p {
+                            color: #b3b3b3;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

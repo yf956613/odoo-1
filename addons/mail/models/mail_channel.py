@@ -361,7 +361,10 @@ class Channel(models.Model):
                     partner_channel = partner_channel[0]
                     info['state'] = partner_channel.fold_state or 'open'
                     info['is_minimized'] = partner_channel.is_minimized
-                    info['seen_message_id'] = partner_channel.seen_message_id.id
+                    seen_message = partner_channel.seen_message_id
+                    info['seen_message_id'] = seen_message.id
+                    info['seen_message_preview'] = seen_message.body
+                    info['seen_message_date'] = seen_message.date
                 # add needaction and unread counter, since the user is logged
                 info['message_needaction_counter'] = channel.message_needaction_counter
                 info['message_unread_counter'] = channel.message_unread_counter

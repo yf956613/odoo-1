@@ -12,6 +12,7 @@
                         <span class="fa fa-close"></span>
                     </div>
                 </t>
+                <div t-if="widget.is_mobile" class="o_mail_chat_tab_container"/>
             </div>
         </div>
     </t>
@@ -59,6 +60,35 @@
         </div>
     </t>
 
+    <t t-name="mail.chat.MobileTabContainer">
+        <div class="channels_container">
+            <t t-foreach="channels" t-as="type">
+                <div t-att-class="'o_tab_container ' + 'o_channel_' + type" t-att-data-channel-type="type">
+                    <t t-set="items" t-value="channels[type]"/>
+                    <t t-call="mail.Chat.ConversationItem"/>
+                </div>
+            </t>        
+        </div>
+    </t>
+
+    <t t-name="mail.Chat.ConversationItem">
+        <t t-foreach="items" t-as="channel">
+            <div class="o_mail_chat_dm_item">
+                <div class="item_avatar_status">
+                    <img t-if="channel.type == 'dm'" t-att-src="'/web/image/res.partner/'+ channel.direct_partner_id+'/image_small'"/>
+                    <img t-if="channel.type != 'dm'" t-att-src="'/web/image/mail.channel/'+ channel.id+'/image_small'"/>
+                    <i t-if="channel.status == 'online'" class="o_mail_user_status o_user_online fa fa-circle" title="Online"/>
+                    <i t-if="channel.status == 'away'" class="o_mail_user_status o_user_idle fa fa-circle" title="Idle"/>
+                    <i t-if="channel.status == 'offline'" class="o_mail_user_status fa fa-circle" title="Offline"/>
+                </div>
+                <div class="chat_user_detail">
+                    <h2><t t-esc="channel.name"/> <small class="o_message_timestamp" t-att-title="channel.seen_message_date"><t t-if="channel.seen_message_date" t-esc="widget.moment(channel.seen_message_date).fromNow()"/></small></h2>
+                    <p><t t-if="channel.last_seen_message_preview" t-raw="channel.last_seen_message_preview"/></p>
+                </div>
+            </div>
+        </t>
+    </t>
+
     <t t-name="mail.chat.InboxStarredMobileButtons">
         <div class="o_mail_chat_mobile_inbox_starred_button">
             <button type="button" class="btn btn-primary btn-sm visible-xs-inline o_channel_inbox_item" title="Inbox" data-channel-id="channel_inbox">Inbox</button><button type="button" class="btn btn-default btn-sm visible-xs-inline o_channel_inbox_item" title="Starred" data-channel-id="channel_starred">Starred</button>
@@ -74,7 +104,7 @@
                 <span class="fa fa-comments"/>
                 <span class="o_tab_title">Conversation</span>
             </div>
-             <div class="o_mail_chat_mobile_tab o_mail_open_channels" data-type="public">
+             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="public">
                 <span class="fa fa-users"/>
                 <span class="o_tab_title">Channels</span>
             </div>
@@ -159,6 +189,7 @@
             <button type="button" class="btn btn-primary btn-sm o_mail_chat_button_unstar_all" title="Unstar all messages">Unstar all</button>
             <button type="button" class="btn btn-default btn-sm o_mail_chat_button_unsubscribe" title="Unsubscribe from channel">Unsubscribe</button>
             <button t-if="debug" type="button" class="btn btn-default btn-sm o_mail_chat_button_settings" title="Open channel settings">Settings</button>
+            <button t-if="is_mobile" type="button" class="btn btn-default btn-sm o_mail_chat_button_dm" title="New Message">New Message</button>
         </div>
     </t>
 
