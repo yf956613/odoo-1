@@ -64,16 +64,22 @@
         <div class="channels_container">
             <t t-foreach="channels" t-as="type">
                 <div t-att-class="'o_tab_container ' + 'o_channel_' + type" t-att-data-channel-type="type">
+                    <div t-if="!disable_add_channel" class="o_mail_add_channel o_mail_mobile_add_channel" t-att-data-type="type">
+                        <span t-if="type == 'private' || type == 'public'">#</span>
+                        <t t-set="input_placeholder" t-if="type == 'private' || 'public'">Add a channel</t>
+                        <t t-set="input_placeholder" t-if="type == 'dm'">Open chat</t>
+                        <input type="text" t-attf-placeholder="#{input_placeholder}"/>
+                    </div>
                     <t t-set="items" t-value="channels[type]"/>
-                    <t t-call="mail.Chat.ConversationItem"/>
+                    <t t-call="mail.Chat.ChannelItemView"/>
                 </div>
             </t>        
         </div>
     </t>
 
-    <t t-name="mail.Chat.ConversationItem">
+    <t t-name="mail.Chat.ChannelItemView">
         <t t-foreach="items" t-as="channel">
-            <div class="o_mail_chat_dm_item">
+            <div class="o_mail_chat_channel_item" t-att-data-channel-id="channel.id">
                 <div class="item_avatar_status">
                     <img t-if="channel.type == 'dm'" t-att-src="'/web/image/res.partner/'+ channel.direct_partner_id+'/image_small'"/>
                     <img t-if="channel.type != 'dm'" t-att-src="'/web/image/mail.channel/'+ channel.id+'/image_small'"/>
@@ -189,7 +195,8 @@
             <button type="button" class="btn btn-primary btn-sm o_mail_chat_button_unstar_all" title="Unstar all messages">Unstar all</button>
             <button type="button" class="btn btn-default btn-sm o_mail_chat_button_unsubscribe" title="Unsubscribe from channel">Unsubscribe</button>
             <button t-if="debug" type="button" class="btn btn-default btn-sm o_mail_chat_button_settings" title="Open channel settings">Settings</button>
-            <button t-if="is_mobile" type="button" class="btn btn-default btn-sm o_mail_chat_button_dm" title="New Message">New Message</button>
+            <button t-if="is_mobile &amp;&amp; !disable_add_channel" type="button" class="btn btn-default btn-sm o_mail_chat_button_dm" title="New Message">New Message</button>
+            <button t-if="is_mobile &amp;&amp; !disable_add_channel" type="button" class="btn btn-default btn-sm o_mail_chat_button_public o_mail_chat_button_private" title="New Message">New Channel</button>
         </div>
     </t>
 

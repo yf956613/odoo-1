@@ -83,6 +83,7 @@
 
         .o_mail_chat_mobile_tabs {
             display: block;
+            z-index: 3;
             background: #ffffff;
             -moz-box-shadow: 0px 0px 30px #afafaf;
             -webkit-box-shadow: 0px 0px 30px #afafaf;
@@ -147,11 +148,12 @@
 
             .o_tab_container {
                 display: none;
+                z-index: 1;
                 &.active {
                     display: block;
                 }
 
-                .o_mail_chat_dm_item {
+                .o_mail_chat_channel_item {
                     padding: 15px;
                     border-bottom: 1px solid #ebebeb;
 
@@ -200,6 +202,28 @@
                         p {
                             color: #b3b3b3;
                         }
+                    }
+                }
+
+                .o_mail_mobile_add_channel {
+                    width: auto;
+                    padding: 5px 0px; // larger padding-left than titles
+                    position: relative;
+                    margin: 10px;
+                    display: none;
+                    border: 1px solid #afafaf;
+                    border-radius: 4px;
+
+                    > input {
+                        width: 100%;
+                        padding: 5px 8px;
+                        padding-left: 20px;
+                        border: none;
+                    }
+                    > span {
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
                     }
                 }
             }

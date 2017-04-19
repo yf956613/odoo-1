@@ -174,7 +174,10 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
                 type_button.on('click', function(event){
                     event.preventDefault();
                     var type = self.$(event.currentTarget).data("channel-type");
-                    console.log(">> TODO : Action ", type);
+                    console.log(self.$('.o_mail_add_channel[data-type=' + type + ']'));
+                    self.$('.o_mail_add_channel[data-type=' + type + ']')
+                        .show()
+                        .find("input").focus();
                 });
             }
         },
@@ -323,6 +326,10 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
                         chat_manager.mark_channel_as_seen(self.channel);
                     }
                 }, 100));
+
+                if(self.is_mobile && default_channel_id == "channel_starred"){
+                    self.$('.o_channel_inbox_item[data-channel-id=channel_starred]').click();
+                }
             });
     },
 
@@ -361,6 +368,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             "private": get_channel("private"),
             "dm": get_channel("dm")
         };
+        console.log(get_channel("public"));
         this.moment = moment;
         this.$(".o_mail_chat_tab_container").find(".channels_container").remove();
         var $tab_containers = $(QWeb.render("mail.chat.MobileTabContainer", {'channels': all_channels, 'widget': this}));
@@ -374,16 +382,17 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
         var self = this;
         if(this.is_mobile){
             self.renderMobileChannles();
-            return;
         }
 
-        var $sidebar = this._renderSidebar({
-            active_channel_id: this.channel ? this.channel.id: undefined,
-            channels: chat_manager.get_channels(),
-            needaction_counter: chat_manager.get_needaction_counter(),
-            starred_counter: chat_manager.get_starred_counter(),
-        });
-        this.$(".o_mail_chat_sidebar").html($sidebar.contents());
+        if(!this.is_mobile){
+            var $sidebar = this._renderSidebar({
+                active_channel_id: this.channel ? this.channel.id: undefined,
+                channels: chat_manager.get_channels(),
+                needaction_counter: chat_manager.get_needaction_counter(),
+                starred_counter: chat_manager.get_starred_counter(),
+            });
+            this.$(".o_mail_chat_sidebar").html($sidebar.contents());
+        }
 
         this.$('.o_mail_add_channel[data-type=public]').find("input").autocomplete({
             source: function(request, response) {
