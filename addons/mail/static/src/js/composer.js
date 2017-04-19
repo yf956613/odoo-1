@@ -7,6 +7,7 @@ var utils = require('mail.utils');
 var core = require('web.core');
 var data = require('web.data');
 var dom = require('web.dom');
+var config = require("web.config");
 var session = require('web.session');
 var Widget = require('web.Widget');
 
@@ -363,8 +364,9 @@ var BasicComposer = Widget.extend(chat_mixin, {
             commands_enabled: true,
             context: {},
             input_baseline: 18,
+            is_mobile: config.is_mobile,
             input_max_height: 150,
-            input_min_height: 28,
+            input_min_height: 29,
             mention_fetch_limit: 8,
             mention_partners_restricted: false, // set to true to only suggest prefetched partners
             send_text: _t('Send'),

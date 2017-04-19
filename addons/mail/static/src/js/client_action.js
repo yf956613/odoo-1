@@ -191,6 +191,10 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             var channel_id = el.data('channel-id');
             this.set_channel(chat_manager.get_channel(channel_id));
         },
+        "click .o_composer_toggle_tabs": function(event){
+            this.$(".o_mail_chat_mobile_tabs").slideToggle(100);
+            $(event.currentTarget).toggleClass("fa-chevron-down fa-chevron-up");
+        }
     },
 
     on_attach_callback: function () {
@@ -369,7 +373,6 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             "private": get_channel("private"),
             "dm": get_channel("dm")
         };
-        console.log(get_channel("public"));
         this.moment = moment;
         this.$(".o_mail_chat_tab_container").find(".channels_container").remove();
         var $tab_containers = $(QWeb.render("mail.chat.MobileTabContainer", {'channels': all_channels, 'widget': this}));
