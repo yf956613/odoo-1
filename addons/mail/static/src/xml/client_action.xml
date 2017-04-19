@@ -102,7 +102,7 @@
     </t>
     <t t-name="mail.chat.MobileBottomTabs">
         <div class="o_mail_chat_mobile_tabs">
-            <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item active" data-channel-id="channel_inbox">
+            <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-channel-id="channel_inbox" data-type="channel_inbox">
                 <span class="fa fa-envelope"/>
                 <span class="o_tab_title">Inbox</span>
             </div>
@@ -185,6 +185,11 @@
         </div>
     </t>
 
+    <t t-name="mail.chat.MobileControlPanel">
+        <div class="o_mail_chat_control_panel">
+            <div class="o_mail_channel_title">Channel</div>
+        </div>
+    </t>
 
     <!-- Buttons of the Control Panel -->
     <t t-name="mail.chat.ControlButtons">

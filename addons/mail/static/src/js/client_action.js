@@ -153,6 +153,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
         "click .o_mail_chat_mobile_tab_item": function(event){
             var self = this;
             event.preventDefault();
+            this.$(".o_chat_composer").hide();
             this.$(".o_mail_chat_mobile_tab_item").removeClass("active");
             var tab = this.$(event.currentTarget);
             tab.addClass("active");
@@ -171,6 +172,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
                 this.action_manager.do_push_state({
                     active_tab: channel_type
                 });
+                this.mail_control_panel.find(".o_mail_channel_title").html(tab.find(".o_tab_title").html());
                 type_button.on('click', function(event){
                     event.preventDefault();
                     var type = self.$(event.currentTarget).data("channel-type");
@@ -295,8 +297,7 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
 
         if(this.is_mobile){
             this.thread.$el.addClass("o_tab_container");
-            this.mail_control_panel = $("<div/>");
-            this.mail_control_panel.addClass("o_mail_chat_control_panel");
+            this.mail_control_panel = $(QWeb.render("mail.chat.MobileControlPanel"), {'widget': this});
 
             this.mobileInboxStarredButtons = $(QWeb.render("mail.chat.InboxStarredMobileButtons",{'is_mobile': this.is_mobile}));
             this.mobileInboxStarredButtons.prependTo(this.$(".o_mail_chat_content"));
@@ -508,8 +509,14 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             // Mark channel's messages as read and clear needactions
             if (channel.type !== 'static') {
                 chat_manager.mark_channel_as_seen(channel);
-            }else if(self.is_mobile){
-                self.mobileInboxStarredButtons.removeClass("o_hidden");
+            }
+            if(self.is_mobile){
+                self.mail_control_panel.find(".o_mail_channel_title").html('#' + channel.name);
+                self.$buttons.find("button").css("display","none");
+                self.$(".o_mail_chat_mobile_tab_item").removeClass("active");
+                var type = channel.type == "static" ? channel.id : channel.type;
+                self.$(".o_mail_chat_mobile_tab_item[data-type="+type+"]").addClass("active");
+                self.mobileInboxStarredButtons.toggleClass("o_hidden", channel.type !== 'static');
                 self.$(".o_tab_container").removeClass("active");
                 self.$(".o_mail_thread").addClass("active");
             }
@@ -519,17 +526,17 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             // Hide 'unsubscribe' button in state channels and DM and channels with group-based subscription
             self.$buttons
                 .find('.o_mail_chat_button_unsubscribe')
-                .toggle(channel.type !== "dm" && channel.type !== 'static' && ! channel.group_based_subscription);
+                .css("display", channel.type !== "dm" && channel.type !== 'static' && ! channel.group_based_subscription ? 'inline-block': 'none');
             // Hide 'invite', 'unsubscribe' and 'settings' buttons in static channels and DM
             self.$buttons
                 .find('.o_mail_chat_button_invite, .o_mail_chat_button_settings')
-                .toggle(channel.type !== "dm" && channel.type !== 'static');
+                .css("display", channel.type !== "dm" && channel.type !== 'static' ? 'inline-block' : 'none');
             self.$buttons
                 .find('.o_mail_chat_button_mark_read')
-                .toggle(channel.id === "channel_inbox");
+                .css("display", channel.id === "channel_inbox" ? "inline-block" : "none");
             self.$buttons
                 .find('.o_mail_chat_button_unstar_all')
-                .toggle(channel.id === "channel_starred");
+                .css("display", channel.id === "channel_starred" ? "inline-block" : "none");
 
             self.$('.o_mail_chat_channel_item')
                 .removeClass('o_active')
@@ -638,8 +645,8 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
         if(this.is_mobile){
             var self = this;
             this.$buttons.addClass("o_mail_panel_action_buttons");
-            this.$buttons.prependTo(this.mail_control_panel);
-            this.searchview.$el.prependTo(this.mail_control_panel);
+            this.$buttons.appendTo(this.mail_control_panel);
+            this.searchview.$el.appendTo(this.mail_control_panel);
             var $enable_searchview = $('<button/>', {type: 'button'})
                 .addClass('o_enable_searchview btn fa fa-search')
                 .on('click', function() {
