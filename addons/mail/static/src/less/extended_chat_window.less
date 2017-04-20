@@ -34,13 +34,13 @@
 
     .o_chat_composer {
         background: #fff;
-        border-top: 1px solid #bbb;
+        border-top: 1px solid #eee;
         position: relative;
         .o_composer {
             .o_composer_input {
                 display: inline-block;
                 float: left;
-                width: calc(~"100% - 115px");
+                width: calc(~"100% - 110px");
                 textarea {
                     display: block;
                     padding: 10px;
@@ -50,11 +50,13 @@
 
             .o_composer_buttons {
                 position: absolute;
-                bottom: 0px;
+                bottom: 5px;
                 right: 0px;
-                padding: 5px;
+                padding-top: 5px;
                 button {
-                    font-size: 1.5em;
+                    &.btn-icon{
+                        font-size: 1.3em;
+                    }
                 }
             }
         }

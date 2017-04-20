@@ -1,4 +1,4 @@
-@o-chat-window-bg: white;
+@o-chat-window-bg: #F3F3F3;
 @o-chat-window-width: 300px;
 
 .o_chat_window {
@@ -34,6 +34,7 @@
         background-color: @odoo-brand-primary;
         padding: 5px;
         border-radius: 4px 4px 0px 0px;
+        border-bottom: 2px solid @o-chat-window-bg;
 
         @media (max-width: @screen-xs-max) {
             height: @navbar-height;
@@ -75,10 +76,153 @@
             }
         }
         .o_thread_message {
+            padding: 4px 0px;
+
+            .o_thread_message_sidebar {
+                margin-left: 5px;
+                .o_thread_message_side_date {
+                    padding-right: 40px;
+                }
+            }
+            .o_thread_message_core {
+                margin-right: 5px;
+            }
+
+            .o_thread_message_attachment {
+                display: block;
+                background: @o-chat-window-bg;
+                width: 200px;
+                margin-left: 5px;
+                margin-right: auto;
+
+                &.o_self_message_attachments {
+                    margin-left: auto;
+                    margin-right: 5px;
+                }
+
+                .o_thread_attachment {
+                    display: block;
+                    position: relative;
+                    min-height: 150px;
+                    margin-bottom: 5px;
+                    &:first-child {
+                        border-top: 2px solid #eee;
+                    }
+                    &:last-child {
+                        border-bottom: 2px solid #eee;
+                        margin-bottom: 0px;
+                    }
+
+                    .o_attachment_name {
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        width: 100%;
+                        font-size: 11px;
+                        font-weight: bold;
+                        color: #fff;
+                        background-color:rgba(0,0,0,0.3);
+                        padding: 5px;
+                        display: block;
+                    }
+
+                    .o_image_view , a{
+                        cursor: pointer;
+                        background-color: #000;
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        top:0;
+                        left:0;
+                        object-fit: none; /* Do not scale the image */
+                        object-position: center; /* Center the image within the element */
+                    }
+
+                }
+            }
+
+            .o_self_message {
+                background: @odoo-brand-primary;
+                margin: 0px;
+                margin-right: 5px;
+                max-width: 95%;
+                width: auto;
+                margin-left: auto;
+                flex: inherit;
+                border-radius: 15px;
+                display: inline-block;
+                float: right;
+                color: white;
+                padding: 10px 15px;
+
+                p {
+                    font-size: 1em;
+                    line-height: 1.3;
+                }
+
+                .o_mail_timestamp {
+                    color: #ebebeb;
+                    float: right;
+                }
+
+                .o_attachment {
+                    display: block;
+                    width: 200px;
+                    height: auto;
+                    .o_image_preview, .o_image {
+                        border-radius: 4px;
+                        padding: 5px;
+                        padding-bottom: 0px;
+                        border: 1px solid #ccc;
+                    }
+                    .o_image_preview {
+                        background: #ebebeb;
+                    }
+                    .o_image {
+                        background-color: #ebebeb;
+                        display: block;
+                        position: inherit;
+                        width: 100px;
+                        height: 100px;
+                        padding-bottom: 20px;
+                        >.o_attachment_name {
+                            margin-top: 80px;
+                        }
+                    }
+
+                    .o_attachment_name {
+                        color: #414141;
+                        margin-top: 0px;
+                        font-weight: 600;
+                        max-width: none;
+                        padding: 5px;
+                        font-size: 12px;
+                    }
+                }
+            }
+
             .o_thread_message_sidebar {
                 margin-right: 5px;
             }
-            padding: 4px 5px;
+
+            &.o_sender_message {
+                .o_thread_message_avatar {
+                    border-radius: 30px;
+                    max-width: 40px;
+                }
+                .o_thread_message_core {
+                    background: #cccccc;
+                    margin-right: auto;
+                    flex: inherit;
+                    border-radius: 15px;
+                    padding: 10px 15px;
+                    color: #414141;
+
+                    .o_mail_info {
+                        color: #414141;
+                    }
+                }
+            }
         }
     }
 
