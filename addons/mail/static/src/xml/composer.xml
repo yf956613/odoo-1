@@ -14,7 +14,7 @@
              </div>
          </t>
          <div t-attf-class="o_composer #{widget.extended ? 'o_extended_composer' : ''}">
-            <t t-if="widget.options.is_mobile &amp;&amp; widget.extended">
+            <t t-if="widget.options.is_mobile &amp;&amp; !widget.extended">
                 <div class="btn-group o_composer_tabs_toggle_button">
                     <button class="btn btn-sm btn-icon fa fa-chevron-down o_composer_toggle_tabs" type="button"/>
                 </div>

@@ -1,4 +1,17 @@
 .o_chat_window {
+
+    .o_mail_thread {
+        background: #f3f3f3;
+
+        .o_thread_date_separator {
+            border-bottom: 1px dashed #cccccc;
+            .o_thread_date {
+                border-radius: 2px;
+                padding: 3px 8px;
+            }
+        }
+    }
+
     &.o_thread_less {
         .o_chat_search_input {
             .o-flex-display();
@@ -20,15 +33,43 @@
     }
 
     .o_chat_composer {
+        background: #fff;
+        border-top: 1px solid #bbb;
+        position: relative;
         .o_composer {
-            border-top: 1px solid lightgray;
-            .o_composer_input textarea {
-                display: block;
+            .o_composer_input {
+                display: inline-block;
+                float: left;
+                width: calc(~"100% - 115px");
+                textarea {
+                    display: block;
+                    padding: 10px;
+                    font-size: 13px;
+                }
+            }
+
+            .o_composer_buttons {
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
                 padding: 5px;
+                button {
+                    font-size: 1.5em;
+                }
             }
         }
-        .o_composer_attachments_list, .o_composer_buttons {
+        .o_composer_tabs_toggle_button {
             display: none;
+        }
+        .o_composer_attachments_list {
+            margin: 0px;
+        }
+        .o_composer_attachments_list, .o_composer_buttons {
+            .o_composer_button_emoji, .o_composer_button_add_attachment {
+                &:hover, &:focus {
+                    background-color: #FFFFFF !important;
+                }
+            }
         }
     }
 }

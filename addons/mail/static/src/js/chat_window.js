@@ -27,6 +27,7 @@ return Widget.extend({
         this._super(parent);
         this.title = title;
         this.channel_id = channel_id;
+        this.is_mobile = config.is_mobile;
         this.folded = is_folded;
         this.options = _.defaults(options || {}, {
             autofocus: true,
@@ -52,7 +53,7 @@ return Widget.extend({
         this.thread.on('toggle_star_status', null, this.trigger.bind(this, 'toggle_star_status'));
         this.thread.on('redirect_to_channel', null, this.trigger.bind(this, 'redirect_to_channel'));
         this.thread.on('redirect', null, this.trigger.bind(this, 'redirect'));
-
+        HEIGHT_FOLDED = this.$(".o_chat_header").outerHeight();
         if (this.folded) {
             this.$el.css('height', HEIGHT_FOLDED);
         } else if (this.options.autofocus) {
@@ -77,13 +78,14 @@ return Widget.extend({
         this.$header.html(QWeb.render('mail.ChatWindowHeaderContent', {
             status: this.status,
             title: this.title,
+            is_mobile: this.is_mobile,
             unread_counter: this.unread_msgs,
         }));
     },
     fold: function () {
         this.$el.animate({
             height: this.folded ? HEIGHT_FOLDED : HEIGHT_OPEN
-        });
+        }, 200);
     },
     toggle_fold: function (fold) {
         this.folded = _.isBoolean(fold) ? fold : !this.folded;
