@@ -106,21 +106,17 @@
                 <span class="fa fa-envelope"/>
                 <span class="o_tab_title">Inbox</span>
             </div>
-             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="dm">
+            <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="dm">
                 <span class="fa fa-comments"/>
                 <span class="o_tab_title">Conversation</span>
             </div>
-             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="public">
+            <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="public">
                 <span class="fa fa-users"/>
                 <span class="o_tab_title">Channels</span>
             </div>
-             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="private">
+            <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="private">
                 <span class="fa fa-lock"/>
                 <span class="o_tab_title">Private&amp;nbsp;Channels</span>
-            </div>
-             <div class="o_mail_chat_mobile_tab o_mail_chat_mobile_tab_item" data-type="live">
-                <span class="fa fa-comments"/>
-                <span class="o_tab_title">Live&amp;nbsp;chat</span>
             </div>
         </div>
     </t>

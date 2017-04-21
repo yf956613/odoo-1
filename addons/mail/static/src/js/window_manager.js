@@ -48,6 +48,7 @@ function open_chat (session, options) {
             autofocus: !options.passively,
             input_less: session.mass_mailing,
             status: session.status,
+            is_chat_window: true,
         };
         chat_session = {
             id: session.id,

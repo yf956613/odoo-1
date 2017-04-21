@@ -28,7 +28,10 @@ return ChatWindow.extend({
                 })
                 .focus();
         } else if (!self.options.input_less) {
-            var basic_composer = new composer.BasicComposer(self, {mention_partners_restricted: true});
+            var basic_composer = new composer.BasicComposer(self, {
+                mention_partners_restricted: true,
+                is_chat_window: self.options.is_chat_window
+            });
             basic_composer.on('post_message', self, function (message) {
                 this.trigger('post_message', message, this.channel_id);
             });

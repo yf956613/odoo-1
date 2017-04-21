@@ -372,6 +372,7 @@ var BasicComposer = Widget.extend(chat_mixin, {
             send_text: _t('Send'),
             default_body: '',
             default_mention_selections: {},
+            is_chat_window: false,
         });
         this.context = this.options.context;
 

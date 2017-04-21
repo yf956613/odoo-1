@@ -45,9 +45,9 @@
     </t>
 
     <t t-name="mail.ChatThread.Message">
-        <div t-att-class="'o_thread_message' + (message.expanded ? ' o_message_expanded '  : ' ') + (message.is_selected ? 'o_thread_selected_message' : '') + (!message.is_self_author ? ' o_sender_message ' : '')" t-att-data-message-id="message.id">
+        <div t-att-class="'o_thread_message' + (message.expanded ? ' o_message_expanded '  : ' ') + (message.is_selected ? 'o_thread_selected_message' : '') + (!message.is_self_author &amp;&amp; options.is_chat_window ? ' o_sender_message ' : '')" t-att-data-message-id="message.id">
 
-            <t t-if="message.attachment_ids.length">
+            <t t-if="message.attachment_ids.length &amp;&amp; options.is_chat_window">
                 <div t-att-class="'o_thread_message_attachment ' + (message.is_self_author ? ' o_self_message_attachments ' : '')">
                     <t t-foreach="message.attachment_ids" t-as="attachment">
                         <t t-call="mail.ChatThread.Attachment"/>
@@ -55,8 +55,8 @@
                 </div>
             </t>
 
-            <t t-if="message.attachment_ids.length == 0">
-                <div t-if="options.display_avatar &amp;&amp; !message.is_self_author" class="o_thread_message_sidebar">
+            <t t-if="message.attachment_ids.length == 0 || !options.is_chat_window">
+                <div t-if="options.display_avatar &amp;&amp; (!message.is_self_author || !options.is_chat_window)" class="o_thread_message_sidebar">
                     <t t-if="!message.mailto &amp;&amp; message.author_id[0]">
                         <img t-if="message.avatar_src &amp;&amp; message.display_author"
                             t-att-src="message.avatar_src"
@@ -76,8 +76,8 @@
                         t-att-class="'fa o_thread_message_star ' + (message.is_starred ? 'fa-star' : 'fa-star-o')"
                         t-att-data-message-id="message.id" title="Mark as Todo"/>
                 </div>
-                <div t-att-class="'o_thread_message_core' + (message.is_note ? ' o_mail_note' : '') + (message.is_self_author ? ' o_self_message' : '')">
-                    <p t-if="message.display_author &amp;&amp; !message.is_self_author" class="o_mail_info">
+                <div t-att-class="'o_thread_message_core' + (message.is_note ? ' o_mail_note' : '') + (message.is_self_author &amp;&amp; options.is_chat_window ? ' o_self_message' : '')">
+                    <p t-if="message.display_author &amp;&amp; (!message.is_self_author || !options.is_chat_window)" class="o_mail_info">
                         <t t-if="message.is_note">
                             Note by
                         </t>
@@ -87,7 +87,7 @@
                                 <t t-esc="message.mailto"/>
                             </a>
                         </strong>
-                        <strong t-if="!message.mailto &amp;&amp; message.author_id[0] &amp;&amp; !message.is_self_author"
+                        <strong t-if="!message.mailto &amp;&amp; message.author_id[0]"
                                 data-oe-model="res.partner" t-att-data-oe-id="message.author_redirect ? message.author_id[0] : ''"
                                 t-attf-class="#{message.author_redirect ? 'o_mail_redirect' : ''}">
                             <t t-esc="message.displayed_author"/>
@@ -143,7 +143,7 @@
                     <t t-foreach="message.attachment_ids" t-as="attachment">
                         <t t-call="mail.Attachment"/>
                     </t>
-                    <p t-if="message.is_self_author" class="o_mail_info">
+                    <p t-if="message.is_self_author &amp;&amp; options.is_chat_window" class="o_mail_info">
                         <small class="o_mail_timestamp" t-att-title="message.date"><t t-esc="message.hour"/></small>
                     </p>
                 </div>
@@ -198,9 +198,8 @@
 
     <t t-name="mail.Attachment">
         <div t-attf-class="o_attachment #{attachment.upload ? 'o_attachment_uploading' : ''}" t-att-title="attachment.name">
-            <a t-attf-class="#{attachment.mimetype.startsWith('image') ? 'o_image_preview' : 'o_image'}" t-att-href='attachment.url' target="_blank" t-att-data-mimetype="attachment.mimetype" t-attf-data-src="/web/image/#{attachment.id}/100x80">
-
-                <img t-if="attachment.mimetype.startsWith('image')" t-attf-src="/web/image/#{attachment.id}/200x200" class="o_image_view"/>
+            <a t-attf-class="#{attachment.mimetype.startsWith('image') &amp;&amp; options.is_chat_window ? 'o_image_preview' : 'o_image'}" t-att-href='attachment.url' target="_blank" t-att-data-mimetype="attachment.mimetype" t-attf-data-src="/web/image/#{attachment.id}/100x80">
+                <img t-if="attachment.mimetype.startsWith('image') &amp;&amp; options.is_chat_window" t-attf-src="/web/image/#{attachment.id}/200x200" class="o_image_view"/>
                 <span class='o_attachment_name'><t t-esc='attachment.name'/></span>
             </a>
             <t t-if="editable">
