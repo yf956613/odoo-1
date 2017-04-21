@@ -98,7 +98,12 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
         "click .o_mail_chat_channel_item": function (event) {
             event.preventDefault();
             var channel_id = this.$(event.currentTarget).data('channel-id');
-            this.set_channel(chat_manager.get_channel(channel_id));
+            var channel = chat_manager.get_channel(channel_id);
+            if(this.is_mobile){
+                chat_manager.detach_channel(channel);
+            } else {
+                this.set_channel(channel);
+            }
         },
         "click .o_mail_sidebar_title .o_add": function (event) {
             event.preventDefault();
@@ -190,15 +195,11 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
             el.removeClass("btn-default").addClass("btn-primary");
             var channel_id = el.data('channel-id');
             this.set_channel(chat_manager.get_channel(channel_id));
-        },
-        "click .o_composer_toggle_tabs": function(event){
-            this.$(".o_mail_chat_mobile_tabs").slideToggle(100);
-            $(event.currentTarget).toggleClass("fa-chevron-down fa-chevron-up");
         }
     },
 
     on_attach_callback: function () {
-        chat_manager.bus.trigger('client_action_open', true);
+        chat_manager.bus.trigger('client_action_open', this.is_mobile ? false : true);
         if (this.channel) {
             this.thread.scroll_to({offset: this.channels_scrolltop[this.channel.id]});
         }
