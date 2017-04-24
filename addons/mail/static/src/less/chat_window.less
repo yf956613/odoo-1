@@ -32,31 +32,39 @@
         .o-flex(0, 0, auto);
         color: white;
         background-color: @odoo-brand-primary;
-        padding: 5px;
+        padding: 0px 5px;
         border-radius: 4px 4px 0px 0px;
         border-bottom: 2px solid @o-chat-window-bg;
 
         @media (max-width: @screen-xs-max) {
             height: @navbar-height;
             border-radius: 0px;
+            padding-top: 5px;
             .o_chat_window_close {
                 font-size: 16px;
                 padding: 5px;
+                margin-top: 0px;
             }
         }
 
         .o_chat_title {
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: bold;
             padding: 5px;
             .o-flex(1, 1, auto);
             .o-text-overflow();
+
+            .o_last_seen_on {
+                font-weight: normal;
+                font-size: 10px;
+            }
         }
 
         .o_chat_window_close, .o_chat_window_expand {
             color: white;
-            padding: 8px;
-            margin-left: 5px;
+            padding: 7px;
+            margin-top: 2px;
             &:hover {
                 background-color: darken(@odoo-brand-primary, 10%);
             }
@@ -86,18 +94,53 @@
             }
             .o_thread_message_core {
                 margin-right: 5px;
+                p {
+                    padding: 0px;
+                    margin: 0px 0px 5px 0px;
+                }
+
+                .o_mail_timestamp {
+                    font-size: 9px;
+                }
             }
+
 
             .o_thread_message_attachment {
                 display: block;
+                position: relative;
                 background: @o-chat-window-bg;
                 width: 200px;
                 margin-left: 5px;
                 margin-right: auto;
+                margin-top: 15px;
 
                 &.o_self_message_attachments {
                     margin-left: auto;
                     margin-right: 5px;
+
+                    .o_thread_attachment {
+                        .o_attachment_name {
+                            padding-right: 30px;
+                            padding-left: 5px;
+                       }
+                    }
+
+                    .o_author_image {
+                        right: 5px;
+                        left: inherit;
+                    }
+                }
+                .o_author_image {
+                    position: absolute;
+                    bottom: 8px;
+                    left: 5px;
+                    border-radius: 30px;
+
+                    img {
+                        border-radius: 30px;
+                        width: 20px;
+                        height: 20px;
+                    }
                 }
 
                 .o_thread_attachment {
@@ -123,6 +166,7 @@
                         color: #fff;
                         background-color:rgba(0,0,0,0.3);
                         padding: 5px;
+                        padding-left: 30px;
                         display: block;
                     }
 
@@ -156,7 +200,6 @@
                 padding: 10px 15px;
 
                 p {
-                    font-size: 1em;
                     line-height: 1.3;
                 }
 

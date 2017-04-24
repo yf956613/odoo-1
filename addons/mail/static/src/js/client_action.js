@@ -435,7 +435,10 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
                 var partner_id = ui.item.id;
                 var dm = chat_manager.get_dm_from_partner_id(partner_id);
                 if (dm) {
-                    self.set_channel(dm);
+                    if(self.is_mobile)
+                        chat_manager.detach_channel(dm)
+                    else
+                        self.set_channel(dm);
                 } else {
                     chat_manager.create_channel(partner_id, "dm");
                 }
@@ -736,7 +739,10 @@ var ChatAction = Widget.extend(ControlPanelMixin, {
     on_new_channel: function (channel) {
         this.renderSidebar();
         if (channel.autoswitch) {
-            this.set_channel(channel);
+            if(this.is_mobile)
+                chat_manager.detach_channel(channel);
+            else
+                this.set_channel(channel);
         }
     },
     on_channel_unsubscribed: function (channel_id) {

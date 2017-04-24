@@ -7,6 +7,7 @@
                 <t t-call="mail.ChatWindowHeaderContent">
                     <t t-set="is_mobile" t-value="widget.is_mobile"/>
                     <t t-set="status" t-value="widget.status"/>
+                    <t t-set="last_seen_on" t-value="widget.last_seen_on"/>
                     <t t-set="title" t-value="widget.title"/>
                     <t t-set="unread_counter" t-value="widget.unread_msgs"/>
                 </t>
@@ -31,7 +32,6 @@
                 <t t-foreach="sessions" t-as="session">
                     <li class="o_chat_header" t-att-data-session-id="session.id">
                         <t t-call="mail.ChatWindowHeaderContent">
-                            <t t-set="is_mobile" t-value="widget.is_mobile"/>
                             <t t-set="status" t-value="session.window.status"/>
                             <t t-set="title" t-value="session.window.title"/>
                             <t t-set="unread_counter" t-value="session.window.unread_msgs"/>
@@ -46,8 +46,15 @@
         <span class="o_chat_title">
             <t t-esc="title"/>
             <span t-if="unread_counter"> (<t t-esc="unread_counter"/>)</span>
-            <t t-if="status" t-call="mail.chat.UserStatus"/>
+            <t t-if="status">
+                <t t-if="status != 'offline'" t-call="mail.chat.UserStatus"/>
+                <small class="o_last_seen_on">
+                    <t t-if="status != 'online' &amp;&amp; last_seen_on"> (<t t-esc="last_seen_on"/>)</t>
+                    <t t-if="status == 'online'">online</t>
+                </small>
+            </t>
         </span>
+
         <span>
             <a href="#" class="o_chat_window_close fa fa-close"/>
         </span>

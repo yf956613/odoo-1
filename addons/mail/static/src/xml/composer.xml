@@ -21,7 +21,7 @@
                  <div class="btn-group o_composer_buttons">
                     <button tabindex="4" class="btn btn-sm btn-icon fa fa-smile-o o_composer_button_emoji" type="button" data-toggle="popover"/>
                     <button tabindex="5" class="btn btn-sm btn-icon fa fa-paperclip o_composer_button_add_attachment" type="button"/>
-                    <button t-if="widget.options.is_chat_window" tabindex="3" class="btn btn-sm btn-icon fa fa-paper-plane-o o_composer_button_send text-success" type="button"/>
+                    <button t-if="widget.options.is_chat_window &amp;&amp; widget.options.is_mobile" tabindex="3" class="btn btn-sm btn-icon fa fa-paper-plane-o o_composer_button_send text-success" type="button"/>
                     <button t-if="!widget.options.is_chat_window" tabindex="3" class="btn btn-sm btn-primary o_composer_button_send" type="button"><t t-esc="widget.options.send_text"/></button>
                  </div>
              </t>

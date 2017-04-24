@@ -184,6 +184,20 @@
                 <span class="o_attachment_name"><t t-esc="attachment.name"/></span>
             </a>
         </div>
+        <div class="o_author_image">
+            <t t-if="!message.mailto &amp;&amp; message.author_id[0]">
+                <img t-if="message.avatar_src &amp;&amp; message.display_author"
+                    t-att-src="message.avatar_src"
+                    data-oe-model="res.partner"
+                    t-att-data-oe-id="message.author_redirect ? message.author_id[0] : ''"
+                    t-attf-class="o_thread_message_avatar #{message.author_redirect ? 'o_mail_redirect' : ''}"/>
+            </t>
+            <t t-if="message.mailto || !message.author_id[0]">
+                <img t-if="message.avatar_src &amp;&amp; message.display_author"
+                    t-att-src="message.avatar_src"
+                    class="o_thread_message_avatar"/>
+            </t>
+        </div>
     </t>
 
     <t t-name="mail.ChatComposer.Attachments">
@@ -198,8 +212,8 @@
 
     <t t-name="mail.Attachment">
         <div t-attf-class="o_attachment #{attachment.upload ? 'o_attachment_uploading' : ''}" t-att-title="attachment.name">
-            <a t-attf-class="#{attachment.mimetype.startsWith('image') &amp;&amp; options.is_chat_window ? 'o_image_preview' : 'o_image'}" t-att-href='attachment.url' target="_blank" t-att-data-mimetype="attachment.mimetype" t-attf-data-src="/web/image/#{attachment.id}/100x80">
-                <img t-if="attachment.mimetype.startsWith('image') &amp;&amp; options.is_chat_window" t-attf-src="/web/image/#{attachment.id}/200x200" class="o_image_view"/>
+            <a t-attf-class="#{attachment.mimetype.startsWith('image') &amp;&amp; options &amp;&amp; options.is_chat_window &amp;&amp; !editable ? 'o_image_preview' : 'o_image'}" t-att-href='attachment.url' target="_blank" t-att-data-mimetype="attachment.mimetype" t-attf-data-src="/web/image/#{attachment.id}/100x80">
+                <img t-if="attachment.mimetype.startsWith('image') &amp;&amp; options &amp;&amp; options.is_chat_window" t-attf-src="/web/image/#{attachment.id}/200x200" class="o_image_view"/>
                 <span class='o_attachment_name'><t t-esc='attachment.name'/></span>
             </a>
             <t t-if="editable">

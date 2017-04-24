@@ -40,6 +40,7 @@ return Widget.extend({
         this.status = this.options.status;
         this.unread_msgs = unread_msgs || 0;
         this.is_hidden = false;
+        this.last_seen_on = this.options.last_seen_on;
     },
     start: function () {
         this.$input = this.$('.o_composer_text_field');
@@ -54,7 +55,6 @@ return Widget.extend({
         this.thread.on('toggle_star_status', null, this.trigger.bind(this, 'toggle_star_status'));
         this.thread.on('redirect_to_channel', null, this.trigger.bind(this, 'redirect_to_channel'));
         this.thread.on('redirect', null, this.trigger.bind(this, 'redirect'));
-        HEIGHT_FOLDED = this.$(".o_chat_header").outerHeight();
         if (this.folded) {
             this.$el.css('height', HEIGHT_FOLDED);
         } else if (this.options.autofocus) {
@@ -71,13 +71,15 @@ return Widget.extend({
         this.unread_msgs = counter;
         this.render_header();
     },
-    update_status: function (status) {
+    update_status: function (status, last_seen_on) {
         this.status = status;
+        this.last_seen_on = last_seen_on;
         this.render_header();
     },
     render_header: function () {
         this.$header.html(QWeb.render('mail.ChatWindowHeaderContent', {
             status: this.status,
+            last_seen_on: this.last_seen_on,
             title: this.title,
             is_mobile: this.is_mobile,
             unread_counter: this.unread_msgs,
