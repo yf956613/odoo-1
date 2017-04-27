@@ -1832,7 +1832,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         return result
 
     @api.model
-    def _read_group_raw(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+    def _read_group_raw(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True, group_count=False):
         self.check_access_rights('read')
         query = self._where_calc(domain)
         fields = fields or [f.name for f in pycompat.values(self._fields) if f.store]
@@ -1882,6 +1882,8 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         prefix_terms = lambda prefix, terms: (prefix + " " + ",".join(terms)) if terms else ''
         prefix_term = lambda prefix, term: ('%s %s' % (prefix, term)) if term else ''
 
+        if group_count:
+            select_terms.append('count(*) OVER() AS _group_count')
         query = """
             SELECT min("%(table)s".id) AS id, count("%(table)s".id) AS "%(count_field)s" %(extra_fields)s
             FROM %(from)s
