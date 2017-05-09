@@ -11,7 +11,16 @@
                     <p><strong>This operation will permanently erase all data currently stored by the modules!</strong></p>
                     <p>If you wish to cancel the process, press the cancel button below</p>
                     <separator string="Impacted Apps"/>
-                    <field name="module_info"/>
+                    <group>
+                        <field name="module_id"/>
+                        <field name="module_ids" readonly="1">
+                            <tree>
+                                <field name="module_id"/>
+                                <field name="model_detail"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <!-- <field name="module_info"/> -->
                     <footer>
                         <button name="upgrade_module" string="Confirm" type="object" class="btn-primary"/>
                         <button string="Cancel" class="btn-default" name="upgrade_module_cancel" type="object"/>

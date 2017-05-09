@@ -442,6 +442,7 @@ class Module(models.Model):
         """ Return the modules that directly or indirectly depend on the modules
         in `self`, and that satisfy the `exclude_states` filter.
         """
+        print '<selfffffffff',self, known_deps,exclude_states
         if not self:
             return self
         known_deps = known_deps or self.browse()
@@ -519,8 +520,9 @@ class Module(models.Model):
     def button_uninstall(self):
         if 'base' in self.mapped('name'):
             raise UserError(_("The `base` module cannot be uninstalled"))
-        deps = self.downstream_dependencies()
-        (self + deps).write({'state': 'to remove'})
+        # deps = self.downstream_dependencies()
+        # print 'innnnnnn',self, deps
+        # (self + deps).write({'state': 'to remove'})
         return dict(ACTION_DICT, name=_('Uninstall'))
 
     @api.multi
