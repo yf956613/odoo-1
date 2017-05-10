@@ -7,7 +7,17 @@
             <field name="model">base.module.upgrade</field>
             <field name="arch" type="xml">
                 <form string="System Update">
-                    <p>This module will trigger the uninstallation of below modules.</p>
+                    <field name="module_id" invisible="1"/>
+                    <field name="icon_image" widget="image" class="oe_avatar pull-left" options='{"preview_image": "image_medium", "size": [60, 60]}' readonly="1"/>
+                    <div>
+                        <h4 class="mb0"><field name="name" class="ml8"/></h4>
+                        <span class="ml8 oe_grey"><field name="model_detail"/> and all related records are going to be removed.</span>
+                    </div>
+                    <div class="text-warning mt24">
+                        <span>This operation will permanently erase all data currently stored by the modules!</span>
+                    </div>
+                    <separator string="Impacted Modules"/>
+                    <!-- <p>This module will trigger the uninstallation of below modules.</p>
                     <p><strong>This operation will permanently erase all data currently stored by the modules!</strong></p>
                     <p>If you wish to cancel the process, press the cancel button below</p>
                     <separator string="Impacted Apps"/>
@@ -20,7 +30,7 @@
                             </tree>
                         </field>
                     </group>
-                    <!-- <field name="module_info"/> -->
+ -->                    <!-- <field name="module_info"/> -->
                     <footer>
                         <button name="upgrade_module" string="Confirm" type="object" class="btn-primary"/>
                         <button string="Cancel" class="btn-default" name="upgrade_module_cancel" type="object"/>

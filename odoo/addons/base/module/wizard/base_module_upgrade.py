@@ -21,7 +21,16 @@ class BaseModuleUpgrade(models.TransientModel):
         return res
 
     module_id = fields.Many2one('ir.module.module', string='Module')
+    icon_image = fields.Binary(related="module_id.icon_image")
+    name = fields.Char(related="module_id.shortdesc")
+    model_detail = fields.Char(compute="_compute_model_detail")
     module_ids = fields.One2many('base.module.upgrade.line', 'upgrade_module_id', compute='_compute_module_ids', string='Impacted modules', readonly=True)
+
+    @api.multi
+    @api.depends('module_ids')
+    def _compute_model_detail(self):
+        for rec in self.filtered(lambda x: x.module_id):
+            rec.model_detail = rec.module_ids.filtered(lambda x: x.module_id == rec.module_id).model_detail
 
     @api.multi
     @api.depends('module_id')
@@ -46,7 +55,7 @@ class BaseModuleUpgrade(models.TransientModel):
                         text.append((res[0], model.name))
                 res = {
                     'module_id': dep.id,
-                    'model_detail': ','.join("%s (%s)" % (x[1], int(x[0])) for x in text)
+                    'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text)
                 }
                 line.append((0, 0, res))
             wizard.module_ids = line
