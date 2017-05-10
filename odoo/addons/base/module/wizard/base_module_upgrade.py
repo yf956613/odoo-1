@@ -13,10 +13,10 @@ class BaseModuleUpgrade(models.TransientModel):
     @api.model
     def default_get(self, fields):
         res = super(BaseModuleUpgrade, self).default_get(fields)
-        modules = self.env['ir.module.module'].search([('id', 'in', self.env.context.get('active_ids'))])
-        if modules:
-            deps = modules.downstream_dependencies(exclude_states=['uninstalled', 'uninstallable'])
-        print '<self.env',self.env.context.get('active_ids'), modules,deps
+        # modules = self.env['ir.module.module'].search([('id', 'in', self.env.context.get('active_ids'))])
+        # if modules:
+        #     deps = modules.downstream_dependencies(exclude_states=['uninstalled', 'uninstallable'])
+        # print '<self.env',self.env.context.get('active_ids'), modules,deps
         res['module_id'] = self.env.context.get('active_id', False)
         return res
 
@@ -24,6 +24,7 @@ class BaseModuleUpgrade(models.TransientModel):
     icon_image = fields.Binary(related="module_id.icon_image")
     name = fields.Char(related="module_id.shortdesc")
     model_detail = fields.Char(compute="_compute_model_detail")
+    impact_count = fields.Integer(compute="_compute_impacted_module")
     module_ids = fields.One2many('base.module.upgrade.line', 'upgrade_module_id', compute='_compute_module_ids', string='Impacted modules', readonly=True)
 
     @api.multi
@@ -31,6 +32,12 @@ class BaseModuleUpgrade(models.TransientModel):
     def _compute_model_detail(self):
         for rec in self.filtered(lambda x: x.module_id):
             rec.model_detail = rec.module_ids.filtered(lambda x: x.module_id == rec.module_id).model_detail
+
+    @api.multi
+    @api.depends('module_ids')
+    def _compute_impacted_module(self):
+        for rec in self:
+            rec.impact_count = len(rec.module_ids)
 
     @api.multi
     @api.depends('module_id')
@@ -52,10 +59,11 @@ class BaseModuleUpgrade(models.TransientModel):
                         table_name = model_obj._table if model_obj else model.model.replace('.', '_')
                         self.env.cr.execute("SELECT reltuples AS row_qty FROM pg_class WHERE relname = '%s'" % table_name)
                         res = self.env.cr.fetchone()
-                        text.append((res[0], model.name))
+                        if res and res[0]:
+                            text.append((res[0], model.name))
                 res = {
                     'module_id': dep.id,
-                    'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text)
+                    'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text) if text else False
                 }
                 line.append((0, 0, res))
             wizard.module_ids = line
@@ -65,12 +73,6 @@ class BaseModuleUpgrade(models.TransientModel):
     # def get_module_list(self):
     #     states = ['to upgrade', 'to remove', 'to install']
     #     return self.env['ir.module.module'].search([('state', 'in', states)])
-
-    # @api.model
-    # def _default_module_info(self):
-    #     return "\n".join("%s: %s" % (mod.name, mod.state) for mod in self.get_module_list())
-
-    # module_info = fields.Text('Apps to Update', readonly=True, default=_default_module_info)
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
@@ -137,10 +139,8 @@ class BaseModuleUpgradeLine(models.TransientModel):
 
     upgrade_module_id = fields.Many2one('base.module.upgrade', required=True)
     module_id = fields.Many2one('ir.module.module', string="Module")
+    shortdesc = fields.Char(related="module_id.shortdesc")
+    name = fields.Char(related="module_id.name")
+    # TODO mamaner to remove if installed
+    state = fields.Selection(related="module_id.state")
     model_detail = fields.Char(string="Record Details")
-
-    # @api.multi
-    # @api.depends('upgrade_module_id')
-    # def _compute_model_detail(self):
-    #     for wizard in self.filtered(lambda x: x.upgrade_module_id):
-    #         wizard.model_detail = wizard.module_id.downstream_dependencies()

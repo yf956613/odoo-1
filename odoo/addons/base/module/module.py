@@ -442,7 +442,6 @@ class Module(models.Model):
         """ Return the modules that directly or indirectly depend on the modules
         in `self`, and that satisfy the `exclude_states` filter.
         """
-        print '<selfffffffff',self, known_deps,exclude_states
         if not self:
             return self
         known_deps = known_deps or self.browse()

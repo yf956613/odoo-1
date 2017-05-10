@@ -8,29 +8,37 @@
             <field name="arch" type="xml">
                 <form string="System Update">
                     <field name="module_id" invisible="1"/>
-                    <field name="icon_image" widget="image" class="oe_avatar pull-left" options='{"preview_image": "image_medium", "size": [60, 60]}' readonly="1"/>
-                    <div>
+                    <field name="icon_image" widget="image" class="oe_avatar pull-left mb0" options='{"preview_image": "image_medium", "size": [60, 60]}' readonly="1"/>
+                    <div class="mb32">
                         <h4 class="mb0"><field name="name" class="ml8"/></h4>
-                        <span class="ml8 oe_grey"><field name="model_detail"/> and all related records are going to be removed.</span>
+                        <small class="ml8 oe_grey" attrs="{'invisible': [('model_detail', '=', False)]}"><field name="model_detail"/> and all related records are going to be removed.</small>
                     </div>
-                    <div class="text-warning mt24">
+                    <div class="text-warning mt16">
                         <span>This operation will permanently erase all data currently stored by the modules!</span>
                     </div>
-                    <separator string="Impacted Modules"/>
-                    <!-- <p>This module will trigger the uninstallation of below modules.</p>
-                    <p><strong>This operation will permanently erase all data currently stored by the modules!</strong></p>
-                    <p>If you wish to cancel the process, press the cancel button below</p>
-                    <separator string="Impacted Apps"/>
-                    <group>
-                        <field name="module_id"/>
-                        <field name="module_ids" readonly="1">
-                            <tree>
-                                <field name="module_id"/>
-                                <field name="model_detail"/>
-                            </tree>
-                        </field>
-                    </group>
- -->                    <!-- <field name="module_info"/> -->
+                    <div class="o_horizontal_separator mt16 mb0">Impacted Modules(<field name="impact_count"/>)</div>
+                    <span class="oe_grey">This module will trigger the uninstallation of below modules.</span>
+                    <field name="module_ids">
+                        <kanban create="false">
+                            <field name="module_id"/>
+                            <field name="shortdesc"/>
+                            <field name="model_detail"/>
+                            <field name="state"/>
+                            <field name="name"/>
+                            <templates>
+                                <t t-name="kanban-box">
+                                    <div>
+                                        <img t-att-src="kanban_image('ir.module.module', 'icon_image', record.module_id.raw_value)" class="pull-left" height="60" width="60"/>
+                                        <div class="ml64">
+                                            <h6 class="mb0 mt0"><field name="shortdesc"/>(<field name="state"/>)</h6>
+                                            <p class="oe_grey mb0"><field name="name"/></p>
+                                            <small class="oe_grey" t-if="record.model_detail.value"><field name="model_detail"/> and all related records are going to be removed.</small>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
                     <footer>
                         <button name="upgrade_module" string="Confirm" type="object" class="btn-primary"/>
                         <button string="Cancel" class="btn-default" name="upgrade_module_cancel" type="object"/>
