@@ -8,8 +8,8 @@
             <field name="arch" type="xml">
                 <form string="System Update">
                     <field name="module_id" invisible="1"/>
-                    <field name="icon_image" widget="image" class="oe_avatar pull-left mb0" options='{"preview_image": "image_medium", "size": [60, 60]}' readonly="1"/>
-                    <div class="mb32">
+                    <field name="icon_image" widget="image" class="oe_avatar pull-left mb0" options='{"preview_image": "image_medium", "size": [60, 60]}' readonly="1" attrs="{'invisible': [('module_id', '=', False)]}"/>
+                    <div class="mb32" attrs="{'invisible': [('module_id', '=', False)]}">
                         <h4 class="mb0"><field name="name" class="ml8"/></h4>
                         <small class="ml8 oe_grey" attrs="{'invisible': [('model_detail', '=', False)]}"><field name="model_detail"/> and all related records are going to be removed.</small>
                     </div>

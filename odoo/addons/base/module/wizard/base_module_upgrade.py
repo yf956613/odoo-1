@@ -13,10 +13,6 @@ class BaseModuleUpgrade(models.TransientModel):
     @api.model
     def default_get(self, fields):
         res = super(BaseModuleUpgrade, self).default_get(fields)
-        # modules = self.env['ir.module.module'].search([('id', 'in', self.env.context.get('active_ids'))])
-        # if modules:
-        #     deps = modules.downstream_dependencies(exclude_states=['uninstalled', 'uninstallable'])
-        # print '<self.env',self.env.context.get('active_ids'), modules,deps
         res['module_id'] = self.env.context.get('active_id', False)
         return res
 
@@ -44,10 +40,11 @@ class BaseModuleUpgrade(models.TransientModel):
     def _compute_module_ids(self):
         ModelData = self.env['ir.model.data']
         IrModel = self.env['ir.model']
-        for wizard in self.filtered(lambda x: x.module_id):
+        for wizard in self:
             line = []
             dependencies = wizard.module_id.downstream_dependencies() + wizard.module_id
-            for dep in dependencies:
+            impacted_modules = self.env['ir.module.module'].search([('state', 'in', ['to upgrade', 'to remove', 'to install'])])
+            for dep in dependencies | impacted_modules:
                 all_model_ids = ModelData.search([('module', '=', dep.name), ('model', '=', 'ir.model')]).mapped('res_id')
                 text = []
                 # TODO Later on move to mail by override for is_mail_thread
@@ -62,7 +59,8 @@ class BaseModuleUpgrade(models.TransientModel):
                             text.append((res[0], model.name))
                 res = {
                     'module_id': dep.id,
-                    'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text) if text else False
+                    'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text) if text else False,
+                    'is_down_dependencies': True if dep in dependencies else False
                 }
                 line.append((0, 0, res))
             wizard.module_ids = line
@@ -80,8 +78,8 @@ class BaseModuleUpgrade(models.TransientModel):
     def upgrade_module(self):
         Module = self.env['ir.module.module']
 
-        # write state here instead of on unistallation wizard
-        self.module_ids.write({'state': 'to remove'})
+        # write state 'to remove' on depends modules here instead of on open unistallation wizard
+        self.module_ids.filtered(lambda x: x.is_down_dependencies).mapped('module_id').write({'state': 'to remove'})
         # install/upgrade: double-check preconditions
         mods = Module.search([('state', 'in', ['to upgrade', 'to install'])])
         if mods:
@@ -115,3 +113,4 @@ class BaseModuleUpgradeLine(models.TransientModel):
     # TODO mamaner to remove if installed
     state = fields.Selection(related="module_id.state")
     model_detail = fields.Char(string="Record Details")
+    is_down_dependencies = fields.Boolean(string="In downstream_dependencies(for to remove)?")
