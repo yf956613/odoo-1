@@ -39,7 +39,6 @@ class BaseModuleUpgrade(models.TransientModel):
     @api.depends('module_id')
     def _compute_module_ids(self):
         ModelData = self.env['ir.model.data']
-        IrModel = self.env['ir.model']
         for wizard in self:
             line = []
             dependencies = wizard.module_id.downstream_dependencies() + wizard.module_id
@@ -47,8 +46,8 @@ class BaseModuleUpgrade(models.TransientModel):
             for dep in dependencies | impacted_modules:
                 all_model_ids = ModelData.search([('module', '=', dep.name), ('model', '=', 'ir.model')]).mapped('res_id')
                 text = []
-                # TODO Later on move to mail by override for is_mail_thread
-                for model in IrModel.browse(all_model_ids).filtered(lambda x: not x.transient and x.is_mail_thread):
+                # override _check_model in mail for is_mail_thread
+                for model in self._check_model(all_model_ids):
                     other_declarations = ModelData.search([('module', '!=', dep.name), ('model', '=', 'ir.model'), ('res_id', '=', model.id)])
                     if not len(other_declarations):
                         model_obj = self.env.registry.get(model.model, False)
@@ -64,6 +63,10 @@ class BaseModuleUpgrade(models.TransientModel):
                 }
                 line.append((0, 0, res))
             wizard.module_ids = line
+
+    @api.model
+    def _check_model(self, model_ids):
+        return self.env['ir.model'].browse(model_ids).filtered(lambda x: not x.transient)
 
     @api.multi
     def upgrade_module_cancel(self):
