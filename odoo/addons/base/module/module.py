@@ -519,9 +519,14 @@ class Module(models.Model):
     def button_uninstall(self):
         if 'base' in self.mapped('name'):
             raise UserError(_("The `base` module cannot be uninstalled"))
-        # deps = self.downstream_dependencies()
-        # print 'innnnnnn',self, deps
-        # (self + deps).write({'state': 'to remove'})
+        deps = self.downstream_dependencies()
+        (self + deps).write({'state': 'to remove'})
+        return dict(ACTION_DICT, name=_('Uninstall'))
+
+    @api.multi
+    def button_uninstall_wizard(self):
+        if 'base' in self.mapped('name'):
+            raise UserError(_("The `base` module cannot be uninstalled"))
         return dict(ACTION_DICT, name=_('Uninstall'))
 
     @api.multi

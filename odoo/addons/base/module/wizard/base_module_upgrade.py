@@ -49,7 +49,6 @@ class BaseModuleUpgrade(models.TransientModel):
             dependencies = wizard.module_id.downstream_dependencies() + wizard.module_id
             for dep in dependencies:
                 all_model_ids = ModelData.search([('module', '=', dep.name), ('model', '=', 'ir.model')]).mapped('res_id')
-                print 'innnnnnnnnn',dep.name
                 text = []
                 # TODO Later on move to mail by override for is_mail_thread
                 for model in IrModel.browse(all_model_ids).filtered(lambda x: not x.transient and x.is_mail_thread):
@@ -68,32 +67,6 @@ class BaseModuleUpgrade(models.TransientModel):
                 line.append((0, 0, res))
             wizard.module_ids = line
 
-    # @api.model
-    # @api.returns('ir.module.module')
-    # def get_module_list(self):
-    #     states = ['to upgrade', 'to remove', 'to install']
-    #     return self.env['ir.module.module'].search([('state', 'in', states)])
-
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        res = super(BaseModuleUpgrade, self).fields_view_get(view_id, view_type, toolbar=toolbar,submenu=False)
-        if view_type != 'form':
-            return res
-
-        if not(self._context.get('active_model') and self._context.get('active_id')):
-            return res
-
-        # if not self.get_module_list():
-        #     res['arch'] = '''<form string="Upgrade Completed" version="7.0">
-        #                         <separator string="Upgrade Completed" colspan="4"/>
-        #                         <footer>
-        #                             <button name="config" string="Start Configuration" type="object" class="btn-primary"/>
-        #                             <button special="cancel" string="Close" class="btn-default"/>
-        #                         </footer>
-        #                      </form>'''
-
-        return res
-
     @api.multi
     def upgrade_module_cancel(self):
         Module = self.env['ir.module.module']
@@ -107,6 +80,8 @@ class BaseModuleUpgrade(models.TransientModel):
     def upgrade_module(self):
         Module = self.env['ir.module.module']
 
+        # write state here instead of on unistallation wizard
+        self.module_ids.write({'state': 'to remove'})
         # install/upgrade: double-check preconditions
         mods = Module.search([('state', 'in', ['to upgrade', 'to install'])])
         if mods:
@@ -128,10 +103,6 @@ class BaseModuleUpgrade(models.TransientModel):
         odoo.modules.registry.Registry.new(self._cr.dbname, update_module=True)
 
         return {'type': 'ir.actions.act_window_close'}
-
-    @api.multi
-    def config(self):
-        return self.env['res.config'].next()
 
 class BaseModuleUpgradeLine(models.TransientModel):
     _name = "base.module.upgrade.line"
