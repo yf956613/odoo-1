@@ -43,25 +43,18 @@ class BaseModuleUpgrade(models.TransientModel):
             line = []
             dependencies = wizard.module_id.downstream_dependencies() + wizard.module_id
             impacted_modules = self.env['ir.module.module'].search([('state', 'in', ['to upgrade', 'to remove', 'to install'])])
-            for dep in dependencies | impacted_modules:
+            for dep in (dependencies | impacted_modules).sorted(lambda r: r.application, reverse=True):
                 all_model_ids = ModelData.search([('module', '=', dep.name), ('model', '=', 'ir.model')]).mapped('res_id')
                 text = []
                 # override _check_model in mail for is_mail_thread
                 for model in self._check_model(all_model_ids):
-                    other_declarations = ModelData.search([('module', '!=', dep.name), ('model', '=', 'ir.model'), ('res_id', '=', model.id)])
-                    if not len(other_declarations):
-                        model_obj = self.env.registry.get(model.model, False)
-                        table_name = model_obj._table if model_obj else model.model.replace('.', '_')
-                        self.env.cr.execute("SELECT reltuples AS row_qty FROM pg_class WHERE relname = '%s'" % table_name)
+                    model_obj = self.env[model.model]
+                    if model_obj._original_module == dep.name:
+                        self.env.cr.execute("SELECT reltuples AS row_qty FROM pg_class WHERE relname = '%s'" % model_obj._table)
                         res = self.env.cr.fetchone()
                         if res and res[0]:
                             text.append((res[0], model.name))
-                res = {
-                    'module_id': dep.id,
-                    'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text) if text else False,
-                    'is_down_dependencies': True if dep in dependencies else False
-                }
-                line.append((0, 0, res))
+                line.append((0, 0, {'module_id': dep.id, 'model_detail': ','.join("%s %s" % (int(x[0]), x[1]) for x in text) if text else False, 'is_down_dependencies': True if dep in dependencies else False}))
             wizard.module_ids = line
 
     @api.model
