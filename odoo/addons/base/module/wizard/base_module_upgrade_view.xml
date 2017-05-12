@@ -10,14 +10,23 @@
                     <field name="module_id" invisible="1"/>
                     <field name="icon_image" widget="image" class="oe_avatar pull-left mb0" options='{"preview_image": "image_medium", "size": [60, 60]}' readonly="1" attrs="{'invisible': [('module_id', '=', False)]}"/>
                     <div class="mb32" attrs="{'invisible': [('module_id', '=', False)]}">
-                        <h4 class="mb0"><field name="name" class="ml8"/></h4>
-                        <small class="ml8 oe_grey" attrs="{'invisible': [('model_detail', '=', False)]}"><field name="model_detail"/> and all related records are going to be removed.</small>
+                        <h4 class="mb0">
+                            <field name="name" class="ml8"/>
+                        </h4>
+                        <small class="ml8 oe_grey" attrs="{'invisible': [('model_detail', '=', False)]}">
+                            <field name="model_detail"/> and all related records are going to be removed.
+                        </small>
                     </div>
-                    <div class="text-warning mt16">
-                        <span>This operation will permanently erase all data currently stored by the modules!</span>
+                    <div class="mt16" attrs="{'invisible': [('impact_count', '&lt;', 1)]}">
+                        <div class="text-warning">
+                            <span>This operation will permanently erase all data currently stored by the modules!</span>
+                        </div>
+                        <div class="o_horizontal_separator mt16 mb0">Impacted Modules(<field name="impact_count"/>)</div>
+                        <span class="oe_grey">This module will trigger the uninstallation of below modules.</span>
                     </div>
-                    <div class="o_horizontal_separator mt16 mb0">Impacted Modules(<field name="impact_count"/>)</div>
-                    <span class="oe_grey">This module will trigger the uninstallation of below modules.</span>
+                    <div attrs="{'invisible': [('impact_count', '&gt;', 0)]}">
+                        No modules to upgrade.
+                    </div>
                     <field name="module_ids">
                         <kanban create="false">
                             <field name="module_id"/>

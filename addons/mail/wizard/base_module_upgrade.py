@@ -3,7 +3,6 @@
 
 from odoo import api, models
 
-
 class BaseModuleUpgrade(models.TransientModel):
     _inherit = "base.module.upgrade"
 
