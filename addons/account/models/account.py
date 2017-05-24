@@ -433,13 +433,12 @@ class AccountJournal(models.Model):
         '''
 
         # Seek the next available number for the account code
-        code_digits = company.accounts_code_digits or 0
         if type == 'bank':
             account_code_prefix = company.bank_account_code_prefix or ''
         else:
             account_code_prefix = company.cash_account_code_prefix or company.bank_account_code_prefix or ''
         for num in range(1, 100):
-            new_code = str(account_code_prefix.ljust(code_digits - 1, '0')) + str(num)
+            new_code = str(account_code_prefix) + str(num)
             rec = self.env['account.account'].search([('code', '=', new_code), ('company_id', '=', company.id)], limit=1)
             if not rec:
                 break
