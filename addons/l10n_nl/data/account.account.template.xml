@@ -2172,7 +2172,6 @@
         <record id="l10nnl_chart_template" model="account.chart.template">
             <field name="cash_account_code_prefix">101</field>
             <field name="bank_account_code_prefix">103</field>
-            <field name="code_digits">6</field>
             <field name="property_account_receivable_id" ref="recv"/>
             <field name="property_account_payable_id" ref="pay"/>
             <field name="property_account_expense_categ_id" ref="7001"/>

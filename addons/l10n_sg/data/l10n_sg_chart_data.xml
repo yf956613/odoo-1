@@ -13,7 +13,6 @@
             <field name="name">Singapore Chart of Accounts - Standard</field>
             <field name="cash_account_code_prefix">1001</field>
             <field name="bank_account_code_prefix">1002</field>
-            <field name="code_digits">6</field>
             <field name="currency_id" ref="base.SGD" />
             <field name="transfer_account_id" ref="transfer_account_id"/>
         </record>

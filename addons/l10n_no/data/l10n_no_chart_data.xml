@@ -18,7 +18,6 @@
             <field name="name">Norway's Chart of Accounts</field>
             <field name="cash_account_code_prefix">1900</field>
             <field name="bank_account_code_prefix">1920</field>
-            <field name="code_digits">4</field>
             <field name="currency_id" ref="base.NOK"/>
             <field name="transfer_account_id" ref="chart1940"/>
         </record>

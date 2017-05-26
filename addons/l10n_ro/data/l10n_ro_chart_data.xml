@@ -18,7 +18,6 @@
         <field name="name">Romania - Chart of Accounts</field>
         <field name="bank_account_code_prefix">512</field>
         <field name="cash_account_code_prefix">531</field>
-        <field name="code_digits">6</field>
         <field name="currency_id" ref="base.RON"/>
         <field name="transfer_account_id" ref="pcg_581"/>
     </record>

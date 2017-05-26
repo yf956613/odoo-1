@@ -11,7 +11,6 @@
 
     <record id="l10n_et" model="account.chart.template">
         <field name="name">Ethiopia Tax and Account Chart Template</field>
-        <field name="code_digits">6</field>
         <field name="currency_id" ref="base.ETB"/>
         <field name="bank_account_code_prefix">211</field>
         <field name="cash_account_code_prefix">211</field>

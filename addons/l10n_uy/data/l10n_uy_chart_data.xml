@@ -12,7 +12,6 @@
 
         <record id="uy_chart_template" model="account.chart.template">
             <field name="name">Plan de Cuentas Uruguay - Template</field>
-            <field name="code_digits">6</field>
             <field name="bank_account_code_prefix">1111</field>
             <field name="cash_account_code_prefix">1112</field>
             <field name="currency_id" ref="base.UYU"/>

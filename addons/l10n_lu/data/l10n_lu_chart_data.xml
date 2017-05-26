@@ -12,7 +12,6 @@
             <field name="name">PCMN Luxembourg</field>
             <field name="bank_account_code_prefix">513</field>
             <field name="cash_account_code_prefix">516</field>
-            <field name="code_digits">6</field>
             <field name="currency_id" ref="base.EUR"/>
             <field name="transfer_account_id" ref="lu_2011_account_517"/>
         </record>

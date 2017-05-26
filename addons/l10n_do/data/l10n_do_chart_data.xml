@@ -11,7 +11,6 @@
         </record>
         <record id="do_chart_template" model="account.chart.template">
             <field name="name">Catálogo de Cuentas Dominicano (NIIF)</field>
-            <field name="code_digits">8</field>
             <field name="cash_account_code_prefix">110101</field>
             <field name="bank_account_code_prefix">110102</field>
             <field name="transfer_account_id" ref="cash_transfer_account"/>

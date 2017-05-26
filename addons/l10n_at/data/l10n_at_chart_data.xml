@@ -20,7 +20,6 @@
         <!-- Chart template -->
         <record id="austria_chart_template" model="account.chart.template">
             <field name="name">Austria - Chart of Accounts</field>
-            <field name="code_digits">6</field>
             <field name="bank_account_code_prefix">2800</field>
             <field name="cash_account_code_prefix">2700</field>
             <field name="currency_id" ref="base.EUR"/>

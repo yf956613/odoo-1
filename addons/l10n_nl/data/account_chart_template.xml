@@ -12,7 +12,6 @@
 
         <record id="l10nnl_chart_template" model="account.chart.template">
             <field name="name">Nederlands Grootboekschema</field>
-            <field name="code_digits">6</field>
             <field name="currency_id" ref="base.EUR"/>
             <field name="transfer_account_id" ref="transfer_account_id"/>
         </record>

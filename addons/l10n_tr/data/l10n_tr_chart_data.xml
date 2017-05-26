@@ -11,7 +11,6 @@
         <field name="name">Tek Düzen Hesap Planı</field>
         <field name="bank_account_code_prefix">102</field>
         <field name="cash_account_code_prefix">100</field>
-        <field name="code_digits">6</field>
         <field name="currency_id" ref="base.TRY"/>
         <field name="transfer_account_id" ref="transfer_account_id"/>
     </record>

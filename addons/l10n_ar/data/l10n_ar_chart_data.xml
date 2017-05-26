@@ -15,7 +15,6 @@
 
     <record id="ar_chart_template" model="account.chart.template">
       <field name="name">Argentina - Plan de Cuentas</field>
-      <field name="code_digits">6</field>
       <field name="bank_account_code_prefix">11</field>
       <field name="cash_account_code_prefix">12</field>
       <field name="currency_id" ref="base.ARS"/>

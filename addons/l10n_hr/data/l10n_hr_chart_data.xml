@@ -14,7 +14,6 @@
         <record id="l10n_hr_chart_template_rrif" model="account.chart.template">
             <field name="name">RRIF-ov računski plan za poduzetnike</field>
             <field name="currency_id" ref="base.HRK"/>
-            <field name="code_digits">0</field>
             <field name="transfer_account_id" ref="transfer_account"/>
         </record>
         <record id="transfer_account" model="account.account.template">

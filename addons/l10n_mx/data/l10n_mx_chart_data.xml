@@ -15,7 +15,6 @@
         <field name="name">Plan de Cuentas para Mexico</field>
         <field name="bank_account_code_prefix">102.01.0</field>
         <field name="cash_account_code_prefix">101.01.0</field>
-        <field name="code_digits">3</field>
         <field name="currency_id" ref="base.MXN"/>
         <field name="transfer_account_id" ref="cuenta102_01"/>
         <field name="use_anglo_saxon" eval="True"/>

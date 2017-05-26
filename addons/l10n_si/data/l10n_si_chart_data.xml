@@ -12,7 +12,6 @@
         <field name="name">Kontni načrt za gospodarske družbe</field>
         <field name="bank_account_code_prefix">110</field>
         <field name="cash_account_code_prefix">100</field>
-        <field name="code_digits">6</field>
         <field name="currency_id" ref="base.EUR"/>
         <field name="transfer_account_id" ref="gd_acc_109000"/>
     </record>

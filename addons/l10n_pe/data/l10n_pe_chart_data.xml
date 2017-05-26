@@ -30,7 +30,6 @@
         <field name="name">Peru - Plan de Cuentas 2011</field>
         <field name="bank_account_code_prefix">104</field>
         <field name="cash_account_code_prefix">101</field>
-        <field name="code_digits">6</field>
         <field name="currency_id" ref="base.PEN"/>
         <field name="transfer_account_id" ref="103000"/>
     </record>

@@ -19,7 +19,6 @@
       <field name="name">Chile - Plan de Cuentas</field>
       <field name="bank_account_code_prefix">114</field>
       <field name="cash_account_code_prefix">111</field>
-      <field name="code_digits">6</field>
       <field name="currency_id" ref="base.CLP"/>
       <field name="transfer_account_id" ref="117"/>
     </record>

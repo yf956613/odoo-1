@@ -10,7 +10,7 @@ class AccountChartTemplate(models.Model):
 
     @api.multi
     def _load_template(
-            self, company, code_digits=None, transfer_account_id=None,
+            self, company, transfer_account_id=None,
             account_ref=None, taxes_ref=None):
         """
         Set the 'use_cash_basis' and 'cash_basis_account' fields on account.account. This hack is needed due to the fact
@@ -21,7 +21,7 @@ class AccountChartTemplate(models.Model):
         """
         self.ensure_one()
         accounts, taxes = super(AccountChartTemplate, self)._load_template(
-            company, code_digits=code_digits,
+            company,
             transfer_account_id=transfer_account_id, account_ref=account_ref,
             taxes_ref=taxes_ref)
         if not self == self.env.ref('l10n_mx.mx_coa'):

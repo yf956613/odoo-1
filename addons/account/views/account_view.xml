@@ -1690,7 +1690,6 @@
                         <field name="parent_id" />
                         <field name="bank_account_code_prefix"/>
                         <field name="cash_account_code_prefix"/>
-                        <field name="code_digits" />
                         <field name="visible" />
                         <field name="complete_tax_set" />
                         <field name="transfer_account_id"/>
@@ -1874,7 +1873,6 @@
                             <field name="transfer_account_id"/>
                         </group>
                         <group groups="account.group_account_user" invisible="1">
-                            <field name="code_digits"/>
                             <field name="bank_account_code_prefix"/>
                             <field name="cash_account_code_prefix"/>
                         </group>

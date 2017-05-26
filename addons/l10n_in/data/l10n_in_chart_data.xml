@@ -12,7 +12,6 @@
             <field name="name">Indian Chart of Accounts - Standard</field>
             <field name="bank_account_code_prefix">1002</field>
             <field name="cash_account_code_prefix">1001</field>
-            <field name="code_digits">6</field>
             <field name="currency_id" ref="base.INR"/>
             <field name="transfer_account_id" ref="standard_transfer_account_id"/>
         </record>

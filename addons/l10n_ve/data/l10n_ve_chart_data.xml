@@ -10,7 +10,6 @@
 
     <record id="ve_chart_template_amd" model="account.chart.template">
         <field name="name">Venezuelan - Account</field>
-        <field name="code_digits">7</field>
         <field name="currency_id" ref="base.VEF"/>
         <field name="transfer_account_id" ref="account_activa_account_1129003"/>
     </record>

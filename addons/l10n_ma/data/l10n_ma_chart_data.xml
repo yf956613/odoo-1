@@ -16,7 +16,6 @@
     </record>
     <record id="l10n_kzc_temp_chart" model="account.chart.template">
         <field name="name">Plan comptable marocain</field>
-        <field name="code_digits">6</field>
         <field name="currency_id" ref="base.MAD"/>
         <field name="bank_account_code_prefix">5141</field>
         <field name="cash_account_code_prefix">5161</field>

@@ -12,7 +12,6 @@
             <field name="name">Πρότυπο Ελληνικού Λογιστικού Σχεδίου</field>
             <field name="bank_account_code_prefix">38</field>
             <field name="cash_account_code_prefix">38</field>
-            <field name="code_digits">6</field>
             <field name="currency_id" ref="base.EUR"/>
             <field name="transfer_account_id" ref="chartgr_38_07"/>
         </record>

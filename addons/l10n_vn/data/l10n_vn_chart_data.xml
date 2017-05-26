@@ -13,7 +13,6 @@
     <!-- Account Chart Templates -->
     <record id="vn_template" model="account.chart.template">
         <field name="name">VN - Chart of Accounts</field>
-        <field name="code_digits">0</field>
         <field name="currency_id" ref="base.VND"/>
         <field name="bank_account_code_prefix">112</field>
         <field name="cash_account_code_prefix">111</field>
