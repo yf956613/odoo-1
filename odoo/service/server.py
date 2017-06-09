@@ -725,9 +725,6 @@ class RPCDrivenServer(CommonServer):
         app_response = self.app(env, start_response)
         assert 'status' in response, "start_response() was not called"
 
-        if env.get('DEBUG'):
-            response['headers'].append(('X-Served-By', 'Odoo'))
-
         if use_socket:
             # # TODO: should use werkzeug for the response
             wsgi_output.write("%s %s\r\n" % (env['SERVER_PROTOCOL'], response['status']))
