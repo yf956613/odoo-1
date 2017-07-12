@@ -176,6 +176,32 @@ class ProductTemplate(models.Model):
         for product in self:
             product.website_url = "/shop/product/%s" % (product.id,)
 
+    @api.model
+    def create(self, vals):
+        template = super(ProductTemplate, self).create(vals)
+        if vals.get('image'):
+            template.product_image_ids = [(0, 0, {'image': vals.get('image'), 'name': vals.get('name'), 'is_main_image': True})]
+        return template
+
+    def write(self, vals):
+        res = super(ProductTemplate, self).write(vals)
+        for product in self:
+            if product.product_image_ids:
+                product_image = product.product_image_ids.filtered('is_main_image')
+                if product_image:
+                    if 'image' in vals and product_image.image != vals['image']:
+                        product.product_image_ids = [(1, product_image.id, {'image': vals['image']})]
+                    if 'image_medium' in vals and not vals.get('image') and product_image.image:
+                        product.product_image_ids = [(1, product_image.id, {'image': False})]
+                        product.image_small = False
+                else:
+                    if 'image' in vals:
+                        product.product_image_ids = [(0, 0, {'image': vals['image'], 'name': self.name, 'is_main_image': True})]
+            else:
+                if 'image' in vals:
+                    product.product_image_ids = [(0, 0, {'image': vals['image'], 'name': self.name, 'is_main_image': True})]
+        return res
+
 
 class Product(models.Model):
     _inherit = "product.product"
@@ -183,6 +209,7 @@ class Product(models.Model):
     website_price = fields.Float('Website price', compute='_website_price', digits=dp.get_precision('Product Price'))
     website_public_price = fields.Float('Website public price', compute='_website_price', digits=dp.get_precision('Product Price'))
     website_price_difference = fields.Boolean('Website price difference', compute='_website_price')
+    product_product_image_ids = fields.One2many('product.image', 'product_product_id', string='Images')
 
     def _website_price(self):
         qty = self._context.get('quantity', 1.0)
@@ -221,6 +248,7 @@ class ProductAttributeValue(models.Model):
     html_color = fields.Char(string='HTML Color Index', oldname='color', help="Here you can set a "
                              "specific HTML color index (e.g. #ff0000) to display the color on the website if the "
                              "attibute type is 'Color'.")
+    image = fields.Binary('Image', attachment=True)
 
 
 class ProductImage(models.Model):
@@ -229,3 +257,21 @@ class ProductImage(models.Model):
     name = fields.Char('Name')
     image = fields.Binary('Image', attachment=True)
     product_tmpl_id = fields.Many2one('product.template', 'Related Product', copy=True)
+    product_product_id = fields.Many2one('product.product', 'Related Product Product', copy=True)
+    is_main_image = fields.Boolean()
+
+    def write(self, vals):
+        res = super(ProductImage, self).write(vals)
+        if 'image' in vals:
+            for product_image in self.filtered('is_main_image'):
+                if vals.get('image'):
+                    product_image.product_tmpl_id.image = product_image.image
+                else:
+                    product_image.product_tmpl_id.write({'image_medium': False, 'image_small': False})
+        return res
+
+    @api.multi
+    def unlink(self):
+        for product_image in self.filtered(lambda p: p.is_main_image):
+            product_image.product_tmpl_id.write({'image_medium': False, 'image_small': False})
+        return super(ProductImage, self).unlink()

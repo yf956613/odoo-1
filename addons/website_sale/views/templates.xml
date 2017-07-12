@@ -412,8 +412,9 @@
                         <div class="col-sm-7">
                             <span itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'class': 'product_detail_img', 'alt-field': 'name', 'zoom': 'image'}" groups="!website_sale.group_website_multi_image"/>
                             <t groups="website_sale.group_website_multi_image">
-                                <t t-set="variant_img" t-value="product.product_variant_id.image_variant"/>
                                 <t t-set="image_ids"  t-value="product.product_image_ids"/>
+                                <t t-set="variant_image_ids" t-value="product.product_variant_ids.mapped('product_product_image_ids')"/>
+                                <t t-set="value_ids" t-value="product.attribute_line_ids.mapped('value_ids').filtered(lambda l: l.image != False)"/>
                                 <div id="o-carousel-product" class="carousel slide" data-ride="carousel" data-interval="0">
                                   <div class="carousel-outer">
                                     <div class="carousel-inner">
@@ -421,10 +422,42 @@
                                         <div t-if="variant_img" class="item" itemprop="image" t-field="product.product_variant_id.image" t-options="{'widget': 'image', 'class': 'product_detail_img', 'alt-field': 'name', 'zoom': 'image', 'unique': product['__last_update'] + (product.product_variant_id['__last_update'] or '')}"/>
                                         <t t-if="len(image_ids)" t-foreach="image_ids" t-as="pimg">
                                             <div class="item" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+=======
+                                        <t t-if="len(variant_image_ids) or len(value_ids) or len(image_ids)">
+                                            <t t-if="len(variant_image_ids)" t-foreach="variant_image_ids" t-as="pimg">
+                                                <t t-if="pimg_index == 0">
+                                                    <div class="item active" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="item" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                </t>
+                                            </t>
+
+                                            <t t-if="len(value_ids)" t-foreach="value_ids" t-as="pimg">
+                                                <t t-if="not len(variant_image_ids) and pimg_index == 0">
+                                                    <div class="item active" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="item" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                </t>
+                                            </t>
+
+                                            <t t-if="len(image_ids)" t-foreach="image_ids" t-as="pimg">
+                                                <t t-if="not len(variant_image_ids) and not len(value_ids) and pimg_index == 0">
+                                                    <div class="item active" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="item" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="item active" t-field="product.product_variant_ids[0].image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+>>>>>>> 1de995d... [IMP] website_sale: Few Improvements on product form regarding images,
                                         </t>
                                     </div>
 
-                                    <t t-if="len(image_ids) or variant_img">
+                                    <t t-if="len(image_ids) or len(value_ids) or len(variant_image_ids)">
                                         <a class="carousel-control left" href="#o-carousel-product" role="button" data-slide="prev" >
                                             <span class="fa fa-chevron-left" aria-hidden="true"/>
                                             <span class="sr-only">Previous</span>
@@ -436,17 +469,45 @@
                                     </t>
                                   </div>
 
-                                  <ol class="carousel-indicators" t-if="len(image_ids) or variant_img">
-                                    <li data-target="#o-carousel-product" data-slide-to="0" class="active">
-                                        <img class="img img-responsive js_variant_img_small" t-attf-src="/website/image/product.template/{{product.id}}/image/90x90" t-att-alt="product.name"/>
-                                    </li>
-                                    <li t-if="variant_img" data-target="#o-carousel-product" data-slide-to="1" class="">
-                                        <img class="img img-responsive" t-attf-src="/website/image/product.product/{{product.product_variant_id.id}}/image/90x90" t-att-alt="product.name"/>
-                                    </li>
+                                  <ol class="carousel-indicators" t-if="len(image_ids) or len(value_ids) or len(variant_image_ids)">
+                                    <t t-if="len(variant_image_ids)" t-foreach="variant_image_ids" t-as="pimg">
+                                        <t t-if="pimg_index == 0">
+                                            <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index" class="active">
+                                                <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
+                                            </li>
+                                        </t>
+                                        <t t-else="">
+                                            <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index">
+                                                <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
+                                            </li>
+                                        </t>
+                                    </t>
+
+                                    <t t-if="len(value_ids)" t-foreach="value_ids" t-as="pimg">
+                                        <t t-if="not len(variant_image_ids) and pimg_index == 0">
+                                            <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index" class="active">
+                                                <img class="img img-responsive" t-attf-src="/website/image/product.attribute.value/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
+                                            </li>
+                                        </t>
+                                        <t t-else="">
+                                            <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index + len(variant_image_ids)">
+                                                <img class="img img-responsive" t-attf-src="/website/image/product.attribute.value/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
+                                            </li>
+                                        </t>
+                                    </t>
+
+>>>>>>> 1de995d... [IMP] website_sale: Few Improvements on product form regarding images,
                                     <t t-if="len(image_ids)" t-foreach="image_ids" t-as="pimg">
-                                        <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index + (variant_img and 2 or 1)">
-                                            <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
-                                        </li>
+                                        <t t-if="not len(variant_image_ids) and not len(value_ids) and pimg_index == 0">
+                                            <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index" class="active">
+                                                <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
+                                            </li>
+                                        </t>
+                                        <t t-else="">
+                                            <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index + len(value_ids) + len(variant_image_ids)">
+                                                <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
+                                            </li>
+                                        </t>
                                     </t>
                                   </ol>
                                 </div>
