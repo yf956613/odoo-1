@@ -53,6 +53,10 @@ odoo.define('website_sale.editor', function (require) {
 
 require('web.dom_ready');
 var options = require('web_editor.snippets.options');
+var widget = require('web_editor.widget');
+var web_editor = require('web_editor.editor');
+
+var toDelete = [];
 
 if (!$('.js_sale').length) {
     return $.Deferred().reject("DOM doesn't contain '.js_sale'");
@@ -60,6 +64,86 @@ if (!$('.js_sale').length) {
 
 $('.oe_website_sale').on('click', '.oe_currency_value:o_editable', function (ev) {
     $(ev.currentTarget).selectContent();
+});
+
+$('#product_detail').on('click', '.o_img_delete', function (e){
+    var $image = e.target.closest('[data-img-id]');
+    var id = $image.dataset.imgId;
+    if (id) {
+        toDelete.push(parseInt(id));
+    }
+    $image.remove();
+
+});
+
+web_editor.Class.include({
+    start: function () {
+        var self = this;
+        $('#product_detail').on('click', '.add_img', function (e){
+            var $parent = e.target.closest('li');
+            var $image = $("<img/>");
+
+            var editor = new widget.MediaDialog(self, {only_images: true}, $image, $image[0]).open();
+            var index = parseInt($parent.dataset.slideTo);
+            editor.on("save", this, function (event) {
+                var $li = $('<li/>').attr('data-target', '#o-carousel-product').attr('data-slide-to', index);
+                $image.addClass('img img-responsive').appendTo($li);
+                $parent.dataset.slideTo = index + 1;
+                $li.insertBefore($parent);
+                $li.addClass('new_img');
+            });
+        });
+        return this._super();
+    },
+    save: function () {
+        var $target = $('#wrapwrap').find('#product_detail');
+        if ($target && $target.length) {
+            var self = this;
+            var images = $('.new_img');
+            var id = $('#product_detail').attr('data-id');
+            var imageDefs = [];
+
+            _.each(images, function (image) {
+                var def = $.Deferred();
+                var img = new Image();
+                img.onload = function () {
+                    var canvas = document.createElement("CANVAS");
+                    var ctx = canvas.getContext("2d");
+                    canvas.width = this.width;
+                    canvas.height = this.height;
+                    ctx.drawImage(this, 0, 0);
+                    path = canvas.toDataURL("image/jpeg");
+                    canvas = null;
+                    var path = path.replace(/^data:image\/[a-z]+;base64,/, "");
+                    self._rpc({
+                        model: 'product.image',
+                        method: 'create',
+                        args: [{'product_tmpl_id': id, 'image': path}],
+                    }).then( function () {
+                        def.resolve();
+                    });
+                }
+                img.src = image.children[0].src;
+                imageDefs.push(def);
+            });
+            if (toDelete.length) {
+                var def = $.Deferred();
+                this._rpc({
+                    model: 'product.image',
+                    method: 'unlink',
+                    args: [toDelete],
+                }).then( function () {
+                    def.resolve();
+                });
+                imageDefs.push(def);
+            }
+
+            $.when.apply($, imageDefs).then(function (){
+                return self._super.apply(self, arguments);
+            });
+        }
+        return this._super.apply(this, arguments);
+    }
 });
 
 options.registry.website_sale = options.Class.extend({

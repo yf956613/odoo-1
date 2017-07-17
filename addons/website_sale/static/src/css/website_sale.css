@@ -620,12 +620,44 @@ a.no-decoration {
   height: 54px !important;
   border: 0 !important;
   box-shadow: none !important;
+  text-indent: 0px;
 }
 #o-carousel-product .carousel-indicators li img {
   display: block;
   opacity: 0.5;
 }
+#o-carousel-product .carousel-indicators li span {
+  width: 54px;
+  height: 54px;
+  border: 2px dashed lightgray;
+  color: lightskyblue;
+  display: block;
+  position: absolute;
+  padding-top: 10px;
+}
+#o-carousel-product .carousel-indicators li span p{
+  font-size: 10px;
+}
+#o-carousel-product .carousel-indicators li .o_img_delete {
+  position: absolute;
+  background-color: rgba(234, 234, 225, 0.8);
+  margin: 5px 0px 0px 43px;
+  opacity: 0;
+}
+#o-carousel-product .carousel-indicators li .o_img_delete:hover {
+  background-color: white;
+  color: red;
+}
+#o-carousel-product .carousel-indicators li.active {
+  text-indent: 0px;
+}
 #o-carousel-product .carousel-indicators li.active img {
+  opacity: 1;
+}
+#o-carousel-product .carousel-indicators li:hover img {
+  opacity: 1;
+}
+#o-carousel-product .carousel-indicators li:hover .o_img_delete {
   opacity: 1;
 }
 
