@@ -102,7 +102,7 @@ class ImBus(models.Model):
         if options.get('return_channels'):
             return dict(notifications=result, channels=channels)
         else:
-            return notifications
+            return result
 
 
 #----------------------------------------------------------
