@@ -691,7 +691,7 @@ class RPCDrivenServer(CommonServer):
             if error:
                 self.rpc_answer(error=e)
 
-    def handle_request(self, env, use_socket=True, body=None):
+    def handle_request(self, env, use_socket=False, body=None):
         response = {}
 
         if use_socket:
