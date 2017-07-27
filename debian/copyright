@@ -29,6 +29,10 @@ Files: addons/web/static/lib/bootstrap/* doc/_extensions/odoo_ext/static/style.c
 Copyright: Copyright (c) 2011-2015 Twitter, Inc
 License: MIT
 
+Files: addons/web/static/lib/clipboard/clipboard.js
+Copyright: Zeno Rocha
+License: MIT
+
 Files: addons/point_of_sale/static/lib/fastclick.js
 Copyright: (C) 2014 The Financial Times Limited [All Rights Reserved]
 License: MIT
