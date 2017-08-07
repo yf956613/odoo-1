@@ -33,6 +33,10 @@ Files: addons/web/static/lib/clipboard/clipboard.js
 Copyright: Zeno Rocha
 License: MIT
 
+Files: addons/web/static/lib/moment/*
+Copyright: Tim Wood, Iskren Chernev, Moment.js contributors
+License: MIT
+
 Files: addons/point_of_sale/static/lib/fastclick.js
 Copyright: (C) 2014 The Financial Times Limited [All Rights Reserved]
 License: MIT
