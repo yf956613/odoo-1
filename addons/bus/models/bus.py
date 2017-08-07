@@ -108,6 +108,7 @@ class ImBus(models.Model):
 class ImDispatch(object):
     def __init__(self):
         self.channels = {}
+        self.started = False
 
     def poll(self, dbname, channels, last, options=None, timeout=TIMEOUT):
         if options is None:
@@ -127,6 +128,11 @@ class ImDispatch(object):
         with registry.cursor() as cr:
             env = api.Environment(cr, SUPERUSER_ID, {})
             notifications = env['bus.bus'].poll(channels, last, options)
+
+        # immediatly returns in peek mode
+        if options.get('peek'):
+            return dict(notifications=notifications, channels=channels)
+
         # or wait for future ones
         if not notifications:
             event = self.Event()
@@ -178,15 +184,16 @@ class ImDispatch(object):
             import gevent
             self.Event = gevent.event.Event
             gevent.spawn(self.run)
-        elif odoo.multi_process:
-            # disabled in prefork mode
-            return
         else:
             # threaded mode
             self.Event = threading.Event
             t = threading.Thread(name="%s.Bus" % __name__, target=self.run)
             t.daemon = True
             t.start()
+        self.started = True
         return self
 
-dispatch = ImDispatch().start()
+if odoo.multi_process:
+    dispatch = None
+else:
+    dispatch = ImDispatch()

@@ -25,6 +25,9 @@ class BusController(Controller):
             request.env['bus.presence'].update(options.get('bus_inactivity'))
         request.cr.close()
         request._cr = None
+        if not dispatch.started:
+            # Lazy start of events listening
+            dispatch.start()
         return dispatch.poll(dbname, channels, last, options)
 
     @route('/longpolling/poll', type="json", auth="public")
