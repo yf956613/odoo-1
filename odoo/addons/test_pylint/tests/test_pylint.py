@@ -2,30 +2,21 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
+import os
 try:
     import pylint
 except ImportError:
     pylint = None
 import subprocess
 from distutils.version import LooseVersion
-from os import devnull
-from os.path import join
 
 from odoo.tests.common import TransactionCase
-from odoo import tools
-from odoo.modules import get_modules, get_module_path
 
 
 _logger = logging.getLogger(__name__)
 
 
 class TestPyLint(TransactionCase):
-
-    ENABLED_CODES = [
-        'E0601',  # using variable before assignment
-        'W0123',  # eval used
-        'W0101',  # unreachable code
-    ]
 
     def _skip_test(self, reason):
         _logger.warn(reason)
@@ -37,25 +28,7 @@ class TestPyLint(TransactionCase):
         if LooseVersion(getattr(pylint, '__version__', '0.0.1')) < LooseVersion('1.6.4'):
             self._skip_test('please upgrade pylint to >= 1.6.4')
 
-        paths = [tools.config['root_path']]
-        for module in get_modules():
-            module_path = get_module_path(module)
-            if not module_path.startswith(join(tools.config['root_path'], 'addons')):
-                paths.append(module_path)
-
-        options = [
-            '--disable=all',
-            '--enable=%s' % ','.join(self.ENABLED_CODES),
-            '--reports=n',
-            "--msg-template='{msg} ({msg_id}) at {path}:{line}'",
-        ]
-
-        try:
-            with open(devnull, 'w') as devnull_file:
-                process = subprocess.Popen(['pylint'] + options + paths, stdout=subprocess.PIPE, stderr=devnull_file)
-        except (OSError, IOError):
-            self._skip_test('pylint executable not found in the path')
-        else:
-            out = process.communicate()[0]
-            if process.returncode:
-                self.fail(msg="\n" + out)
+        process = subprocess.Popen(['./pylint-test-bin.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(os.path.realpath(__file__)))
+        out, err = process.communicate()
+        if process.returncode:
+            self.fail("\n" + out + "\n" + err)
