@@ -24,7 +24,7 @@ Sheet, now only Vertical format has been permitted Which is Supported By OpenERP
     'data': [
         'l10n_in_schedule6_chart.xml',
         'l10n_in_schedule6_tax_template.xml',
-        'account_chart_template.yml',
+        'account_chart_template.xml',
     ],
     'auto_install': False,
     'installable': True,
