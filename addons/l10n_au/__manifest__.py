@@ -27,7 +27,6 @@ Also:
              'data/account.account.tag.csv',
              'data/account.tax.template.csv',
              'data/account_fiscal_position_tax_template_data.xml',
-             'data/account_chart_template_data.yml',
              'data/res_currency_data.xml',
              ],
 }

@@ -29,6 +29,6 @@ After installing this module, the Configuration wizard for accounting is launche
     'data': [
              'data/l10n_sg_chart_data.xml',
              'data/account_tax_data.xml',
-             'data/account_chart_template_data.yml',
+             'data/account_chart_template_data.xml',
     ],
 }

@@ -17,6 +17,6 @@ Updated for Odoo 9 by Bringsvor Consulting AS <www.bringsvor.com>
     ],
     "data": ['data/l10n_no_chart_data.xml',
              'data/account_tax_data.xml',
-             'data/account_chart_template_data.yml'],
+             'data/account_chart_template_data.xml'],
     "active": False,
 }

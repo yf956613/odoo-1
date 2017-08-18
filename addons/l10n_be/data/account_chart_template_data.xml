@@ -16,4 +16,5 @@
         <record id="trans" model="account.account.template">
             <field name="chart_template_id" ref="l10nbe_chart_template"/>
         </record>
+        <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('l10nbe_chart_template')]"/>
 </odoo>

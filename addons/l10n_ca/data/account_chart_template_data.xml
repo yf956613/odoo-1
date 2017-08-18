@@ -20,4 +20,6 @@
     <record id="chart113_en" model="account.account.template">
         <field name="chart_template_id" ref="ca_en_chart_template_en"/>
     </record>
+
+    <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('ca_en_chart_template_en')]"/>
 </odoo>

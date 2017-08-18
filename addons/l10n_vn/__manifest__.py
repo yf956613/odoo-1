@@ -26,6 +26,6 @@ with Chart of account under Circular No. 200/2014/TT-BTC
     "data": [
          'data/l10n_vn_chart_data.xml',
          'data/account_tax_data.xml',
-         'data/account_chart_template_data.yml',
+         'data/account_chart_template_data.xml',
     ]
 }

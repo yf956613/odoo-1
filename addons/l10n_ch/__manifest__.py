@@ -35,7 +35,7 @@ Here is how it works:
         'data/l10n_ch_chart_data.xml',
         'data/account_vat2011_data.xml',
         'data/account_fiscal_position_data.xml',
-        'data/account_chart_template_data.yml',
+        'data/account_chart_template_data.xml',
         'report/isr_report.xml',
         'views/res_bank_view.xml',
         'views/account_invoice_view.xml',

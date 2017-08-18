@@ -51,6 +51,6 @@ come with any additional paid permission for online use of 'private modules'.
         'data/account.account.template.csv',
         'data/account_tax_template_data.xml',
         'views/account_view.xml',
-        'data/account_chart_template_data.yml',
+        'data/account_chart_template_data.xml',
     ],
 }

@@ -20,4 +20,5 @@
         <record id="transfer_account" model="account.account.template">
             <field name="chart_template_id" ref="account_arabic_coa_general"/>
         </record>
+        <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('account_arabic_coa_general')]"/>
 </odoo>

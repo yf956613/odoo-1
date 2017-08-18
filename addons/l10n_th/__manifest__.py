@@ -16,6 +16,6 @@ Thai accounting chart and localization.
     'depends': ['account'],
     'data': [
         'data/l10n_th_chart_data.xml',
-        'data/account_chart_template_data.yml',
+        'data/account_chart_template_data.xml',
     ],
 }

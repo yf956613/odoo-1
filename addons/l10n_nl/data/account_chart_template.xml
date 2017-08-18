@@ -22,4 +22,5 @@
         </record>
 
     </data>
+    <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('l10nnl_chart_template')]"/>
 </openerp>

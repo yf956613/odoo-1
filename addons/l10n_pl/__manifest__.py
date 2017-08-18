@@ -30,6 +30,6 @@ Wewnętrzny numer wersji OpenGLOBE 1.02
               'data/account_tax_data.xml',
               'data/account_fiscal_position_data.xml',
               'data/res_country_state_data.xml',
-              'data/account_chart_template_data.yml'
+              'data/account_chart_template_data.xml'
     ],
 }

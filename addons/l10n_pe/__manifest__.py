@@ -20,6 +20,6 @@ SUNAT 2011 (PCGE 2010).
     'data': [
         'data/l10n_pe_chart_data.xml',
         'data/account_tax_data.xml',
-        'data/account_chart_template_data.yml',
+        'data/account_chart_template_data.xml',
     ],
 }

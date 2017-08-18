@@ -15,4 +15,5 @@
     </record>
 
     </data>
+    <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('pt_chart_template')]"/>
 </odoo>

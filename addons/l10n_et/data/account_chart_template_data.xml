@@ -8,4 +8,5 @@
         <field name="income_currency_exchange_account_id" ref="l10n_et6435"/>
         <field name="expense_currency_exchange_account_id" ref="l10n_et6436"/>
     </record>
+    <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('l10n_et')]"/>
 </odoo>

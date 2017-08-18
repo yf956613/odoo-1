@@ -21,6 +21,6 @@ Con la Colaboración de
     "data": [
         "data/l10n_pa_chart_data.xml",
         "data/account_tax_data.xml",
-        "data/account_chart_template_data.yml",
+        "data/account_chart_template_data.xml",
     ],
 }

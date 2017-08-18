@@ -98,7 +98,5 @@ en Odoo):
         'data/l10n_do_state_data.xml',
         # Adds fiscal position
         'data/fiscal_position_template.xml',
-        # configuration wizard, views, reports...
-        'data/account_chart_template_data.yml',
     ],
 }

@@ -18,4 +18,5 @@
             <field name="value" ref="base.CNY" />
         </record>
     </data>
+    <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('l10n_chart_china_standard_business')]"/>
 </odoo>

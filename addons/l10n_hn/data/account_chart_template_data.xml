@@ -45,4 +45,5 @@
         </record>
 
     </data>
+    <function model="account.chart.template" name="try_loading_for_current_company" eval="[ref('l10n_hn.cuentas_plantilla')]"/>
 </odoo>
