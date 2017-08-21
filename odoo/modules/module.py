@@ -24,6 +24,7 @@ import odoo.tools as tools
 import odoo.release as release
 from odoo import SUPERUSER_ID, api
 from odoo.tools import pycompat
+from odoo.tests.common import has_tags
 
 MANIFEST_NAMES = ('__manifest__.py', '__openerp__.py')
 README = ['README.rst', 'README.md', 'README.txt']
@@ -497,7 +498,7 @@ def run_unit_tests(module_name, dbname, position=runs_at_install):
     r = True
     for m in mods:
         tests = unwrap_suite(unittest.TestLoader().loadTestsFromModule(m))
-        suite = unittest.TestSuite(t for t in tests if position(t))
+        suite = unittest.TestSuite(t for t in tests if position(t) and has_tags(t, tools.config['test_tags']))
 
         if suite.countTestCases():
             t0 = time.time()

@@ -472,3 +472,32 @@ def can_import(module):
         return False
     else:
         return True
+
+def set_tags(*tags):
+    """
+    A decorator to tag TestCase objects
+    Tags are stored in a set that can be accessed from a 'test_tags' attribute
+    """
+    def tags_decorator(obj):
+        if not hasattr(obj, 'test_tags'):
+            obj.test_tags = set()
+        obj.test_tags.update(set(tags))
+        return obj
+    return tags_decorator
+
+
+def has_tags(obj, tags):
+    """
+    Check if object 'obj' has test_tags 'tags' defined
+    Tags can be a set/list of tags or a comma seperated string
+    """
+    if not tags:
+        return True
+    if isinstance(tags, basestring):
+        tags = tags.split(',')
+    if not hasattr(obj, 'test_tags'):
+        _logger.debug('Test {} is not tagged'.format(obj))
+        return False
+    for t in tags:
+        if t in obj.test_tags:
+            return True
