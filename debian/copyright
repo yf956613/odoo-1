@@ -119,6 +119,14 @@ Files: addons/web/static/lib/pdfjs/external/crlfchecker/normtext.js
 Copyright: Copyright 2012 Mozilla Foundation
 License: Apache-2.0
 
+Files: addons/web/static/lib/pdfjs/src/core/murmurhash3.js
+Copyright: Copyright 2014 Opera Software ASA
+License: Apache-2.0
+
+Files: addons/web/static/lib/pdfjs/web/grab_to_pan.js
+Copyright: Copyright 2013 Rob Wu <gwnRob@gmail.com>
+License: Apache-2.0
+
 Files: addons/web/static/lib/jquery.blockUI/jquery.blockUI.js
 Copyright: Copyright (c) 2007-2013 M. Alsup
 License: MIT or GPL-2
