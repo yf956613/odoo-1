@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Odoo S.A. <info@odoo.com>
 Uploaders: Aaron Bohy <aab@odoo.com>, Simon Lejeune <sle@odoo.com>
-Build-Depends: debhelper (>= 10.0), python, rsync, python-setuptools
+Build-Depends: debhelper (>= 10.0), dh-python, python, rsync, python-setuptools
 X-Python-Version: 2.7
 Standards-Version: 3.9.5.0
 Homepage: http://www.odoo.com/
@@ -17,7 +17,7 @@ Depends:
  lsb-base,
  node-less,
  postgresql-client,
- python,
+ python (>= 2.7),
  python-babel,
  python-dateutil,
  python-decorator,
