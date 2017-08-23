@@ -251,14 +251,17 @@ def build_deb(o):
     # Append timestamp to version for the .dsc to refer the right .tar.gz
     cmd=['sed', '-i', '1s/^.*$/odoo (%s.%s) stable; urgency=low/'%(version,timestamp), 'debian/changelog']
     subprocess.call(cmd, cwd=o.build_dir)
-    deb = pexpect.spawn('dpkg-buildpackage -rfakeroot -k%s' % GPGID, cwd=o.build_dir)
-    deb.logfile = stdout
-    if GPGPASSPHRASE:
-        deb.expect_exact('Enter passphrase: ', timeout=1200)
-        deb.send(GPGPASSPHRASE + '\r\n')
-        deb.expect_exact('Enter passphrase: ')
-        deb.send(GPGPASSPHRASE + '\r\n')
-    deb.expect(pexpect.EOF, timeout=1200)
+    if not o.no_debsign:
+        deb = pexpect.spawn('dpkg-buildpackage -rfakeroot -k%s' % GPGID, cwd=o.build_dir)
+        deb.logfile = stdout
+        if GPGPASSPHRASE:
+            deb.expect_exact('Enter passphrase: ', timeout=1200)
+            deb.send(GPGPASSPHRASE + '\r\n')
+            deb.expect_exact('Enter passphrase: ')
+            deb.send(GPGPASSPHRASE + '\r\n')
+        deb.expect(pexpect.EOF, timeout=1200)
+    else:
+        subprocess.call(['dpkg-buildpackage', '-rfakeroot', '-uc', '-us'], cwd=o.build_dir)
     system(['mv', glob('%s/../odoo_*.deb' % o.build_dir)[0], '%s' % o.build_dir])
     system(['mv', glob('%s/../odoo_*.dsc' % o.build_dir)[0], '%s' % o.build_dir])
     system(['mv', glob('%s/../odoo_*_amd64.changes' % o.build_dir)[0], '%s' % o.build_dir])
@@ -408,6 +411,7 @@ def options():
     op.add_option("", "--no-testing", action="store_true", help="don't test the builded packages")
 
     op.add_option("", "--no-debian", action="store_true", help="don't build the debian package")
+    op.add_option("", "--no-debsign", action="store_true", help="don't sign the debian package")
     op.add_option("", "--no-rpm", action="store_true", help="don't build the rpm package")
     op.add_option("", "--no-tarball", action="store_true", help="don't build the tarball")
     op.add_option("", "--no-windows", action="store_true", help="don't build the windows package")
