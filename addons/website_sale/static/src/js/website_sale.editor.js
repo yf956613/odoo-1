@@ -100,7 +100,8 @@ web_editor.Class.include({
         if ($target && $target.length) {
             var self = this;
             var images = $('.new_img');
-            var id = $('#product_detail').attr('data-id');
+            var id = $('#product_detail').data('id');
+            var $variant = $('#wrapwrap').find('ul.js_add_cart_variants li');
             var imageDefs = [];
 
             _.each(images, function (image) {
@@ -115,10 +116,14 @@ web_editor.Class.include({
                     path = canvas.toDataURL("image/jpeg");
                     canvas = null;
                     var path = path.replace(/^data:image\/[a-z]+;base64,/, "");
+                    var args = [{'product_tmpl_id': id, 'image': path}];
+                    if ($variant.length) {
+                        args = [{'product_product_id': id, 'image': path}];
+                    }
                     self._rpc({
                         model: 'product.image',
                         method: 'create',
-                        args: [{'product_tmpl_id': id, 'image': path}],
+                        args: args,
                     }).then( function () {
                         def.resolve();
                     });

@@ -369,6 +369,7 @@ odoo.define('website_sale.website_sale', function (require) {
             });
 
             if (product_id) {
+                $parent.closest("#product_detail").data('id', product_id);
                 $parent.removeClass("css_not_available");
                 $product_id.val(product_id);
                 $parent.find("#add_to_cart").removeClass("disabled");
