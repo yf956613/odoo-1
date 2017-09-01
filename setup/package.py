@@ -189,7 +189,7 @@ class KVM(object):
         l.append('-nographic')
         print( " ".join(l))
         self.pid=os.spawnvp(os.P_NOWAIT, l[0], l)
-        time.sleep(10)
+        time.sleep(20)
         signal.alarm(2400)
         signal.signal(signal.SIGALRM, self.timeout)
         try:
