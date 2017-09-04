@@ -435,6 +435,7 @@ def options():
     op.add_option("", "--vm-winxp-ssh-key", default='/home/odoo/vm/win1034/id_rsa', help="%default")
     op.add_option("", "--vm-winxp-login", default='Naresh', help="Windows login (%default)")
     op.add_option("", "--vm-winxp-python-version", default='3.4', help="Windows Python version installed in the VM (default: %default)")
+    op.add_option("", "--no-remove", action="store_true", help="don't remove build dir")
 
     (o, args) = op.parse_args()
     # derive other options
@@ -489,8 +490,11 @@ def main():
     except Exception, exception_text:
         print('Something bad happened ! : {}'.format(exception_text), file=stderr)
     finally:
-        shutil.rmtree(o.build_dir)
-        print('Build dir %s removed' % o.build_dir)
+        if o.no_remove:
+            print('Build dir "{}" not removed'.format(o.build_dir))
+        else:
+            shutil.rmtree(o.build_dir)
+            print('Build dir %s removed' % o.build_dir)
 
         if not o.no_testing:
             system("docker rm -f `docker ps -a | awk '{print $1 }'` 2>>/dev/null")

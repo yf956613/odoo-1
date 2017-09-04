@@ -10,7 +10,7 @@ LAUNCH_PY2EXE=/cygdrive/c/python${PYTHON_VERSION}/python.exe setup.py py2exe
 
 MAKENSIS_ARGUMENTS=/DVERSION=$(VERSION) /DSERVICENAME=${SERVICENAME}
 
-LAUNCH_MAKENSIS=/cygdrive/c/cygwin/makensis $(MAKENSIS_ARGUMENTS) setup.nsi
+LAUNCH_MAKENSIS=/cygdrive/c/tools/cygwin/makensis $(MAKENSIS_ARGUMENTS) setup.nsi
 
 default: allinone
 

@@ -49,7 +49,8 @@ setup(
                 'PIL.ImageTk',
                 'FixTk'
             ],
-            "skip_archive": 1,
+            "compresed": 0,
+            "skip_archive": True,
             "optimize": 2,
         }
     },

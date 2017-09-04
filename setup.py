@@ -65,7 +65,8 @@ def py2exe_options():
             ],
             'options': {
                 'py2exe': {
-                    'skip_archive': 1,
+                    'compressed': False,
+                    'skip_archive': True,
                     'optimize': 0,  # Keep the assert running as the integrated tests rely on them.
                     'dist_dir': 'dist',
                     'includes' : [
