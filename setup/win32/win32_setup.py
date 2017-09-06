@@ -49,7 +49,7 @@ setup(
                 'PIL.ImageTk',
                 'FixTk'
             ],
-            "compresed": 0,
+            "compressed": 0,
             "skip_archive": True,
             "optimize": 2,
         }
