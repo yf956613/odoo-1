@@ -177,5 +177,6 @@ setup(
     tests_require=[
         'mock',
     ],
+    zipfile=None,
     **py2exe_options()
 )
