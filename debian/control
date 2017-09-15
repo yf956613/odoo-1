@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: Odoo S.A. <info@odoo.com>
 Uploaders: Aaron Bohy <aab@odoo.com>, Simon Lejeune <sle@odoo.com>
 Build-Depends: debhelper (>= 10.0), dh-python, python3, rsync, python3-setuptools
-X-Python3-Version: 3.6
 Standards-Version: 3.9.8
 Homepage: http://www.odoo.com/
 Vcs-Git: https://github.com/odoo/odoo
@@ -18,7 +17,6 @@ Depends:
  lsb-base,
  node-less,
  postgresql-client,
- python3.6,
  python3-babel,
  python3-dateutil,
  python3-decorator,
