@@ -84,8 +84,8 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="product_template_form_view2">
-        <field name="name">product.template.product.website.form2</field>
+    <record id="product_template_only_form_inherit_website_sale" model="ir.ui.view">
+        <field name="name">product.template.inherit.website.sale.form</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
@@ -93,6 +93,7 @@
                 <page string="Images" groups="website_sale.group_website_multi_image">
                     <field name="product_image_ids" mode="kanban" context="{'default_name': name, 'default_product_tmpl_id': active_id}">
                         <kanban string="Product Images">
+                            <field name="id"/>
                             <field name="name"/>
                             <field name="image" />
                             <templates>
@@ -100,8 +101,7 @@
                                     <div class="oe_kanban_global_click">
                                         <a t-if="!read_only_mode" type="delete" class="fa fa-times pull-right"/>
                                         <div class="o_kanban_image">
-                                            <img t-if="record.image.raw_value" t-att-src="'data:image/png;base64,'+record.image.raw_value"/>
-                                            <img t-if="!record.image.raw_value" t-att-src="'/web/static/src/img/placeholder.png'"/>
+                                            <img t-att-src="kanban_image('product.template', 'image', record.id.raw_value)"/>
                                         </div>
                                         <div class="oe_kanban_details">
                                             <field name="name"/>
@@ -116,8 +116,8 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="product_product_form_view2">
-        <field name="name">product.product.website.form2</field>
+    <record id="product_normal_form_inherit_website_sale" model="ir.ui.view">
+        <field name="name">product.product.website.sale.form</field>
         <field name="model">product.product</field>
         <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
@@ -125,6 +125,7 @@
                 <page string="Images" groups="website_sale.group_website_multi_image">
                     <field name="product_product_image_ids" mode="kanban" context="{'default_name': name, 'default_product_product_id': active_id}">
                         <kanban string="Product Images">
+                            <field name="id"/>
                             <field name="name"/>
                             <field name="image" />
                             <templates>
@@ -132,7 +133,7 @@
                                     <div class="oe_kanban_global_click">
                                         <a t-if="!read_only_mode" type="delete" class="fa fa-times pull-right"/>
                                         <div class="o_kanban_image">
-                                            <img t-if="record.image.raw_value" t-att-src="'data:image/png;base64,'+record.image.raw_value"/>
+                                            <img t-att-src="kanban_image('product.product', 'image', record.id.raw_value)"/>
                                         </div>
                                         <div class="oe_kanban_details">
                                             <field name="name"/>

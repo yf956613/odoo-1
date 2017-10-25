@@ -418,11 +418,6 @@
                                 <div id="o-carousel-product" class="carousel slide" data-ride="carousel" data-interval="0">
                                   <div class="carousel-outer">
                                     <div class="carousel-inner">
-                                        <div class="item active" itemprop="image" t-field="product.image" t-options="{'widget': 'image', 'class': 'product_detail_img js_variant_img', 'alt-field': 'name', 'zoom': 'image', 'unique': product['__last_update']}"/>
-                                        <div t-if="variant_img" class="item" itemprop="image" t-field="product.product_variant_id.image" t-options="{'widget': 'image', 'class': 'product_detail_img', 'alt-field': 'name', 'zoom': 'image', 'unique': product['__last_update'] + (product.product_variant_id['__last_update'] or '')}"/>
-                                        <t t-if="len(image_ids)" t-foreach="image_ids" t-as="pimg">
-                                            <div class="item" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
-=======
                                         <t t-if="len(variant_image_ids) or len(value_ids) or len(image_ids)">
                                             <t t-if="len(variant_image_ids)" t-foreach="variant_image_ids" t-as="pimg">
                                                 <t t-if="pimg_index == 0">
@@ -453,7 +448,6 @@
                                         </t>
                                         <t t-else="">
                                             <div class="item active" t-field="product.product_variant_ids[0].image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
->>>>>>> 1de995d... [IMP] website_sale: Few Improvements on product form regarding images,
                                         </t>
                                     </div>
 
@@ -500,7 +494,6 @@
                                         </t>
                                     </t>
 
->>>>>>> 1de995d... [IMP] website_sale: Few Improvements on product form regarding images,
                                     <t t-if="len(image_ids)" t-foreach="image_ids" t-as="pimg">
                                         <t t-if="not len(variant_image_ids) and not len(value_ids) and pimg_index == 0">
                                             <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index" class="active" t-att-data-img-id="pimg.id">
