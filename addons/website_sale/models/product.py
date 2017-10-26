@@ -229,6 +229,19 @@ class Product(models.Model):
         self.ensure_one()
         return self.product_tmpl_id.website_publish_button()
 
+    @api.multi
+    def write(self, vals):
+        res = super(Product, self).write(vals)
+        for product in self:
+            product_image = product.product_product_image_ids.filtered('is_main_image')
+            if product_image and vals.get('image_variant') and product_image.image != vals['image_variant']:
+                product.product_product_image_ids = [(1, product_image.id, {'image': vals['image_variant']})]
+            elif product_image and 'image_variant' in vals:
+                product_image.unlink()
+            elif vals.get('image_variant'):
+                product.product_product_image_ids = [(0, 0, {'image': vals['image_variant'], 'name': self.name, 'is_main_image': True})]
+        return res
+
 
 class ProductAttribute(models.Model):
     _inherit = "product.attribute"
@@ -258,9 +271,9 @@ class ProductImage(models.Model):
         res = super(ProductImage, self).write(vals)
         if 'image' in vals:
             for product_image in self.filtered('is_main_image'):
-                if vals.get('image'):
+                if vals.get('image') and product_image.product_tmpl_id:
                     product_image.product_tmpl_id.image = product_image.image
-                else:
+                elif product_image.product_tmpl_id:
                     product_image.product_tmpl_id.write({'image_medium': False, 'image_small': False})
         return res
 
