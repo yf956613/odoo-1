@@ -158,9 +158,6 @@
             <field name="name" position="after">
                 <field name="html_color"/>
             </field>
-            <field name="price_extra" position="after">
-                <field name="image" widget="image" class="oe_avatar" options='{"size": [90, 90]}'/>
-            </field>
         </field>
     </record>
     <record id="variants_tree_view" model="ir.ui.view">

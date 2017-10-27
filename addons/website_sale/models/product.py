@@ -255,7 +255,6 @@ class ProductAttributeValue(models.Model):
     html_color = fields.Char(string='HTML Color Index', oldname='color', help="Here you can set a "
                              "specific HTML color index (e.g. #ff0000) to display the color on the website if the "
                              "attibute type is 'Color'.")
-    image = fields.Binary('Image', attachment=True)
 
 
 class ProductImage(models.Model):

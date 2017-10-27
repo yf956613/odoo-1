@@ -412,21 +412,17 @@
                         <div class="col-sm-7">
                             <span itemprop="image" t-attf-content="{{request.httprequest.url_root}}web/image/product.template/{{product.id}}/image" t-field="product.image" t-options="{'widget': 'image', 'class': 'product_detail_img', 'alt-field': 'name', 'zoom': 'image'}" groups="!website_sale.group_website_multi_image"/>
                             <t groups="website_sale.group_website_multi_image">
-                                <t t-set="image_ids"  t-value="product.product_image_ids"/>
                                 <t t-set="variant_image_ids" t-value="product.product_variant_ids.mapped('product_product_image_ids')"/>
-                                <t t-set="value_ids" t-value="product.attribute_line_ids.mapped('value_ids').filtered(lambda l: l.image != False)"/>
+                                <t t-set="image_ids"  t-value="product.product_image_ids"/>
                                 <div id="o-carousel-product" class="carousel slide" data-ride="carousel" data-interval="0">
                                   <div class="carousel-outer">
                                     <div class="carousel-inner">
-                                        <t t-if="len(variant_image_ids) or len(value_ids) or len(image_ids)">
+                                        <t t-if="len(variant_image_ids) or len(image_ids)">
                                             <t t-foreach="variant_image_ids" t-as="pimg">
                                                 <div t-attf-class="item#{pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
                                             </t>
-                                            <t t-foreach="value_ids" t-as="pimg">
-                                                <div t-attf-class="item#{not len(variant_image_ids) and pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
-                                            </t>
                                             <t t-foreach="image_ids" t-as="pimg">
-                                                <div t-attf-class="item#{not len(variant_image_ids) and not len(value_ids) and pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                                <div t-attf-class="item#{not len(variant_image_ids) and pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
                                             </t>
                                         </t>
                                         <t t-else="">
@@ -434,7 +430,7 @@
                                         </t>
                                     </div>
 
-                                    <t t-if="len(image_ids) or len(value_ids) or len(variant_image_ids)">
+                                    <t t-if="len(image_ids) or len(variant_image_ids)">
                                         <a class="carousel-control left" href="#o-carousel-product" role="button" data-slide="prev" >
                                             <span class="fa fa-chevron-left" aria-hidden="true"/>
                                             <span class="sr-only">Previous</span>
@@ -446,26 +442,20 @@
                                     </t>
                                   </div>
 
-                                  <ol class="carousel-indicators" t-if="len(image_ids) or len(value_ids) or len(variant_image_ids)">
+                                  <ol class="carousel-indicators" t-if="len(image_ids) or len(variant_image_ids)">
                                     <t t-foreach="variant_image_ids" t-as="pimg">
                                         <li data-target="#o-carousel-product" t-att-data-slide-to="pimg_index" t-attf-class="#{pimg_index == 0 and ' active' or ''}" t-att-data-img-id="pimg.id">
                                             <i class="fa fa-times o_img_delete css_non_editable_mode_hidden o_not_editable"/>
                                             <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
                                         </li>
                                     </t>
-                                    <t t-foreach="value_ids" t-as="pimg">
-                                        <li data-target="#o-carousel-product" t-attf-data-slide-to="#{not len(variant_image_ids) and pimg_index == 0 and pimg_index or (pimg_index + len(variant_image_ids))}" t-att-data-img-id="pimg.id" t-attf-class="#{not len(variant_image_ids) and pimg_index == 0 and ' active' or ''}">
-                                            <i class="fa fa-times o_img_delete css_non_editable_mode_hidden o_not_editable"/>
-                                            <img class="img img-responsive" t-attf-src="/website/image/product.attribute.value/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
-                                        </li>
-                                    </t>
                                     <t t-foreach="image_ids" t-as="pimg">
-                                        <li data-target="#o-carousel-product" t-attf-data-slide-to="#{not len(variant_image_ids) and pimg_index == 0 and pimg_index or (pimg_index + len(variant_image_ids) + len(value_ids))}" t-attf-class="#{not len(variant_image_ids) and not len(value_ids) and pimg_index == 0 and ' active' or ''}" t-att-data-img-id="pimg.id">
+                                        <li data-target="#o-carousel-product" t-attf-data-slide-to="#{not len(variant_image_ids) and pimg_index == 0 and pimg_index or (pimg_index + len(variant_image_ids))}" t-attf-class="#{not len(variant_image_ids) and pimg_index == 0 and ' active' or ''}" t-att-data-img-id="pimg.id">
                                             <i class="fa fa-times o_img_delete css_non_editable_mode_hidden o_not_editable"/>
                                             <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
                                         </li>
                                     </t>
-                                    <li data-target="#o-carousel-product" t-att-data-slide-to="((len(image_ids) and len(image_ids) or 0) + (len(value_ids) and len(value_ids) or 0) + (len(variant_image_ids) and len(variant_image_ids) or 0))">
+                                    <li data-target="#o-carousel-product" t-att-data-slide-to="((len(image_ids) and len(image_ids) or 0) + (len(variant_image_ids) and len(variant_image_ids) or 0))">
                                         <span class="fa fa-image add_img o_not_editable css_non_editable_mode_hidden"><p>Add Images</p></span>
                                     </li>
                                   </ol>
