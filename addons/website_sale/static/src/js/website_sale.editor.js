@@ -54,9 +54,7 @@ odoo.define('website_sale.editor', function (require) {
 require('web.dom_ready');
 var options = require('web_editor.snippets.options');
 var widget = require('web_editor.widget');
-var web_editor = require('web_editor.editor');
-
-var toDelete = [];
+var editor = require('web_editor.editor');
 
 if (!$('.js_sale').length) {
     return $.Deferred().reject("DOM doesn't contain '.js_sale'");
@@ -66,32 +64,29 @@ $('.oe_website_sale').on('click', '.oe_currency_value:o_editable', function (ev)
     $(ev.currentTarget).selectContent();
 });
 
-$('#product_detail').on('click', '.o_img_delete', function (e){
-    var $image = e.target.closest('[data-img-id]');
-    var id = $image.dataset.imgId;
-    if (id) {
-        toDelete.push(parseInt(id));
-    }
-    $image.remove();
-
-});
-
-web_editor.Class.include({
+editor.Class.include({
     start: function () {
         var self = this;
-        $('#product_detail').on('click', '.add_img', function (e){
+        this.toDelete = [];
+        $('#product_detail').on('click', '.o_website_sale_product_add_img', function (e) {
             var $parent = e.target.closest('li');
-            var $image = $("<img/>");
-
+            var $image = $("<img class='img img-responsive'/>");
             var editor = new widget.MediaDialog(self, {only_images: true}, $image, $image[0]).open();
             var index = parseInt($parent.dataset.slideTo);
             editor.on("save", this, function (event) {
-                var $li = $('<li/>').attr('data-target', '#o-carousel-product').attr('data-slide-to', index);
-                $image.addClass('img img-responsive').appendTo($li);
+                var $li = $("<li class='o_website_sale_new_img' data-target='#o-carousel-product'/>").attr('data-slide-to', index);
+                $image.appendTo($li);
                 $parent.dataset.slideTo = index + 1;
                 $li.insertBefore($parent);
-                $li.addClass('new_img');
             });
+        });
+        $('#product_detail').on('click', '.o_website_sale_delete_img', function (e){
+            var $image = e.target.closest('[data-img-id]');
+            var id = $image.dataset.imgId;
+            if (id) {
+                self.toDelete.push(parseInt(id));
+            }
+            $image.remove();
         });
         return this._super();
     },
@@ -99,7 +94,7 @@ web_editor.Class.include({
         var $target = $('#wrapwrap').find('#product_detail');
         if ($target && $target.length) {
             var self = this;
-            var images = $('.new_img');
+            var images = $('.o_website_sale_new_img');
             var id = $('#product_detail').data('id');
             var $variant = $('#wrapwrap').find('ul.js_add_cart_variants li');
             var imageDefs = [];
@@ -131,12 +126,12 @@ web_editor.Class.include({
                 img.src = image.children[0].src;
                 imageDefs.push(def);
             });
-            if (toDelete.length) {
+            if (self.toDelete.length) {
                 var def = $.Deferred();
                 this._rpc({
                     model: 'product.image',
                     method: 'unlink',
-                    args: [toDelete],
+                    args: [self.toDelete],
                 }).then( function () {
                     def.resolve();
                 });

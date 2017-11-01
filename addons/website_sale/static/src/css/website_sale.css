@@ -626,38 +626,24 @@ a.no-decoration {
   display: block;
   opacity: 0.5;
 }
-#o-carousel-product .carousel-indicators li span {
-  width: 54px;
-  height: 54px;
+#o-carousel-product .carousel-indicators li .o_website_sale_product_add_img {
   border: 2px dashed lightgray;
   color: lightskyblue;
-  display: block;
   position: absolute;
   padding-top: 10px;
-}
-#o-carousel-product .carousel-indicators li span p{
   font-size: 10px;
 }
-#o-carousel-product .carousel-indicators li .o_img_delete {
+#o-carousel-product .carousel-indicators li .o_website_sale_delete_img {
   position: absolute;
   background-color: rgba(234, 234, 225, 0.8);
   margin: 5px 0px 0px 43px;
   opacity: 0;
 }
-#o-carousel-product .carousel-indicators li .o_img_delete:hover {
+#o-carousel-product .carousel-indicators li .o_website_sale_delete_img:hover {
   background-color: white;
   color: red;
 }
-#o-carousel-product .carousel-indicators li.active {
-  text-indent: 0px;
-}
-#o-carousel-product .carousel-indicators li.active img {
-  opacity: 1;
-}
-#o-carousel-product .carousel-indicators li:hover img {
-  opacity: 1;
-}
-#o-carousel-product .carousel-indicators li:hover .o_img_delete {
+#o-carousel-product .carousel-indicators li.active img, #o-carousel-product .carousel-indicators li:hover img, #o-carousel-product .carousel-indicators li:hover .o_website_sale_delete_img {
   opacity: 1;
 }
 
