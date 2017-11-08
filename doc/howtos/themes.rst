@@ -785,27 +785,25 @@ the following code
 
 .. code-block:: javascript
 
-    (function() {
+    odoo.define('theme_tutorial.editor', function (require) {
         'use strict';
-        var website = odoo.website;
-        website.odoo_website = {};
-    })();
+        var snippet_options = require('web_editor.snippets.options');
+    });
 
-Great, we successfully created our javascript editor file. This file will contain all the javascript functions used by our snippets in edit mode. Let’s create a new function for our testimonial snippet using the ``snippet_testimonial_options`` method that we created before.
+Great, we successfully created our javascript editor file. This file will contain all the javascript functions used by our snippets in edit mode. Let’s create a new function for our testimonial snippet named ``snippet_testimonial_options`` which we already defined using ``data-js`` attribute before.
 
 .. code-block:: javascript
 
-   (function() {
-       'use strict';
-       var website = odoo.website;
-       website.odoo_website = {};
+    odoo.define('theme_tutorial.editor', function (require) {
+        'use strict';
+        var snippet_options = require('web_editor.snippets.options');
 
-       website.snippet.options.snippet_testimonial_options = website.snippet.Option.extend({
-           onFocus: function() {
-               alert("On focus!");
-           }
-       })
-   })();
+        snippet_options.registry.snippet_testimonial_options = snippet_options.Class.extend({{
+            onFocus: function() {
+                alert("On focus!");
+            }
+        });
+    });
 
 As you will notice, we used a method called ``onFocus`` to trigger our function. The Website Builder provides several events you can use to trigger your custom functions.
 
