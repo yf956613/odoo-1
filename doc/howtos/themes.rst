@@ -227,7 +227,7 @@ Odoo’s themes are packaged like modules. Even if you are designing a very simp
 
 The final result should be something like this:
 
-.. image:: theme_tutorial_assets/img/folder.jpg
+.. image:: theme_tutorial_assets/img/folder.png
 
 Edit ``__manifest__.py``
 ------------------------
@@ -371,27 +371,40 @@ Imagine that we want to create a specific layout for a Services page.
 For this page, we need to add a list of services to the top and give the client the possibility of setting the rest of the page’s layout using snippets.
 
 Inside your *views* folder, create a **pages.xml** file and add the
-default Odoo markup.  Inside ``<odoo>`` create a ``<template>`` tag, set the
-``page`` attribute to ``True`` and add your code into it.
+default Odoo markup.  Inside ``<odoo>`` create a ``<t>`` tag.
 
 .. code-block:: xml
 
    <?xml version="1.0" encoding="utf-8" ?>
    <odoo>
 
+    <record id="services" model="ir.ui.view">
+      <field name="name">Services</field>
+      <field name="type">qweb</field>
+      <field name="key">website.services</field>
+      <field name="arch" type="xml">
+
        <!-- === Services Page === -->
-       <template name="Services page" id="website.services" page="True">
-         <h1>Our Services</h1>
-           <ul class="services">
-             <li>Cloud Hosting</li>
-             <li>Support</li>
-             <li>Unlimited space</li>
-           </ul>
-         </template>
+        <t name="Services Page" t-name="website.services">
+          <h1>Our Services</h1>
+          <ul class="services">
+            <li>Cloud Hosting</li>
+            <li>Support</li>
+            <li>Unlimited space</li>
+          </ul>
+        </t>
+      </field>
+    </record>
 
-     </odoo>
+    <record id="services_page" model="website.page">
+      <field name="url">pages/services</field>
+      <field name="website_published">True</field>
+      <field name="view_id" ref="services" />
+    </record>
 
-The page title will be the template ID. In our case *Services* (from ``website.services``)
+   </odoo>
+
+The page title will be the ``<t>`` ID. In our case *Services* (from ``website.services``)
 
 We successfully created a new page layout, but we haven't told the
 system **how to use it**. To do that, we can use **QWeb**. Wrap the
@@ -400,20 +413,20 @@ html code into a ``<t>`` tag, like in this example.
 .. code-block:: xml
 
    <!-- === Services Page === -->
-   <template name="Services page" id="website.services" page="True">
-     <t t-call="website.layout">
-       <div id="wrap">
-         <div class="container">
-           <h1>Our Services</h1>
-           <ul class="services">
-             <li>Cloud Hosting</li>
-             <li>Support</li>
-             <li>Unlimited space</li>
-           </ul>
-         </div>
-       </div>
-     </t>
-   </template>
+      <t name="Services Page" t-name="website.services">
+        <t t-call="website.layout">
+          <div id="wrap">
+            <div class="container">
+              <h1>Our Services</h1>
+              <ul class="services">
+                <li>Cloud Hosting</li>
+                <li>Support</li>
+                <li>Unlimited space</li>
+              </ul>
+            </div>
+          </div>
+        </t>
+      </t>
 
 Using ``<t t-call="website.layout">`` we will extend the Odoo
 default page layout with our code.
@@ -428,24 +441,36 @@ can fill with snippets. To achieve this, just create a ``div`` with
 
    <?xml version="1.0" encoding="utf-8" ?>
    <odoo>
+    <record id="services" model="ir.ui.view">
+      <field name="name">Services</field>
+      <field name="type">qweb</field>
+      <field name="key">website.services</field>
+      <field name="arch" type="xml">
+        <!-- === Services Page === -->
+        <t name="Services Page" t-name="website.services">
+          <t t-call="website.layout">
+            <div id="wrap">
+              <div class="container">
+                <h1>Our Services</h1>
+                <ul class="services">
+                  <li>Cloud Hosting</li>
+                  <li>Support</li>
+                  <li>Unlimited space</li>
+                </ul>
+                <!-- === Snippets' area === -->
+                <div class="oe_structure" />
+              </div>
+            </div>
+          </t>
+        </t>
+      </field>
+    </record>
 
-   <!-- === Services Page === -->
-   <template name="Services page" id="website.services" page="True">
-     <t t-call="website.layout">
-      <div id="wrap">
-        <div class="container">
-          <h1>Our Services</h1>
-          <ul class="services">
-            <li>Cloud Hosting</li>
-            <li>Support</li>
-            <li>Unlimited space</li>
-          </ul>
-          <!-- === Snippets' area === -->
-          <div class="oe_structure" />
-        </div>
-      </div>
-     </t>
-   </template>
+    <record id="services_page" model="website.page">
+      <field name="url">pages/services</field>
+      <field name="website_published">True</field>
+      <field name="view_id" ref="services" />
+    </record>
 
    </odoo>
 
