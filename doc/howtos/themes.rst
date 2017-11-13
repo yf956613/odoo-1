@@ -561,11 +561,16 @@ Let’s navigate to the view folder and create an XML file called *assets.xml*. 
 
 .. code-block:: xml
 
-   <template id="mystyle" name="My style" inherit_id="website.assets_frontend">
-       <xpath expr="link[last()]" position="after">
-           <link href="/theme folder/static/less/style.less" rel="stylesheet" type="text/less"/>
-       </xpath>
-   </template>
+   <?xml version="1.0"?>
+   <odoo>
+
+     <template id="mystyle" name="My style" inherit_id="website.assets_frontend">
+         <xpath expr="link[last()]" position="after">
+             <link href="/theme folder/static/less/style.less" rel="stylesheet" type="text/less"/>
+         </xpath>
+     </template>
+
+   </odoo>
 
 We just created a template specifying our less file. As you can see,
 our template has a special attribute called ``inherit_id``.  This
@@ -608,29 +613,34 @@ The template contains the HTML markup that will be displayed by the snippet.
 
 .. code-block:: xml
 
-   <template id="snippet_testimonial" name="Testimonial snippet">
-     <section class="snippet_testimonial">
-       <div class="container text-center">
-         <div class="row">
-           <div class="col-md-4">
-             <img alt="client" class="img-circle" src="/theme_tutorial/static/src/img/client_1.jpg"/>
-             <h3>Client Name</h3>
-             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-           </div>
-           <div class="col-md-4">
-             <img alt="client" class="img-circle" src="/theme_tutorial/static/src/img/client_2.jpg"/>
-             <h3>Client Name</h3>
-             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-           </div>
-           <div class="col-md-4">
-             <img alt="client" class="img-circle" src="/theme_tutorial/static/src/img/client_3.jpg"/>
-             <h3>Client Name</h3>
-             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+   <?xml version="1.0" encoding="utf-8"?>
+   <odoo>
+
+     <template id="snippet_testimonial" name="Testimonial snippet">
+       <section class="snippet_testimonial">
+         <div class="container text-center">
+           <div class="row">
+             <div class="col-md-4">
+               <img alt="client" class="img-circle" src="/theme_tutorial/static/src/img/client_1.jpg"/>
+               <h3>Client Name</h3>
+               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+             </div>
+             <div class="col-md-4">
+               <img alt="client" class="img-circle" src="/theme_tutorial/static/src/img/client_2.jpg"/>
+               <h3>Client Name</h3>
+               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+             </div>
+             <div class="col-md-4">
+               <img alt="client" class="img-circle" src="/theme_tutorial/static/src/img/client_3.jpg"/>
+               <h3>Client Name</h3>
+               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+             </div>
            </div>
          </div>
-       </div>
-     </section>
-   </template>
+       </section>
+     </template>
+
+   </odoo>
 
 As you can see, we used Bootstrap default classes for our three columns. It’s not just about layout, these classes **will be triggered by the Website Builder to make them resizable by the user**.
 
