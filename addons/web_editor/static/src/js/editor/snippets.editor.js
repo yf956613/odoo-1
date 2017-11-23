@@ -309,6 +309,37 @@ var SnippetEditor = Widget.extend({
         this.destroy();
     },
 
+    /**
+     * Returns total Occupied cols in a row
+     * @private
+     */
+    _totalOcc: function (arr, param) {
+        return _.reduce(_.pluck(arr, param), function(memo, num) { return memo + num}, 0);
+    },
+    /**
+     * Returns currently occupied space in terms of cols
+     * @private
+     */
+    _getOcc: function ($el) {
+        return parseInt(
+                    _.last(
+                        _.filter($el.attr('class').split(' '), function (cls) {
+                            return (cls.startsWith('col-md-') && ! cls.startsWith('col-md-offset'));
+                        })[0].split('-')
+                    )
+                )
+    },
+    /**
+     * Returns currently applied offsets of cols
+     * @private
+     */
+    _getOffset: function ($el) {
+        var offsetCls = _.filter($el.attr('class').split(' '), function (cls) {
+            return (cls.startsWith('col-md-offset'));
+        });
+        return offsetCls.length ? parseInt(_.last(offsetCls[0].split('-'))) : 0;
+    },
+
     //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
@@ -322,9 +353,67 @@ var SnippetEditor = Widget.extend({
     _onCloneClick: function (ev) {
         ev.preventDefault();
         var $clone = this.$target.clone(false);
+        var currentRow = []; // current row
+        var found = false; // target is found in current row
+        var bsCap = 12; // BS row capacity
+        var self = this;
 
         this.trigger_up('request_history_undo_record', {$target: this.$target});
 
+        if (  _.filter(this.$target.attr('class').split(' '), function (cls) { return cls.startsWith('col-md-') })) {
+            var parent = this.$target.parent('.row');
+            var children = parent.children();
+            for (var i = 0; i < children.length; i++ ) {
+                var child = $(children[i]);
+                found = found || self.$target.is(child);
+                var colOffset = self._getOffset(child);
+                var ocpCols = self._getOcc(child) + colOffset;
+                if (self._totalOcc(currentRow, 'ocp') < bsCap) {
+                    currentRow.push({
+                        el: child,
+                        idx: i,
+                        ocp: ocpCols,
+                        offset : colOffset,
+                        space: (ocpCols - 3) < 0 ? 0 : (ocpCols - 3) // only +ve
+                    })
+                    if (self._totalOcc(currentRow, 'ocp') > bsCap) {
+                        if (found && ! (self.$target.is(child))) {
+                            currentRow.splice(-1, 1);
+                            break;
+                        }
+                        currentRow = [{
+                            el: child,
+                            idx: i,
+                            ocp: ocpCols,
+                            offset : colOffset,
+                            space: (ocpCols - 3) < 0 ? 0 : (ocpCols - 3) // only +ve
+                        }]
+                    }
+                }
+                if (self._totalOcc(currentRow, 'ocp') === bsCap) {
+                    if  (found) {
+                        break;
+                    }
+                    else {
+                        currentRow = [];
+                        continue;
+                    }
+                }
+            }
+            var spaceAvail = this._totalOcc(currentRow, 'space');
+            var spaceOcc = this._totalOcc(currentRow, 'ocp');
+            // only handles case with 1 to 3 cols (and fully occupied row)
+            if (spaceAvail >= 3 && ! (currentRow.length > 4) && ! (spaceOcc > bsCap)) {
+                var tgtOcc = this._getOcc(this.$target);
+                var tgtOffset = this._getOffset(this.$target);
+                var totalEls = currentRow.length + 1;
+                var eqClasses = bsCap / totalEls;
+                for (var i = 0; i < currentRow.length; i++) {
+                    currentRow[i].el.removeClass('col-md-' + (currentRow[i].ocp - currentRow[i].offset) + ' col-md-offset-' + currentRow[i].offset).addClass('col-md-' + eqClasses);
+                }
+                $clone.removeClass('col-md-' + tgtOcc + ' col-md-offset-' + tgtOffset).addClass('col-md-' + eqClasses);
+            }
+        }
         this.$target.after($clone);
         this.trigger_up('call_for_each_child_snippet', {
             $snippet: $clone,
