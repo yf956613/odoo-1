@@ -417,34 +417,21 @@
                                 <div id="o-carousel-product" class="carousel slide" data-ride="carousel" data-interval="0">
                                   <div class="carousel-outer">
                                     <div class="carousel-inner">
-                                        <t t-if="len(variant_image_ids) or len(image_ids)">
-                                            <t t-foreach="variant_image_ids" t-as="pimg">
-                                                <div t-attf-class="item#{pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
-                                            </t>
-                                            <t t-foreach="image_ids" t-as="pimg">
-                                                <div t-attf-class="item#{not len(variant_image_ids) and pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
-                                            </t>
+                                        <t t-foreach="variant_image_ids" t-as="pimg">
+                                            <div t-attf-class="item#{pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
                                         </t>
-                                        <t t-else="">
+                                        <t t-foreach="image_ids" t-as="pimg">
+                                            <div t-attf-class="item#{not len(variant_image_ids) and pimg_index == 0 and ' active' or ''}" t-field="pimg.image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
+                                        </t>
+                                        <t t-if="not(len(variant_image_ids) or len(image_ids))">
                                             <div class="item active" t-field="product.product_variant_ids[0].image" t-options='{"widget": "image", "class": "product_detail_img", "alt-field": "name", "zoom": "image" }'/>
                                         </t>
                                     </div>
-
-                                    <t t-if="len(image_ids) or len(variant_image_ids)">
-                                        <a class="carousel-control left" href="#o-carousel-product" role="button" data-slide="prev" >
-                                            <span class="fa fa-chevron-left" aria-hidden="true"/>
-                                            <span class="sr-only">Previous</span>
-                                        </a>
-                                        <a class="carousel-control right" href="#o-carousel-product" role="button" data-slide="next">
-                                            <span class="fa fa-chevron-right" aria-hidden="true"/>
-                                            <span class="sr-only">Next</span>
-                                        </a>
-                                    </t>
                                   </div>
 
                                   <ol class="carousel-indicators" t-if="len(image_ids) or len(variant_image_ids)">
                                     <t t-foreach="variant_image_ids" t-as="pimg">
-                                        <li data-target="#o-carousel-product" t-attf-data-slide-to="#{pimg_index}" t-attf-class="#{pimg_index == 0 and ' active' or ''}" t-att-data-img-id="pimg.id">
+                                        <li data-target="#o-carousel-product" t-attf-data-slide-to="#{pimg_index}" t-attf-class="#{pimg_index == 0 and ' active' or ''}" t-att-data-img-id="pimg.id" t-att-data-variant_id="pimg.product_product_id.id">
                                             <i class="fa fa-times o_website_sale_delete_img css_non_editable_mode_hidden o_not_editable"/>
                                             <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
                                         </li>

@@ -284,6 +284,13 @@ odoo.define('website_sale.website_sale', function (require) {
                     $thumbnail.attr("src", "/web/image/product.product/" + product_id + "/image/90x90");
                     $('.carousel').carousel(0);
                 }
+
+                // hide/show images based on variant selection
+                $("#o-carousel-product").find("li[data-target='#o-carousel-product']").each(function () {
+                    $(this).toggleClass('hidden', $(this).data('variant_id') && $(this).data('variant_id') !== product_id);
+                });
+                var slideTo = $("#o-carousel-product").find("li[data-target='#o-carousel-product']:not('.hidden'):first()").data('slide-to');
+                $('#o-carousel-product').carousel(slideTo);
             }
             else {
                 $img = $(event_source).closest('tr.js_product, .oe_website_sale').find('span[data-oe-model^="product."][data-oe-type="image"] img:first, img.product_detail_img');
