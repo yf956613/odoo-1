@@ -613,31 +613,48 @@ a.no-decoration {
 }
 #o-carousel-product .carousel-indicators li {
   background-color: transparent !important;
-  border-radius: 0;
+  border-radius: 2px;
   display: inline-block;
-  margin: 0 !important;
+  margin: 0;
   width: 54px !important;
   height: 54px !important;
-  border: 0 !important;
-  box-shadow: none !important;
+  border: 1px solid #949494;;
+  box-shadow: none;
   text-indent: 0px;
+}
+#o-carousel-product .carousel-indicators li:hover, #o-carousel-product .carousel-indicators li.active {
+  border-color: #e77600;
+}
+#o-carousel-product .carousel-indicators li:hover {
+  outline: 0;
+  box-shadow: 0 0 3px 2px rgba(228,121,17,.5);
 }
 #o-carousel-product .carousel-indicators li img {
   display: block;
   opacity: 0.5;
 }
-#o-carousel-product .carousel-indicators li .o_website_sale_product_add_img {
+.editor_enable #o-carousel-product .carousel-indicators li img {
+  position: relative;
+  top: -20px;
+}
+#o-carousel-product .carousel-indicators .o_website_sale_product_add_img {
   border: 2px dashed lightgray;
   color: lightskyblue;
-  position: absolute;
+  position: relative;
   padding-top: 10px;
   font-size: 10px;
+  top: 16px;
+}
+.editor_enable #o-carousel-product .carousel-indicators .css_non_editable_mode_hidden {
+  display: inline-block !important;
 }
 #o-carousel-product .carousel-indicators li .o_website_sale_delete_img {
-  position: absolute;
+  position: relative;
   background-color: rgba(234, 234, 225, 0.8);
-  margin: 5px 0px 0px 43px;
   opacity: 0;
+  top: -3px;
+  right: -20px;
+  z-index: 101;
 }
 #o-carousel-product .carousel-indicators li .o_website_sale_delete_img:hover {
   background-color: white;

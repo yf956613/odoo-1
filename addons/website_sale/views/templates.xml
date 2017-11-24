@@ -442,8 +442,8 @@
                                             <img class="img img-responsive" t-attf-src="/website/image/product.image/{{pimg.id}}/image/90x90" t-att-alt="pimg.name"/>
                                         </li>
                                     </t>
-                                    <li data-target="#o-carousel-product" t-att-data-slide-to="((len(image_ids) and len(image_ids) or 0) + (len(variant_image_ids) and len(variant_image_ids) or 0))">
-                                        <span class="fa fa-image o_website_sale_product_add_img o_not_editable css_non_editable_mode_hidden ml8"><p>Add Images</p></span>
+                                    <li data-target="#o-carousel-product" t-att-data-slide-to="((len(image_ids) and len(image_ids) or 0) + (len(variant_image_ids) and len(variant_image_ids) or 0))" class="css_non_editable_mode_hidden o_website_sale_product_add_img ml8">
+                                        <span class="fa fa-image o_not_editable"><p>Add Images</p></span>
                                     </li>
                                   </ol>
                                 </div>

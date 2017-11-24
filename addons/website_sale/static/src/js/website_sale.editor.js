@@ -70,11 +70,11 @@ editor.Class.include({
         this.toDelete = [];
         $('#product_detail').on('click', '.o_website_sale_product_add_img', function (e) {
             var $parent = e.target.closest('li');
-            var $image = $("<img class='img img-responsive'/>");
+            var $image = $("<img class='img img-responsive mt8'/>");
             var editor = new widget.MediaDialog(self, {only_images: true}, $image, $image[0]).open();
             var index = parseInt($parent.dataset.slideTo);
             editor.on("save", this, function (event) {
-                var $li = $("<li class='o_website_sale_new_img' data-target='#o-carousel-product'/>").attr('data-slide-to', index);
+                var $li = $("<li class='o_website_sale_new_img ml4' data-target='#o-carousel-product'/>").attr('data-slide-to', index);
                 $image.appendTo($li);
                 $parent.dataset.slideTo = index + 1;
                 $li.insertBefore($parent);
