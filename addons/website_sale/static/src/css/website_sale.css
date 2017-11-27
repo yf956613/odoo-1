@@ -637,6 +637,12 @@ a.no-decoration {
   position: relative;
   top: -20px;
 }
+.editor_enable #o-carousel-product .carousel-indicators li.o_website_sale_new_img img {
+  top: 12px;
+  display: inherit;
+  width: 54px;
+  height: 25px;
+}
 #o-carousel-product .carousel-indicators .o_website_sale_product_add_img {
   border: 2px dashed lightgray;
   color: lightskyblue;

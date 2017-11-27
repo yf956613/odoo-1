@@ -52,9 +52,9 @@ odoo.define('website_sale.editor', function (require) {
 'use strict';
 
 require('web.dom_ready');
+var editor = require('web_editor.editor');
 var options = require('web_editor.snippets.options');
 var widget = require('web_editor.widget');
-var editor = require('web_editor.editor');
 
 if (!$('.js_sale').length) {
     return $.Deferred().reject("DOM doesn't contain '.js_sale'");
@@ -70,7 +70,7 @@ editor.Class.include({
         this.toDelete = [];
         $('#product_detail').on('click', '.o_website_sale_product_add_img', function (e) {
             var $parent = e.target.closest('li');
-            var $image = $("<img class='img img-responsive mt8'/>");
+            var $image = $("<img class='img img-responsive'/>");
             var editor = new widget.MediaDialog(self, {only_images: true}, $image, $image[0]).open();
             var index = parseInt($parent.dataset.slideTo);
             editor.on("save", this, function (event) {
@@ -104,13 +104,11 @@ editor.Class.include({
                 var img = new Image();
                 img.onload = function () {
                     var canvas = document.createElement("CANVAS");
-                    var ctx = canvas.getContext("2d");
                     canvas.width = this.width;
                     canvas.height = this.height;
-                    ctx.drawImage(this, 0, 0);
-                    path = canvas.toDataURL("image/jpeg");
+                    canvas.getContext("2d").drawImage(this, 0, 0);
+                    var path = canvas.toDataURL("image/jpeg").replace(/^data:image\/[a-z]+;base64,/, "");
                     canvas = null;
-                    var path = path.replace(/^data:image\/[a-z]+;base64,/, "");
                     var args = [{'product_tmpl_id': id, 'image': path}];
                     if ($variant.length) {
                         args = [{'product_product_id': id, 'image': path}];
@@ -122,7 +120,7 @@ editor.Class.include({
                     }).then( function () {
                         def.resolve();
                     });
-                }
+                },
                 img.src = image.children[0].src;
                 imageDefs.push(def);
             });

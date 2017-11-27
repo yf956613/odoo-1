@@ -190,8 +190,8 @@ class ProductTemplate(models.Model):
             if product_image:
                 if 'image' in vals and product_image.image != vals['image']:
                     product.product_image_ids = [(1, product_image.id, {'image': vals['image']})]
-                elif 'image_medium' in vals and not vals.get('image') and product_image.image:
-                    product.product_image_ids = [(1, product_image.id, {'image': False})]
+                elif 'image_medium' in vals and not vals.get('image') and product_image:
+                    product.product_image_ids = [(2, product_image.id)]
             elif 'image' in vals:
                 product.product_image_ids = [(0, 0, {'image': vals['image'], 'name': self.name, 'is_main_image': True})]
         return res
@@ -264,7 +264,7 @@ class ProductImage(models.Model):
     image = fields.Binary('Image', attachment=True)
     product_tmpl_id = fields.Many2one('product.template', 'Related Product', copy=True)
     product_product_id = fields.Many2one('product.product', 'Related Product Product', copy=True)
-    is_main_image = fields.Boolean()
+    is_main_image = fields.Boolean(string="Product's Main Image")
 
     def write(self, vals):
         res = super(ProductImage, self).write(vals)
