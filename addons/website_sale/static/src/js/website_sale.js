@@ -287,7 +287,11 @@ odoo.define('website_sale.website_sale', function (require) {
 
                 // hide/show images based on variant selection
                 $("#o-carousel-product").find("li[data-target='#o-carousel-product']").each(function () {
-                    $(this).toggleClass('hidden', $(this).data('variant_id') && $(this).data('variant_id') !== product_id);
+                    if ($(this).data('variant_id') && $(this).data('variant_id') !== product_id) {
+                        $(this).addClass('hidden');
+                    } else {
+                        $(this).removeClass('hidden');
+                    }
                 });
                 var slideTo = $("#o-carousel-product").find("li[data-target='#o-carousel-product']:not('.hidden'):first()").data('slide-to');
                 $('#o-carousel-product').carousel(slideTo);
@@ -312,6 +316,7 @@ odoo.define('website_sale.website_sale', function (require) {
                 $parent.find(".oe_default_price:first .oe_currency_value").html( price_to_str(+$(self).data('lst_price')) );
                 $parent.find(".oe_price:first .oe_currency_value").html(price_to_str(+$(self).data('price')) );
             });
+            $parent.closest("#product_detail").data('id', +$(this).val())
             update_product_image(this, +$(this).val());
         });
 

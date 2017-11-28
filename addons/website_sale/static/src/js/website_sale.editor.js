@@ -97,6 +97,9 @@ editor.Class.include({
             var images = $('.o_website_sale_new_img');
             var id = $('#product_detail').data('id');
             var $variant = $('#wrapwrap').find('ul.js_add_cart_variants li');
+            if (!$variant.length) {
+                $variant = $('#wrapwrap').find('input.js_product_change');
+            }
             var imageDefs = [];
 
             _.each(images, function (image) {
