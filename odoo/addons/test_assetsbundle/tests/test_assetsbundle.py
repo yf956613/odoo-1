@@ -10,7 +10,7 @@ import time
 from odoo import api
 from odoo.addons.base.models.assetsbundle import AssetsBundle
 from odoo.modules.module import get_resource_path
-from odoo.tests import HttpCase
+from odoo.tests import HttpSeleniumCase
 from odoo.tests.common import TransactionCase
 
 
@@ -319,13 +319,13 @@ class TestJavascriptAssetsBundle(TransactionCase):
         self.assertEqual(content.count('test_assetsbundle.bundle2.0.css'), 1)
 
 
-class TestAssetsBundleInBrowser(HttpCase):
+class TestAssetsBundleInBrowser(HttpSeleniumCase):
     def test_01_js_interpretation(self):
         """ Checks that the javascript of a bundle is correctly interpreted.
         """
-        self.phantom_js(
+        self.selenium_run(
             "/test_assetsbundle/js",
-            "a + b + c === 6 ? console.log('ok') : console.log('error')",
+            ready="a + b + c === 6 ? console.log('ok') : console.log('error')",
             login="admin"
         )
 
@@ -348,9 +348,9 @@ class TestAssetsBundleInBrowser(HttpCase):
             'inherit_id': self.browse_ref('test_assetsbundle.bundle1').id,
         })
 
-        self.phantom_js(
+        self.selenium_run(
             "/test_assetsbundle/js",
-            "a + b + c + d === 10 ? console.log('ok') : console.log('error')",
+            ready="a + b + c + d === 10 ? console.log('ok') : console.log('error')",
             login="admin",
         )
 

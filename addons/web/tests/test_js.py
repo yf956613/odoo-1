@@ -8,15 +8,25 @@ RE_ONLY = re.compile('QUnit\.only\(')
 
 
 @odoo.tests.tagged('post_install', '-at_install')
-class WebSuite(odoo.tests.HttpCase):
+class WebSuite(odoo.tests.HttpSeleniumCase):
 
     def test_01_js(self):
         # webclient desktop test suite
-        self.phantom_js('/web/tests?mod=web', "", "", login='admin', timeout=420)
+        self.selenium_run(
+            '/web/tests?mod=web',
+            "",
+            ready="",
+            login='admin',
+            max_tries=50)
 
     def test_02_js(self):
         # webclient mobile test suite
-        self.phantom_js('/web/tests/mobile?mod=web', "", "", login='admin', timeout=300)
+        self.selenium_run(
+            '/web/tests/mobile?mod=web',
+            "",
+            ready="",
+            login='admin',
+            max_tries=50)
 
     def test_check_suite(self):
         # verify no js test is using `QUnit.only` as it forbid any other test to be executed

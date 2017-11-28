@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 
 @odoo.tests.common.tagged('post_install', '-at_install')
-class Crawler(odoo.tests.HttpCase):
+class Crawler(odoo.tests.HttpSeleniumCase):
     """ Test suite crawling an Odoo CMS instance and checking that all
     internal links lead to a 200 response.
 

@@ -5,7 +5,7 @@ from odoo.tests import common
 
 
 @common.tagged('post_install', '-at_install')
-class TestXMLRPC(common.HttpCase):
+class TestXMLRPC(common.HttpSeleniumCase):
 
     def test_01_xmlrpc_login(self):
         """ Try to login on the common service. """

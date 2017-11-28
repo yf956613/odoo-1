@@ -8,7 +8,7 @@ from datetime import date, timedelta
 import odoo.tests
 
 
-class TestUi(odoo.tests.HttpCase):
+class TestUi(odoo.tests.HttpSeleniumCase):
     def test_01_pos_basic_order(self):
         env = self.env
 
@@ -291,14 +291,14 @@ class TestUi(odoo.tests.HttpCase):
         # this you end up with js, css but no qweb.
         env['ir.module.module'].search([('name', '=', 'point_of_sale')], limit=1).state = 'installed'
 
-        self.phantom_js("/pos/web",
+        self.selenium_run("/pos/web",
                         "odoo.__DEBUG__.services['web_tour.tour'].run('pos_pricelist')",
-                        "odoo.__DEBUG__.services['web_tour.tour'].tours.pos_pricelist.ready",
+                        ready="odoo.__DEBUG__.services['web_tour.tour'].tours.pos_pricelist.ready",
                         login="admin")
 
-        self.phantom_js("/pos/web",
+        self.selenium_run("/pos/web",
                         "odoo.__DEBUG__.services['web_tour.tour'].run('pos_basic_order')",
-                        "odoo.__DEBUG__.services['web_tour.tour'].tours.pos_basic_order.ready",
+                        ready="odoo.__DEBUG__.services['web_tour.tour'].tours.pos_basic_order.ready",
                         login="admin")
 
         for order in env['pos.order'].search([]):

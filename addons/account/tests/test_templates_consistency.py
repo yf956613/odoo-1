@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo.tests.common import HttpCase
+from odoo.tests.common import HttpSeleniumCase
 
 
-class AccountingTestTemplConsistency(HttpCase):
+class AccountingTestTemplConsistency(HttpSeleniumCase):
     '''Test the templates consistency between some objects like account.account when account.account.template.
     '''
 

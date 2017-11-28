@@ -3,11 +3,11 @@
 import logging
 _logger = logging.getLogger(__name__)
 
-from odoo.tests.common import HttpCase, tagged
+from odoo.tests.common import HttpSeleniumCase, tagged
 from odoo.exceptions import ValidationError
 
 
-class AccountingTestCase(HttpCase):
+class AccountingTestCase(HttpSeleniumCase):
     """ This class extends the base TransactionCase, in order to test the
     accounting with localization setups. It is configured to run the tests after
     the installation of all modules, and will SKIP TESTS if it  cannot find an already
