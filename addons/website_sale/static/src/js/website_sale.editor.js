@@ -70,7 +70,7 @@ editor.Class.include({
         this.toDelete = [];
         $('#product_detail').on('click', '.o_website_sale_product_add_img', function (e) {
             var $parent = e.target.closest('li');
-            var $image = $("<img class='img img-responsive'/>");
+            var $image = $('<img>', {class: 'img img-responsive'});
             var editor = new widget.MediaDialog(self, {only_images: true}, $image, $image[0]).open();
             var index = parseInt($parent.dataset.slideTo);
             editor.on("save", this, function (event) {
