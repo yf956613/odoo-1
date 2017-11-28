@@ -22,6 +22,11 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime, timedelta, date
 from pprint import pformat
+try:
+    from selenium import webdriver
+    from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+except ImportError:
+    webdriver = None
 
 import requests
 from decorator import decorator
@@ -521,6 +526,181 @@ class HttpCase(TransactionCase):
         phantomtest = os.path.join(os.path.dirname(__file__), 'phantomtest.js')
         cmd = ['phantomjs', phantomtest, json.dumps(options)]
         self.phantom_run(cmd, timeout)
+
+
+class HttpSeleniumCase(TransactionCase):
+    """Transactional test case with Selenium + Chrome headless"""
+    registry_test_mode = True
+
+    def __init__(self, methodName='runTest'):
+        super(HttpSeleniumCase, self).__init__(methodName)
+        # v8 api with correct xmlrpc exception handling.
+        self.xmlrpc_url = url_8 = 'http://%s:%d/xmlrpc/2/' % (HOST, PORT)
+        self.xmlrpc_common = xmlrpclib.ServerProxy(url_8 + 'common')
+        self.xmlrpc_db = xmlrpclib.ServerProxy(url_8 + 'db')
+        self.xmlrpc_object = xmlrpclib.ServerProxy(url_8 + 'object')
+
+    def setUp(self):
+        super(HttpSeleniumCase, self).setUp()
+
+        if not hasattr(self, 'logger'):
+            self.logger = _logger
+        if webdriver is None:
+            raise unittest.SkipTest("Selenium not installed")
+        self.logger.info('Setting up Selenium test case')
+        self.chrome_bin_path = '/usr/bin/chromium-browser'
+        self.chrome_driver_path = '/usr/lib/chromium-browser/chromedriver'
+        if not os.path.exists(self.chrome_bin_path):
+            raise unittest.SkipTest("Chrome not found in '{}'".format(self.chrome_bin_path))
+        if not os.path.exists(self.chrome_driver_path):
+            raise unittest.SkipTest("Chrome driver not found in '{}'".format(self.chrome_driver_path))
+
+        if self.registry_test_mode:
+            self.registry.enter_test_mode()
+            self.addCleanup(self.registry.leave_test_mode)
+        # setup a magic session_id that will be rollbacked
+        self.session = odoo.http.root.session_store.new()
+        self.session_id = self.session.sid
+        self.session.db = get_db_name()
+        odoo.http.root.session_store.save(self.session)
+        # setup an url opener helper
+        self.opener = requests.Session()
+        self.opener.cookies['session_id'] = self.session_id
+
+        # Chrome headless setup
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.binary_location = self.chrome_bin_path
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--start-maximized')
+        chrome_options.add_argument('--window-size=1920,1080')
+        desire = DesiredCapabilities.CHROME
+        desire['loggingPrefs'] = {'browser': 'ALL'}
+        self.browser = webdriver.Chrome(self.chrome_driver_path, chrome_options=chrome_options, desired_capabilities=desire)
+        #desire = DesiredCapabilities.FIREFOX
+        #self.logger.info('DESIRE: {}'.format())
+        #desire['args'] = ['-headless',]
+        #self.browser = webdriver.Firefox(executable_path='/usr/lib/firefox/geckodriver', capabilities=desire)
+        self.browser.implicitly_wait(5)
+        self.addCleanup(self.browser.quit)
+
+        self.opener = requests.Session()
+        self.opener.cookies['session_id'] = self.session_id
+
+    def url_open(self, url, data=None, timeout=10):
+        if url.startswith('/'):
+            url = "http://%s:%s%s" % (HOST, PORT, url)
+        if data:
+            return self.opener.post(url, data=data, timeout=timeout)
+        return self.opener.get(url, timeout=timeout)
+
+    def _build_url(self, url_path):
+        url_path = url_path if url_path.startswith('/') else '/{}'.format(url_path)
+        return "http://{}:{}{}".format(HOST, PORT, url_path)
+
+    def browser_get(self, url_path):
+        return self.browser.get(self._build_url(url_path))
+
+    def authenticate(self, user, password):
+        self.logger.info('Pre authenticate session with user/password: {}/{}'.format(user, password))
+        # stay non-authenticated
+        if user is None:
+            return
+
+        db = get_db_name()
+        uid = self.registry['res.users'].authenticate(db, user, password, None)
+        env = api.Environment(self.cr, uid, {})
+
+        # self.session.authenticate(db, user, password, uid=uid)
+        # OpenERPSession.authenticate accesses the current request, which we
+        # don't have, so reimplement it manually...
+        session = self.session
+
+        session.db = db
+        session.uid = uid
+        session.login = user
+        session.password = password
+        session.context = env['res.users'].context_get() or {}
+        session.context['uid'] = uid
+        session._fix_lang(session.context)
+        odoo.http.root.session_store.save(session)
+
+        self.browser_get('/')
+        self.browser.add_cookie({'domain': '127.0.0.1', 'name': 'session_id', 'value': self.session_id})
+
+    def _wait_ready(self, ready_js_code, max_tries=10):
+        """Selenium should wait for the page to be ready but this is a safeguard."""
+        self.logger.info("Running JS ready code: '{}'".format(ready_js_code))
+        tries = 1
+        start_time = time.time()
+        while True:
+            if tries > max_tries:
+                break
+            time.sleep(0.1 * tries)
+            res = self.browser.execute_script("return {}".format(ready_js_code))
+            if res:
+                return
+            tries += 1
+        waiting_time = time.time() - start_time
+        self.logger.warning("Ready JS function '{}' was never True (Waiting time: {} sec)".format(ready_js_code, waiting_time))
+
+    def selenium_run(self, url_path, js_code, ready='window', login=None, max_tries=20):
+        """Runs a js_code javascript test in Chrome headless"""
+        self.authenticate(login, login)
+        self.browser_get(url_path)
+        self.browser.execute_script('localStorage.clear();')
+        self._wait_ready(ready) if ready else self.logger.info('No Ready code, running directly')
+        self.logger.info("Running JS test code: '{}'".format(js_code))
+        self.browser.execute_script('return eval({})'.format(js_code))
+
+        tries = 1
+        start_time = time.time()
+        while True:
+            if tries > max_tries:
+                break
+            time.sleep(0.1 * tries)
+            for log_line in self.browser.get_log('browser'):
+                if log_line.get('message', '').lower().endswith('"ok"'):
+                    waiting_time = time.time() - start_time
+                    self.logger.info('JS Test succesfully passed (tries: {} - waiting time: {})'.format(tries, waiting_time))
+                    self._wait_remaining_requests()
+                    return True
+                if log_line.get('level') == 'INFO':
+                    self.logger.info("BROWSER LOG: '{}'".format(log_line.get('message')))
+                else:
+                    self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
+            tries += 1
+
+        waiting_time = time.time() - start_time
+        self.take_screenshot()
+        self.fail('JS Test failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
+        self._wait_remaining_requests()
+
+    def take_screenshot(self):
+        filename = "selenium-shot_{}.png".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
+        filepath = os.path.join('/tmp', filename)
+        self.browser.get_screenshot_as_file(filepath)
+
+    def _wait_remaining_requests(self):
+        t0 = int(time.time())
+        for thread in threading.enumerate():
+            if thread.name.startswith('odoo.service.http.request.'):
+                join_retry_count = 10
+                while thread.isAlive():
+                    # Need a busyloop here as thread.join() masks signals
+                    # and would prevent the forced shutdown.
+                    thread.join(0.05)
+                    join_retry_count -= 1
+                    if join_retry_count < 0:
+                        self.logger.warning("Stop waiting for thread %s handling request for url %s",
+                                        thread.name, thread.url)
+                        break
+                    time.sleep(0.5)
+                    t1 = int(time.time())
+                    if t0 != t1:
+                        self.logger.info('remaining requests')
+                        odoo.tools.misc.dumpstacks()
+                        t0 = t1
 
 
 def users(*logins):
