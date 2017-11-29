@@ -256,6 +256,19 @@ var SnippetEditor = Widget.extend({
         return $.when.apply($, defs);
     },
     /**
+     * Determines whether target is part of a bootstrap row and supports
+     * auto-resize or not (while duplicating / removing an element).
+     *
+     * @private
+     * @returns {integer}
+     */
+    _isAutoResizeSupported: function () {
+        var colClass = _.filter(this.$target.attr('class').split(' '), function (cls) {
+            return cls.startsWith('col-md-') && ! cls.startsWith('col-md-offset-')
+        });
+        return colClass.length && this.$target.parent('.s_manage_row').length;
+    },
+    /**
      * Removes the associated snippet from the DOM and destroys the associated
      * editor (itself).
      *
@@ -278,8 +291,7 @@ var SnippetEditor = Widget.extend({
         });
 
         var $parent = this.$target.parent();
-        this.$target.find('*').andSelf().tooltip('destroy');
-        if (  _.filter(this.$target.attr('class').split(' '), function (cls) { return cls.startsWith('col-md-') }) && $parent.hasClass('row') ) {
+        if (this._isAutoResizeSupported()) {
             var children = $parent.children();
             for (var i = 0; i < children.length; i++ ) {
                 var child = $(children[i]);
@@ -325,6 +337,7 @@ var SnippetEditor = Widget.extend({
                 }
             }
         }
+        this.$target.find('*').andSelf().tooltip('destroy');
         this.$target.remove();
         this.$el.remove();
 
@@ -358,14 +371,6 @@ var SnippetEditor = Widget.extend({
         this.trigger_up('snippet_removed');
         this.destroy();
     },
-
-    /**
-     * Returns total Occupied cols in a row
-     * @private
-     */
-    _totalOcc: function (arr, param) {
-        return _.reduce(_.pluck(arr, param), function(memo, num) { return memo + num}, 0);
-    },
     /**
      * Returns currently occupied space in terms of cols
      * @private
@@ -389,6 +394,13 @@ var SnippetEditor = Widget.extend({
         });
         return offsetCls.length ? parseInt(_.last(offsetCls[0].split('-'))) : 0;
     },
+    /**
+     * Returns total Occupied cols in a row
+     * @private
+     */
+    _totalOcc: function (arr, param) {
+        return _.reduce(_.pluck(arr, param), function(memo, num) { return memo + num}, 0);
+    },
 
     //--------------------------------------------------------------------------
     // Handlers
@@ -410,8 +422,8 @@ var SnippetEditor = Widget.extend({
 
         this.trigger_up('request_history_undo_record', {$target: this.$target});
 
-        if (  _.filter(this.$target.attr('class').split(' '), function (cls) { return cls.startsWith('col-md-') })) {
-            var parent = this.$target.parent('.row');
+        if (this._isAutoResizeSupported()) {
+            var parent = this.$target.parent('.s_manage_row');
             var children = parent.children();
             for (var i = 0; i < children.length; i++ ) {
                 var child = $(children[i]);
@@ -421,7 +433,7 @@ var SnippetEditor = Widget.extend({
                 if (self._totalOcc(currentRow, 'ocp') < bsCap) {
                     currentRow.push({
                         el: child,
-                        idx: i,
+                        // idx: i,
                         ocp: ocpCols,
                         offset : colOffset,
                         space: (ocpCols - 3) < 0 ? 0 : (ocpCols - 3) // only +ve
@@ -433,7 +445,7 @@ var SnippetEditor = Widget.extend({
                         }
                         currentRow = [{
                             el: child,
-                            idx: i,
+                            // idx: i,
                             ocp: ocpCols,
                             offset : colOffset,
                             space: (ocpCols - 3) < 0 ? 0 : (ocpCols - 3) // only +ve
@@ -457,11 +469,11 @@ var SnippetEditor = Widget.extend({
                 var tgtOcc = this._getOcc(this.$target);
                 var tgtOffset = this._getOffset(this.$target);
                 var totalEls = currentRow.length + 1;
-                var eqClasses = bsCap / totalEls;
+                var eqClasses = 'col-md-' + (bsCap / totalEls);
                 for (var i = 0; i < currentRow.length; i++) {
-                    currentRow[i].el.removeClass('col-md-' + (currentRow[i].ocp - currentRow[i].offset) + ' col-md-offset-' + currentRow[i].offset).addClass('col-md-' + eqClasses);
+                    currentRow[i].el.removeClass('col-md-' + (currentRow[i].ocp - currentRow[i].offset) + ' col-md-offset-' + currentRow[i].offset).addClass(eqClasses);
                 }
-                $clone.removeClass('col-md-' + tgtOcc + ' col-md-offset-' + tgtOffset).addClass('col-md-' + eqClasses);
+                $clone.removeClass('col-md-' + tgtOcc + ' col-md-offset-' + tgtOffset).addClass(eqClasses);
             }
         }
         this.$target.after($clone);
