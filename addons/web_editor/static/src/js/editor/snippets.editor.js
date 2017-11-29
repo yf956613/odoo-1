@@ -262,6 +262,10 @@ var SnippetEditor = Widget.extend({
      * @private
      */
     _removeSnippet: function () {
+        var currentRow = []; // current row
+        var found = false; // target is found in current row
+        var bsCap = 12; // BS row capacity
+        var self = this;
         this.toggleFocus(false);
 
         this.trigger_up('call_for_each_child_snippet', {
@@ -275,6 +279,52 @@ var SnippetEditor = Widget.extend({
 
         var $parent = this.$target.parent();
         this.$target.find('*').andSelf().tooltip('destroy');
+        if (  _.filter(this.$target.attr('class').split(' '), function (cls) { return cls.startsWith('col-md-') }) && $parent.hasClass('row') ) {
+            var children = $parent.children();
+            for (var i = 0; i < children.length; i++ ) {
+                var child = $(children[i]);
+                found = found || self.$target.is(child);
+                var colOffset = self._getOffset(child);
+                var ocpCols = self._getOcc(child) + colOffset;
+                if (self._totalOcc(currentRow, 'ocp') < bsCap) {
+                    currentRow.push({
+                        el: child,
+                        ocp: ocpCols,
+                        offset : colOffset,
+                    })
+                    if (self._totalOcc(currentRow, 'ocp') > bsCap) {
+                        if (found && ! (self.$target.is(child))) {
+                            currentRow.splice(-1, 1);
+                            break;
+                        }
+                        currentRow = [{
+                            el: child,
+                            ocp: ocpCols,
+                            offset : colOffset,
+                        }]
+                    }
+                }
+                if (self._totalOcc(currentRow, 'ocp') === bsCap) {
+                    if  (found) {
+                        break;
+                    }
+                    else {
+                        currentRow = [];
+                        continue;
+                    }
+                }
+            }
+            if (currentRow.length > 1 && currentRow.length < 6) {
+                if (_.last(_.pluck(currentRow, 'el')).next().length || self._totalOcc(currentRow, 'ocp') === 12) {
+                    var eqClasses = 'col-md-' + bsCap / (currentRow.length - 1);
+                    for (var i = 0; i < currentRow.length; i++) {
+                        if (! self.$target.is(currentRow[i].el)) {
+                            currentRow[i].el.removeClass('col-md-' + (currentRow[i].ocp - currentRow[i].offset) + ' col-md-offset-' + currentRow[i].offset).addClass(eqClasses);
+                        }
+                    }
+                }
+            }
+        }
         this.$target.remove();
         this.$el.remove();
 
