@@ -11,8 +11,11 @@ import optparse
 import os
 import sys
 import odoo
+
 from .. import release, conf, loglevels
 from . import appdirs, pycompat
+
+SELENIUM_DRIVERS = ('chrome', 'chromium', 'firefox')
 
 from passlib.context import CryptContext
 crypt_context = CryptContext(schemes=['pbkdf2_sha512', 'plaintext'],
@@ -153,6 +156,16 @@ class configmanager(object):
 
         # Testing Group
         group = optparse.OptionGroup(parser, "Testing Configuration")
+        group.add_option("--selenium-driver", dest="selenium_driver", my_default="chrome",
+                         type="choice",
+                         choices=SELENIUM_DRIVERS,
+                         help="Selenium driver/browser to use. Supported: {}".format('/'.join(SELENIUM_DRIVERS)))
+        group.add_option("--driver-path", dest="selenium_driver_path", my_default='',
+                         help="Path to the selenium driver (default auto discover)")
+        group.add_option("--browser-path", dest="selenium_browser_path", my_default='',
+                         help="Path to the browser used by selenium driver (default auto discover)")
+        group.add_option("--screenshot-path", dest="screenshot_path", my_default='',
+                         help="Where to put screenshots when a selenium test fails")
         group.add_option("--test-file", dest="test_file", my_default=False,
                          help="Launch a python test file.")
         group.add_option("--test-enable", action="store_true", dest="test_enable",
@@ -426,6 +439,7 @@ class configmanager(object):
             'stop_after_init', 'logrotate', 'without_demo', 'http_enable', 'syslog',
             'list_db', 'proxy_mode',
             'test_file', 'test_enable', 'test_tags',
+            'selenium_driver', 'selenium_driver_path', 'selenium_browser_path', 'screenshot_path',
             'osv_memory_count_limit', 'osv_memory_age_limit', 'max_cron_threads', 'unaccent',
             'data_dir',
             'server_wide_modules',

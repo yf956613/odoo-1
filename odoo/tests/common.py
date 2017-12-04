@@ -16,17 +16,14 @@ import os
 import re
 import select
 import subprocess
+import tempfile
 import threading
 import time
 import unittest
 from contextlib import contextmanager
 from datetime import datetime, timedelta, date
 from pprint import pformat
-try:
-    from selenium import webdriver
-    from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-except ImportError:
-    webdriver = None
+from . import selenite
 
 import requests
 from decorator import decorator
@@ -545,15 +542,9 @@ class HttpSeleniumCase(TransactionCase):
 
         if not hasattr(self, 'logger'):
             self.logger = _logger
-        if webdriver is None:
-            raise unittest.SkipTest("Selenium not installed")
+        if not odoo.tools.config['selenium_driver']:
+            raise unittest.SkipTest("Selenium not installed or missconfigured")
         self.logger.info('Setting up Selenium test case')
-        self.chrome_bin_path = '/usr/bin/chromium-browser'
-        self.chrome_driver_path = '/usr/lib/chromium-browser/chromedriver'
-        if not os.path.exists(self.chrome_bin_path):
-            raise unittest.SkipTest("Chrome not found in '{}'".format(self.chrome_bin_path))
-        if not os.path.exists(self.chrome_driver_path):
-            raise unittest.SkipTest("Chrome driver not found in '{}'".format(self.chrome_driver_path))
 
         if self.registry_test_mode:
             self.registry.enter_test_mode()
@@ -567,22 +558,16 @@ class HttpSeleniumCase(TransactionCase):
         self.opener = requests.Session()
         self.opener.cookies['session_id'] = self.session_id
 
-        # Chrome headless setup
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.binary_location = self.chrome_bin_path
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--start-maximized')
-        chrome_options.add_argument('--window-size=1920,1080')
-        desire = DesiredCapabilities.CHROME
-        desire['loggingPrefs'] = {'browser': 'ALL'}
-        self.browser = webdriver.Chrome(self.chrome_driver_path, chrome_options=chrome_options, desired_capabilities=desire)
-        #desire = DesiredCapabilities.FIREFOX
-        #self.logger.info('DESIRE: {}'.format())
-        #desire['args'] = ['-headless',]
-        #self.browser = webdriver.Firefox(executable_path='/usr/lib/firefox/geckodriver', capabilities=desire)
-        self.browser.implicitly_wait(5)
-        self.addCleanup(self.browser.quit)
+        # configure the selenium browser driver
+        driver_select = selenite.DriverSelect(odoo.tools.config['selenium_driver'], driver_path=odoo.tools.config['selenium_driver_path'], browser_path=odoo.tools.config['selenium_browser_path'])
+        self.driver = driver_select()
+        self.driver.implicitly_wait(5)
+        self.addCleanup(self.driver.quit)
+
+        # configure get_screenshots
+        self.screenshot_path = odoo.tools.config['screenshot_path']
+        if not self.screenshot_path or not os.path.isdir(self.screenshot_path) or not os.access(self.screenshot_path, os.W_OK):
+            self.screenshot_path = tempfile.mkdtemp()
 
         self.opener = requests.Session()
         self.opener.cookies['session_id'] = self.session_id
@@ -599,7 +584,7 @@ class HttpSeleniumCase(TransactionCase):
         return "http://{}:{}{}".format(HOST, PORT, url_path)
 
     def browser_get(self, url_path):
-        return self.browser.get(self._build_url(url_path))
+        return self.driver.get(self._build_url(url_path))
 
     def authenticate(self, user, password):
         self.logger.info('Pre authenticate session with user/password: {}/{}'.format(user, password))
@@ -626,7 +611,7 @@ class HttpSeleniumCase(TransactionCase):
         odoo.http.root.session_store.save(session)
 
         self.browser_get('/')
-        self.browser.add_cookie({'domain': '127.0.0.1', 'name': 'session_id', 'value': self.session_id})
+        self.driver.add_cookie({'domain': '127.0.0.1', 'name': 'session_id', 'value': self.session_id})
 
     def _wait_ready(self, ready_js_code, max_tries=10):
         """Selenium should wait for the page to be ready but this is a safeguard."""
@@ -637,7 +622,7 @@ class HttpSeleniumCase(TransactionCase):
             if tries > max_tries:
                 break
             time.sleep(0.1 * tries)
-            res = self.browser.execute_script("return {}".format(ready_js_code))
+            res = self.driver.execute_script("return {}".format(ready_js_code))
             if res:
                 return
             tries += 1
@@ -648,10 +633,10 @@ class HttpSeleniumCase(TransactionCase):
         """Runs a js_code javascript test in Chrome headless"""
         self.authenticate(login, login)
         self.browser_get(url_path)
-        self.browser.execute_script('localStorage.clear();')
+        self.driver.execute_script('localStorage.clear();')
         self._wait_ready(ready) if ready else self.logger.info('No Ready code, running directly')
         self.logger.info("Running JS test code: '{}'".format(js_code))
-        self.browser.execute_script('return eval({})'.format(js_code))
+        self.driver.execute_script('return eval({})'.format(js_code))
 
         tries = 1
         start_time = time.time()
@@ -659,7 +644,7 @@ class HttpSeleniumCase(TransactionCase):
             if tries > max_tries:
                 break
             time.sleep(0.1 * tries)
-            for log_line in self.browser.get_log('browser'):
+            for log_line in self.driver.get_log('browser'):
                 if log_line.get('message', '').lower().endswith('"ok"'):
                     waiting_time = time.time() - start_time
                     self.logger.info('JS Test succesfully passed (tries: {} - waiting time: {})'.format(tries, waiting_time))
@@ -678,8 +663,9 @@ class HttpSeleniumCase(TransactionCase):
 
     def take_screenshot(self):
         filename = "selenium-shot_{}.png".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
-        filepath = os.path.join('/tmp', filename)
-        self.browser.get_screenshot_as_file(filepath)
+        filepath = os.path.join(self.screenshot_path, filename)
+        if self.driver.get_screenshot_as_file(filepath):
+            _logger.info("Screenshot written in '{}'".format(filepath))
 
     def _wait_remaining_requests(self):
         t0 = int(time.time())
