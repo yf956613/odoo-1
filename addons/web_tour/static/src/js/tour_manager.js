@@ -438,9 +438,11 @@ return core.Class.extend(mixins.EventDispatcherMixin, ServicesMixin, {
                 });
                 console.log(document.body.outerHTML);
                 console.log("error " + error); // phantomJS wait for message starting by error
+                document.body.classList.add('test-failure'); // selenium wait for this class
             } else {
                 console.log(_.str.sprintf("Tour %s succeeded", tour_name));
                 console.log("ok"); // phantomJS wait for exact message "ok"
+                document.body.classList.add('test-success'); // selenium wait for this class
             }
             this._log = [];
         } else {
