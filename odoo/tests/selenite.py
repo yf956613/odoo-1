@@ -3,7 +3,6 @@
 
 import os
 import logging
-import sys
 
 from odoo.tools.which import which
 
@@ -14,6 +13,7 @@ try:
     from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
     from selenium.webdriver.firefox.options import Options
+    from selenium.common.exceptions import WebDriverException
 except ImportError:
     _logger.warning('Selenium not installed, Http tests will be skipped')
     webdriver = None
@@ -35,6 +35,8 @@ class DriverSelect():
         self._check_pathes()
 
     def __call__(self):
+        if webdriver is None:
+            return None  # selenium not installed
         if self.driver_name == 'chrome':
             return self._get_chrome()
         elif self.driver_name == 'chromium':
@@ -60,18 +62,18 @@ class DriverSelect():
             return webdriver.Chrome(chrome_options=chrome_options, desired_capabilities=desire)
 
     def _get_firefox(self):
-        __logger.warning("Firefox doesn't allow to fetch console log. Your tests are willing to fail.")
-        firefox_capabilities = DesiredCapabilities.FIREFOX
+        _logger.info("Firefox doesn't allow to fetch console log.")
         if not self.browser_path:
             self.browser_path = which('firefox')
-        desire = DesiredCapabilities.FIREFOX
         options = Options()
         options.set_headless()
         binary = FirefoxBinary(self.browser_path)
         if self.driver_path:
-            return webdriver.Firefox(executable_path=self.driver_path, firefox_binary=binary, firefox_options=options, log_path='/dev/null')
+            driver = webdriver.Firefox(executable_path=self.driver_path, firefox_binary=binary, firefox_options=options, log_path='/dev/null')
         else:
-            return webdriver.Firefox(firefox_binary=binary, firefox_options=options)
+            driver = webdriver.Firefox(firefox_binary=binary, firefox_options=options, log_path='/dev/null')
+        driver.set_window_size(1920, 1080)
+        return driver
 
     def _check_pathes(self):
         if self.driver_path and not os.path.exists(self.driver_path):

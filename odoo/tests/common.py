@@ -564,10 +564,11 @@ class HttpSeleniumCase(TransactionCase):
         self.driver.implicitly_wait(5)
         self.addCleanup(self.driver.quit)
 
-        # configure get_screenshots
+        # configure screenshots
         self.screenshot_path = odoo.tools.config['screenshot_path']
         if not self.screenshot_path or not os.path.isdir(self.screenshot_path) or not os.access(self.screenshot_path, os.W_OK):
             self.screenshot_path = tempfile.mkdtemp()
+        self.logger.info('Screenshot path: "{}"'.format(self.screenshot_path))
 
         self.opener = requests.Session()
         self.opener.cookies['session_id'] = self.session_id
@@ -629,6 +630,12 @@ class HttpSeleniumCase(TransactionCase):
         waiting_time = time.time() - start_time
         self.logger.warning("Ready JS function '{}' was never True (Waiting time: {} sec)".format(ready_js_code, waiting_time))
 
+    @property
+    def test_result(self):
+        """The test result is transported through the page body classes"""
+        body = self.driver.find_element_by_tag_name('body')
+        return body.get_attribute('class')
+
     def selenium_run(self, url_path, js_code, ready='window', login=None, max_tries=20):
         """Runs a js_code javascript test in Chrome headless"""
         self.authenticate(login, login)
@@ -644,28 +651,39 @@ class HttpSeleniumCase(TransactionCase):
             if tries > max_tries:
                 break
             time.sleep(0.1 * tries)
-            for log_line in self.driver.get_log('browser'):
-                if log_line.get('message', '').lower().endswith('"ok"'):
-                    waiting_time = time.time() - start_time
-                    self.logger.info('JS Test succesfully passed (tries: {} - waiting time: {})'.format(tries, waiting_time))
-                    self._wait_remaining_requests()
-                    return True
-                if log_line.get('level') == 'INFO':
-                    self.logger.info("BROWSER LOG: '{}'".format(log_line.get('message')))
-                else:
-                    self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
+            try:
+                for log_line in self.driver.get_log('browser'):
+                    if log_line.get('level') == 'INFO':
+                        self.logger.info("BROWSER LOG: '{}'".format(log_line.get('message')))
+                    else:
+                        self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
+            except selenite.WebDriverException:
+                _logger.debug('Cannot fetch browser console log.')
+
+            waiting_time = time.time() - start_time
+            if 'test-success' in self.test_result:
+                self.logger.info('JS Test succesfully passed (tries: {} - waiting time: {})'.format(tries, waiting_time))
+                self._wait_remaining_requests()
+                return True
+            elif 'test-failure' in self.test_result:
+                self.take_screenshot()
+                self._wait_remaining_requests()
+                self.fail('JS Test failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
+                return False
             tries += 1
 
         waiting_time = time.time() - start_time
         self.take_screenshot()
-        self.fail('JS Test failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
         self._wait_remaining_requests()
+        self.fail('JS Test timeout failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
 
     def take_screenshot(self):
         filename = "selenium-shot_{}.png".format(time.strftime("%Y-%m-%d_%H-%M-%S"))
         filepath = os.path.join(self.screenshot_path, filename)
         if self.driver.get_screenshot_as_file(filepath):
             _logger.info("Screenshot written in '{}'".format(filepath))
+        else:
+            _logger.info("Selenium was not able to take a screenshot in '{}'".format(filepath))
 
     def _wait_remaining_requests(self):
         t0 = int(time.time())
