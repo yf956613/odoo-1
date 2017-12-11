@@ -542,7 +542,13 @@ class HttpSeleniumCase(TransactionCase):
 
         if not hasattr(self, 'logger'):
             self.logger = _logger
-        if not odoo.tools.config['selenium_driver']:
+        driver_select = selenite.DriverSelect(
+            odoo.tools.config['selenium_driver'],
+            driver_path=odoo.tools.config['selenium_driver_path'],
+            browser_path=odoo.tools.config['selenium_browser_path'],
+            headless=odoo.tools.config['headless'])
+        self.driver = driver_select()
+        if self.driver is None:
             raise unittest.SkipTest("Selenium not installed or missconfigured")
         self.logger.info('Setting up Selenium test case')
 
@@ -559,9 +565,7 @@ class HttpSeleniumCase(TransactionCase):
         self.opener.cookies['session_id'] = self.session_id
 
         # configure the selenium browser driver
-        driver_select = selenite.DriverSelect(odoo.tools.config['selenium_driver'], driver_path=odoo.tools.config['selenium_driver_path'], browser_path=odoo.tools.config['selenium_browser_path'])
-        self.driver = driver_select()
-        self.driver.implicitly_wait(5)
+        self.driver.implicitly_wait(15)
         self.addCleanup(self.driver.quit)
 
         # configure screenshots
@@ -633,8 +637,12 @@ class HttpSeleniumCase(TransactionCase):
     @property
     def test_result(self):
         """The test result is transported through the page body classes"""
-        body = self.driver.find_element_by_tag_name('body')
-        return body.get_attribute('class')
+        try:
+            body = self.driver.find_element_by_tag_name('body')
+            body_class = body.get_attribute('class')
+        except selenite.StaleElementReferenceException:
+            return ''
+        return body_class
 
     def selenium_run(self, url_path, js_code, ready='window', login=None, max_tries=20):
         """Runs a js_code javascript test in Chrome headless"""

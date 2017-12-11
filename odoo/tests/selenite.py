@@ -3,6 +3,7 @@
 
 import os
 import logging
+import tempfile
 
 from odoo.tools.which import which
 
@@ -13,12 +14,13 @@ try:
     from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
     from selenium.webdriver.firefox.options import Options
-    from selenium.common.exceptions import WebDriverException
+    from selenium.common.exceptions import WebDriverException, StaleElementReferenceException
+
 except ImportError:
     _logger.warning('Selenium not installed, Http tests will be skipped')
     webdriver = None
 
-SELENIUM_DRIVERS = ('chrome', 'chromium', 'firefox')
+SELENIUM_DRIVERS = ('chrome', 'chromium', 'firefox', 'phantomjs')
 
 
 class SeleniteError(Exception):
@@ -28,10 +30,13 @@ class SeleniteError(Exception):
 class DriverSelect():
     """A callable object that returns a selenium driver"""
 
-    def __init__(self, driver_name, driver_path=None, browser_path=None):
+    def __init__(self, driver_name, driver_path=None, browser_path=None, headless=True):
         self.driver_name = driver_name
         self.driver_path = driver_path
         self.browser_path = browser_path
+        self.headless = headless
+        if not self.headless:
+            _logger.warning('No headless mode !'.format(self.headless))
         self._check_pathes()
 
     def __call__(self):
@@ -43,12 +48,15 @@ class DriverSelect():
             return self._get_chrome(browser_name='chromium')
         elif self.driver_name == 'firefox':
             return self._get_firefox()
+        elif self.driver_name == 'phantomjs':
+            return self._get_phantomjs()
 
     def _get_chrome(self, browser_name=None):
         chrome_options = webdriver.ChromeOptions()
         if self.browser_path is not None:
             chrome_options.binary_location = self.browser_path
-        chrome_options.set_headless()
+        if self.headless:
+            chrome_options.set_headless()
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--start-maximized')
         chrome_options.add_argument('--window-size=1920,1080')
@@ -66,12 +74,19 @@ class DriverSelect():
         if not self.browser_path:
             self.browser_path = which('firefox')
         options = Options()
-        options.set_headless()
+        if self.headless:
+            options.set_headless()
         binary = FirefoxBinary(self.browser_path)
         if self.driver_path:
             driver = webdriver.Firefox(executable_path=self.driver_path, firefox_binary=binary, firefox_options=options, log_path='/dev/null')
         else:
             driver = webdriver.Firefox(firefox_binary=binary, firefox_options=options, log_path='/dev/null')
+        driver.set_window_size(1920, 1080)
+        return driver
+
+    def _get_phantomjs(self):
+        fd, cookies_file = tempfile.mkstemp(prefix='phantomjs_cookies')
+        driver = webdriver.PhantomJS(service_args=['--cookies-file={}'.format(cookies_file)])
         driver.set_window_size(1920, 1080)
         return driver
 

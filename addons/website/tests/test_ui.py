@@ -20,7 +20,7 @@ class TestUi(odoo.tests.HttpSeleniumCase):
     def test_01_public_homepage(self):
         self.selenium_run(
             "/",
-            "console.log('ok')",
+            "document.body.classList.add('test-success');",
             ready="'website.content.snippets.animation' in odoo.__DEBUG__.services")
 
     def test_02_admin_tour_banner(self):
@@ -29,3 +29,8 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "odoo.__DEBUG__.services['web_tour.tour'].run('banner')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.banner.ready",
             login='admin')
+
+    def test_03_public_homepage(self):
+        """Pure selenium test"""
+        self.driver.find_element_by_id('oe_main_menu_navbar')
+        self.assertIn('Home', self.driver.title)
