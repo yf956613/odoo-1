@@ -44,7 +44,7 @@
 <template id="s_text_image" name="Text-Image">
     <section class="s_text_image">
         <div class="container">
-            <div class="row">
+            <div class="row s_manage_row">
                 <div class="col-md-6 mt64 mb32">
                     <h3 style="text-align: right;">A Section Subtitle</h3>
                     <p style="text-align: right;">
@@ -67,7 +67,7 @@
 <template id="s_image_text" name="Image-Text">
     <section class="s_image_text">
         <div class="container">
-            <div class="row">
+            <div class="row s_manage_row">
                 <div class="col-md-6 mt32 mb32">
                   <img class="img img-responsive center-block mb16" src="/web/image/website.s_image_text_default_image"  alt="Odoo image and text block"/>
                 </div>
@@ -146,7 +146,7 @@
 <template id="s_features" name="Features">
     <section class="s_features">
         <div class="container">
-            <div class="row mt16 mb16">
+            <div class="row s_manage_row mt16 mb16">
                 <div class="col-md-4 text-center">
                     <span class="fa fa-suitcase fa-5x"></span>
                     <div>
@@ -202,7 +202,7 @@
 <template id="s_three_columns" name="Three Columns">
     <section class="s_three_columns">
         <div class="container">
-            <div class="row">
+            <div class="row s_manage_row">
                 <div class="col-md-4 mt32 mb48">
                     <img class="img img-responsive" src="/web/image/website.library_image_11" alt="Odoo - Sample 1 for three columns"/>
                     <h4 class="mt16">Feature One</h4>
@@ -305,7 +305,7 @@
     <section class="s_comparisons">
         <div class="container">
             <h2 class="text-center">Our Offers</h2>
-            <div class="row">
+            <div class="row s_manage_row">
                 <div class="col-md-4 col-xs-12">
                     <div class="panel bg-gray-light">
                         <div class="panel-heading text-center" style="background-color: rgba(255, 255, 255, 0.1)">
@@ -387,7 +387,7 @@
             <h1 class="text-center mb32">
                 Meet the Executive Team
             </h1>
-            <div class="row">
+            <div class="row s_manage_row">
                 <div class="col-md-6 mb32">
                     <div class="row s_no_resize_cols">
                         <div class="col-md-4">
@@ -569,7 +569,7 @@
 <template id="s_feature_grid" name="Feature Grid">
     <section class="s_feature_grid">
         <div class="container">
-            <div class="row">
+            <div class="row s_manage_row">
                 <div class="col-md-5 col-md-offset-1">
                     <div class="row">
                         <div class="col-md-12 mt16 mb16">
