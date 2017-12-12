@@ -616,7 +616,7 @@ class HttpSeleniumCase(TransactionCase):
         odoo.http.root.session_store.save(session)
 
         self.browser_get('/')
-        self.driver.add_cookie({'domain': '127.0.0.1', 'name': 'session_id', 'value': self.session_id})
+        self.driver.add_cookie({'domain': '127.0.0.1', 'name': 'session_id', 'value': self.session_id, 'path': '/'})
 
     def _wait_ready(self, ready_js_code, max_tries=10):
         """Selenium should wait for the page to be ready but this is a safeguard."""
@@ -714,6 +714,14 @@ class HttpSeleniumCase(TransactionCase):
                         odoo.tools.misc.dumpstacks()
                         t0 = t1
 
+    def assert_find_element_by_id(self, element_id, message=''):
+        try:
+            self.driver.find_element_by_id(element_id)
+        except selenite.NoSuchElementException:
+            if message:
+                self.fail(message)
+            else:
+                self.fail("Element '{}' not found on the page.".format(element_id))
 
 def users(*logins):
     """ Decorate a method to execute it once for each given user. """

@@ -14,7 +14,7 @@ try:
     from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
     from selenium.webdriver.firefox.options import Options
-    from selenium.common.exceptions import WebDriverException, StaleElementReferenceException
+    from selenium.common.exceptions import WebDriverException, StaleElementReferenceException, NoSuchElementException
 
 except ImportError:
     _logger.warning('Selenium not installed, Http tests will be skipped')
