@@ -592,11 +592,12 @@ class HttpSeleniumCase(TransactionCase):
         return self.driver.get(self._build_url(url_path))
 
     def authenticate(self, user, password):
-        self.logger.info('Pre authenticate session with user/password: {}/{}'.format(user, password))
+        
         # stay non-authenticated
         if user is None:
+            self.logger.info('No user/password. Anonymous Selenium test.')
             return
-
+        self.logger.info('Pre authenticate session with user/password: {}/{}'.format(user, password))
         db = get_db_name()
         uid = self.registry['res.users'].authenticate(db, user, password, None)
         env = api.Environment(self.cr, uid, {})
@@ -629,6 +630,8 @@ class HttpSeleniumCase(TransactionCase):
             time.sleep(0.1 * tries)
             res = self.driver.execute_script("return {}".format(ready_js_code))
             if res:
+                waiting_time = time.time() - start_time
+                self.logger.info("Ready code succes after {} (Waiting time: {})".format(tries, waiting_time))
                 return
             tries += 1
         waiting_time = time.time() - start_time
@@ -719,6 +722,7 @@ class HttpSeleniumCase(TransactionCase):
             self.driver.find_element_by_id(element_id)
         except selenite.NoSuchElementException:
             if message:
+                self.take_screenshot()
                 self.fail(message)
             else:
                 self.fail("Element '{}' not found on the page.".format(element_id))

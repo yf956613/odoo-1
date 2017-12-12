@@ -168,7 +168,7 @@ class configmanager(object):
         group.add_option("--screenshot-path", dest="screenshot_path", my_default='',
                          help="Where to put screenshots when a selenium test fails")
         group.add_option("--headless", dest="headless", action="store_true",
-                         my_default=True, help="No browser window when running selenium tests")
+                         my_default=True, help="No browser window when running selenium tests (This is the default)")
         group.add_option("--no-headless", dest="headless", action="store_false",
                          my_default=False, help="Launch a browser window when running selenium tests")
         group.add_option("--test-file", dest="test_file", my_default=False,

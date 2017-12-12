@@ -31,11 +31,11 @@ class TestUiNotLogged(odoo.tests.HttpSeleniumCase):
     def test_01_public_homepage(self):
         self.selenium_run(
             "/",
-            "window.document.body.classList.add('test-success');",
+            r"window.document.body.classList.add('test-success')",
             ready="'website.content.snippets.animation' in odoo.__DEBUG__.services")
 
-    def test_03_public_homepage(self):
-        """Pure selenium test"""
-        self.browser_get('/')
-        self.assert_find_element_by_id('oe_main_menu_navbar')
-        self.assertIn('Home', self.driver.title)
+    # def test_03_public_homepage(self):
+    #    """Pure selenium test"""
+    #    self.browser_get('/')
+    #    self.assert_find_element_by_id('oe_main_menu_navbar')
+    #    self.assertIn('Home', self.driver.title)
