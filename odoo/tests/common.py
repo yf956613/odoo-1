@@ -631,7 +631,7 @@ class HttpSeleniumCase(TransactionCase):
             res = self.driver.execute_script("return {}".format(ready_js_code))
             if res:
                 waiting_time = time.time() - start_time
-                self.logger.info("Ready code succes after {} (Waiting time: {})".format(tries, waiting_time))
+                self.logger.info("Ready code succes after {} tries (Waiting time: {})".format(tries, waiting_time))
                 return
             tries += 1
         waiting_time = time.time() - start_time
@@ -650,11 +650,13 @@ class HttpSeleniumCase(TransactionCase):
     def selenium_run(self, url_path, js_code, ready='window', login=None, max_tries=20):
         """Runs a js_code javascript test in Chrome headless"""
         self.authenticate(login, login)
+        self.logger.info('JS test url_path: {}'.format(url_path))
         self.browser_get(url_path)
         self.driver.execute_script('localStorage.clear();')
         self._wait_ready(ready) if ready else self.logger.info('No Ready code, running directly')
-        self.logger.info("Running JS test code: '{}'".format(js_code))
-        self.driver.execute_script('return eval({})'.format(js_code))
+        if js_code:
+            self.logger.info("Running JS test code: '{}'".format(js_code))
+            self.driver.execute_script('{}'.format(js_code))
 
         tries = 1
         start_time = time.time()
@@ -721,8 +723,8 @@ class HttpSeleniumCase(TransactionCase):
         try:
             self.driver.find_element_by_id(element_id)
         except selenite.NoSuchElementException:
+            self.take_screenshot()
             if message:
-                self.take_screenshot()
                 self.fail(message)
             else:
                 self.fail("Element '{}' not found on the page.".format(element_id))
