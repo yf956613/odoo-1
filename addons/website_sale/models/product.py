@@ -178,10 +178,10 @@ class ProductTemplate(models.Model):
 
     @api.model
     def create(self, vals):
-        template = super(ProductTemplate, self).create(vals)
+        res = super(ProductTemplate, self).create(vals)
         if vals.get('image'):
-            template.product_image_ids = [(0, 0, {'image': vals.get('image'), 'name': vals.get('name'), 'is_main_image': True})]
-        return template
+            res.product_image_ids = [(0, 0, {'image': vals.get('image'), 'name': vals.get('name'), 'is_main_image': True})]
+        return res
 
     def write(self, vals):
         res = super(ProductTemplate, self).write(vals)
@@ -190,10 +190,10 @@ class ProductTemplate(models.Model):
             if product_image:
                 if 'image' in vals and product_image.image != vals['image']:
                     product.product_image_ids = [(1, product_image.id, {'image': vals['image']})]
-                elif 'image_medium' in vals and not vals.get('image') and product_image:
+                elif 'image_medium' in vals and not vals.get('image'):
                     product.product_image_ids = [(2, product_image.id)]
             elif 'image' in vals:
-                product.product_image_ids = [(0, 0, {'image': vals['image'], 'name': self.name, 'is_main_image': True})]
+                product.product_image_ids = [(0, 0, {'image': vals['image'], 'name': product.name, 'is_main_image': True})]
         return res
 
 
@@ -232,15 +232,14 @@ class Product(models.Model):
     @api.multi
     def write(self, vals):
         res = super(Product, self).write(vals)
-        if not self.env.context.get('no_image_update'):
-            for product in self:
-                product_image = product.product_product_image_ids.filtered('is_main_image')
-                if product_image and vals.get('image_variant') and product_image.image != vals['image_variant']:
-                    product.product_product_image_ids = [(1, product_image.id, {'image': vals['image_variant']})]
-                elif product_image and 'image_variant' in vals:
-                    product_image.unlink()
-                elif vals.get('image_variant'):
-                    product.product_product_image_ids = [(0, 0, {'image': vals['image_variant'], 'name': self.name, 'is_main_image': True})]
+        for product in self:
+            product_image = product.product_product_image_ids.filtered('is_main_image')
+            if product_image and vals.get('image_variant') and product_image.image != vals['image_variant']:
+                product.product_product_image_ids = [(1, product_image.id, {'image': vals['image_variant']})]
+            elif product_image and 'image_variant' in vals:
+                product_image.unlink()
+            elif vals.get('image_variant'):
+                product.product_product_image_ids = [(0, 0, {'image': vals['image_variant'], 'name': product.name, 'is_main_image': True})]
         return res
 
 
@@ -266,26 +265,3 @@ class ProductImage(models.Model):
     product_tmpl_id = fields.Many2one('product.template', 'Related Product', copy=True)
     product_product_id = fields.Many2one('product.product', 'Related Product Product', copy=True)
     is_main_image = fields.Boolean(string="Product's Main Image")
-
-    def write(self, vals):
-        res = super(ProductImage, self).write(vals)
-        if 'image' in vals:
-            for product_image in self.filtered('is_main_image'):
-                if vals.get('image') and product_image.product_tmpl_id:
-                    product_image.product_tmpl_id.image = product_image.image
-                elif product_image.product_tmpl_id:
-                    product_image.product_tmpl_id.write({'image_medium': False, 'image_small': False})
-                elif vals.get('image') and product_image.product_product_id:
-                    product_image.product_product_id.with_context(no_image_update=True).write({'image_variant': product_image.image})
-                elif product_image.product_product_id:
-                    product_image.product_product_id.with_context(no_image_update=True).write({'image_variant': False})
-        return res
-
-    @api.multi
-    def unlink(self):
-        for product_image in self.filtered(lambda p: p.is_main_image):
-            if product_image.product_tmpl_id:
-                product_image.product_tmpl_id.write({'image_medium': False, 'image_small': False})
-            elif product_image.product_product_id:
-                product_image.product_product_id.with_context(no_image_update=True).write({'image_variant': False})
-        return super(ProductImage, self).unlink()
