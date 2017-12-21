@@ -664,15 +664,6 @@ class HttpSeleniumCase(TransactionCase):
             if tries > max_tries:
                 break
             time.sleep(0.1 * tries)
-            try:
-                for log_line in self.driver.get_log('browser'):
-                    if log_line.get('level') == 'INFO':
-                        self.logger.info("BROWSER LOG: '{}'".format(log_line.get('message')))
-                    else:
-                        self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
-            except selenite.WebDriverException:
-                _logger.debug('Cannot fetch browser console log.')
-
             waiting_time = time.time() - start_time
             if 'test-success' in self.test_result:
                 self.logger.info('JS Test succesfully passed (tries: {} - waiting time: {})'.format(tries, waiting_time))
@@ -683,6 +674,14 @@ class HttpSeleniumCase(TransactionCase):
                 self._wait_remaining_requests()
                 self.fail('JS Test failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
                 return False
+            try:
+                for log_line in self.driver.get_log('browser'):
+                    if log_line.get('level') == 'INFO':
+                        self.logger.info("BROWSER LOG: '{}'".format(log_line.get('message')))
+                    else:
+                        self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
+            except selenite.WebDriverException:
+                _logger.debug('Cannot fetch browser console log.')
             tries += 1
 
         waiting_time = time.time() - start_time
