@@ -295,6 +295,8 @@ class SavepointCase(SingleTransactionCase):
         super(SavepointCase, self).tearDown()
 
 
+TransactionCase = SavepointCase
+
 class HttpCase(TransactionCase):
     """ Transactional HTTP TestCase with url_open and phantomjs helpers.
     """
