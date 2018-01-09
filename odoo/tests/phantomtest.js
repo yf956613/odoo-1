@@ -37,7 +37,7 @@ function PhantomTest() {
         'value': this.options.session_id,
     });
     this.page = require('webpage').create();
-    this.page.viewportSize = { width: 1366, height: 768 };
+    this.page.viewportSize = { width: 1920, height: 1080 };
     this.page.onError = function(message, trace) {
         var msg = [message];
         if (trace && trace.length) {
