@@ -11,13 +11,11 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/web",
             "odoo.__DEBUG__.services['web_tour.tour'].run('rte')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.rte.ready",
-            login='admin',
-            max_tries=30)
+            login='admin')
 
     def test_02_admin_rte_inline(self):
         self.selenium_run(
             "/web",
             "odoo.__DEBUG__.services['web_tour.tour'].run('rte_inline')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.rte_inline.ready",
-            login='admin',
-            max_tries=30)
+            login='admin')

@@ -299,6 +299,7 @@ class TestUi(odoo.tests.HttpSeleniumCase):
         self.selenium_run("/pos/web",
                         "odoo.__DEBUG__.services['web_tour.tour'].run('pos_basic_order')",
                         ready="odoo.__DEBUG__.services['web_tour.tour'].tours.pos_basic_order.ready",
+                        timeout=15,
                         login="admin")
 
         for order in env['pos.order'].search([]):

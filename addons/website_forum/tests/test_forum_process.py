@@ -10,7 +10,6 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('question')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.question.ready",
-            max_tries=25,
             login="admin")
 
     def test_02_demo_question(self):
@@ -21,5 +20,4 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('forum_question')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.forum_question.ready",
-            max_tries=25,
             login="demo")

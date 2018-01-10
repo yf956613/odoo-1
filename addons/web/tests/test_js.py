@@ -17,7 +17,7 @@ class WebSuite(odoo.tests.HttpSeleniumCase):
             "",
             ready="",
             login='admin',
-            max_tries=50)
+            timeout=300)
 
     def test_02_js(self):
         # webclient mobile test suite
@@ -26,7 +26,7 @@ class WebSuite(odoo.tests.HttpSeleniumCase):
             "",
             ready="",
             login='admin',
-            max_tries=50)
+            timeout=300)
 
     def test_check_suite(self):
         # verify no js test is using `QUnit.only` as it forbid any other test to be executed

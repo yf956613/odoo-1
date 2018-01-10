@@ -619,23 +619,23 @@ class HttpSeleniumCase(TransactionCase):
         self.browser_get('/')
         self.driver.add_cookie({'domain': '127.0.0.1', 'name': 'session_id', 'value': self.session_id, 'path': '/'})
 
-    def _wait_ready(self, ready_js_code, max_tries=10):
+    def _wait_ready(self, ready_js_code, timeout=10):
         """Selenium should wait for the page to be ready but this is a safeguard."""
         self.logger.info("Running JS ready code: '{}'".format(ready_js_code))
-        tries = 1
-        start_time = time.time()
+        start_time = datetime.now()
+        timeout_delta = timedelta(seconds=timeout)
         while True:
-            if tries > max_tries:
-                break
-            time.sleep(0.1 * tries)
-            res = self.driver.execute_script("return {}".format(ready_js_code))
-            if res:
-                waiting_time = time.time() - start_time
-                self.logger.info("Ready code succes after {} tries (Waiting time: {})".format(tries, waiting_time))
-                return
-            tries += 1
-        waiting_time = time.time() - start_time
-        self.logger.warning("Ready JS function '{}' was never True (Waiting time: {} sec)".format(ready_js_code, waiting_time))
+            try:
+                res = self.driver.execute_script("return {}".format(ready_js_code))
+                ready_time = datetime.now() - start_time
+                if res:
+                    self.logger.info("Ready code success after {} seconds)".format(ready_time.seconds))
+                    return
+                if ready_time > timeout_delta:
+                    self.fail('Ready code timeout (%s seconds)' % ready_time)
+            except:
+                self.logger.warning('Cannot read ready')
+                pass
 
     @property
     def test_result(self):
@@ -647,7 +647,7 @@ class HttpSeleniumCase(TransactionCase):
             return ''
         return body_class
 
-    def selenium_run(self, url_path, js_code, ready='window', login=None, max_tries=20):
+    def selenium_run(self, url_path, js_code, ready='window', login=None, timeout=10):
         """Runs a js_code javascript test in Chrome headless"""
         self.authenticate(login, login)
         self.logger.info('JS test url_path: {}'.format(url_path))
@@ -658,36 +658,36 @@ class HttpSeleniumCase(TransactionCase):
             self.logger.info("Running JS test code: '{}'".format(js_code))
             self.driver.execute_script('{}'.format(js_code))
 
-        tries = 1
-        start_time = time.time()
+        time_start = datetime.now()
+        timeout_delta = timedelta(seconds=timeout)
+        test_success = False
         while True:
-            if tries > max_tries:
-                break
-            time.sleep(0.1 * tries)
-            waiting_time = time.time() - start_time
-            if 'test-success' in self.test_result:
-                self.logger.info('JS Test succesfully passed (tries: {} - waiting time: {})'.format(tries, waiting_time))
+            try:
+                for log_line in self.driver.get_log('browser'):
+                    if log_line.get('level') == 'INFO':
+                        ll = log_line.get('message')
+                        if ll.lower().endswith('"ok"'):
+                            test_success = True
+                        self.logger.info("BROWSER LOG: '{}'".format(ll))
+                    else:
+                        self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
+            except selenite.WebDriverException:
+                _logger.debug('Cannot fetch browser console log.')
+            test_time = datetime.now() - time_start
+            if test_time > timeout_delta:
+                self.take_screenshot()
+                self._wait_remaining_requests()
+                self.fail("Test timeout (%s seconds) expired" % timeout)
+            if 'test-success' in self.test_result or test_success:
+                self.logger.info('JS Test succesfully passed (took {} seconds)'.format(test_time.seconds))
                 self._wait_remaining_requests()
                 return True
             elif 'test-failure' in self.test_result:
                 self.take_screenshot()
                 self._wait_remaining_requests()
-                self.fail('JS Test failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
+                # we should return the console log that indicate the failed step
+                self.fail('JS Test failure after {} seconds'.format(test_time.seconds))
                 return False
-            try:
-                for log_line in self.driver.get_log('browser'):
-                    if log_line.get('level') == 'INFO':
-                        self.logger.info("BROWSER LOG: '{}'".format(log_line.get('message')))
-                    else:
-                        self.logger.warning("BROWSER LOG: '{}'".format(log_line.get('message')))
-            except selenite.WebDriverException:
-                _logger.debug('Cannot fetch browser console log.')
-            tries += 1
-
-        waiting_time = time.time() - start_time
-        self.take_screenshot()
-        self._wait_remaining_requests()
-        self.fail('JS Test timeout failure after {} tries (waiting time: {} sec)'.format(tries - 1, waiting_time))
 
     def take_screenshot(self):
         filename = "selenium-shot_{}.png".format(time.strftime("%Y-%m-%d_%H-%M-%S"))

@@ -10,23 +10,20 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('shop')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.shop.ready",
-            login="admin",
-            max_tries=25)
+            login="admin")
 
     def test_02_admin_checkout(self):
         self.selenium_run(
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('shop_buy_product')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.shop_buy_product.ready",
-            login="admin",
-            max_tries=25)
+            login="admin")
 
     def test_03_demo_checkout(self):
         self.selenium_run(
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('shop_buy_product')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.shop_buy_product.ready",
-            login="demo",
-            max_tries=25)
+            login="demo")
 
     # TO DO - add public test with new address when convert to web.tour format.

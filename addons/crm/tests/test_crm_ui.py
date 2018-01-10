@@ -11,5 +11,4 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/web",
             "odoo.__DEBUG__.services['web_tour.tour'].run('crm_tour')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.crm_tour.ready",
-            login="admin",
-            max_tries=25)
+            login="admin")

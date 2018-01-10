@@ -18,15 +18,13 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('event_buy_tickets')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.event_buy_tickets.ready",
-            login="admin",
-            max_tries=25)
+            login="admin")
 
     def test_demo(self):
         self.selenium_run(
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('event_buy_tickets')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.event_buy_tickets.ready",
-            login="demo",
-            max_tries=25)
+            login="demo")
 
     # TO DO - add public test with new address when convert to web.tour format.

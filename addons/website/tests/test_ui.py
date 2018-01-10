@@ -11,7 +11,7 @@ class TestUiTranslate(odoo.tests.HttpSeleniumCase):
             "odoo.__DEBUG__.services['web_tour.tour'].run('rte_translator')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.rte_translator.ready",
             login='admin',
-            max_tries=30)
+            timeout=120)
 
 
 @odoo.tests.common.tagged('post_install', '-at_install')

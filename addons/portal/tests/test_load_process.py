@@ -10,6 +10,4 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             "/",
             "odoo.__DEBUG__.services['web_tour.tour'].run('portal_load_homepage')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.portal_load_homepage.ready",
-            login="portal",
-            max_tries=20
-        )
+            login="portal")
