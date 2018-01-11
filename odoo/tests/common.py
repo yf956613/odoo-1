@@ -624,6 +624,8 @@ class HttpSeleniumCase(TransactionCase):
         self.logger.info("Running JS ready code: '{}'".format(ready_js_code))
         start_time = datetime.now()
         timeout_delta = timedelta(seconds=timeout)
+        body = self.driver.find_element_by_tag_name('body') # be sure that at least the body is here
+        warned = False
         while True:
             try:
                 res = self.driver.execute_script("return {}".format(ready_js_code))
@@ -632,9 +634,12 @@ class HttpSeleniumCase(TransactionCase):
                     self.logger.info("Ready code success after {} seconds)".format(ready_time.seconds))
                     return
                 if ready_time > timeout_delta:
+                    self.take_screenshot()
                     self.fail('Ready code timeout (%s seconds)' % ready_time)
             except:
-                self.logger.warning('Cannot read ready')
+                if not warned:
+                    self.logger.warning('Cannot read ready')
+                    warned = True
                 pass
 
     @property
