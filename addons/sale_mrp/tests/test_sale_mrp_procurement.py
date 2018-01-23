@@ -54,6 +54,9 @@ class TestSaleMrpProcurement(TransactionCase):
         sale_order_so0 = so_form.save()
 
         # I confirm the sale order
+        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+        if fp:
+            fp.write({'auto_apply': False})
         sale_order_so0.action_confirm()
 
         # I verify that a manufacturing order has been generated, and that its name and reference are correct

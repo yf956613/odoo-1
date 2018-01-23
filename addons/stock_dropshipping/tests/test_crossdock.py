@@ -49,6 +49,9 @@ class TestCrossdock(common.TransactionCase):
             sale_order_crossdock = so_form.save()
 
         # Confirm sales order
+        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+        if fp:
+            fp.write({'auto_apply': False})
         sale_order_crossdock.action_confirm()
 
         # Run the scheduler
