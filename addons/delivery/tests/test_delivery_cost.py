@@ -86,7 +86,9 @@ class TestDeliveryCost(common.TransactionCase):
             "Delivery cost is not correspond.")
 
         # I confirm the sales order
-
+        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+        if fp:
+            fp.write({'auto_apply': False})
         self.sale_normal_delivery_charges.action_confirm()
 
         # Create one more sales order with Free Delivery Charges

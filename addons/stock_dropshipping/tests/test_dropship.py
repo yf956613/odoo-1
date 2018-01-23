@@ -43,6 +43,9 @@ class TestDropship(common.TransactionCase):
         sale_order_drp_shpng = so_form.save()
 
         # Confirm sales order
+        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+        if fp:
+            fp.write({'auto_apply': False})
         sale_order_drp_shpng.action_confirm()
 
         # Check the sales order created a procurement group which has a procurement of 200 pieces

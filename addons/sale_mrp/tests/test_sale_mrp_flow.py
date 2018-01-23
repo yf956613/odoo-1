@@ -126,6 +126,9 @@ class TestSaleMrpFlow(common.TransactionCase):
             line.product_uom = self.uom_dozen
             line.product_uom_qty = 10
         order = order_form.save()
+        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+        if fp:
+            fp.write({'auto_apply': False})
         order.action_confirm()
 
         # ===============================================================================
@@ -350,6 +353,9 @@ class TestSaleMrpFlow(common.TransactionCase):
         so = f.save()
 
         # confirm our standard so, check the picking
+        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+        if fp:
+            fp.write({'auto_apply': False})
         so.action_confirm()
         self.assertTrue(so.picking_ids, 'Sale MRP: no picking created for "invoice on delivery" stockable products')
 
