@@ -40,9 +40,9 @@ class TestProcurementException(common.TransactionCase):
                 seller.min_qty = 2.0
 
         # I confirm the sales order, no error this time
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         sale_order_route_dropship01.action_confirm()
 
         # I check a purchase quotation was created.

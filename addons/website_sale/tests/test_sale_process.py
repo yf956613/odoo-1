@@ -9,15 +9,15 @@ class TestUi(odoo.tests.HttpCase):
         self.phantom_js("/", "odoo.__DEBUG__.services['web_tour.tour'].run('shop')", "odoo.__DEBUG__.services['web_tour.tour'].tours.shop.ready", login="admin")
 
     def test_02_admin_checkout(self):
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         self.phantom_js("/", "odoo.__DEBUG__.services['web_tour.tour'].run('shop_buy_product')", "odoo.__DEBUG__.services['web_tour.tour'].tours.shop_buy_product.ready", login="admin")
 
     def test_03_demo_checkout(self):
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         self.phantom_js("/", "odoo.__DEBUG__.services['web_tour.tour'].run('shop_buy_product')", "odoo.__DEBUG__.services['web_tour.tour'].tours.shop_buy_product.ready", login="demo")
 
     # TO DO - add public test with new address when convert to web.tour format.

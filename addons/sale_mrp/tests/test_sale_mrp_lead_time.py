@@ -54,9 +54,9 @@ class TestSaleMrpLeadTime(TestStockCommon):
             line.product_uom_qty = 10
         order = order_form.save()
         # Confirm sale order
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         order.action_confirm()
 
         # Check manufacturing order created or not
@@ -101,9 +101,9 @@ class TestSaleMrpLeadTime(TestStockCommon):
             line.product_uom_qty = 6
         order = order_form.save()
         # Confirm sale order
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         order.action_confirm()
 
         # Run scheduler

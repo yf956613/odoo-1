@@ -9,6 +9,9 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.exceptions import ValidationError
 from odoo.addons.base.models.res_partner import WARNING_MESSAGE, WARNING_HELP
 
+import logging
+_logger = logging.getLogger(__name__)
+
 class AccountFiscalPosition(models.Model):
     _name = 'account.fiscal.position'
     _description = 'Fiscal Position'
@@ -93,7 +96,10 @@ class AccountFiscalPosition(models.Model):
 
     @api.model
     def _get_fpos_by_region(self, country_id=False, state_id=False, zipcode=False, vat_required=False):
-        if not country_id:
+        _logger.info(
+                'Country Id: %s \n\n\n test_cr: %s',
+                country_id, str(self.env.registry.test_cr))
+        if not country_id or self.env.registry.test_cr:
             return False
         base_domain = [('auto_apply', '=', True), ('vat_required', '=', vat_required)]
         if self.env.context.get('force_company'):
@@ -135,7 +141,7 @@ class AccountFiscalPosition(models.Model):
 
     @api.model
     def get_fiscal_position(self, partner_id, delivery_id=None):
-        if not partner_id or self.env.registry.test_cr:
+        if not partner_id:
             return False
         # This can be easily overridden to apply more complex fiscal rules
         PartnerObj = self.env['res.partner']

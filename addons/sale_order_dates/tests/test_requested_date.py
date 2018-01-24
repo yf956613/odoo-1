@@ -13,9 +13,9 @@ class TestSaleOrderDates(common.TransactionCase):
         # I copy a demo Sales Order with Requested Date on 2010-07-12
         new_order = self.env.ref('sale.sale_order_6').copy({'requested_date': '2010-07-12'})
         # I confirm the Sales Order.
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         new_order.action_confirm()
         # I verify that the Procurements and Stock Moves have been generated with the correct date
         security_delay = timedelta(days=new_order.company_id.security_lead)

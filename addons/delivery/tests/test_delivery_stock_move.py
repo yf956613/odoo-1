@@ -47,9 +47,9 @@ class StockMoveInvoice(AccountingTestCase):
         self.sale_prepaid.set_delivery_line()
 
         # I confirm the SO.
-        fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
-        if fp:
-            fp.write({'auto_apply': False})
+#         fp = self.env.ref('account_taxcloud.account_fiscal_position_taxcloud_us', False)
+#         if fp:
+#             fp.write({'auto_apply': False})
         self.sale_prepaid.action_confirm()
         self.sale_prepaid.action_invoice_create()
 
