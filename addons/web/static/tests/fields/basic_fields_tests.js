@@ -4469,6 +4469,63 @@ QUnit.module('basic_fields', {
 
         form.destroy();
     });
+
+    QUnit.module('TabNavigation');
+
+    QUnit.test('using tab in an empty required string field should not move to the next field',function(assert) {
+        assert.expect(3);
+
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch:'<form string="Partners">' +
+                    '<sheet>' +
+                        '<group>' +
+                            '<field name="display_name" required="1" />' +
+                            '<field name="foo" />' +
+                        '</group>' +
+                    '</sheet>' +
+                '</form>',
+        });
+
+        form.$('input[name=display_name]').click();
+        assert.strictEqual(form.$('input[name="display_name"]')[0], document.activeElement,
+            "display_name should be focused");
+        form.$('input[name="display_name"]').trigger($.Event('keydown', {which: $.ui.keyCode.TAB}));
+        assert.strictEqual(form.$('input[name="display_name"]')[0], document.activeElement,
+            "display_name should still be focused because it is empty and required");
+        assert.strictEqual(form.$('input[name="display_name"]').hasClass("o_field_invalid"), true,
+            "display_name should have the o_field_invalid class");
+        form.destroy();
+    });
+
+    QUnit.test('using tab in an empty required date field should not move to the next field',function(assert) {
+        assert.expect(2);
+
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch:'<form string="Partners">' +
+                    '<sheet>' +
+                        '<group>' +
+                            '<field name="date" required="1" />' +
+                            '<field name="foo" />' +
+                        '</group>' +
+                    '</sheet>' +
+                '</form>',
+        });
+
+        form.$('input[name=date]').click();
+        assert.strictEqual(form.$('input[name="date"]')[0], document.activeElement,
+            "display_name should be focused");
+        form.$('input[name="date"]').trigger($.Event('keydown', {which: $.ui.keyCode.TAB}));
+        assert.strictEqual(form.$('input[name="date"]')[0], document.activeElement,
+            "date should still be focused because it is empty and required");
+
+        form.destroy();
+    });
 });
 });
 });

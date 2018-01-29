@@ -299,6 +299,14 @@ var AbstractField = Widget.extend({
         return this._render() || $.when();
     },
 
+    setInvalidClass: function () {
+        this.$el.toggleClass('o_field_invalid',true);
+    },
+    removeInvalidClass: function () {
+        this.$el.toggleClass('o_field_invalid',false);
+    },
+
+
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
@@ -422,7 +430,7 @@ var AbstractField = Widget.extend({
             return $.Deferred().reject();
         }
         if (!(options && options.forceChange) && this._isSameValue(value)) {
-            return $.when();
+            return $.when(); 
         }
         var def = $.Deferred();
         var changes = {};
