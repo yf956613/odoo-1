@@ -611,7 +611,7 @@ var FieldMany2One = AbstractField.extend({
     _onNavigationMove: function (ev) {
         // TODO Maybe this should be done in a mixin or, better, the m2o field
         // should be an InputField (but this requires some refactoring).
-        basicFields.InputField.prototype._onNavigationMove.apply(this, arguments);
+        basicFields.InputField.prototype._onNavigationMove.apply(this, arguments);        
         if (this.mode === 'edit' && $(this.$input.autocomplete('widget')).is(':visible')) {
             ev.stopPropagation();
         }
@@ -682,6 +682,8 @@ var FieldX2Many = AbstractField.extend({
         resequence: '_onResequence',
         save_line: '_onSaveLine',
         toggle_column_order: '_onToggleColumnOrder',
+        activate_next_widget: '_onActiveNextWidget',
+        //active_previous_widget: '_onActivePreviousWidget',
     }),
 
     // We need to trigger the reset on every changes to be aware of the parent changes
@@ -794,6 +796,37 @@ var FieldX2Many = AbstractField.extend({
         return this._super.apply(this, arguments);
     },
 
+    /**
+     * @override
+     * @returns {jQuery}
+     */
+    getFocusableElement: function () {
+       return this.mode === 'edit' && this.$input || this.$el;
+    },
+
+    /**
+     * @override
+     * @param {Object} [options]
+     */
+    activate: function (options) {
+        if (!this.activeActions.create || this.isReadonly || !this.$el.is(":visible")) {
+            return false;
+        }
+           
+        // if (this.value.data.length>0) {
+        //    // this.trigger_up("edit_line",{index:0});
+        //     if (this.view.arch.tag === 'tree') {
+        //         this.renderer.$('input:visible:first').focus();
+        //     }
+        // }
+        // else {
+            if (options && !options.noselect) {
+                this.trigger_up("add_record");
+            }
+        //}
+
+        return true;
+    },
 
     //--------------------------------------------------------------------------
     // Private
@@ -1145,6 +1178,24 @@ var FieldX2Many = AbstractField.extend({
     _onToggleColumnOrder: function (ev) {
         ev.data.field = this.name;
     },
+    /*
+    * Move to next widget.
+    *
+    * @private
+    */
+    _onActiveNextWidget: function () {
+        this.renderer.unselectRow();
+        this.trigger_up('navigation_move', {direction: 'next'});
+    },
+    // /*
+    //     * Move to previous widget.
+    //     *
+    //     * @private
+    // */
+    // _onActivePreviousWidget: function () {
+    //     this.renderer.unselectRow();
+    //     this.trigger_up('navigation_move', {direction: 'previous'});
+    // },
 });
 
 var FieldOne2Many = FieldX2Many.extend({

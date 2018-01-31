@@ -331,6 +331,8 @@ var EventDispatcherMixin = _.extend({}, ParentedMixin, {
     },
     trigger_up: function (name, info) {
         var event = new OdooEvent(this, name, info);
+        // VSC: I am leaving this line commented on purpose. It is easier to debug events when they are logged.
+        //console.info('event: ', name, info);
         this._trigger_up(event);
     },
     _trigger_up: function (event) {
