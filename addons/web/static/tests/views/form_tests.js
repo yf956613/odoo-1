@@ -6338,5 +6338,27 @@ QUnit.module('Views', {
         form.destroy();
     });
 
+    QUnit.test('Edit button get the focus when pressing TAB from form', function (assert) {
+        assert.expect(1);
+
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch: '<form>' +
+                    '<div class="oe_title">' +
+                        '<field name="display_name"/>' +
+                    '</div>' +
+                '</form>',
+            res_id: 1,
+        });
+
+        // in edit
+        form.$buttons.find('.o_form_button_edit').click();
+        form.$('input[name="display_name"]').focus().trigger($.Event('keydown', {which: $.ui.keyCode.TAB}));
+        assert.strictEqual(form.$buttons.find('.btn-primary:visible')[0], document.activeElement,
+            "the first primary button (save) should be focused");
+        form.destroy();
+    });
 });
 });

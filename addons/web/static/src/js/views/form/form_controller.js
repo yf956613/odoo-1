@@ -18,6 +18,7 @@ var FormController = BasicController.extend({
         open_one2many_record: '_onOpenOne2ManyRecord',
         open_record: '_onOpenRecord',
         toggle_column_order: '_onToggleColumnOrder',
+        focus_control_button: '_onFocusControlButton',
     }),
     /**
      * @override
@@ -40,11 +41,19 @@ var FormController = BasicController.extend({
     // Public
     //--------------------------------------------------------------------------
 
+    _onFocusControlButton:function(e){
+        e.stopPropagation();
+        this.$buttons.find('.btn-primary:visible:first()').focus();
+    },
+
     /**
      * Calls autofocus on the renderer
      */
     autofocus: function () {
         if (!this.disableAutofocus) {
+            if (this.$buttons && this.mode === 'readonly') {
+                return this.$buttons.find('.o_form_button_edit').focus();
+            }
             this.renderer.autofocus();
         }
     },
@@ -124,7 +133,7 @@ var FormController = BasicController.extend({
             this.$buttons.on('click', '.o_form_button_create', this._onCreate.bind(this));
             this.$buttons.on('click', '.o_form_button_save', this._onSave.bind(this));
             this.$buttons.on('click', '.o_form_button_cancel', this._onDiscard.bind(this));
-
+            
             this._updateButtons();
         }
         this.$buttons.appendTo($node);

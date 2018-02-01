@@ -168,7 +168,7 @@ var BasicRenderer = AbstractRenderer.extend({
      * @param {Object} [options]
      * @param {integer} [options.inc=1] - the increment to use when searching for the
      *   "next" possible one
-     * @param {boolean} [options.wrap=true] if true, when we arrive at the end of the
+     * @param {boolean} [options.wrap=false] if true, when we arrive at the end of the
      *   list of widget, we wrap around and try to activate widgets starting at
      *   the beginning. Otherwise, we just stop trying and return -1
      * @returns {integer} the index of the widget that was activated or -1 if
@@ -176,7 +176,7 @@ var BasicRenderer = AbstractRenderer.extend({
      */
     _activateFieldWidget: function (record, currentIndex, options) {
         options = options || {};
-        _.defaults(options, {inc: 1, wrap: true});
+        _.defaults(options, {inc: 1, wrap: false});
 
         var recordWidgets = this.allFieldWidgets[record.id] || [];
         for (var i = 0 ; i < recordWidgets.length ; i++) {

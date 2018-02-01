@@ -207,7 +207,21 @@ var FormRenderer = BasicRenderer.extend({
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
-
+    /**
+     * @override
+     */
+    _activateNextFieldWidget: function (record, currentIndex) {
+        //if we are the last widget, we should give the focus to the first Primary Button in the form
+        //else do the default behavior
+        if ( (currentIndex + 1) >= (this.allFieldWidgets[record.id] || []).length) {
+            this.trigger_up('focus_control_button');
+        } else {
+            var activatedIndex =  this._super.apply(this, arguments);
+            if (activatedIndex == -1 ) { // no widget have been activated, we should go to the edit/save buttons
+                this.trigger_up('focus_control_button');                
+            }
+        }
+    },
     /**
      * Add a tooltip on a button
      *
