@@ -39,10 +39,17 @@ var FormRenderer = BasicRenderer.extend({
     /**
      * Focuses the field having attribute 'default_focus' set, if any, or the
      * first focusable field otherwise.
+     * In read mode, delegate which button to give the focus to, to the form_renderer
      */
     autofocus: function () {
         if (this.mode === 'readonly') {
-            return;
+            var firstPrimaryFormButton =  this.$el.find('button.oe_highlight:enabled:visible:first()');
+            if (firstPrimaryFormButton.length > 0) {
+                return firstPrimaryFormButton.focus();
+            }
+            else {
+                return;
+            }
         }
         var focusWidget = this.defaultFocusField;
         if (!focusWidget || !focusWidget.isFocusable()) {
@@ -56,7 +63,7 @@ var FormRenderer = BasicRenderer.extend({
             }
         }
         if (focusWidget) {
-            focusWidget.activate({noselect: true});
+            return focusWidget.activate({noselect: true});
         }
     },
     /**
@@ -254,6 +261,16 @@ var FormRenderer = BasicRenderer.extend({
                 attrs: node.attrs,
                 record: self.state,
             });
+        });
+
+        $el.on('keydown', function(e) {
+            if (e.which === $.ui.keyCode.TAB) {
+                e.preventDefault();
+                $(e.target).trigger('click');
+            } else if (e.which == $.ui.keyCode.ESCAPE) {
+                console.info("escape was pressed on", e.target.innerText)
+                //e.preventDefault();           
+            }
         });
     },
     /**

@@ -51,10 +51,13 @@ var FormController = BasicController.extend({
      */
     autofocus: function () {
         if (!this.disableAutofocus) {
-            if (this.$buttons && this.mode === 'readonly') {
-                return this.$buttons.find('.o_form_button_edit').focus();
+            var isControlActivted = this.renderer.autofocus();
+            if (!isControlActivted) { 
+                // this can happen in read mode if there are no button with class oe_highlight
+                if (this.$buttons && this.mode === 'readonly') {
+                    return this.$buttons.find('.o_form_button_edit').focus();
+                }
             }
-            this.renderer.autofocus();
         }
     },
     /**

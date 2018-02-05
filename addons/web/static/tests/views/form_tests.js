@@ -6338,6 +6338,8 @@ QUnit.module('Views', {
         form.destroy();
     });
 
+    QUnit.module('FormViewTABMainButtons');
+
     QUnit.test('Edit button get the focus when pressing TAB from form', function (assert) {
         assert.expect(1);
 
@@ -6385,6 +6387,136 @@ QUnit.module('Views', {
         assert.ok(form.$buttons.find('.o_form_button_edit')[0], "the button edit should now be visible");
 
         form.destroy();
-     });
+    });
+
+    QUnit.module('FormViewTABFormButtons');
+
+    QUnit.test('In Edition mode, after navigating to the last field, the default button when pressing TAB is SAVE', function (assert) {
+        assert.expect(1);
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch: '<form string="Partners">' +
+                    '<field name="state" invisible="1"/>' +
+                    '<header>' +
+                        '<button name="post" class="oe_highlight firstButton" string="Confirm" type="object"/>' +
+                        '<button name="post" class="oe_highlight secondButton" string="Confirm2" type="object"/>' +
+                    '</header>' +
+                    '<sheet>' +
+                        '<group>' +
+                            '<div class="oe_title">' +
+                                '<field name="display_name"/>' +
+                            '</div>' +
+                        '</group>' +
+                    '</sheet>' +
+                '</form>',
+            res_id: 2,
+            viewOptions: {
+                mode: 'edit',
+            },
+        });
+
+        form.$('input[name="display_name"]').focus().trigger($.Event('keydown', {which: $.ui.keyCode.TAB}));
+        assert.strictEqual(form.$buttons.find('.o_form_button_save:visible')[0], document.activeElement,
+            "the save should be focused");
+        form.destroy();
+    });
+
+    QUnit.test('In READ mode, the default button with focus is the first primary button of the form', function (assert) {
+        assert.expect(1);
+
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch: '<form string="Partners">' +
+                    '<field name="state" invisible="1"/>' +
+                    '<header>' +
+                        '<button name="post" class="oe_highlight firstButton" string="Confirm" type="object"/>' +
+                        '<button name="post" class="oe_highlight secondButton" string="Confirm2" type="object"/>' +
+                    '</header>' +
+                    '<sheet>' +
+                        '<group>' +
+                            '<div class="oe_title">' +
+                                '<field name="display_name"/>' +
+                            '</div>' +
+                        '</group>' +
+                    '</sheet>' +
+                '</form>',
+            res_id: 2,
+        });
+        assert.strictEqual(form.$('button.firstButton')[0], document.activeElement,
+                        "by default the focus in edit mode should go to the first primary button of the form (not edit)");
+        form.destroy();
+    });
+
+    QUnit.test('In READ mode, primary buttons of the form can be activated with TAB', function (assert) {
+        assert.expect(2);
+
+        var rpcCount = 0;
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch: '<form string="Partners">' +
+                    '<field name="state" invisible="1"/>' +
+                    '<header>' +
+                        '<button name="post" class="oe_highlight" string="Confirm" type="object"/>' +
+                        '<button name="post" class="oe_highlight" string="Confirm2" type="object"/>' +
+                    '</header>' +
+                    '<sheet>' +
+                        '<group>' +
+                            '<div class="oe_title">' +
+                                '<field name="display_name"/>' +
+                            '</div>' +
+                        '</group>' +
+                    '</sheet>' +
+                '</form>',
+            res_id: 2,
+        });
+        
+        testUtils.intercept(form, 'execute_action', function (event) {
+            assert.strictEqual(event.data.action_data.string,"Confirm","The button clicked should have been 'Confirm'");
+            rpcCount++;
+            event.data.on_success();
+            event.data.on_closed();
+        });
+        rpcCount = 0;
+        
+        $(document.activeElement).trigger($.Event('keydown', {which: $.ui.keyCode.TAB}));
+        assert.strictEqual(rpcCount, 1, "should have done 1 rpc");
+        form.destroy();
+    })
+
+    QUnit.test('In READ mode, the default button when pressing TAB is EDIT when there is no primary button on the form', function (assert) {
+        assert.expect(1);
+
+        var form = createView({
+            View: FormView,
+            model: 'partner',
+            data: this.data,
+            arch: '<form string="Partners">' +
+                    '<field name="state" invisible="1"/>' +
+                    '<header>' +
+                        '<button name="post" class="not-primary" string="Confirm" type="object"/>' +
+                        '<button name="post" class="not-primary" string="Confirm2" type="object"/>' +
+                    '</header>' +
+                    '<sheet>' +
+                        '<group>' +
+                            '<div class="oe_title">' +
+                                '<field name="display_name"/>' +
+                            '</div>' +
+                        '</group>' +
+                    '</sheet>' +
+                '</form>',
+            res_id: 2,           
+            //debug:1,
+        });
+        assert.strictEqual(form.$buttons.find('.o_form_button_edit')[0],document.activeElement,
+                        "in read mode, when there are no primary buttons on the form, the default button with the focus should be edit");        
+        form.destroy();
+    });
+    
 });
 });
