@@ -43,7 +43,7 @@
     </record>
 
     <record id="tag_fr_08" model="account.account.tag">
-        <field name="name">Base H.T. 5.5.0%</field>
+        <field name="name">Base H.T. 5.5%</field>
         <field name="applicability">taxes</field>
      </record>
 
