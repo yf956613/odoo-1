@@ -89,6 +89,17 @@ class Groups(models.Model):
         ('name_uniq', 'unique (category_id, name)', 'The name of the group must be unique within an application!')
     ]
 
+    @api.one
+    @api.constrains('users')
+    def _check_admin_rights(self):
+        # admin should not remove his administration right
+        group_setting = self.env.ref('base.group_system', raise_if_not_found=False)
+        if group_setting and self == group_setting and SUPERUSER_ID not in group_setting.users.ids:
+            raise UserError(_("You cannot remove the settings rights to the administrator"))
+        group_admin = self.env.ref('base.group_erp_manager', raise_if_not_found=False)
+        if group_admin and self == group_admin in self and SUPERUSER_ID not in group_admin.users.ids:
+            raise UserError(_("You cannot remove the settings rights to the administrator"))
+
     @api.depends('category_id.name', 'name')
     def _compute_full_name(self):
         # Important: value must be stored in environment of group, not group1!
@@ -287,6 +298,15 @@ class Users(models.Model):
         action_open_website = self.env.ref('base.action_open_website', raise_if_not_found=False)
         if action_open_website and any(user.action_id.id == action_open_website.id for user in self):
             raise ValidationError(_('The "App Switcher" action cannot be selected as home action.'))
+
+    @api.one
+    @api.constrains('groups_id')
+    def _check_admin_rights(self):
+        # admin should not remove his administration right
+        if self.id == SUPERUSER_ID:
+            group_setting = self.env.ref('base.group_system', raise_if_not_found=False)
+            if group_setting and group_setting not in self.groups_id:
+                raise UserError(_("You cannot remove the settings rights to the administrator"))
 
     @api.multi
     def read(self, fields=None, load='_classic_read'):
