@@ -48,9 +48,9 @@
         <field name="domain">[('project_id', '!=', False)]</field>
         <field name="is_default" eval="True"/>
         <field name="context">{
-            'col_group_by': ['date:month', 'timesheet_invoice_type'],
+            'pivot_column_groupby': ['date:month', 'timesheet_invoice_type'],
             'group_by': ['project_id', 'employee_id'],
-            'measures': ['amount_currency', 'unit_amount', '__count']
+            'pivot_measures': ['amount_currency', 'unit_amount', '__count']
         }</field>
         <field name="action_id" ref="timesheet_action_billing_report"/>
     </record>
