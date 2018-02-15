@@ -1246,6 +1246,7 @@ class IrModelData(models.Model):
     module = fields.Char(default='', required=True)
     res_id = fields.Integer(string='Record ID', help="ID of the target record in the database")
     noupdate = fields.Boolean(string='Non Updatable', default=False)
+    nodelete = fields.Boolean(string='Non deletable', default=False)
     date_update = fields.Datetime(string='Update Date', default=fields.Datetime.now)
     date_init = fields.Datetime(string='Init Date', default=fields.Datetime.now)
     reference = fields.Char(string='Reference', compute='_compute_reference', readonly=True, store=False)
@@ -1393,11 +1394,24 @@ class IrModelData(models.Model):
     @api.multi
     def unlink(self):
         """ Regular unlink method, but make sure to clear the caches. """
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            nodelete = self.filtered('nodelete')
+            if nodelete:
+                model_ids = defaultdict(list)
+                for record in nodelete:
+                    model_ids[record.model].append(record.res_id)
+                for model, ids in model_ids.items():
+                    _logger.error(
+                        _('Trying to delete non-deletable records %r: %s, User: %s'),
+                        model, ','.join(str(ids)), self._uid,
+                    )
+                raise UserError(_('You may not delete some of those records.'))
+
         self.clear_caches()
         return super(IrModelData, self).unlink()
 
     @api.model
-    def _update(self, model, module, values, xml_id=False, store=True, noupdate=False, mode='init', res_id=False):
+    def _update(self, model, module, values, xml_id=False, store=True, noupdate=False, mode='init', res_id=False, nodelete=False):
         # records created during module install should not display the messages of OpenChatter
         self = self.with_context(install_mode=True)
         current_module = module
@@ -1410,12 +1424,12 @@ class IrModelData(models.Model):
         record = self.env[model].browse(res_id)
 
         if xml_id:
-            self._cr.execute("""SELECT imd.id, imd.res_id, md.id, imd.model, imd.noupdate
+            self._cr.execute("""SELECT imd.id, imd.res_id, md.id, imd.model, imd.noupdate, imd.nodelete
                                 FROM ir_model_data imd LEFT JOIN %s md ON (imd.res_id = md.id)
                                 WHERE imd.module=%%s AND imd.name=%%s""" % record._table,
                              (module, xml_id))
             results = self._cr.fetchall()
-            for imd_id, imd_res_id, real_id, imd_model, imd_noupdate in results:
+            for imd_id, imd_res_id, real_id, imd_model, imd_noupdate, imd_nodelete in results:
                 # In update mode, do not update a record if it's ir.model.data is flagged as noupdate
                 if mode == 'update' and imd_noupdate:
                     return imd_res_id
@@ -1443,6 +1457,7 @@ class IrModelData(models.Model):
                         'module': module,
                         'res_id': record[parent_field].id,
                         'noupdate': noupdate,
+                        'nodelete': nodelete,
                     })
                 self.sudo().create({
                     'name': xml_id,
@@ -1450,6 +1465,7 @@ class IrModelData(models.Model):
                     'module': module,
                     'res_id': record.id,
                     'noupdate': noupdate,
+                    'nodelete': nodelete,
                 })
 
         elif mode == 'init' or (mode == 'update' and xml_id):
@@ -1485,6 +1501,7 @@ class IrModelData(models.Model):
                             'module': module,
                             'res_id': record[parent_field].id,
                             'noupdate': noupdate,
+                            'nodelete': nodelete,
                         })
                         existing_parents.add(parent_model_name)
                 self.sudo().create({
@@ -1492,7 +1509,8 @@ class IrModelData(models.Model):
                     'model': model,
                     'module': module,
                     'res_id': record.id,
-                    'noupdate': noupdate
+                    'noupdate': noupdate,
+                    'nodelete': nodelete,
                 })
                 if current_module and module != current_module:
                     _logger.warning("Creating the ir.model.data %s in module %s instead of %s.",

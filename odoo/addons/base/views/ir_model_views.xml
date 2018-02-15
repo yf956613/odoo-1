@@ -398,6 +398,7 @@
                                 <field name="module"/>
                                 <field name="name"/>
                                 <field name="noupdate"/>
+                                <field name="nodelete"/>
                                 <field name="date_update" />
                                 <field name="date_init" />
                             </group>
@@ -434,6 +435,7 @@
                     <field name="model"/>
                     <field name="res_id"/>
                     <field name="noupdate"/>
+                    <field name="nodelete"/>
                     <group expand="0" string="Group By">
                         <filter string="Module" name="group_by_module" domain="[]" context="{'group_by':'module'}"/>
                         <filter string="Object" name="group_by_object" domain="[]" context="{'group_by':'model'}"/>

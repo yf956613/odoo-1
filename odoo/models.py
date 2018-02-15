@@ -760,6 +760,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         mode = self._context.get('mode', 'init')
         current_module = self._context.get('module', '__import__')
         noupdate = self._context.get('noupdate', False)
+        nodelete = self._context.get('nodelete', False)
 
         # add current module in context for the conversion of xml ids
         self = self.with_context(_import_current_module=current_module)
@@ -787,7 +788,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                 break
             try:
                 ids.append(ModelData._update(self._name, current_module, record, mode=mode,
-                                             xml_id=xid, noupdate=noupdate, res_id=id))
+                                             xml_id=xid, noupdate=noupdate, res_id=id, nodelete=nodelete))
                 cr.execute('RELEASE SAVEPOINT model_load_save')
             except psycopg2.Warning as e:
                 messages.append(dict(info, type='warning', message=str(e)))
@@ -2844,14 +2845,11 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             self.check_access_rule('unlink')
 
             cr = self._cr
-            Data = self.env['ir.model.data'].sudo().with_context({})
+            Data = self.env['ir.model.data'].sudo()
             Defaults = self.env['ir.default'].sudo()
             Attachment = self.env['ir.attachment']
 
             for sub_ids in cr.split_for_in_conditions(self.ids):
-                query = "DELETE FROM %s WHERE id IN %%s" % self._table
-                cr.execute(query, (sub_ids,))
-
                 # Removing the ir_model_data reference if the record being deleted
                 # is a record created by xml/csv file, as these are not connected
                 # with real database foreign keys, and would be dangling references.
@@ -2859,9 +2857,16 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                 # Note: the following steps are performed as superuser to avoid
                 # access rights restrictions, and with no context to avoid possible
                 # side-effects during admin calls.
+                #
+                # Because data.unlink() may fail (because of flag nodelete), do
+                # this before deleting the records themselves.
                 data = Data.search([('model', '=', self._name), ('res_id', 'in', sub_ids)])
                 if data:
                     data.unlink()
+
+                # delete the records
+                query = "DELETE FROM %s WHERE id IN %%s" % self._table
+                cr.execute(query, (sub_ids,))
 
                 # For the same reason, remove the defaults having some of the
                 # records as value

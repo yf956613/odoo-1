@@ -88,7 +88,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                 noupdate = False
                 if kind in ('demo', 'demo_xml') or (filename.endswith('.csv') and kind in ('init', 'init_xml')):
                     noupdate = True
-                tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
+                tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report, nodelete=False)
         finally:
             if kind in ('demo', 'test'):
                 threading.currentThread().testing = False

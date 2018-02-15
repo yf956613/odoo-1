@@ -12,6 +12,8 @@
             <field name="parent_id" ref="product_category_all"/>
             <field name="name">Expenses</field>
         </record>
+    </data>
+    <data nodelete="1">
 
         <!--
              Precisions
