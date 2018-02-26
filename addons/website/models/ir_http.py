@@ -22,6 +22,7 @@ from odoo.osv.expression import FALSE_DOMAIN, OR
 from odoo.addons.base.models.qweb import QWebException
 from odoo.addons.http_routing.models.ir_http import ModelConverter, _guess_mimetype
 from odoo.addons.portal.controllers.portal import _build_url_w_params
+from odoo.addons.gamification.models.gamification_karma_rank import KarmaError
 
 logger = logging.getLogger(__name__)
 
@@ -228,9 +229,9 @@ class Http(models.AbstractModel):
                 traceback=traceback.format_exc(),
             )
 
-            # only except_orm exceptions contain a message
-            if isinstance(exception, odoo.exceptions.except_orm):
-                values['error_message'] = exception.name
+            # A UserError, MissingError, AccessError and ValidationError exceptions contain a message
+            if isinstance(exception, (odoo.exceptions.UserError, odoo.exceptions.AccessError, odoo.exceptions.MissingError, odoo.exceptions.ValidationError, KarmaError)):
+                values['error_message'] = exception.args[0]
                 code = 400
 
             if isinstance(exception, werkzeug.exceptions.HTTPException):

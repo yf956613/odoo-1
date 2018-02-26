@@ -373,7 +373,7 @@ class ProcurementGroup(models.Model):
                 try:
                     getattr(self.env['stock.rule'], '_run_%s' % action)(procurements)
                 except UserError as e:
-                    errors.append(e.name)
+                    errors.append(e.args[0])
             else:
                 _logger.error("The method _run_%s doesn't exist on the procurement rules" % action)
 
@@ -567,7 +567,7 @@ class ProcurementGroup(models.Model):
                                                 orderpoint.location_id, orderpoint.name, orderpoint.name,
                                                 orderpoint.company_id, values)])
                                     except UserError as error:
-                                        self.env['stock.rule']._log_next_activity(orderpoint.product_id, error.name)
+                                        self.env['stock.rule']._log_next_activity(orderpoint.product_id, error.args[0])
                                     self._procurement_from_orderpoint_post_process([orderpoint.id])
                                 if use_new_cursor:
                                     cr.commit()

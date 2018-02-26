@@ -41,7 +41,7 @@ RPC_FAULT_CODE_ACCESS_ERROR = 4
 
 def xmlrpc_handle_exception_int(e):
     if isinstance(e, odoo.exceptions.UserError):
-        fault = xmlrpclib.Fault(RPC_FAULT_CODE_WARNING, odoo.tools.ustr(e.name))
+        fault = xmlrpclib.Fault(RPC_FAULT_CODE_WARNING, odoo.tools.ustr(e.args[0]))
     elif isinstance(e, odoo.exceptions.RedirectWarning):
         fault = xmlrpclib.Fault(RPC_FAULT_CODE_WARNING, str(e))
     elif isinstance(e, odoo.exceptions.MissingError):
@@ -67,7 +67,7 @@ def xmlrpc_handle_exception_int(e):
 
 def xmlrpc_handle_exception_string(e):
     if isinstance(e, odoo.exceptions.UserError):
-        fault = xmlrpclib.Fault('warning -- %s\n\n%s' % (e.name, e.value), '')
+        fault = xmlrpclib.Fault('warning -- %s' % e, '')
     elif isinstance(e, odoo.exceptions.RedirectWarning):
         fault = xmlrpclib.Fault('warning -- Warning\n\n' + str(e), '')
     elif isinstance(e, odoo.exceptions.MissingError):

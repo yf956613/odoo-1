@@ -4,7 +4,7 @@ from odoo import api, fields, models, exceptions
 from odoo.tools.translate import html_translate
 
 
-class KarmaError(exceptions.except_orm):
+class KarmaError(Exception):
     """ Karma-related error, used for forum and posts. """
     def __init__(self, msg):
         super(KarmaError, self).__init__(msg)
