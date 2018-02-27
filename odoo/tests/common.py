@@ -691,7 +691,7 @@ class HttpSeleniumCase(TransactionCase):
                 self.take_screenshot()
                 self._wait_remaining_requests()
                 # we should return the console log that indicate the failed step
-                self.fail('JS Test failure after {} seconds'.format(test_time.seconds))
+                self.fail('JS Test failure after {} seconds. console: {}'.format(test_time.seconds, log_line.get('message')))
                 return False
 
     def take_screenshot(self):
