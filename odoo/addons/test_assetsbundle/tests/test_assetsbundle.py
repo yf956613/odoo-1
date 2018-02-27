@@ -325,7 +325,7 @@ class TestAssetsBundleInBrowser(HttpSeleniumCase):
         """
         self.selenium_run(
             "/test_assetsbundle/js",
-            ready="a + b + c === 6 ? console.log('ok') : console.log('error')",
+            "a + b + c === 6 ? console.log('ok') : console.log('error')",
             login="admin"
         )
 
@@ -350,7 +350,7 @@ class TestAssetsBundleInBrowser(HttpSeleniumCase):
 
         self.selenium_run(
             "/test_assetsbundle/js",
-            ready="a + b + c + d === 10 ? console.log('ok') : console.log('error')",
+            "a + b + c + d === 10 ? console.log('ok') : console.log('error')",
             login="admin",
         )
 
