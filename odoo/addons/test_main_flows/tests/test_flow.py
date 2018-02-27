@@ -10,4 +10,5 @@ class TestUi(odoo.tests.HttpSeleniumCase):
             '/web',
             "odoo.__DEBUG__.services['web_tour.tour'].run('main_flow_tour')",
             ready="odoo.__DEBUG__.services['web_tour.tour'].tours.main_flow_tour.ready",
+            timeout=360,
             login='admin')
