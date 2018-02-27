@@ -295,9 +295,9 @@ class MrpProduction(models.Model):
 
     @api.onchange('picking_type_id')
     def onchange_picking_type(self):
-        location = self.env.ref('stock.stock_location_stock')
-        self.location_src_id = self.picking_type_id.default_location_src_id.id or location.id
-        self.location_dest_id = self.picking_type_id.default_location_dest_id.id or location.id
+        location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+        self.location_src_id = self.picking_type_id.default_location_src_id or location
+        self.location_dest_id = self.picking_type_id.default_location_dest_id or location
 
     @api.model
     def create(self, values):
