@@ -553,7 +553,7 @@ class HttpSeleniumCase(TransactionCase):
         self.logger.info('Setting up Selenium test case')
 
         if self.registry_test_mode:
-            self.registry.enter_test_mode()
+            self.registry.enter_test_mode(self.cr)
             self.addCleanup(self.registry.leave_test_mode)
         # setup a magic session_id that will be rollbacked
         self.session = odoo.http.root.session_store.new()
