@@ -628,7 +628,7 @@ class HttpSeleniumCase(TransactionCase):
         warned = False
         while True:
             try:
-                res = self.driver.execute_script("return {}".format(ready_js_code))
+                res = self.driver.execute_script("return !!{}".format(ready_js_code))
                 ready_time = datetime.now() - start_time
                 if res:
                     self.logger.info("Ready code success after {} seconds)".format(ready_time.seconds))
