@@ -8,11 +8,15 @@ class PosConfig(models.Model):
     _inherit = 'pos.config'
 
     def _get_default_discount_product(self):
-        return self.env.ref('point_of_sale.product_product_consumable')
+        discount_product_id = self.env.ref('point_of_sale.product_product_consumable', raise_if_not_found=False)
+        if not discount_product_id or not discount_product_id.available_in_pos or not discount_product_id.sale_ok:
+            domain = [('available_in_pos', '=', True), ('sale_ok', '=', True)]
+            discount_product_id = self.env['product.product'].search(domain, limit=1)
+        return discount_product_id
 
     iface_discount = fields.Boolean(string='Order Discounts', help='Allow the cashier to give discounts on the whole order.')
     discount_pc = fields.Float(string='Discount Percentage', default=10, help='The default discount percentage')
-    discount_product_id = fields.Many2one('product.product', string='Discount Product', domain="[('available_in_pos', '=', True)]", help='The product used to model the discount.', default=_get_default_discount_product)
+    discount_product_id = fields.Many2one('product.product', string='Discount Product', domain="[('available_in_pos', '=', True), ('sale_ok', '=', True)]", help='The product used to model the discount.', default=_get_default_discount_product)
 
     @api.onchange('module_pos_discount')
     def _onchange_module_pos_discount(self):
