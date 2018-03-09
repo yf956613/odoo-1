@@ -31,8 +31,8 @@ class HrEmployee(models.Model):
         template_new_employee = IrModelData.xmlid_to_object('hr_recruitment.email_template_data_applicant_employee')
         if template_new_employee:
             MailTemplate = self.env['mail.template']
-            body_html = MailTemplate.render_template(template_new_employee.body_html, 'hr.employee', self.id)
-            subject = MailTemplate.render_template(template_new_employee.subject, 'hr.employee', self.id)
+            body_html = MailTemplate.render_template(template_new_employee.body_html, 'hr.employee', self.id, template_rec=template_new_employee)
+            subject = MailTemplate.render_template(template_new_employee.subject, 'hr.employee', self.id, template_rec=template_new_employee)
             channel_all_employees.message_post(
                 body=body_html, subject=subject,
                 subtype='mail.mt_comment')

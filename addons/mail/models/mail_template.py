@@ -257,14 +257,15 @@ class MailTemplate(models.Model):
                 # deprecated/obsolete records
                 res_ids = Model.search([], limit=1, order='id DESC').ids[:1]
                 if res_ids:
-                    render = self.render_template(
-                        vals['body_html'], _model, res_ids)
+                    for rec in self:
+                        render = rec.render_template(
+                            vals['body_html'], _model, res_ids)
 
-                    if not any(render.values()):
-                        raise UserError(_(
-                            "Template rendering failed, this could mean that "
-                            "your template contains python syntax errors"
-                        ))
+                        if not any(render.values()):
+                            raise UserError(_(
+                                "Template rendering failed, this could mean that "
+                                "your template contains python syntax errors"
+                            ))
 
         return super(MailTemplate, self).write(vals)
 
@@ -320,7 +321,7 @@ class MailTemplate(models.Model):
         return html
 
     @api.model
-    def render_template(self, template_txt, model, res_ids, post_process=False):
+    def render_template(self, template_txt, model, res_ids, template_rec=False, post_process=False):
         """ Render the given template text, replace mako expressions ``${expr}``
         with the result of evaluating these expressions with an evaluation
         context containing:
@@ -332,6 +333,7 @@ class MailTemplate(models.Model):
         :param str template_txt: the template text to render
         :param str model: model name of the document record this mail is related to.
         :param int res_ids: list of ids of document records those mails are related to.
+        :param recordset template_rec: recordset of template being rendered.
         """
         multi_mode = True
         if isinstance(res_ids, pycompat.integer_types):
@@ -468,7 +470,7 @@ class MailTemplate(models.Model):
                 Template = Template.with_context(safe=field in {'subject'})
                 generated_field_values = Template.render_template(
                     getattr(template, field), template.model, template_res_ids,
-                    post_process=(field == 'body_html'))
+                    template_rec=template, post_process=(field == 'body_html'))
                 for res_id, field_value in generated_field_values.items():
                     results.setdefault(res_id, dict())[field] = field_value
             # compute recipients
@@ -497,7 +499,7 @@ class MailTemplate(models.Model):
             if template.report_template:
                 for res_id in template_res_ids:
                     attachments = []
-                    report_name = self.render_template(template.report_name, template.model, res_id)
+                    report_name = self.render_template(template.report_name, template.model, res_id, template_rec=template)
                     report = template.report_template
                     report_service = report.report_name
 
