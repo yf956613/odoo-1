@@ -11,6 +11,7 @@ import logging
 import functools
 import lxml
 from werkzeug import urls
+from jinja2 import exceptions as jinja2Exceptions
 
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
@@ -335,6 +336,7 @@ class MailTemplate(models.Model):
         :param int res_ids: list of ids of document records those mails are related to.
         :param recordset template_rec: recordset of template being rendered.
         """
+        template_rec = template_rec or self
         multi_mode = True
         if isinstance(res_ids, pycompat.integer_types):
             multi_mode = False
@@ -366,6 +368,12 @@ class MailTemplate(models.Model):
             variables['object'] = record
             try:
                 render_result = template.render(variables)
+            except jinja2Exceptions.UndefinedError as e:
+                _logger.info("Failed to render template %r using values %r" % (template, variables), exc_info=True)
+                if template_rec:
+                    raise UserError(_(" Unable to render mail template '%s'; (#%s) for record '%s' due to undefined variable. Below is more information : \n %s" % (template_rec.name, template_rec.id, record.display_name, str(e))))
+                else:
+                    raise UserError(_(" Unable to render mail template '%r' record '%s' due to undefined variable \n %s" % (template, record.display_name, str(e))))
             except Exception:
                 _logger.info("Failed to render template %r using values %r" % (template, variables), exc_info=True)
                 raise UserError(_("Failed to render template %r using values %r")% (template, variables))
