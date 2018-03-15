@@ -31,44 +31,32 @@
                 <section data-snippet-id="quality">
                     <div class="row mt32">
                         <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   <center><h3 class="panel-title">Our Quality</h3></center>
-                                </div>
-                                <div class="panel-body">
-                                   <p>
-                                       Product quality is the foundation we
-                                       stand on; we build it with a relentless
-                                       focus on fabric, performance and craftsmanship.
-                                   </p>
+                            <div class="card bg-info text-white">
+                                <h3 class="card-header text-center">Our Quality</h3>
+                                <div class="card-body">
+                                    Product quality is the foundation we
+                                    stand on; we build it with a relentless
+                                    focus on fabric, performance and craftsmanship.
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   <center><h3 class="panel-title">Our Service</h3></center>
-                                </div>
-                                <div class="panel-body">
-                                   <p>
-                                       As a leading professional services firm,
-                                       we know that success is all about the
-                                       commitment we put on strong services.
-                                   </p>
+                            <div class="card bg-info text-white">
+                                <h3 class="card-header text-center">Our Service</h3>
+                                <div class="card-body">
+                                    As a leading professional services firm,
+                                    we know that success is all about the
+                                    commitment we put on strong services.
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   <center><h3 class="panel-title">Price</h3></center>
-                                </div>
-                                <div class="panel-body">
-                                   <p>
-                                       We always ensure that our products are
-                                       set at a fair price so that you will be
-                                       happy to buy them.
-                                   </p>
+                            <div class="card bg-info text-white">
+                                <h3 class="card-header text-center">Price</h3>
+                                <div class="card-body">
+                                    We always ensure that our products are
+                                    set at a fair price so that you will be
+                                    happy to buy them.
                                 </div>
                             </div>
                         </div>
@@ -91,7 +79,7 @@
                 </section>
             </field>
         </record>
-        
+
         <record id="confirmation_mail" model="mail.template">
             <field name="name">Online Quote: confirmation e-mail</field>
             <field name="email_from">${(object.user_id.email or object.company_id.email or 'noreply@localhost')|safe}</field>
@@ -123,7 +111,7 @@
             <td style="padding:0px 10px 5px 5px;font-size: 14px;">
                 <p>Dear ${object.partner_id.name},</p><br/>
                 <p>Your order <a href="/quote/${object.id}/${object.access_token}">${object.name}</a> has been validated!</p><br/>
-                
+
                 % if object.partner_id.user_ids
                 <p>You can view your quotes, sales orders and invoices online by going to our <a style="text-decoration:none; color: #875A7B;" href="/my/home">Online Portal</a>.</p><br/>
                 % endif
