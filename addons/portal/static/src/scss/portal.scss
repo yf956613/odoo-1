@@ -316,7 +316,7 @@ img.o_we_custom_image {
                 &.collapsed {
                     padding:6px 10px;
                     border-width: 1px;
-                    border-radius: $btn-border-radius-base;
+                    border-radius: $btn-border-radius;
                     background-color: transparent;
                 }
             }
@@ -326,7 +326,7 @@ img.o_we_custom_image {
                     z-index: 0;
                     box-shadow: inset 0 0 0 1px $btn-default-border;
                     background-color: $table-bg-active;
-                    border-radius: $btn-border-radius-base;
+                    border-radius: $btn-border-radius;
                     border-top-right-radius: 0;
                     transform: translateY(-2px);
 
