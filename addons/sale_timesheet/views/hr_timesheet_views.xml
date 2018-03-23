@@ -50,7 +50,7 @@
         <field name="context">{
             'pivot_column_groupby': ['date:month', 'timesheet_invoice_type'],
             'group_by': ['project_id', 'employee_id'],
-            'pivot_measures': ['amount_currency', 'unit_amount', '__count']
+            'pivot_measures': ['amount', 'unit_amount', '__count__']
         }</field>
         <field name="action_id" ref="timesheet_action_billing_report"/>
     </record>
