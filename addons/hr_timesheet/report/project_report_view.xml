@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="view_task_project_user_pivot_inherited" model="ir.ui.view">
+            <field name="name">report.project.task.user.pivot.inherited</field>
+            <field name="model">report.project.task.user</field>
+            <field name="inherit_id" ref="project.view_task_project_user_pivot" />
+            <field name="arch" type="xml">
+                <field name="project_id" position="after">
+                    <field name="hours_planned" type="measure"/>
+                    <field name="remaining_hours" type="measure"/>
+                </field>
+            </field>
+        </record>
         <record id="view_task_project_user_graph_inherited" model="ir.ui.view">
             <field name="name">report.project.task.user.graph.inherited</field>
             <field name="model">report.project.task.user</field>
@@ -13,6 +24,19 @@
                     </field>
                  </graph>
              </field>
+        </record>
+        <!-- Filters -->
+        <record id="filter_task_report_workload" model="ir.filters">
+            <field name="name">Workload</field>
+            <field name="model_id">report.project.task.user</field>
+            <field name="user_id" eval="False"/>
+            <field name="context">{'group_by': ['project_id'], 'pivot_measures': ['hours_planned','remaining_hours']}</field>
+        </record>
+        <record id="filter_task_report_cumulative_flow" model="ir.filters">
+            <field name="name">Cumulative Flow</field>
+            <field name="model_id">report.project.task.user</field>
+            <field name="user_id" eval="False"/>
+            <field name="context">{'group_by': ['stage_id', 'state'], 'pivot_measures': ['nbr','hours_planned','remaining_hours']}</field>
         </record>
     </data>
 </odoo>
