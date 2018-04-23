@@ -7,6 +7,8 @@ from datetime import date, datetime
 from random import randint
 import json
 
+from openerp.addons.saas_worker.util import ip2coordinates
+
 
 class PartnerDashboard(http.Controller):
 
@@ -46,12 +48,13 @@ class PartnerDashboard(http.Controller):
             'last_12month_enterprise_user': last_12month_enterprise_user,
         }
 
-    def get_events(self, partner):
+    def get_events(self, country_id):
         Events = request.env['event.event']
-        event_experience = Events.search([('event_type_id', '=', 12)])
-        events_tour = Events.search([('event_type_id', '=', 11)])
+        event_experience = Events.sudo().search([('event_type_id', '=', 12)])
+        events_tour = Events.sudo().search([('event_type_id', '=', 11)])
 
         odoo_events = []
+        pending_events = []
         for event in event_experience:
             exp_date = datetime.strptime(event.date_begin, '%Y-%m-%d %X')
             if exp_date.date() > datetime.now().date() and len(odoo_events) <= 0:
@@ -59,55 +62,36 @@ class PartnerDashboard(http.Controller):
 
         for event in events_tour:
             date = datetime.strptime(event.date_begin, '%Y-%m-%d %X')
-            if date.date() > datetime.now().date() and event.address_id.country_id == partner.country_id and len(odoo_events) <= 2:
+            if date.date() > datetime.now().date() and len(odoo_events) < 3:
+                if event.address_id.country_id == country_id:
                     odoo_events.append([event, datetime.strftime(date, '%b %d'), event.country_id])
+                else:
+                    pending_events.append([event, datetime.strftime(date, '%b %d'), event.country_id])
 
-        for event in events_tour:
-            date = datetime.strptime(event.date_begin, '%Y-%m-%d %X')
-            if date.date() > datetime.now().date() and event.address_id.country_id != partner.country_id and len(odoo_events) <= 1:
-                    odoo_events.append([event, datetime.strftime(date, '%b %d'), event.country_id])
-            elif len(odoo_events) >= 3:
-                break
+        for event in pending_events:
+            if len(odoo_events) < 3:
+                odoo_events.append(pending_events.pop(0))
 
         return{
             'events': odoo_events,
         }
 
-    def get_companies_size(self, partner):
+    def get_companies_size(self, country_id):
         Partners = request.env['res.partner']
 
-        partner_country = partner.country_id.id
+        partner_country = country_id.id
 
-        size_tag_ids = {'less5': 20, 'f5t20': 21, 'f20t50': 22, 'f50t250': 23, 'more250': 24, }
+        size_tag_ids = {'< 5': 20, '5-20': 21, '20-50': 22, '50-250': 23, '> 250': 24, }
+        size_tag_value = []
 
-        less5 = Partners.search_count([('category_id', '=', size_tag_ids['less5']), ('country_id', '=', partner_country)])
-        f5t20 = Partners.search_count([('category_id', '=', size_tag_ids['f5t20']), ('country_id', '=', partner_country)])
-        f20t50 = Partners.search_count([('category_id', '=', size_tag_ids['f20t50']), ('country_id', '=', partner_country)])
-        f50t250 = Partners.search_count([('category_id', '=', size_tag_ids['f50t250']), ('country_id', '=', partner_country)])
-        more250 = Partners.search_count([('category_id', '=', size_tag_ids['more250']), ('country_id', '=', partner_country)])
+        for key in size_tag_ids:
+            size_tag_value.append({"label": key, 'value': Partners.sudo().search_count([('category_id', '=', size_tag_ids[key]), ('country_id', '=', partner_country)])})
 
-        return [
-            {
-                "label": _('< 5'),
-                "value": less5,
-            },
-            {
-                "label": _('5-20'),
-                "value": f5t20,
-            },
-            {
-                "label": _('20-50'),
-                "value": f20t50,
-            },
-            {
-                "label": _('50-250'),
-                "value": f50t250,
-            },
-            {
-                "label": _('> 250'),
-                "value": more250,
-            },
-        ]
+        to_render = json.dumps(size_tag_value)
+
+        return {
+            'company_size': to_render,
+        }
 
     def get_purchase_orders(self, partner):
         ENTERPRISE_USER_IDS = [request.env.ref('openerp_enterprise.product_user_month')]
@@ -132,14 +116,14 @@ class PartnerDashboard(http.Controller):
             'last_12months_purchase_total': purchase_total,
         }
 
-    def get_country_stats(self, partner):
+    def get_country_stats(self, country_id):
         Leads = request.env['crm.lead']
         Partners = request.env['res.partner']
 
-        partner_country = partner.country_id.id
-        country_customers = Leads.search_count([('country_id', '=', partner_country)])
-        country_leads = Leads.search_count([('country_id', '=', partner_country)])
-        country_partners = Partners.search_count(['&', ('country_id', '=', partner_country), ('is_company', '=', True)])
+        partner_country = country_id.id
+        country_customers = Leads.sudo().search_count([('country_id', '=', partner_country)])
+        country_leads = Leads.sudo().search_count([('country_id', '=', partner_country)])
+        country_partners = Partners.sudo().search_count(['&', ('country_id', '=', partner_country), ('is_company', '=', True)])
 
         return {
             'country_leads': country_leads,
@@ -201,32 +185,53 @@ class PartnerDashboard(http.Controller):
             'not_won_opportunities': not_won_opportunities,
         }
 
+    def get_location(self, ip_address=None):
+        country_id = None
+        location = {}
+        if not ip_address:
+            ip_address = request.httprequest.headers.get('X-Odoo-GeoIP') or request.httprequest.environ['REMOTE_ADDR']
+        if ip_address:
+            coordinates = ip2coordinates(ip_address)
+            country_code = coordinates['country_code']
+            country = request.env['res.country'].sudo().search([('code', '=', country_code.upper())], limit=1)
+            country_id = country
+            if coordinates.get('city'):
+                location['city'] = coordinates['city']
+            if coordinates.get('longitude'):
+                location['partner_longitude'] = float(coordinates['longitude'])
+            if coordinates.get('latitude'):
+                location['partner_latitude'] = float(coordinates['latitude'])
+            if coordinates.get('region'):
+                state = country.state_ids.filtered(lambda x: x.code == coordinates.get('region'))
+                location['state_id'] = state and state[0].id
+        return {
+            'country_id': country_id,
+            'location': location,
+        }
+
     def values(self, partner, saleman):
         values = {}
 
-        # session = request.session  # ['geoip']['country_code']
-
         values = self.get_subscriptions(partner)
         values.update(self.get_purchase_orders(partner))
-        values.update(self.get_country_stats(partner))
-        values.update(self.get_events(partner))
+        values.update(self.get_country_stats(partner.country_id))
+        values.update(self.get_events(partner.country_id))
         values.update(self.get_grade(partner))
         values.update(self.get_opportunities(partner))
-        values['company_size'] = json.dumps(self.get_companies_size(partner))
+        values.update(self.get_companies_size(partner.country_id))
 
         values.update({
-            # 'session': session,
             'partner': partner,
-            'country': partner.country_id.name,
+            'country_id': partner.country_id,
             'currency': partner.country_id.currency_id.symbol,
-            'my_sub': self.get_my_subscription(partner).code,
+            'my_sub': self.get_my_subscription(partner),
             'saleman': saleman,
         })
 
         return values
 
     @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
-    def index_token(self, access_token=None, **kw):
+    def dashboard_token(self, access_token=None, **kw):
         Partner = request.env['res.partner']
         Subscription = request.env['sale.subscription']
 
@@ -236,8 +241,6 @@ class PartnerDashboard(http.Controller):
             sub = Subscription.search([('uuid', '=', access_token), ('template_id.code', '=', "PART")])
             if sub:
                 partner = sub.partner_id
-            # else:
-            #     partner = Partner.search([('id', '=', access_token)])
         else:
             partner = request.env.user.partner_id
 
@@ -250,12 +253,12 @@ class PartnerDashboard(http.Controller):
                 saleman = Partner.sudo().browse(my_sub.user_id.partner_id.id)
 
         values = {
-            'country_leads': 10,
-            'country_partners': 2,
-            'country_customers': 30,
             'saleman': saleman,
         }
-        values['company_size'] = json.dumps(self.get_companies_size(partner))
+        values.update(self.get_location())
+        values.update(self.get_country_stats(values['country_id']))
+        values.update(self.get_events(values['country_id']))
+        values['company_size'] = json.dumps(self.get_companies_size(values['country_id']))
 
         if request.website.is_public_user():
             values.update({'partner': False})
@@ -355,3 +358,26 @@ class PartnerDashboard(http.Controller):
         response = request.render("partner_dashboard.partner_form", data)
         response.headers['X-Frame-Options'] = 'DENY'
         return response
+
+    @http.route('/dashboard/pricing', type='http', auth="public", website=True)
+    def pricing(self, **kw):
+        Products = request.env['product.product']
+
+        learning_price = Products.sudo().browse(10)
+        official_price = Products.sudo().browse(36)
+        # first_year_discount = Products.sudo().browse(5216)
+
+        if request.website.is_public_user():
+            currency = self.get_location()['country_id'].currency_id
+        else:
+            partner = request.env.user.partner_id
+            currency = partner.country_id.currency_id
+
+        values = {
+            'learning_price': learning_price,
+            'official_price': official_price,
+            # 'first_year_discount': first_year_discount,
+            'currency': currency,
+        }
+
+        return request.render('partner_dashboard.plans_prices', values)
