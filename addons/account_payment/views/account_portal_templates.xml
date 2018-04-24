@@ -9,7 +9,7 @@
                 <t t-set="pending_manual_txs" t-value="tx_ids.filtered(lambda tx: tx.state == 'pending' and tx.acquirer_id.provider in ('transfer', 'manual'))"/>
                 <a t-if="invoice.state == 'open' and invoice.amount_total and invoice.type == 'out_invoice' and (pending_manual_txs or not tx_ids)"
                     t-att-href="'/my/invoices/%s#portal_pay' % invoice.id" title="Pay now" aria-label="Pay now" class="btn btn-xs btn-primary" role="button">
-                    <i class="fa fa-arrow-circle-right"/><span class='hidden-xs'> Pay Now</span>
+                    <i class="fa fa-arrow-circle-right"/><span class='d-none d-md-inline'> Pay Now</span>
                 </a>
             </td>
         </xpath>
