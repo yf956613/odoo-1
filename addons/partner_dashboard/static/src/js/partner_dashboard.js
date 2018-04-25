@@ -1,4 +1,4 @@
-odoo.define('openerp_website.partner_dashboard_2', function (require) {
+odoo.define('openerp_website.partner_dashboard', function (require) {
 'use strict';
 
 var sAnimation = require('website.content.snippets.animation');

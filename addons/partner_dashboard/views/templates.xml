@@ -3,7 +3,7 @@
 
         <template id="assets_frontend" inherit_id="website.assets_frontend" name="Wishlist assets frontend">
             <xpath expr="." position="inside">
-                <!-- <link type="text/less" rel='stylesheet' href='/website_sale_wishlist/static/src/less/website_sale_wishlist.less'/> -->
+                <!-- <link type="text/less" rel='stylesheet' href='/partner_dashboard/static/src/less/partner_dashboard_less.less'/> -->
                 <script type="text/javascript" src="/partner_dashboard/static/src/js/partner_dashboard.js"></script>
             </xpath>
         </template>
@@ -28,25 +28,49 @@
                             <p><strong>Have a project right now?</strong></p>
                             <p>We can help you sell and deliver your first project. Working together on your first project is the best way to success in Odoo. Learn more by reading our <a href="/documentation/user/11.0/getting_started/documentation.html">Implementation Methodology</a></p>
                          </div>
-
                         <div class="" style="margin-bottom:5%">
                             <p class="h3">Your Business</p>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner or basic_infos">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Company Informations</t>
+                                        <t t-set="big_text"/>
                                         <t t-set="first_text">
-                                            <div t-field="partner.image_small" t-options="dict(widget='image', style='float:right; max-width:100px;')"/>
-                                            <strong><t t-esc='partner.name'/></strong>
+                                            <div t-esc="partner_image" class="pull-right" t-options="dict(widget='image', style='max-width:100px;')"/>
+                                            <p><strong><t t-esc='partner_name'/></strong></p>
                                             <br/>
-                                            <div>
-                                                <address t-field='partner.self' t-options='{"widget": "contact", "fields": ["address", "email", "phone"]}'/>
-                                            </div>
+                                            <address>
+                                                <i class="fa fa-map-marker fa-fw" t-if="street or city or zip or country"/><t t-esc="street" t-if="street"/><br/>
+                                                <span><t t-esc="city" t-if="city"/> <t t-esc="state_id.code" t-if="state_id"/> <t t-esc="zip" t-if="zip"/></span><br/>
+                                                <t t-esc="country_id.name" t-if="country_id"/><br/>
+                                                <span t-if="phone"><i class="fa fa-phone fa-fw"/><t t-esc="phone"/></span><br/>
+                                                <span t-if="email"><i class="fa fa-envelope fa-fw"/><t t-esc="email"/></span>
+                                            </address>
                                         </t>
-                                        <t t-set="box_link">
-                                            <a href="/dashboard/profile">Update</a>
+
+                                        <t t-if="not access_token">
+                                            <t t-set="box_link">
+                                                <a href="/dashboard/profile">Update</a>
+                                            </t>
                                         </t>
                                     </t>
+                                </t>
+                                <t t-else="1">
+                                    <t t-call="partner_dashboard.infoBox">
+                                        <t t-set="box_title">Your Company Informations</t>
+                                        <t t-set="big_text"/>
+                                        <t t-set="first_text">
+                                            <img src="http://www.headsub.com/attachment/2unBbWM3/Templates/Textures/yourLogo_icon_red.png" class="pull-right" style="max-width:100px;"/>
+                                            <p>
+                                                Publish your company data profil on Odoo.com
+                                            </p>
+                                        </t>
+                                        <t t-set="box_link">
+                                            <a href="/dashboard/profile">Create my Profile</a>
+                                        </t>
+                                    </t>
+                                </t>
+                                <t t-if="partner">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Opportunities</t>
                                         <t t-set="first_text">
@@ -63,18 +87,6 @@
                                     </t>
                                 </t>
                                 <t t-else="1">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Your Company Informations</t>
-                                        <t t-set="first_text">
-                                            <img src="http://www.headsub.com/attachment/2unBbWM3/Templates/Textures/yourLogo_icon_red.png" style="float:right; max-width:100px;"/>
-                                            <p>
-                                                Publish your company data profil on Odoo.com
-                                            </p>
-                                        </t>
-                                        <t t-set="box_link">
-                                            <a href="/dashboard/profile">Create my Profile</a>
-                                        </t>
-                                    </t>
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Opportunities</t>
                                         <t t-set="first_text">
@@ -180,10 +192,10 @@
                                         <t t-set="box_link">
                                             <t t-foreach="certified_experts" t-as="expert">
                                                 <div class="row">
-                                                    <span class="col-sm-6"><t t-esc="expert[0].name"/></span>
+                                                    <span class="col-sm-6"><t t-esc="expert['partner'].name"/></span>
                                                     <div class="col-sm-6">
-                                                        <t t-foreach="expert[1]" t-as="tag">
-                                                            <p><small><t t-esc="tag.name"/></small></p>
+                                                        <t t-foreach="expert['certifs']" t-as="certif">
+                                                            <p><small><t t-esc="certif.name"/></small></p>
                                                         </t>
                                                     </div>
                                                 </div>
@@ -193,6 +205,7 @@
                                         </t>
                                         <t t-set="first_text">
                                             Certified Expert(s)
+                                            <p class="text-center text-success" t-if="partner_certif"><strong>You are <t t-esc="partner_certif.name"/></strong></p>
                                         </t>
                                         <t t-set="big_text">
                                             <t t-esc="nbr_certif"/>
@@ -311,7 +324,7 @@
                                             </t>
 
                                             <form id="oe-github-add" t-attf-class="form-inline oe-github-access"
-                                      action="/odoo-enterprise/github/add" method="post" t-if="authenticated and len(my_sub.github_user_ids) &lt; my_sub.github_limit">
+                                      action="/odoo-enterprise/github/add" method="post">
 
                                                 <div class="form-group">
                                                     <input type="char" class="form-control"
@@ -419,6 +432,7 @@
                             <div class="row">
                                 <t t-call="partner_dashboard.infoBox">
                                     <t t-set="box_title">Developers on Demand</t>
+                                    <t t-set="big_text"/>
                                     <t t-set="first_text">
                                         <div class="row s_o_numbers mb32">
                                             <div class="col-sm-5 s_o_number">
@@ -458,9 +472,9 @@
                                             </tr>
                                             <t t-foreach="events" t-as='event'>
                                                 <tr>
-                                                    <td><strong><t t-esc="event[1]"/></strong></td>
-                                                    <td><span><a t-attf-href="{{ event[0].website_url }}"><t t-esc="event[0].name"/></a></span></td>
-                                                    <td><span><t t-esc="event[2].name"/></span></td>
+                                                    <td><strong t-field="event.date_begin" t-options='{"widget": "date"}'/></td>
+                                                    <td><span><a t-attf-href="{{ event.website_url }}"><t t-esc="event.name"/></a></span></td>
+                                                    <td><span><t t-esc="event.country_id.name"/></span></td>
                                                 </tr>
                                             </t>
                                         </table>
@@ -512,96 +526,101 @@
                         <div class="row">
                             <t t-if="partner">
                                 <h3>Your Partnership Grade</h3>
-                                <t t-if="partner.grade_id.name == 'Bronze'">
-                                    <div class="col-md-3 text-center" style="background-color:rgb(93, 183, 134); border-radius:10%;">
-                                        Ready Partner
-                                    </div>
-                                    <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Silver Partner
-                                    </div>
-                                    <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Gold Partner
-                                    </div>
+                                <t t-if="partner.grade_id">
+                                    <t t-if="partner.grade_id.name == 'Bronze'">
+                                        <div class="col-md-3 text-center" style="background-color:rgb(93, 183, 134); border-radius:10%;">
+                                            Ready Partner
+                                        </div>
+                                    </t>
+                                    <t t-else="1">
+                                        <div class="col-md-3 text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                            Ready Partner
+                                        </div>
+                                    </t>
+                                    <t t-if="partner.grade_id.name == 'Silver'">
+                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(218, 222, 220); border-radius:10%;">
+                                            Silver Partner
+                                        </div>
+                                    </t>
+                                    <t t-else="1">
+                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                            Silver Partner
+                                        </div>
+                                    </t>
+                                    <t t-if="partner.grade_id.name == 'Gold'">
+                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(224, 184, 130); border-radius:10%;">
+                                            Gold Partner
+                                        </div>
+                                    </t>
+                                    <t t-else="1">
+                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                            Gold Partner
+                                        </div>
+                                    </t>
+                                    <t t-if="partner.grade_id.name == 'Platinum'">
+                                        <div class="text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                            Platinum Partner
+                                        </div>
+                                    </t>
                                 </t>
-                                <t t-if="partner.grade_id.name == 'Silver'">
-                                    <div class="col-md-3 text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Ready Partner
-                                    </div>
-                                    <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(218, 222, 220); border-radius:10%;">
-                                        Silver Partner
-                                    </div>
-                                    <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Gold Partner
-                                    </div>
-                                </t>
-                                <t t-if="partner.grade_id.name == 'Gold'">
-                                    <div class="col-md-3 text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Ready Partner
-                                    </div>
-                                    <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Silver Partner
-                                    </div>
-                                    <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(224, 184, 130); border-radius:10%;">
-                                        Gold Partner
-                                    </div>
-                                </t>
-                                <t t-if="partner.grade_id.name == 'Platinum'">
-                                    <div class="text-center" style="background-color:#dcdcdc; border-radius:10%;">
-                                        Platinum Partner
-                                    </div>
-                                </t>
-                                <!-- <t t-else="1">
-                                    <h3>Your Partnership Grade</h3>
-                                    <div class="col-md-3" style="background-color:#875a7b; border-radius:10%; text-align: center; color:white">
+                                <t t-else="1">
+                                    <div class="col-md-3 text-center" style="background-color:#875a7b; border-radius:10%; color:white">
                                         Not a Partner
                                     </div>
-                                    <div class="col-md-3 col-md-offset-1" style="border-radius:10%; text-align: center">
+                                    <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
                                         Learning Partner
                                     </div>
-                                    <div class="col-md-3 col-md-offset-1" style="border-radius:10%; text-align: center">
+                                    <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
                                         Official Partner
                                     </div>
-                                </t> -->
+                                </t>
                                 <div class="row" style="margin-top:5px;">
-                                    <t t-if="(next_level_users - current_enterprise_user) > 0">
-                                        <div class="col-md-4">
-                                            <div class="col-md-5" style="font-size:200%">
-                                                <t t-esc="int(next_level_users - current_enterprise_user)"/>
+                                    <t t-if="partner.grade_id">
+                                        <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
+                                            <div class="col-md-4">
+                                                <div class="col-md-5" style="font-size:200%">
+                                                    <t t-esc="int(next_level_users - last_12month_enterprise_user)"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    Enterprise <br/> Users
+                                                </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                Enterprise <br/> Users
+                                            <div class="col-md-7">
+                                                <p>
+                                                    Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
+                                                </p>
                                             </div>
-                                        </div>
-                                        <div class="col-md-7">
-                                            <p>
-                                                Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
+                                        </t>
+                                        <t t-else="1">
+                                            <p class="text-center">
+                                                Congratulations you are ready for the next stage
                                             </p>
-                                        </div>
+                                        </t>
+                                        <t t-if="(next_level_certified - nbr_certif) > 0">
+                                            <div class="col-md-4">
+                                                <div class="col-md-5" style="font-size:200%">
+                                                    <t t-esc="int(next_level_certified - nbr_certif)"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    Certified<br/>Expert(s)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <p>
+                                                    Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
+                                                </p>
+                                            </div>
+                                        </t>
+                                        <t t-else="1">
+                                            <p class="text-center">
+                                                Congratulations you are ready for the next stage
+                                            </p>
+                                        </t>
                                     </t>
                                     <t t-else="1">
-                                        <p class="text-center">
-                                            Congratulations you are ready for the next stage
-                                        </p>
-                                    </t>
-                                    <t t-if="(next_level_certified - nbr_certif) > 0">
-                                        <div class="col-md-4">
-                                            <div class="col-md-5" style="font-size:200%">
-                                                <t t-esc="int(next_level_certified - nbr_certif)"/>
-                                            </div>
-                                            <div class="col-md-6">
-                                                Certified<br/>Expert(s)
-                                            </div>
+                                        <div>
+                                            Upgrade to unlock full eLearning access, download of source code and developers resources.
                                         </div>
-                                        <div class="col-md-7">
-                                            <p>
-                                                Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
-                                            </p>
-                                        </div>
-                                    </t>
-                                    <t t-else="1">
-                                        <p class="text-center">
-                                            Congratulations you are ready for the next stage
-                                        </p>
                                     </t>
                                 </div>
                             </t>
@@ -622,25 +641,25 @@
                             </t>
                         </div>
                         <div class="row">
-                                <h3>Statistics in <strong><t t-esc="country_id.name"/></strong></h3>
-                                <t t-call="partner_dashboard.countryStat">
-                                    <t t-set="stat_value" t-value="country_leads"/>
-                                    <t t-set="stat_name">
-                                        Leads
-                                    </t>
+                            <h3>Statistics in <strong><t t-esc="country_id.name"/></strong></h3>
+                            <t t-call="partner_dashboard.countryStat">
+                                <t t-set="stat_value" t-value="country_leads"/>
+                                <t t-set="stat_name">
+                                    Leads
                                 </t>
-                                <t t-call="partner_dashboard.countryStat">
-                                    <t t-set="stat_value" t-value="country_partners"/>
-                                    <t t-set="stat_name">
-                                        Partners
-                                    </t>
+                            </t>
+                            <t t-call="partner_dashboard.countryStat">
+                                <t t-set="stat_value" t-value="country_partners"/>
+                                <t t-set="stat_name">
+                                    Partners
                                 </t>
-                                <t t-call="partner_dashboard.countryStat" t-if="country_customers >= country_partners * 2">
-                                    <t t-set="stat_value" t-value="country_customers"/>
-                                    <t t-set="stat_name">
-                                        Customers
-                                    </t>
+                            </t>
+                            <t t-call="partner_dashboard.countryStat" t-if="country_customers >= country_partners * 2">
+                                <t t-set="stat_value" t-value="country_customers"/>
+                                <t t-set="stat_name">
+                                    Customers
                                 </t>
+                            </t>
                         </div>
                         <div class="row" id="chart" t-att-data-size="company_size">
                             <svg style="height:15em;"></svg>
@@ -876,7 +895,7 @@
             <div class="col-md-6 h-100">
                 <p class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></p>
                 <p style="font-size:110%;">
-                    <span t-if="big_text != ''" class="float-left" style="font-size:200%; margin:5px;">
+                    <span t-if="big_text != ''" style="font-size:200%; margin:5px;">
                         <t t-raw="big_text"/>
                     </span>
                     <t t-raw="first_text"/>

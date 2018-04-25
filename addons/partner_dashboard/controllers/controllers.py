@@ -2,90 +2,63 @@
 from odoo import http, tools, _
 from odoo.http import request
 from odoo.exceptions import ValidationError
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-from datetime import date, datetime
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+from datetime import date, datetime, timedelta
 from random import randint
 import json
+import base64
 
 from openerp.addons.saas_worker.util import ip2coordinates
 
 
 class PartnerDashboard(http.Controller):
 
-    def get_my_subscription(self, partner):
-        Subscription = request.env['sale.subscription']
-        partner_id = partner.id
-        return Subscription.sudo().search([('partner_id', '=', partner_id), ('template_id.code', '=', "PART")], limit=1, order='create_date desc')
+    def _get_subscriptions(self, partner_id):
+        # assert not request.website.is_public_user()
 
-    def get_subscriptions(self, partner):
         ENTERPRISE_USER_IDS = [request.env.ref('openerp_enterprise.product_user_month')]
         Subscription = request.env['sale.subscription']
-        partner_id = partner.id
-        subs_open = Subscription.sudo().search([('partner_id', '=', partner_id), ('name', 'not ilike', 'PART-'), ('state', '=', 'open')])
-        subs = Subscription.sudo().search([('partner_id', '=', partner_id), ('name', 'not ilike', 'PART-')])
 
-        year = date.today()
-        last_year = year.replace(year=year.year - 1).strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+        last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
+        subs = Subscription.sudo().search([('partner_id', '=', partner_id), ('name', 'not ilike', 'PART-'), ('recurring_next_date', '>', last_year)])
 
         last_12month_enterprise_user = 0
         current_enterprise_user = 0
 
-        for sub in subs_open:
-            if sub.recurring_next_date >= last_year:
-                for line in sub.recurring_invoice_line_ids:
-                    if line.product_id in ENTERPRISE_USER_IDS:
-                        current_enterprise_user += line.quantity
-
         for sub in subs:
-            if sub.recurring_next_date >= last_year:
-                for line in sub.recurring_invoice_line_ids:
-                    if line.product_id in ENTERPRISE_USER_IDS:
-                        last_12month_enterprise_user += line.quantity
-
+            for line in sub.recurring_invoice_line_ids:
+                if line.product_id in ENTERPRISE_USER_IDS:
+                    last_12month_enterprise_user += line.quantity
+                    if sub.state == 'open':
+                        current_enterprise_user += line.quantity
         return {
             'subscriptions': subs,
             'current_enterprise_user': current_enterprise_user,
             'last_12month_enterprise_user': last_12month_enterprise_user,
         }
 
-    def get_events(self, country_id):
-        Events = request.env['event.event']
-        event_experience = Events.sudo().search([('event_type_id', '=', 12)])
-        events_tour = Events.sudo().search([('event_type_id', '=', 11)])
+    def _get_events(self, country_id):
+        ODOO_EXP_ID = 12
+        ODOO_TOUR_ID = 11
+        Events = request.env['event.event'].sudo()
+        today = date.today().strftime(DEFAULT_SERVER_DATE_FORMAT)
+        oxp = Events.search([('event_type_id', '=', ODOO_EXP_ID), ('date_begin', '>', today)], limit=1)
+        tour = Events.search([('event_type_id', '=', ODOO_TOUR_ID), ('date_begin', '>', today)])
 
-        odoo_events = []
-        pending_events = []
-        for event in event_experience:
-            exp_date = datetime.strptime(event.date_begin, '%Y-%m-%d %X')
-            if exp_date.date() > datetime.now().date() and len(odoo_events) <= 0:
-                    odoo_events.append([event, datetime.strftime(exp_date, '%b %d'), event.country_id])
+        local_tour = tour.filtered(lambda x: x.country_id == country_id)
+        foreign_tour = tour.filtered(lambda x: x.country_id != country_id)
+        return {'events': (oxp + local_tour + foreign_tour)[:3]}
 
-        for event in events_tour:
-            date = datetime.strptime(event.date_begin, '%Y-%m-%d %X')
-            if date.date() > datetime.now().date() and len(odoo_events) < 3:
-                if event.address_id.country_id == country_id:
-                    odoo_events.append([event, datetime.strftime(date, '%b %d'), event.country_id])
-                else:
-                    pending_events.append([event, datetime.strftime(date, '%b %d'), event.country_id])
+    def _get_companies_size(self, country_id):
+        Leads = request.env['crm.lead']
 
-        for event in pending_events:
-            if len(odoo_events) < 3:
-                odoo_events.append(pending_events.pop(0))
+        # SEE CSV to import in python file
 
-        return{
-            'events': odoo_events,
-        }
-
-    def get_companies_size(self, country_id):
-        Partners = request.env['res.partner']
-
-        partner_country = country_id.id
-
-        size_tag_ids = {'< 5': 20, '5-20': 21, '20-50': 22, '50-250': 23, '> 250': 24, }
+        size_tag_ids = {'< 5': 20, '5-20': 12, '20-50': 22, '50-250': 23, '> 250': 24, }
         size_tag_value = []
 
         for key in size_tag_ids:
-            size_tag_value.append({"label": key, 'value': Partners.sudo().search_count([('category_id', '=', size_tag_ids[key]), ('country_id', '=', partner_country)])})
+            size_tag_value.append({"label": key, 'value': Leads.sudo().search_count([('tag_ids', '=', size_tag_ids[key]), ('country_id', '=', country_id)])})
 
         to_render = json.dumps(size_tag_value)
 
@@ -93,37 +66,40 @@ class PartnerDashboard(http.Controller):
             'company_size': to_render,
         }
 
-    def get_purchase_orders(self, partner):
-        ENTERPRISE_USER_IDS = [request.env.ref('openerp_enterprise.product_user_month')]
+    def _get_purchase_orders(self, partner_id):
+        # assert not request.website.is_public_user()
+
+        # TODO: see with avw / fp the process
+        ENTERPRISE_USER_IDS = [350, 209, 208, ]
         PurchaseOrder = request.env['purchase.order']
-        partner_id = partner.id
-        orders = PurchaseOrder.search([('partner_id', '=', partner_id), ('name', 'not ilike', 'PART-')])
 
-        year = date.today()
-        last_year = year.replace(year=year.year - 1).strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+        last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
+        orders = PurchaseOrder.sudo().search([('partner_id', '=', partner_id), ('date_order', '>', last_year), ('state', '!=', 'cancel')])
 
-        purchase_total = 0
+        last_12months_purchase_total = 0
+        commission_to_receive = 0
 
         for order in orders:
-            if order.date_order >= last_year:
-                for line in order.order_line:
-                    if line.product_id in ENTERPRISE_USER_IDS:
-                        purchase_total += line.price_subtotal
+            for line in order.order_line:
+                if line.product_id.id in ENTERPRISE_USER_IDS:
+                    last_12months_purchase_total += line.price_subtotal
+                    if order.invoice_status == 'to invoice':
+                        commission_to_receive += line.price_subtotal
 
         return {
             'orders': orders,
-            'commission_to_receive': purchase_total,
-            'last_12months_purchase_total': purchase_total,
+            'commission_to_receive': commission_to_receive,
+            'last_12months_purchase_total': last_12months_purchase_total,
         }
 
-    def get_country_stats(self, country_id):
-        Leads = request.env['crm.lead']
+    def _get_country_stats(self, country_id):
+        Leads = request.env['crm.lead'].sudo()
         Partners = request.env['res.partner']
 
-        partner_country = country_id.id
-        country_customers = Leads.sudo().search_count([('country_id', '=', partner_country)])
-        country_leads = Leads.sudo().search_count([('country_id', '=', partner_country)])
-        country_partners = Partners.sudo().search_count(['&', ('country_id', '=', partner_country), ('is_company', '=', True)])
+        # TODO: preprocess?
+        country_customers = Leads.search_count([('country_id', '=', country_id), ('partner_id', '!=', None)])
+        country_leads = Leads.search_count([('country_id', '=', country_id)])
+        country_partners = Partners.search_count([('country_id', '=', country_id), ('is_company', '=', True)])
 
         return {
             'country_leads': country_leads,
@@ -131,8 +107,9 @@ class PartnerDashboard(http.Controller):
             'country_customers': country_customers,
         }
 
-    def get_grade(self, partner):
-
+    def _get_grade(self, partner):
+        ODOO_CERT_IDS = request.env['res.partner.category'].sudo().search([('name', '=ilike', 'Certification%')])
+        ODOO_COMPANY_CERT_IDS = request.env['res.partner.category'].sudo().search([('name', '=ilike', 'CTP Certif%')])
         NEXT_GRADE_USERS_VALUE = {'Bronze': 50, 'Silver': 100, 'Gold': 0, 'Platinum': -10}
         NEXT_GRADE_CERTIFIED_VALUE = {'Bronze': 2, 'Silver': 4, 'Gold': 0, 'Platinum': -10}
         NEXT_GRADE_COMMISSION_VALUE = {'Bronze': 10, 'Silver': 20, 'Gold': 0, 'Platinum': -10}
@@ -142,22 +119,22 @@ class PartnerDashboard(http.Controller):
         next_level_certified = 0
         next_level_com = 0
 
-        experts = []
         certified_experts = []
         nbr_certified = 0
+        partner_certif = ''
 
         for child in partner.child_ids:
-            for tag in child.category_id:
-                if 'Certification' in tag.name:
-                    if child not in experts:
-                        experts.append(child)
+            certifs = []
+            for certif in child.category_id.filtered(lambda x: len(ODOO_CERT_IDS & x)):
+                certifs.append(certif)
+            if certifs:
+                certified_experts.append({
+                    'partner': child,
+                    'certifs': certifs
+                })
 
-        for expert in experts:
-            tags = []
-            for tag in expert.category_id:
-                if 'Certification' in tag.name:
-                    tags.append(tag)
-            certified_experts.append([expert, tags])
+        if partner.category_id.filtered(lambda x: len(ODOO_COMPANY_CERT_IDS & x)):
+            partner_certif = partner.category_id.filtered(lambda x: len(ODOO_COMPANY_CERT_IDS & x))
 
         nbr_certified = len(certified_experts)
 
@@ -168,6 +145,7 @@ class PartnerDashboard(http.Controller):
 
         return {
             'partner_grade': partner_grade,
+            'partner_certif': partner_certif,
             'next_level_users': next_level_users,
             'next_level_certified': next_level_certified,
             'next_level_com': next_level_com,
@@ -175,17 +153,28 @@ class PartnerDashboard(http.Controller):
             'certified_experts': certified_experts,
         }
 
-    def get_opportunities(self, partner):
-        Lead = request.env['crm.lead']
-        won_opportunities = Lead.search_count([('partner_id', "=", partner.id), ('stage_id', '=', 4)])
-        not_won_opportunities = Lead.search_count([('partner_id', "=", partner.id), ('stage_id', '!=', 4)])
+    def _get_opportunities(self, partner_id):
+        Lead = request.env['crm.lead'].sudo()
+        won_opportunities = Lead.search_count([('partner_id', "=", partner_id), ('stage_id', '=', 4)])
+        not_won_opportunities = Lead.search_count([('partner_id', "=", partner_id), ('stage_id', '!=', 4)])
 
         return{
             'won_opportunities': won_opportunities,
             'not_won_opportunities': not_won_opportunities,
         }
 
-    def get_location(self, ip_address=None):
+    def _get_address(self, source):
+
+        return{
+            'street': source.street,
+            'city': source.city,
+            'state_id': source.state_id,
+            'zip': source.zip,
+            'country_id': source.country_id,
+            'phone': source.phone
+        }
+
+    def _get_location(self, ip_address=None):
         country_id = None
         location = {}
         if not ip_address:
@@ -209,63 +198,91 @@ class PartnerDashboard(http.Controller):
             'location': location,
         }
 
-    def values(self, partner, saleman):
-        values = {}
+    def values(self, access_token):
+        Partner = request.env['res.partner'].sudo()
+        Subscription = request.env['sale.subscription'].sudo()
 
-        values = self.get_subscriptions(partner)
-        values.update(self.get_purchase_orders(partner))
-        values.update(self.get_country_stats(partner.country_id))
-        values.update(self.get_events(partner.country_id))
-        values.update(self.get_grade(partner))
-        values.update(self.get_opportunities(partner))
-        values.update(self.get_companies_size(partner.country_id))
-
-        values.update({
-            'partner': partner,
-            'country_id': partner.country_id,
-            'currency': partner.country_id.currency_id.symbol,
-            'my_sub': self.get_my_subscription(partner),
-            'saleman': saleman,
-        })
-
-        return values
-
-    @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
-    def dashboard_token(self, access_token=None, **kw):
-        Partner = request.env['res.partner']
-        Subscription = request.env['sale.subscription']
+        Lead = request.env['crm.lead']
 
         point_of_contact = [42, 43, 6, 3]
 
+        values = {}
+        is_access_token = False
+
         if access_token:
+            is_access_token = True
             sub = Subscription.search([('uuid', '=', access_token), ('template_id.code', '=', "PART")])
             if sub:
                 partner = sub.partner_id
         else:
             partner = request.env.user.partner_id
 
-        saleman = Partner.sudo().browse(point_of_contact[randint(0, len(point_of_contact) - 1)])
-
-        my_sub = self.get_my_subscription(partner)
+        saleman = Partner.browse(point_of_contact[randint(0, len(point_of_contact) - 1)])
+        my_sub = Subscription.search([('partner_id', '=', partner.id), ('template_id.code', '=', "PART")], limit=1, order='create_date desc')
 
         if my_sub:
             if my_sub.user_id:
-                saleman = Partner.sudo().browse(my_sub.user_id.partner_id.id)
+                saleman = Partner.browse(my_sub.user_id.partner_id.id)
 
-        values = {
-            'saleman': saleman,
-        }
-        values.update(self.get_location())
-        values.update(self.get_country_stats(values['country_id']))
-        values.update(self.get_events(values['country_id']))
-        values['company_size'] = json.dumps(self.get_companies_size(values['country_id']))
-
-        if request.website.is_public_user():
-            values.update({'partner': False})
+        if request.website.is_public_user() and Lead.decode(request) and not access_token:
+            lead = Lead.sudo().browse(Lead.decode(request))
+            lead_pic = lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']
+            values = {
+                'saleman': saleman,
+            }
+            values.update(self._get_country_stats(lead.country_id.id))
+            values.update(self._get_events(lead.country_id))
+            values.update(self._get_address(lead))
+            values.update(self._get_companies_size(lead.country_id.id))
+            values.update({
+                'partner': False,
+                'basic_infos': True,
+                'street'
+                'access_token': is_access_token,
+                'partner_name': lead.contact_name,
+                'partner_image': lead_pic,
+                'country_id': lead.country_id,
+                'email': lead.email_from,
+            })
+        elif request.website.is_public_user() and not access_token:
+            values = {
+                'saleman': saleman,
+            }
+            values.update(self._get_location())
+            values.update(self._get_country_stats(values['country_id'].id))
+            values.update(self._get_events(values['country_id']))
+            values.update(self._get_companies_size(values['country_id'].id))
+            values.update({
+                'partner': False,
+                'basic_infos': False,
+                'access_token': is_access_token,
+            })
         else:
-            values = self.values(partner, saleman)
+            values = self._get_subscriptions(partner.id)
+            values.update(self._get_purchase_orders(partner.id))
+            values.update(self._get_country_stats(partner.country_id.id))
+            values.update(self._get_events(partner.country_id))
+            values.update(self._get_grade(partner))
+            values.update(self._get_address(partner))
+            values.update(self._get_opportunities(partner.id))
+            values.update(self._get_companies_size(partner.country_id.id))
+            values.update({
+                'partner': partner,
+                'partner_name': partner.name,
+                'partner_image': partner.image_small,
+                'country_id': partner.country_id,
+                'currency': partner.country_id.currency_id.symbol,
+                'my_sub': my_sub,
+                'saleman': saleman,
+                'access_token': is_access_token,
+                'email': partner.email,
+            })
 
-        return request.render('partner_dashboard.dashboard', values)
+        return values
+
+    @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
+    def dashboard_token(self, access_token=None, **kw):
+        return request.render('partner_dashboard.dashboard', self.values(access_token))
 
     @http.route(['/dashboard/profile'], type='http', auth='public', website=True)
     def dasboardLead(self, redirect=None, **data):
@@ -280,10 +297,10 @@ class PartnerDashboard(http.Controller):
         else:
             partner = request.env.user.partner_id.commercial_partner_id
 
-            if partner._vat_readonly(partner):
-                data.pop('vat')
-                data.pop('name')
-                data.pop('company_name')
+            # if partner._vat_readonly(partner):
+                # data.pop('vat')
+                # data.pop('name')
+                # data.pop('company_name')
 
         if request.httprequest.method == 'POST':
             # Validation
@@ -320,25 +337,35 @@ class PartnerDashboard(http.Controller):
                 values.update({key: data[key] for key in OPTIONAL_FIELDS if key in data})
                 values.update({'zip': values.pop('zipcode', '')})
 
-                import base64
-
                 if data['image']:
                     file = request.httprequest.files['image']
                     img = base64.encodestring(file.stream.read())
                     values['image'] = img
                 if not partner:
-                    partner = request.env['res.partner'].sudo().create(values)
+                    # partner = request.env['res.partner'].sudo().create(values)
                     lead = request.env['crm.lead'].sudo().create({
-                        'name': "NEW PARTNERSHIP !! %s" % partner.name,
-                        'partner_id': partner.id,
-                        'partner_name': data['company_name'],
-                        'street': data['street'],
-                        'email_from': data['email'],
-                        'phone': data['phone'],
-                        'contact_name': data['name'],
+                        'name': "NEW PARTNERSHIP !! %s" % values['name'],
+                        'partner_name': values['company_name'],
+                        'street': values['street'],
+                        'city': values['city'],
+                        'zip': values['zip'],
+                        'country_id': values['country_id'],
+                        'email_from': values['email'],
+                        'phone': values['phone'],
+                        'contact_name': values['name'],
                     })
+
+                    attachment = {
+                        'name': 'Profile Picture',
+                        'datas': (values['image']),
+                        'datas_fname': 'profile_pic',
+                        'res_model': 'crm.lead',
+                        'res_id': lead.id,
+                    }
+
+                    lead.env['ir.attachment'].create(attachment)
                     sign = lead.encode(lead.id)
-                    resp.set_cookie('lead_id', sign, domain=lead.get_score_domain_cookies())
+                    resp.set_cookie('lead_id', sign)
                 else:
                     partner = partner.write(values)
                 return resp
@@ -368,7 +395,7 @@ class PartnerDashboard(http.Controller):
         # first_year_discount = Products.sudo().browse(5216)
 
         if request.website.is_public_user():
-            currency = self.get_location()['country_id'].currency_id
+            currency = self._get_location()['country_id'].currency_id
         else:
             partner = request.env.user.partner_id
             currency = partner.country_id.currency_id
