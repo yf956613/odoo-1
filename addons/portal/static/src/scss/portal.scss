@@ -305,7 +305,7 @@ img.o_we_custom_image {
             .navbar-toggle {
                 margin-right: 0;
                 margin-bottom: 0;
-                background-color: $table-bg-active;
+                background-color: $table-active-bg;
                 padding: 6px 10px $navbar-padding-y;
                 border: 1px solid $secondary;
                 border-width: 1px 1px 0 1px;
@@ -325,7 +325,7 @@ img.o_we_custom_image {
                 .navbar-collapse {
                     z-index: 0;
                     box-shadow: inset 0 0 0 1px $secondary;
-                    background-color: $table-bg-active;
+                    background-color: $table-active-bg;
                     border-radius: $btn-border-radius;
                     border-top-right-radius: 0;
                     transform: translateY(-2px);

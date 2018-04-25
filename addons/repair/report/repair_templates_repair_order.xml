@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <table class="table table-condensed">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>Description</th>
@@ -123,7 +123,7 @@
 
                     <div class="row">
                         <div class="col-4 pull-right">
-                            <table class="table table-condensed">
+                            <table class="table table-sm">
                                 <t t-if="o.invoice_method !='none'">
                                     <tr class="border-black">
                                         <td><strong>Total Without Taxes</strong></td>

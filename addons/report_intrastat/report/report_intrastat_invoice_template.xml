@@ -45,7 +45,7 @@
             <t t-set="display_taxamount"
                t-value="o.company_id.tax_calculation_rounding_method == 'round_per_line'"/>
 
-            <table class="table table-condensed">
+            <table class="table table-sm">
                 <thead>
                     <tr>
                         <t t-set="colspan" t-value="7"/>
@@ -140,7 +140,7 @@
 
             <div class="row">
                 <div class="col-4 pull-right">
-                    <table class="table table-condensed">
+                    <table class="table table-sm">
                         <tr class="border-black">
                             <td><strong>Subtotal</strong></td>
                             <td class="text-right">
@@ -165,7 +165,7 @@
 
             <div class="row" t-if="o.tax_line_ids">
                 <div class="col-3">
-                    <table class="table table-condensed">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>Tax</th>
