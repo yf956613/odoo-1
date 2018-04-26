@@ -72,7 +72,7 @@
                                         </t>
                                     </t>
                                 </t>
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Opportunities</t>
                                         <t t-set="first_text">
@@ -90,7 +90,7 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Your Opportunities</t>
+                                        <t t-set="box_title">Your Opportunities <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
                                         <t t-set="first_text">
                                             Assigned Opportunities
                                             <br/>
@@ -100,7 +100,7 @@
                                             0
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Upgrade And Get Opporunities</a>
+                                            <a href="/dashboard/pricing">Upgrade And Get Opporunities</a>
                                         </t>
                                     </t>
                                 </t>
@@ -149,7 +149,7 @@
                                             0€
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Get from 10% up to 20% commission</a>
+                                            <a href="/dashboard/pricing">Get from 10% up to 20% commission</a>
                                         </t>
                                     </t>
                                     <t t-call="partner_dashboard.infoBox">
@@ -163,7 +163,7 @@
                                             0
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Resell Odoo Enterprise</a>
+                                            <a href="/dashboard/pricing">Resell Odoo Enterprise</a>
                                         </t>
                                     </t>
                                 </t>
@@ -377,13 +377,13 @@
                                             0
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Add a developper</a>
+                                            <a href="/dashboard/pricing">Add a developper</a>
                                         </t>
                                     </t>
                                 </t>
                             </div>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.couponBox">
                                         <t t-set="box_title">Free Trial Extension</t>
                                         <t t-set="intro_text">
@@ -402,7 +402,7 @@
                                             <t t-esc="my_sub.code"/>
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Subscribe Here</a>
+                                            <a href="https://www.odoo.sh/">Subscribe Here</a>
                                         </t>
                                     </t>
                                 </t>
@@ -413,11 +413,11 @@
                                             Partners get a special code to extend Odoo Enterprise evaluation period for their prospects
                                         </t>
                                         <t t-set="box_link">
-                                            <a href='#'>Get my special code</a>
+                                            <a href='/dashboard/pricing'>Get my special code</a>
                                         </t>
                                     </t>
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Odoo.sh</t>
+                                        <t t-set="box_title">Odoo.sh <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
                                         <t t-set="first_text">
                                             <a href="https://www.odoo.sh/">Discover Odoo.sh</a>
                                             Commission Rate
@@ -426,7 +426,7 @@
                                             <span class="text-muted">10</span>O%
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Get 100%</a>
+                                            <a href="/dashboard/pricing">Get 100%</a>
                                         </t>
                                     </t>
                                 </t>
@@ -485,18 +485,29 @@
                                         <i class="fa fa-file-o" style="margin-right:5px;"/><a href="#">Sponsorship Brochure</a>
                                     </t>
                                 </t>
-                                <t t-call="partner_dashboard.infoBox">
+                                <t t-call="partner_dashboard.infoBox" t-if="partner_grade">
                                     <t t-set="box_title">Success Story</t>
                                     <t t-set="first_text">
                                         Publish success stories on Odoo.com website
                                     </t>
                                     <t t-set="box_link">
-                                        <a href="#">Submit a Success Story</a>
+                                        <a href="#" t-if="partner">Submit a Success Story</a>
+                                        <a href="/dashboard/pricing" t-else="1">Submit a Success Story</a>
+                                    </t>
+                                </t>
+                                <t t-call="partner_dashboard.infoBox" t-else="1">
+                                    <t t-set="box_title">Success Story <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
+                                    <t t-set="first_text">
+                                        Publish success stories on Odoo.com website
+                                    </t>
+                                    <t t-set="box_link">
+                                        <a href="#" t-if="partner">Submit a Success Story</a>
+                                        <a href="/dashboard/pricing" t-else="1">Submit a Success Story</a>
                                     </t>
                                 </t>
                             </div>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Brand Assets</t>
                                         <t t-set="first_text">
@@ -509,13 +520,13 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Brand Assets</t>
+                                        <t t-set="box_title">Brand Assets  <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
                                         <t t-set="first_text">
-                                            You an use the <a href="#">Community logo</a>.
+                                            You an use the <a href="https://www.odoo.com/page/brand-assets">Community logo</a>.
                                             Official Partners have the rights to use the Odoo trademark.
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Upgrade to access all marketing materials</a>
+                                            <a href="/dashboard/pricing">Upgrade to access all marketing materials</a>
                                         </t>
                                     </t>
                                 </t>
@@ -528,56 +539,71 @@
                         <div class="row">
                             <t t-if="partner">
                                 <h3>Your Partnership Grade</h3>
-                                <t t-if="partner.grade_id">
-                                    <t t-if="partner.grade_id.name == 'Bronze'">
-                                        <div class="col-md-3 text-center" style="background-color:rgb(93, 183, 134); border-radius:10%;">
-                                            Ready Partner
-                                        </div>
+                                <t t-if="partner_grade">
+                                    <t t-if="partner_grade != 'Platinum'">
+                                        <t t-if="partner_grade == 'Bronze'">
+                                            <div class="col-md-3 text-center" style="background-color:rgb(93, 183, 134); border-radius:10%;">
+                                                Ready Partner
+                                            </div>
+                                        </t>
+                                        <t t-else="1">
+                                            <div class="col-md-3 text-center o_partner_dashboard_grade_inactive">
+                                                Ready Partner
+                                            </div>
+                                        </t>
+                                        <t t-if="partner_grade == 'Silver'">
+                                            <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(218, 222, 220); border-radius:10%;">
+                                                Silver Partner
+                                            </div>
+                                        </t>
+                                        <t t-else="1">
+                                            <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
+                                                Silver Partner
+                                            </div>
+                                        </t>
+                                        <t t-if="partner_grade == 'Gold'">
+                                            <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(224, 184, 130); border-radius:10%;">
+                                                Gold Partner
+                                            </div>
+                                        </t>
+                                        <t t-else="1">
+                                            <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
+                                                Gold Partner
+                                            </div>
+                                        </t>
                                     </t>
                                     <t t-else="1">
-                                        <div class="col-md-3 text-center o_partner_dashboard_grade_inactive">
-                                            Ready Partner
-                                        </div>
-                                    </t>
-                                    <t t-if="partner.grade_id.name == 'Silver'">
-                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(218, 222, 220); border-radius:10%;">
-                                            Silver Partner
-                                        </div>
-                                    </t>
-                                    <t t-else="1">
-                                        <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
-                                            Silver Partner
-                                        </div>
-                                    </t>
-                                    <t t-if="partner.grade_id.name == 'Gold'">
-                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(224, 184, 130); border-radius:10%;">
-                                            Gold Partner
-                                        </div>
-                                    </t>
-                                    <t t-else="1">
-                                        <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
-                                            Gold Partner
-                                        </div>
-                                    </t>
-                                    <t t-if="partner.grade_id.name == 'Platinum'">
                                         <div class="text-center o_partner_dashboard_grade_inactive">
                                             Platinum Partner
                                         </div>
                                     </t>
                                 </t>
                                 <t t-else="1">
-                                    <div class="col-md-3 text-center" style="background-color:#875a7b; border-radius:10%; color:white">
-                                        Not a Partner
-                                    </div>
-                                    <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
-                                        Learning Partner
-                                    </div>
-                                    <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
-                                        Official Partner
-                                    </div>
+                                    <t t-if="partner">
+                                        <div class="col-md-3 text-center" style="border-radius:10%;">
+                                            Not a Partner
+                                        </div>
+                                        <div class="col-md-3 text-center col-md-offset-1" style="background-color:#875a7b; border-radius:10%; color:white">
+                                            Learning Partner
+                                        </div>
+                                        <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
+                                            Official Partner
+                                        </div>
+                                    </t>
+                                    <t t-else="1">
+                                        <div class="col-md-3 text-center" style="background-color:#875a7b; border-radius:10%; color:white">
+                                            Not a Partner
+                                        </div>
+                                        <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
+                                            Learning Partner
+                                        </div>
+                                        <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
+                                            Official Partner
+                                        </div>
+                                    </t>
                                 </t>
                                 <div class="row o_partner_dashboard_section">
-                                    <t t-if="partner.grade_id">
+                                    <t t-if="partner_grade and partner_grade != 'Platinum'">
                                         <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
                                             <div class="col-md-4">
                                                 <div class="col-md-5 o_partner_dashboard_big_text">
@@ -620,7 +646,10 @@
                                         </t>
                                     </t>
                                     <t t-else="1">
-                                        <div>
+                                        <div t-if="partner">
+                                            Become an Official Partner to promote your company on Odoo.com, to get leads and a 100% commission on <a href="https://www.odoo.sh/">Odoo.sh</a>
+                                        </div>
+                                        <div t-else="1">
                                             Upgrade to unlock full eLearning access, download of source code and developers resources.
                                         </div>
                                     </t>
@@ -639,6 +668,10 @@
                                 </div>
                                 <div class="row" style="margin-top:5px;">
                                     Upgrade to unlock full eLearning access, download of source code and developers resources.
+                                </div>
+                                <div class="row" style="margin-top:5px;">
+                                    <button href="/dashboard/pricing" type="button" class="btn btn-success col-md-6">Upgrade &amp; Pricing</button>
+                                    <a href="/contactus" class="col-md-6">Contact us</a>
                                 </div>
                             </t>
                         </div>
@@ -674,6 +707,7 @@
                                 <br/>
                                 <t t-esc='saleman.function'/>
                                 <address t-field='saleman.self' t-options="dict(widget='contact', fields=['phone', 'email'], separator='\n')"/>
+                                <p><a href="/contact_us"><i class="fa fa-calendar"/> Schedule a meeting</a></p>
                             </p>
                         </div>
                         <div calss="row">
@@ -895,7 +929,7 @@
 
         <template id="infoBox">
             <div class="col-md-6 h-100">
-                <p class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></p>
+                <p class="h4" style="background-color:silver; padding: 5px"><t t-raw="box_title"/></p>
                 <p style="font-size:110%;">
                     <span t-if="big_text != ''" class="o_partner_dashboard_big_text">
                         <t t-raw="big_text"/>

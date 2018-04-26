@@ -50,52 +50,28 @@ class PartnerDashboard(http.Controller):
         return {'events': (oxp + local_tour + foreign_tour)[:3]}
 
     def _get_companies_size(self, country_id):
-        Leads = request.env['crm.lead']
-
-        current_website = request.website
         Attachment = request.env['ir.attachment'].sudo()
-        mimetype = 'application/json;charset=utf-8'
 
-        def create_company_size(url):
-            return Attachment.create({
-                'mimetype': mimetype,
-                'type': 'url',
-                'name': url,
-                'url': url,
-            })
+        company_size = None
 
-        dom = [('url', '=', '/company_size-%s.json' % current_website.id), ('type', '=', 'binary')]
-
-        Attachment.search(dom, limit=1).unlink()
-
-        if not Attachment.search(dom, limit=1):
-            create_company_size('/company_size-%s.json' % current_website.id)
-
-        size_tag_ids = {'< 5': 20, '5-20': 12, '20-50': 22, '50-250': 23, '> 250': 24, }
-        size_tag_value = []
-
-        index = -1
-        for country in request.env['res.country'].search([]):
-            size_tag_value.append({'country_id': country.id, 'values': []})
-            index += 1
-            for key in size_tag_ids:
-                size_tag_value[index]['values'].append({"label": key, 'value': Leads.sudo().search_count([('tag_ids', '=', size_tag_ids[key]), ('country_id', '=', country.id)])})
-
-        to_render = json.dumps(size_tag_value)
-
+        dom = [('url', '=', '/company_size.json'), ('type', '=', 'url')]
         attachment = Attachment.search(dom, limit=1)
-        attachment.write({"datas": base64.b64encode(to_render.encode("utf-8"))})
+        if attachment:
+            data_dict = json.loads(base64.b64decode(attachment.datas))
 
-        data_dict = json.loads(base64.b64decode(attachment.datas))
+            index = 0
+            while True:
+                if data_dict[index]['country_id'] == country_id:
+                    company_size = data_dict[index]['values']
+                    break
+                if index < len(data_dict) - 1:
+                    index += 1
+                else:
+                    break
 
-        index = 0
-        while True:
-            if data_dict[index]['country_id'] == country_id:
-                company_size = data_dict[index]['values']
-                break
-            index += 1
-
-        company_size = json.dumps(company_size)
+            company_size = json.dumps(company_size)
+        else:
+            company_size = 'Find no data for your country'
 
         return {
             'company_size': company_size
@@ -254,9 +230,18 @@ class PartnerDashboard(http.Controller):
             values = {
                 'saleman': saleman,
             }
-            values.update(self._get_country_stats(lead.country_id.id))
-            values.update(self._get_events(lead.country_id))
-            values.update(self._get_companies_size(lead.country_id.id))
+            if not lead.country_id:
+                values.update(self._get_location())
+                values.update(self._get_country_stats(values['country_id'].id))
+                values.update(self._get_events(values['country_id']))
+                values.update(self._get_companies_size(values['country_id'].id))
+
+            else:
+                values.update(self._get_country_stats(lead.country_id.id))
+                values.update(self._get_events(lead.country_id))
+                values.update(self._get_companies_size(lead.country_id.id))
+                values.update({'country_id': lead.country_id})
+
             values.update({
                 'partner': False,
                 'basic_infos': True,
@@ -264,10 +249,10 @@ class PartnerDashboard(http.Controller):
                 'access_token': is_access_token,
                 'partner_name': lead.contact_name,
                 'partner_image': lead_pic,
-                'country_id': lead.country_id,
                 'source': lead,
                 'email': lead.email_from,
             })
+
         elif request.website.is_public_user() and not access_token:
             values = {
                 'saleman': saleman,
@@ -281,19 +266,29 @@ class PartnerDashboard(http.Controller):
                 'basic_infos': False,
                 'access_token': is_access_token,
             })
+
         else:
             values = self._get_subscriptions(partner.id)
             values.update(self._get_purchase_orders(partner.id))
-            values.update(self._get_country_stats(partner.country_id.id))
-            values.update(self._get_events(partner.country_id))
             values.update(self._get_grade(partner))
             values.update(self._get_opportunities(partner.id))
-            values.update(self._get_companies_size(partner.country_id.id))
+
+            if not partner.country_id:
+                values.update(self._get_location())
+                values.update(self._get_country_stats(values['country_id'].id))
+                values.update(self._get_events(values['country_id']))
+                values.update(self._get_companies_size(values['country_id'].id))
+
+            else:
+                values.update(self._get_country_stats(partner.country_id.id))
+                values.update(self._get_events(partner.country_id))
+                values.update(self._get_companies_size(partner.country_id.id))
+                values.update({'country_id': partner.country_id})
+
             values.update({
                 'partner': partner,
                 'partner_name': partner.name,
                 'partner_image': partner.image_medium,
-                'country_id': partner.country_id,
                 'currency': partner.country_id.currency_id.symbol,
                 'my_sub': my_sub,
                 'saleman': saleman,

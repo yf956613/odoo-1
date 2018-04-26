@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="company_size_cron" model="ir.cron">
+        <field name="name">Partner Dashboard: Create the list of compay by size tag</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="numbercall">-1</field>
+        <field name="model_id" ref='model_partner_dashboard_partner_dashboard'/>
+        <field name="code">model._define_companies_size()</field>
+        <field name="state">code</field>
+    </record>
+</odoo>
