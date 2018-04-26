@@ -3,7 +3,7 @@
 
         <template id="assets_frontend" inherit_id="website.assets_frontend" name="Wishlist assets frontend">
             <xpath expr="." position="inside">
-                <!-- <link type="text/less" rel='stylesheet' href='/partner_dashboard/static/src/less/partner_dashboard_less.less'/> -->
+                <link rel='stylesheet' href='/partner_dashboard/static/src/less/partner_dashboard.less'/>
                 <script type="text/javascript" src="/partner_dashboard/static/src/js/partner_dashboard.js"></script>
             </xpath>
         </template>
@@ -28,7 +28,7 @@
                             <p><strong>Have a project right now?</strong></p>
                             <p>We can help you sell and deliver your first project. Working together on your first project is the best way to success in Odoo. Learn more by reading our <a href="/documentation/user/11.0/getting_started/documentation.html">Implementation Methodology</a></p>
                          </div>
-                        <div class="" style="margin-bottom:5%">
+                        <div class="o_partner_dashboard_section">
                             <p class="h3">Your Business</p>
                             <div class="row">
                                 <t t-if="partner or basic_infos">
@@ -36,14 +36,16 @@
                                         <t t-set="box_title">Your Company Informations</t>
                                         <t t-set="big_text"/>
                                         <t t-set="first_text">
-                                            <div t-esc="partner_image" class="pull-right" t-options="dict(widget='image', style='max-width:100px;')"/>
+                                            <div t-esc="partner_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
                                             <p><strong><t t-esc='partner_name'/></strong></p>
                                             <br/>
                                             <address>
-                                                <i class="fa fa-map-marker fa-fw" t-if="street or city or zip or country"/><t t-esc="street" t-if="street"/><br/>
-                                                <span><t t-esc="city" t-if="city"/> <t t-esc="state_id.code" t-if="state_id"/> <t t-esc="zip" t-if="zip"/></span><br/>
-                                                <t t-esc="country_id.name" t-if="country_id"/><br/>
-                                                <span t-if="phone"><i class="fa fa-phone fa-fw"/><t t-esc="phone"/></span><br/>
+                                                <p>
+                                                    <span t-if="source.street"><t t-esc="source.street"/><br/></span>
+                                                    <span><t t-esc="source.city" t-if="source.city"/> <t t-esc="source.state_id.code" t-if="source.state_id"/> <t t-esc="source.zip" t-if="source.zip"/></span><br/>
+                                                    <span t-if="source.country_id"><t t-esc="source.country_id.name"/><br/></span>
+                                                </p>
+                                                <span t-if="source.phone"><i class="fa fa-phone fa-fw"/><t t-esc="source.phone"/></span><br/>
                                                 <span t-if="email"><i class="fa fa-envelope fa-fw"/><t t-esc="email"/></span>
                                             </address>
                                         </t>
@@ -60,7 +62,7 @@
                                         <t t-set="box_title">Your Company Informations</t>
                                         <t t-set="big_text"/>
                                         <t t-set="first_text">
-                                            <img src="http://www.headsub.com/attachment/2unBbWM3/Templates/Textures/yourLogo_icon_red.png" class="pull-right" style="max-width:100px;"/>
+                                            <img src="http://www.headsub.com/attachment/2unBbWM3/Templates/Textures/yourLogo_icon_red.png" class="pull-right o_partner_dashboard_img"/>
                                             <p>
                                                 Publish your company data profil on Odoo.com
                                             </p>
@@ -168,7 +170,7 @@
                             </div>
                         </div>
 
-                        <div style="margin-bottom:5%">
+                        <div class="o_partner_dashboard_section">
                             <h3>Learn</h3>
                             <div class="row">
                                 <t t-if="partner">
@@ -301,7 +303,7 @@
                             </div>
                         </div>
 
-                        <div style="margin-bottom:5%">
+                        <div class="o_partner_dashboard_section">
                             <h3>Develop And Deploy</h3>
                             <div class="row">
                                 <t t-if="partner">
@@ -457,7 +459,7 @@
                                 </t>
                             </div>
                         </div>
-                        <div style="margin-bottom:5%">
+                        <div class="o_partner_dashboard_section">
                             <h3>Marketing</h3>
                             <div class="row">
                                 <t t-call="partner_dashboard.infoBox">
@@ -533,7 +535,7 @@
                                         </div>
                                     </t>
                                     <t t-else="1">
-                                        <div class="col-md-3 text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                        <div class="col-md-3 text-center o_partner_dashboard_grade_inactive">
                                             Ready Partner
                                         </div>
                                     </t>
@@ -543,7 +545,7 @@
                                         </div>
                                     </t>
                                     <t t-else="1">
-                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                        <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
                                             Silver Partner
                                         </div>
                                     </t>
@@ -553,12 +555,12 @@
                                         </div>
                                     </t>
                                     <t t-else="1">
-                                        <div class="col-md-3 col-md-offset-1 text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                        <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
                                             Gold Partner
                                         </div>
                                     </t>
                                     <t t-if="partner.grade_id.name == 'Platinum'">
-                                        <div class="text-center" style="background-color:#dcdcdc; border-radius:10%;">
+                                        <div class="text-center o_partner_dashboard_grade_inactive">
                                             Platinum Partner
                                         </div>
                                     </t>
@@ -574,11 +576,11 @@
                                         Official Partner
                                     </div>
                                 </t>
-                                <div class="row" style="margin-top:5px;">
+                                <div class="row o_partner_dashboard_section">
                                     <t t-if="partner.grade_id">
                                         <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
                                             <div class="col-md-4">
-                                                <div class="col-md-5" style="font-size:200%">
+                                                <div class="col-md-5 o_partner_dashboard_big_text">
                                                     <t t-esc="int(next_level_users - last_12month_enterprise_user)"/>
                                                 </div>
                                                 <div class="col-md-6">
@@ -598,7 +600,7 @@
                                         </t>
                                         <t t-if="(next_level_certified - nbr_certif) > 0">
                                             <div class="col-md-4">
-                                                <div class="col-md-5" style="font-size:200%">
+                                                <div class="col-md-5 o_partner_dashboard_big_text">
                                                     <t t-esc="int(next_level_certified - nbr_certif)"/>
                                                 </div>
                                                 <div class="col-md-6">
@@ -667,7 +669,7 @@
                         <div class="row">
                             <h3>Your Point of Contact</h3>
                             <p>
-                                <span t-field="saleman.image" t-options="dict(widget='image', style='float:left; max-width:100px;')"/>
+                                <span t-field="saleman.image_medium" class="o_partner_dashboard_img pull-left" t-options="dict(widget='image')"/>
                                 <strong><t t-esc='saleman.name'/></strong>
                                 <br/>
                                 <t t-esc='saleman.function'/>
@@ -676,10 +678,10 @@
                         </div>
                         <div calss="row">
                             <h3>Legal Documents</h3>
-                            <i class="fa fa-file-o" style="margin-right:5px;"/><a href="/page/legal">Odoo Partnership Agreement</a><br/>
-                            <i class="fa fa-file-o" style="margin-right:5px;"/><a href="/page/legal">Odoo Enterprise Agreement</a><br/>
-                            <i class="fa fa-file-o" style="margin-right:5px;"/><a href="/page/legal">Odoo.sh Terms of Use</a><br/>
-                            <i class="fa fa-file-o" style="margin-right:5px;"/><a href="/page/legal">Terms of Sale</a>
+                            <i class="fa fa-file-o"/><a href="/page/legal">Odoo Partnership Agreement</a><br/>
+                            <i class="fa fa-file-o"/><a href="/page/legal">Odoo Enterprise Agreement</a><br/>
+                            <i class="fa fa-file-o"/><a href="/page/legal">Odoo.sh Terms of Use</a><br/>
+                            <i class="fa fa-file-o"/><a href="/page/legal">Terms of Sale</a>
                         </div>
                         <div calss="row">
                             <h3>Useful Videos</h3>
@@ -895,7 +897,7 @@
             <div class="col-md-6 h-100">
                 <p class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></p>
                 <p style="font-size:110%;">
-                    <span t-if="big_text != ''" style="font-size:200%; margin:5px;">
+                    <span t-if="big_text != ''" class="o_partner_dashboard_big_text">
                         <t t-raw="big_text"/>
                     </span>
                     <t t-raw="first_text"/>
@@ -911,7 +913,7 @@
                 <div class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></div>
                 <p style="font-size:110%;">
                     <p><t t-esc="intro_text"/></p>
-                    <p style="font-size:200%;"><t t-esc="coupon"/></p>
+                    <p class="o_partner_dashboard_big_text"><t t-esc="coupon"/></p>
                     <p><small><t t-esc="coupon_scope"/></small></p>
                 </p>
                 <p><t t-raw="box_link"/></p>

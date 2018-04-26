@@ -52,18 +52,53 @@ class PartnerDashboard(http.Controller):
     def _get_companies_size(self, country_id):
         Leads = request.env['crm.lead']
 
-        # SEE CSV to import in python file
+        current_website = request.website
+        Attachment = request.env['ir.attachment'].sudo()
+        mimetype = 'application/json;charset=utf-8'
+
+        def create_company_size(url):
+            return Attachment.create({
+                'mimetype': mimetype,
+                'type': 'url',
+                'name': url,
+                'url': url,
+            })
+
+        dom = [('url', '=', '/company_size-%s.json' % current_website.id), ('type', '=', 'binary')]
+
+        Attachment.search(dom, limit=1).unlink()
+
+        if not Attachment.search(dom, limit=1):
+            create_company_size('/company_size-%s.json' % current_website.id)
 
         size_tag_ids = {'< 5': 20, '5-20': 12, '20-50': 22, '50-250': 23, '> 250': 24, }
         size_tag_value = []
 
-        for key in size_tag_ids:
-            size_tag_value.append({"label": key, 'value': Leads.sudo().search_count([('tag_ids', '=', size_tag_ids[key]), ('country_id', '=', country_id)])})
+        index = -1
+        for country in request.env['res.country'].search([]):
+            size_tag_value.append({'country_id': country.id, 'values': []})
+            index += 1
+            for key in size_tag_ids:
+                size_tag_value[index]['values'].append({"label": key, 'value': Leads.sudo().search_count([('tag_ids', '=', size_tag_ids[key]), ('country_id', '=', country.id)])})
 
         to_render = json.dumps(size_tag_value)
 
+        attachment = Attachment.search(dom, limit=1)
+        attachment.write({"datas": base64.b64encode(to_render.encode("utf-8"))})
+
+        data_dict = json.loads(base64.b64decode(attachment.datas))
+
+        index = 0
+        while True:
+            if data_dict[index]['country_id'] == country_id:
+                company_size = data_dict[index]['values']
+                break
+            index += 1
+
+        company_size = json.dumps(company_size)
+
         return {
-            'company_size': to_render,
+            'company_size': company_size
         }
 
     def _get_purchase_orders(self, partner_id):
@@ -163,17 +198,6 @@ class PartnerDashboard(http.Controller):
             'not_won_opportunities': not_won_opportunities,
         }
 
-    def _get_address(self, source):
-
-        return{
-            'street': source.street,
-            'city': source.city,
-            'state_id': source.state_id,
-            'zip': source.zip,
-            'country_id': source.country_id,
-            'phone': source.phone
-        }
-
     def _get_location(self, ip_address=None):
         country_id = None
         location = {}
@@ -232,7 +256,6 @@ class PartnerDashboard(http.Controller):
             }
             values.update(self._get_country_stats(lead.country_id.id))
             values.update(self._get_events(lead.country_id))
-            values.update(self._get_address(lead))
             values.update(self._get_companies_size(lead.country_id.id))
             values.update({
                 'partner': False,
@@ -242,6 +265,7 @@ class PartnerDashboard(http.Controller):
                 'partner_name': lead.contact_name,
                 'partner_image': lead_pic,
                 'country_id': lead.country_id,
+                'source': lead,
                 'email': lead.email_from,
             })
         elif request.website.is_public_user() and not access_token:
@@ -263,18 +287,18 @@ class PartnerDashboard(http.Controller):
             values.update(self._get_country_stats(partner.country_id.id))
             values.update(self._get_events(partner.country_id))
             values.update(self._get_grade(partner))
-            values.update(self._get_address(partner))
             values.update(self._get_opportunities(partner.id))
             values.update(self._get_companies_size(partner.country_id.id))
             values.update({
                 'partner': partner,
                 'partner_name': partner.name,
-                'partner_image': partner.image_small,
+                'partner_image': partner.image_medium,
                 'country_id': partner.country_id,
                 'currency': partner.country_id.currency_id.symbol,
                 'my_sub': my_sub,
                 'saleman': saleman,
                 'access_token': is_access_token,
+                'source': partner,
                 'email': partner.email,
             })
 
@@ -353,6 +377,7 @@ class PartnerDashboard(http.Controller):
                         'email_from': values['email'],
                         'phone': values['phone'],
                         'contact_name': values['name'],
+                        'description': values['website_description'],
                     })
 
                     attachment = {
