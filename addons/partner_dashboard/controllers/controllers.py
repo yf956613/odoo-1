@@ -186,12 +186,11 @@ class PartnerDashboard(http.Controller):
             'country_id': country_id,
         }
 
-    def values(self, access_token):
+    def _values(self, access_token):
         Partner = request.env['res.partner'].sudo()
         Employee = request.env['hr.employee'].sudo()
         Subscription = request.env['sale.subscription'].sudo()
-
-        Lead = request.env['crm.lead']
+        Lead = request.env['crm.lead'].sudo()
 
         point_of_contact = [12, 17, 16, 3]
 
@@ -214,7 +213,7 @@ class PartnerDashboard(http.Controller):
                 saleman = Partner.browse(my_sub.user_id.partner_id.id)
 
         if request.website.is_public_user() and Lead.decode(request) and not access_token:
-            lead = Lead.sudo().browse(Lead.decode(request))
+            lead = Lead.browse(Lead.decode(request))
             if lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']:
                 lead_pic = lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']
             else:
@@ -295,17 +294,18 @@ class PartnerDashboard(http.Controller):
 
         return values
 
+    def _set_saleman_in_session(self, values):
+        if values['saleman_id'] is not False:
+            request.session['saleman_id'] = values['saleman_id'].id
+            return True
+        else:
+            return False
+
     @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
     def dashboard_token(self, access_token=None, **kw):
-        Lead = request.env['crm.lead']
-        values = self.values(access_token)
-        resp = request.render('partner_dashboard.dashboard', values)
-        if values['saleman_id'] is False and request.httprequest.cookies.get('saleman_id'):
-            resp.delete_cookie('saleman_id')
-        else:
-            saleman = Lead.encode(values['saleman_id'])
-            resp.set_cookie("saleman_id", saleman)
-        return resp
+        values = self._values(access_token)
+        self._set_saleman_in_session(values)
+        return request.render('partner_dashboard.dashboard', values)
 
     @http.route(['/dashboard/profile'], type='http', auth='public', website=True)
     def dasboardLead(self, redirect=None, **data):
@@ -316,22 +316,20 @@ class PartnerDashboard(http.Controller):
         error = {}
         error_message = []
 
-        if request.httprequest.cookies.get('saleman_id'):
-            saleman = request.httprequest.cookies.get('saleman_id')
-            saleman_id = int(saleman.split('-')[0])
-            user_id = Employees.browse(saleman_id).user_id
+        if request.session.get('saleman_id'):
+            saleman_id = request.session.get('saleman_id')
+            if saleman_id:
+                user_id = Employees.browse(saleman_id).user_id
+            else:
+                user_id = 0
 
         if request.website.is_public_user():
             partner = False
         else:
             partner = request.env.user.partner_id.commercial_partner_id
 
-            # if partner._vat_readonly(partner):
-                # data.pop('vat')
-                # data.pop('name')
-                # data.pop('company_name')
-
         if request.httprequest.method == 'POST':
+
             # Validation
             for field_name in MANDATORY_FIELDS:
                 if not data.get(field_name):
@@ -398,6 +396,10 @@ class PartnerDashboard(http.Controller):
                     sign = lead.encode(lead.id)
                     resp.set_cookie('lead_id', sign)
                 else:
+                    if partner._vat_readonly(partner):
+                        values.pop('vat')
+                        values.pop('name')
+                        values.pop('company_name')
                     partner = partner.write(values)
                 return resp
 
