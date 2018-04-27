@@ -36,7 +36,7 @@
                                         <t t-set="box_title">Your Company Informations</t>
                                         <t t-set="big_text"/>
                                         <t t-set="first_text">
-                                            <div t-esc="partner_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
+                                            <div t-esc="partner_image" t-if="partner_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
                                             <p><strong><t t-esc='partner_name'/></strong></p>
                                             <br/>
                                             <address>
@@ -416,14 +416,13 @@
                                             <a href='/dashboard/pricing'>Get my special code</a>
                                         </t>
                                     </t>
-                                    <t t-call="partner_dashboard.infoBox">
+                                    <t t-call="partner_dashboard.couponBox">
                                         <t t-set="box_title">Odoo.sh <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
-                                        <t t-set="first_text">
+                                        <t t-set="intro_text">
                                             <a href="https://www.odoo.sh/">Discover Odoo.sh</a>
-                                            Commission Rate
                                         </t>
-                                        <t t-set="big_text">
-                                            <span class="text-muted">10</span>O%
+                                        <t t-set="coupon">
+                                            <span class="text-muted">10</span>O% Commission Rate
                                         </t>
                                         <t t-set="box_link">
                                             <a href="/dashboard/pricing">Get 100%</a>
@@ -514,7 +513,7 @@
                                             You have the rights to use the Odoo trademark
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="#">Access all marketing materials</a>
+                                            <a href="https://www.odoo.com/page/brand-assets">Access all marketing materials</a>
                                         </t>
                                     </t>
                                 </t>
@@ -702,7 +701,7 @@
                         <div class="row">
                             <h3>Your Point of Contact</h3>
                             <p>
-                                <span t-field="saleman.image_medium" class="o_partner_dashboard_img pull-left" t-options="dict(widget='image')"/>
+                                <span t-if="saleman.image_medium" t-field="saleman.image_medium" class="o_partner_dashboard_img pull-left" t-options="dict(widget='image')"/>
                                 <strong><t t-esc='saleman.name'/></strong>
                                 <br/>
                                 <t t-esc='saleman.function'/>
@@ -946,8 +945,8 @@
             <div class="col-md-6 h-100">
                 <div class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></div>
                 <p style="font-size:110%;">
-                    <p><t t-esc="intro_text"/></p>
-                    <p class="o_partner_dashboard_big_text"><t t-esc="coupon"/></p>
+                    <p><t t-raw="intro_text"/></p>
+                    <p class="o_partner_dashboard_big_text"><t t-raw="coupon"/></p>
                     <p><small><t t-esc="coupon_scope"/></small></p>
                 </p>
                 <p><t t-raw="box_link"/></p>

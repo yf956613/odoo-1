@@ -38,8 +38,8 @@ class PartnerDashboard(http.Controller):
         }
 
     def _get_events(self, country_id):
-        ODOO_EXP_ID = 12
-        ODOO_TOUR_ID = 11
+        ODOO_EXP_ID = 12  # The id of the Odoo Experience category
+        ODOO_TOUR_ID = 11  # The id of the Odoo Tour category
         Events = request.env['event.event'].sudo()
         today = date.today().strftime(DEFAULT_SERVER_DATE_FORMAT)
         oxp = Events.search([('event_type_id', '=', ODOO_EXP_ID), ('date_begin', '>', today)], limit=1)
@@ -80,8 +80,7 @@ class PartnerDashboard(http.Controller):
     def _get_purchase_orders(self, partner_id):
         # assert not request.website.is_public_user()
 
-        # TODO: see with avw / fp the process
-        ENTERPRISE_USER_IDS = [350, 209, 208, ]
+        ENTERPRISE_USER_IDS = [350, 209, 208, ]  # USe the IDs of the commissions items
         PurchaseOrder = request.env['purchase.order']
 
         last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
@@ -176,7 +175,6 @@ class PartnerDashboard(http.Controller):
 
     def _get_location(self, ip_address=None):
         country_id = None
-        location = {}
         if not ip_address:
             ip_address = request.httprequest.headers.get('X-Odoo-GeoIP') or request.httprequest.environ['REMOTE_ADDR']
         if ip_address:
@@ -184,27 +182,18 @@ class PartnerDashboard(http.Controller):
             country_code = coordinates['country_code']
             country = request.env['res.country'].sudo().search([('code', '=', country_code.upper())], limit=1)
             country_id = country
-            if coordinates.get('city'):
-                location['city'] = coordinates['city']
-            if coordinates.get('longitude'):
-                location['partner_longitude'] = float(coordinates['longitude'])
-            if coordinates.get('latitude'):
-                location['partner_latitude'] = float(coordinates['latitude'])
-            if coordinates.get('region'):
-                state = country.state_ids.filtered(lambda x: x.code == coordinates.get('region'))
-                location['state_id'] = state and state[0].id
         return {
             'country_id': country_id,
-            'location': location,
         }
 
     def values(self, access_token):
         Partner = request.env['res.partner'].sudo()
+        Employee = request.env['hr.employee'].sudo()
         Subscription = request.env['sale.subscription'].sudo()
 
         Lead = request.env['crm.lead']
 
-        point_of_contact = [42, 43, 6, 3]
+        point_of_contact = [12, 17, 16, 3]
 
         values = {}
         is_access_token = False
@@ -217,7 +206,7 @@ class PartnerDashboard(http.Controller):
         else:
             partner = request.env.user.partner_id
 
-        saleman = Partner.browse(point_of_contact[randint(0, len(point_of_contact) - 1)])
+        saleman = Employee.browse(point_of_contact[randint(0, len(point_of_contact) - 1)])
         my_sub = Subscription.search([('partner_id', '=', partner.id), ('template_id.code', '=', "PART")], limit=1, order='create_date desc')
 
         if my_sub:
@@ -226,9 +215,14 @@ class PartnerDashboard(http.Controller):
 
         if request.website.is_public_user() and Lead.decode(request) and not access_token:
             lead = Lead.sudo().browse(Lead.decode(request))
-            lead_pic = lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']
+            if lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']:
+                lead_pic = lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']
+            else:
+                lead_pic = False
+            saleman = Partner.browse(lead.user_id.partner_id.id)
             values = {
                 'saleman': saleman,
+                'saleman_id': False,
             }
             if not lead.country_id:
                 values.update(self._get_location())
@@ -255,7 +249,8 @@ class PartnerDashboard(http.Controller):
 
         elif request.website.is_public_user() and not access_token:
             values = {
-                'saleman': saleman,
+                'saleman': saleman.user_id.partner_id,
+                'saleman_id': saleman,
             }
             values.update(self._get_location())
             values.update(self._get_country_stats(values['country_id'].id))
@@ -292,6 +287,7 @@ class PartnerDashboard(http.Controller):
                 'currency': partner.country_id.currency_id.symbol,
                 'my_sub': my_sub,
                 'saleman': saleman,
+                'saleman_id': False,
                 'access_token': is_access_token,
                 'source': partner,
                 'email': partner.email,
@@ -301,15 +297,29 @@ class PartnerDashboard(http.Controller):
 
     @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
     def dashboard_token(self, access_token=None, **kw):
-        return request.render('partner_dashboard.dashboard', self.values(access_token))
+        Lead = request.env['crm.lead']
+        values = self.values(access_token)
+        resp = request.render('partner_dashboard.dashboard', values)
+        if values['saleman_id'] is False and request.httprequest.cookies.get('saleman_id'):
+            resp.delete_cookie('saleman_id')
+        else:
+            saleman = Lead.encode(values['saleman_id'])
+            resp.set_cookie("saleman_id", saleman)
+        return resp
 
     @http.route(['/dashboard/profile'], type='http', auth='public', website=True)
     def dasboardLead(self, redirect=None, **data):
+        Employees = request.env['hr.employee'].sudo()
         MANDATORY_FIELDS = ["name", "phone", "email", "street", "city", "country_id"]
         OPTIONAL_FIELDS = ["zipcode", "state_id", "vat", "company_name", "website_description"]
 
         error = {}
         error_message = []
+
+        if request.httprequest.cookies.get('saleman_id'):
+            saleman = request.httprequest.cookies.get('saleman_id')
+            saleman_id = int(saleman.split('-')[0])
+            user_id = Employees.browse(saleman_id).user_id
 
         if request.website.is_public_user():
             partner = False
@@ -373,17 +383,18 @@ class PartnerDashboard(http.Controller):
                         'phone': values['phone'],
                         'contact_name': values['name'],
                         'description': values['website_description'],
+                        'user_id': user_id.id,
                     })
+                    if 'image' in values.keys():
+                        attachment = {
+                            'name': 'Profile Picture',
+                            'datas': (values['image']),
+                            'datas_fname': 'profile_pic',
+                            'res_model': 'crm.lead',
+                            'res_id': lead.id,
+                        }
 
-                    attachment = {
-                        'name': 'Profile Picture',
-                        'datas': (values['image']),
-                        'datas_fname': 'profile_pic',
-                        'res_model': 'crm.lead',
-                        'res_id': lead.id,
-                    }
-
-                    lead.env['ir.attachment'].create(attachment)
+                        lead.env['ir.attachment'].create(attachment)
                     sign = lead.encode(lead.id)
                     resp.set_cookie('lead_id', sign)
                 else:
