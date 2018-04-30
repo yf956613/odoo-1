@@ -17,11 +17,11 @@
         <template id="dashboard">
             <t t-call="website.layout">
                 <t t-set="head">
-                    <t t-call-assets="website_links.assets_nvd3"/>
+                    <t t-call-assets="partner_dashboard.assets_nvd3"/>
                 </t>
-                <t t-set="title">Partner Dashboard</t>
                 <div class="container">
                     <p class="h1">Partner Dashboard</p>
+                    <!-- Left column -->
                     <div class='col-md-8'>
                         <div class="alert alert-info alert-dismissible" role="alert" >
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&amp;times;</span></button>
@@ -31,13 +31,13 @@
                         <div class="o_partner_dashboard_section">
                             <p class="h3">Your Business</p>
                             <div class="row">
-                                <t t-if="partner or basic_infos">
+                                <t t-if="partner or street">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Company Informations</t>
                                         <t t-set="big_text"/>
                                         <t t-set="first_text">
-                                            <div t-esc="partner_image" t-if="partner_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
-                                            <p><strong><t t-esc='partner_name'/></strong></p>
+                                            <div t-esc="source_image" t-if="source_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
+                                            <p><strong><t t-esc='source_name'/></strong></p>
                                             <br/>
                                             <address>
                                                 <p>
@@ -46,7 +46,7 @@
                                                     <span t-if="source.country_id"><t t-esc="source.country_id.name"/><br/></span>
                                                 </p>
                                                 <span t-if="source.phone"><i class="fa fa-phone fa-fw"/><t t-esc="source.phone"/></span><br/>
-                                                <span t-if="email"><i class="fa fa-envelope fa-fw"/><t t-esc="email"/></span>
+                                                <span t-if="email"><i class="fa fa-envelope fa-fw"/><t t-esc="source_email"/></span>
                                             </address>
                                         </t>
 
@@ -72,7 +72,7 @@
                                         </t>
                                     </t>
                                 </t>
-                                <t t-if="partner_grade">
+                                <t t-if="partner_grade and partner_grade != 'Learning'">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Opportunities</t>
                                         <t t-set="first_text">
@@ -90,11 +90,11 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Your Opportunities <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
+                                        <t t-set="box_title">Your Opportunities <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
                                         <t t-set="first_text">
                                             Assigned Opportunities
                                             <br/>
-                                            <small class=" text-muted">In The Last 12 Months</small>
+                                            <small class=" text-muted">0 In The Last 12 Months</small>
                                         </t>
                                         <t t-set="big_text">
                                             0
@@ -393,6 +393,19 @@
                                             <t t-esc="my_sub.code"/>
                                         </t>
                                     </t>
+                                </t>
+                                <t t-else="1">
+                                    <t t-call="partner_dashboard.infoBox">
+                                        <t t-set="box_title">Free Trial Extension</t>
+                                        <t t-set="first_text">
+                                            Partners get a special code to extend Odoo Enterprise evaluation period for their prospects
+                                        </t>
+                                        <t t-set="box_link">
+                                            <a href='/dashboard/pricing'>Get my special code</a>
+                                        </t>
+                                    </t>
+                                </t>
+                                <t t-if="partner_grade and partner_grade != 'Learning'">
                                     <t t-call="partner_dashboard.couponBox">
                                         <t t-set="box_title">Odoo.sh</t>
                                         <t t-set="intro_text">
@@ -407,17 +420,8 @@
                                     </t>
                                 </t>
                                 <t t-else="1">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Free Trial Extension</t>
-                                        <t t-set="first_text">
-                                            Partners get a special code to extend Odoo Enterprise evaluation period for their prospects
-                                        </t>
-                                        <t t-set="box_link">
-                                            <a href='/dashboard/pricing'>Get my special code</a>
-                                        </t>
-                                    </t>
                                     <t t-call="partner_dashboard.couponBox">
-                                        <t t-set="box_title">Odoo.sh <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
+                                        <t t-set="box_title">Odoo.sh <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
                                         <t t-set="intro_text">
                                             <a href="https://www.odoo.sh/">Discover Odoo.sh</a>
                                         </t>
@@ -484,7 +488,7 @@
                                         <i class="fa fa-file-o" style="margin-right:5px;"/><a href="#">Sponsorship Brochure</a>
                                     </t>
                                 </t>
-                                <t t-call="partner_dashboard.infoBox" t-if="partner_grade">
+                                <t t-call="partner_dashboard.infoBox" t-if="partner_grade and partner_grade != 'Learning'">
                                     <t t-set="box_title">Success Story</t>
                                     <t t-set="first_text">
                                         Publish success stories on Odoo.com website
@@ -495,7 +499,7 @@
                                     </t>
                                 </t>
                                 <t t-call="partner_dashboard.infoBox" t-else="1">
-                                    <t t-set="box_title">Success Story <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
+                                    <t t-set="box_title">Success Story <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
                                     <t t-set="first_text">
                                         Publish success stories on Odoo.com website
                                     </t>
@@ -506,7 +510,7 @@
                                 </t>
                             </div>
                             <div class="row">
-                                <t t-if="partner_grade">
+                                <t t-if="partner_grade and partner_grade != 'Learning'">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Brand Assets</t>
                                         <t t-set="first_text">
@@ -519,7 +523,7 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Brand Assets  <i class="fa fa-lock" t-if="not partner_grade and partner"/></t>
+                                        <t t-set="box_title">Brand Assets  <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
                                         <t t-set="first_text">
                                             You an use the <a href="https://www.odoo.com/page/brand-assets">Community logo</a>.
                                             Official Partners have the rights to use the Odoo trademark.
@@ -536,143 +540,92 @@
                     <!-- Right column -->
                     <div class='col-md-4'>
                         <div class="row">
-                            <t t-if="partner">
-                                <h3>Your Partnership Grade</h3>
-                                <t t-if="partner_grade">
-                                    <t t-if="partner_grade != 'Platinum'">
-                                        <t t-if="partner_grade == 'Bronze'">
-                                            <div class="col-md-3 text-center" style="background-color:rgb(93, 183, 134); border-radius:10%;">
-                                                Ready Partner
-                                            </div>
-                                        </t>
-                                        <t t-else="1">
-                                            <div class="col-md-3 text-center o_partner_dashboard_grade_inactive">
-                                                Ready Partner
-                                            </div>
-                                        </t>
-                                        <t t-if="partner_grade == 'Silver'">
-                                            <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(218, 222, 220); border-radius:10%;">
-                                                Silver Partner
-                                            </div>
-                                        </t>
-                                        <t t-else="1">
-                                            <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
-                                                Silver Partner
-                                            </div>
-                                        </t>
-                                        <t t-if="partner_grade == 'Gold'">
-                                            <div class="col-md-3 col-md-offset-1 text-center" style="background-color:rgb(224, 184, 130); border-radius:10%;">
-                                                Gold Partner
-                                            </div>
-                                        </t>
-                                        <t t-else="1">
-                                            <div class="col-md-3 col-md-offset-1 text-center o_partner_dashboard_grade_inactive">
-                                                Gold Partner
-                                            </div>
-                                        </t>
-                                    </t>
-                                    <t t-else="1">
-                                        <div class="text-center o_partner_dashboard_grade_inactive">
-                                            Platinum Partner
-                                        </div>
-                                    </t>
+                            <h3>Your Partnership Grade</h3>
+                            <t t-if="partner_grade and partner_grade != 'Learning'">
+                                <t t-if="partner_grade != 'Platinum'">
+                                    <div t-attf-class="col-md-3 text-center panel #{partner_grade == 'Bronze' and 'o_partner_dashboard_grade_active_bronze' or 'o_partner_dashboard_grade_inactive'}">
+                                        Ready Partner
+                                    </div>
+                                    <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade == 'Silver' and 'o_partner_dashboard_grade_active_silver' or 'o_partner_dashboard_grade_inactive'}">
+                                            Silver Partner
+                                    </div>
+                                    <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade == 'Gold' and 'o_partner_dashboard_grade_active_gold' or 'o_partner_dashboard_grade_inactive'}">
+                                            Gold Partner
+                                    </div>
                                 </t>
                                 <t t-else="1">
-                                    <t t-if="partner">
-                                        <div class="col-md-3 text-center" style="border-radius:10%;">
-                                            Not a Partner
-                                        </div>
-                                        <div class="col-md-3 text-center col-md-offset-1" style="background-color:#875a7b; border-radius:10%; color:white">
-                                            Learning Partner
-                                        </div>
-                                        <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
-                                            Official Partner
-                                        </div>
-                                    </t>
-                                    <t t-else="1">
-                                        <div class="col-md-3 text-center" style="background-color:#875a7b; border-radius:10%; color:white">
-                                            Not a Partner
-                                        </div>
-                                        <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
-                                            Learning Partner
-                                        </div>
-                                        <div class="col-md-3 text-center col-md-offset-1" style="border-radius:10%;">
-                                            Official Partner
-                                        </div>
-                                    </t>
+                                    <div class="text-center panel o_partner_dashboard_grade_inactive">
+                                        Platinum Partner
+                                    </div>
                                 </t>
-                                <div class="row o_partner_dashboard_section">
-                                    <t t-if="partner_grade and partner_grade != 'Platinum'">
-                                        <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
-                                            <div class="col-md-4">
-                                                <div class="col-md-5 o_partner_dashboard_big_text">
-                                                    <t t-esc="int(next_level_users - last_12month_enterprise_user)"/>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    Enterprise <br/> Users
-                                                </div>
-                                            </div>
-                                            <div class="col-md-7">
-                                                <p>
-                                                    Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
-                                                </p>
-                                            </div>
-                                        </t>
-                                        <t t-else="1">
-                                            <p class="text-center">
-                                                Congratulations you are ready for the next stage
-                                            </p>
-                                        </t>
-                                        <t t-if="(next_level_certified - nbr_certif) > 0">
-                                            <div class="col-md-4">
-                                                <div class="col-md-5 o_partner_dashboard_big_text">
-                                                    <t t-esc="int(next_level_certified - nbr_certif)"/>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    Certified<br/>Expert(s)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-7">
-                                                <p>
-                                                    Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
-                                                </p>
-                                            </div>
-                                        </t>
-                                        <t t-else="1">
-                                            <p class="text-center">
-                                                Congratulations you are ready for the next stage
-                                            </p>
-                                        </t>
-                                    </t>
-                                    <t t-else="1">
-                                        <div t-if="partner">
-                                            Become an Official Partner to promote your company on Odoo.com, to get leads and a 100% commission on <a href="https://www.odoo.sh/">Odoo.sh</a>
-                                        </div>
-                                        <div t-else="1">
-                                            Upgrade to unlock full eLearning access, download of source code and developers resources.
-                                        </div>
-                                    </t>
-                                </div>
                             </t>
                             <t t-else="1">
-                                <h3>Your Partnership Grade</h3>
-                                <div class="col-md-3 text-center" style="background-color:#875a7b; border-radius:10%; color:white">
+                                <div t-attf-class="col-md-3 text-center panel #{not partner_grade and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">
                                     Not a Partner
                                 </div>
-                                <div class="col-md-3 col-md-offset-1 text-center" style="border-radius:10%;">
+                                <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade == 'Learning' and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">
                                     Learning Partner
                                 </div>
-                                <div class="col-md-3 col-md-offset-1 text-center" style="border-radius:10%;">
+                                <div class="col-md-3 col-md-offset-1 text-center panel o_partner_dashboard_grade_inactive">
                                     Official Partner
                                 </div>
-                                <div class="row" style="margin-top:5px;">
+                            </t>
+                            <div class="row o_partner_dashboard_section" t-if="partner_grade">
+                                <t t-if="partner_grade">
+                                    <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
+                                        <div class="col-md-4">
+                                            <div class="col-md-5 o_partner_dashboard_big_text">
+                                                <t t-esc="int(next_level_users - last_12month_enterprise_user)"/>
+                                            </div>
+                                            <p class="col-md-6 text-center">
+                                                Enterprise <br/> Users
+                                            </p>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <p>
+                                                Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
+                                            </p>
+                                        </div>
+                                    </t>
+                                    <t t-else="1">
+                                        <p class="col-md-12 text-center">
+                                            Congratulations you are ready for the next stage
+                                        </p>
+                                    </t>
+                                    <t t-if="(next_level_certified - nbr_certif) > 0">
+                                        <div class="col-md-4">
+                                            <div class="col-md-5 o_partner_dashboard_big_text">
+                                                <t t-esc="int(next_level_certified - nbr_certif)"/>
+                                            </div>
+                                            <p class="col-md-6 text-center">
+                                                Certified<br/>Expert(s)
+                                            </p>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <p>
+                                                Until you are upgraded to <t t-esc="next_level"/> and start getting a <t t-esc="next_level_com"/>% commission
+                                            </p>
+                                        </div>
+                                    </t>
+                                    <t t-else="1">
+                                        <p class="col-md-12 text-center">
+                                            Congratulations you are ready for the next stage
+                                        </p>
+                                    </t>
+                                </t>
+                                <div t-if="partner and partner_grade == 'Enterprise'">
+                                    Become an Official Partner to promote your company on Odoo.com, to get leads and a 100% commission on <a href="https://www.odoo.sh/">Odoo.sh</a>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt4" t-else="1">
+                                <div>
                                     Upgrade to unlock full eLearning access, download of source code and developers resources.
                                 </div>
-                                <div class="row" style="margin-top:5px;">
+                                <div class="mt4">
                                     <button href="/dashboard/pricing" type="button" class="btn btn-success col-md-6">Upgrade &amp; Pricing</button>
                                     <a href="/contactus" class="col-md-6">Contact us</a>
                                 </div>
-                            </t>
+                            </div>
                         </div>
                         <div class="row">
                             <h3>Statistics in <strong><t t-esc="country_id.name"/></strong></h3>
@@ -720,7 +673,7 @@
                             <h3>Useful Videos</h3>
                             <iframe width="248px" height="138px" src="https://www.youtube.com/embed/vt1Pwfnh5pc?rel=0&amp;controls=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>
                             <p>
-                                <a href="#">See all videos ></a>
+                                <a href="/page/tour">See all videos ></a>
                             </p>
                         </div>
                     </div>
@@ -733,195 +686,156 @@
                 <t t-set="title">Plans &amp; Pricing</t>
                 <div class="container">
                     <p class="h1">Select Your Partnership</p>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1"/>
-                        <t t-set="col_2">
-                            <p class="h3 bg-danger">Learning Partner</p>
-                        </t>
-                        <t t-set="col_3">
-                            <div class="bg-success">
-                                <p class="h3">Official Partner</p>
+                    <table class="table mt48 openerp_website_pricing_packs">
+                        <thead>
+                        <tr class="no-border">
+                            <th/>
+                            <th width="35%" class="bg-delta text-center">
+                                <h2 class="mt0 mb0">Learning Partner</h2><br/>
+                            </th>
+                            <th width="35%" class="bg-gamma text-center">
+                                <h2 class="mt0 mb0">Official Partner</h2>
                                 <p>Ready - Silver - Gold</p>
-                            </div>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1"/>
-                        <t t-set="col_2">
-                            <p class="h4"><t t-esc="learning_price.list_price"/><t t-esc="currency.symbol"/>/Year</p>
-                        </t>
-                        <t t-set="col_3">
-                            <p class="h4"><t t-esc="official_price.list_price"/><t t-esc="currency.symbol"/>/Year</p>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p class="h3"><strong>Included services</strong></p>
-                        </t>
-                        <t t-set="col_2">
-                            <button type="button" class="btn btn-info">Buy now</button>
-                        </t>
-                        <t t-set="col_3">
-                            <button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>eLearning Product Training</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Partner Knowledge</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Brand Rights</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Access to Enterprise</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Access on GitHub</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Visibility on Website</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <p>Low - Medium - High</p>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Get Leads</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Dedicated Account Manager</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Participations in Roadshows</p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>OffShre Developments <a href="/page/developers-on-demand" class="text-uppercase">Learn More</a></p>
-                        </t>
-                        <t t-set="col_2">
-                            <i class="fa fa-square-o"/>
-                        </t>
-                        <t t-set="col_3">
-                            <i class="fa fa-check-square-o"/>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p class="h3"><strong>Commissions</strong></p>
-                        </t>
-                        <t t-set="col_2"/>
-                        <t t-set="col_3"/>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Odoo Enterprise</p>
-                        </t>
-                        <t t-set="col_2">
-                            <p>10%</p>
-                        </t>
-                        <t t-set="col_3">
-                            <p>10% - 15% - 20%</p>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1">
-                            <p>Odoo.sh <a href="https://www.odoo.sh/" class="text-uppercase">Learn More</a></p>
-                        </t>
-                        <t t-set="col_2">
-                            <p>10%</p>
-                        </t>
-                        <t t-set="col_3">
-                            <p>100%</p>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1"/>
-                        <t t-set="col_2">
-                            <button type="button" class="btn btn-info">Buy now</button>
-                        </t>
-                        <t t-set="col_3">
-                            <button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button>
-                        </t>
-                    </t>
-                    <t t-call="partner_dashboard.pricing_row">
-                        <t t-set="col_1"/>
-                        <t t-set="col_2">
-                            <p><a href="#">Contact us</a></p>
-                        </t>
-                        <t t-set="col_3">
-                            <p><a href="/documentation/user/11.0/legal.html">Download Contract</a></p>
-                        </t>
-                    </t>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="no-border">
+                            <td/>
+                            <td><span t-field="learning_price.list_price" /></td>
+                            <td><span t-field="official_price.list_price" /></td>
+                        </tr>
+                        <tr class="no-border">
+                            <td class="h3 active">
+                                <strong>Included services</strong>
+                            </td>
+                            <td><button type="button" class="btn btn-info">Buy now</button></td>
+                            <td><button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button></td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>eLearning Product Training</td>
+                            <td>
+                                <i class="fa fa-1x fa-check text-delta"/>
+                            </td>
+                            <td>
+                                <i class="fa fa-1x fa-close text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Partner Knowledge</td>
+                            <td>
+                                <i class="fa fa-1x fa-check text-delta"/>
+                            </td>
+                            <td>
+                                <i class="fa fa-1x fa-close text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Brand Rights</td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Access to Enterprise</td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Access to GitHub</td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Visibility on Website</td>
+                            <td>
+                               <i class="fa fa-1x fa-close text-delta"/>
+                            </td>
+                            <td>Low - Medium - High</td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Get Leads</td>
+                            <td>
+                               <i class="fa fa-1x fa-close text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Dedicated Account Manager</td>
+                            <td>
+                               <i class="fa fa-1x fa-close text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Participations in roadshows</td>
+                            <td>
+                               <i class="fa fa-1x fa-close text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Offshore Developments <a href="#">LEARN MORE</a></td>
+                            <td>
+                               <i class="fa fa-1x fa-close text-delta"/>
+                            </td>
+                            <td>
+                               <i class="fa fa-1x fa-check text-gamma"/>
+                            </td>
+                        </tr>
+                        <br/>
+                        <tr class="no-border">
+                            <td class="h3"><strong>Commissions</strong></td>
+                            <td/>
+                            <td/>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Odoo Enterprise</td>
+                            <td>10%</td>
+                            <td>10% - 15% - 20%</td>
+                        </tr>
+                        <tr class="no-border">
+                            <td>Odoo.sh <a href="https://www.odoo.sh">LERAN MORE</a></td>
+                            <td>10%</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td/>
+                            <td>
+                                <button type="button" class="btn btn-info">Buy now</button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td/>
+                            <td>
+                                <a href="#">Contact us</a>
+                            </td>
+                            <td>
+                                <a href="#">Download Contract</a>
+                            </td>
+                        </tr>
+                      </tbody>
+                  </table>
                 </div>
             </t>
         </template>
@@ -943,7 +857,7 @@
 
         <template id="couponBox">
             <div class="col-md-6 h-100">
-                <div class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></div>
+                <div class="h4" style="background-color:silver; padding: 5px"><t t-raw="box_title"/></div>
                 <p style="font-size:110%;">
                     <p><t t-raw="intro_text"/></p>
                     <p class="o_partner_dashboard_big_text"><t t-raw="coupon"/></p>
@@ -1076,7 +990,7 @@
                         </div>
                         <div t-attf-class="form-group #{error.get('website_description') and 'has-error' or ''} col-lg-12">
                             <label class="control-label" for="website_description">Your summary</label>
-                            <textarea class="form-control load_editor" name="website_description" id="website_description"/>
+                            <textarea class="form-control load_editor" name="website_description" id="website_description" t-att-disabled="'disabled' if not partner else None"/>
                         </div>
                     </div>
                     <div class="clearfix">
