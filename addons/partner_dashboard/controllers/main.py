@@ -3,12 +3,11 @@ from odoo import http, tools, _
 from odoo.http import request
 from odoo.exceptions import ValidationError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from random import randint
 import json
 import base64
-
-from openerp.addons.saas_worker.util import ip2coordinates
+from ..models.consts import ENTERPRISE_USER_IDS, POINT_OF_CONTACT_IDS
 
 
 class PartnerDashboard(http.Controller):
@@ -49,38 +48,21 @@ class PartnerDashboard(http.Controller):
         foreign_tour = tour.filtered(lambda x: x.country_id != country_id)
         return {'events': (oxp + local_tour + foreign_tour)[:3]}
 
-    def _get_companies_size(self, country_id):
-        Attachment = request.env['ir.attachment'].sudo()
-
-        company_size = None
-
-        dom = [('url', '=', '/company_size.json'), ('type', '=', 'url')]
-        attachment = Attachment.search(dom, limit=1)
-        if attachment:
-            data_dict = json.loads(base64.b64decode(attachment.datas))
-
-            index = 0
-            while True:
-                if data_dict[index]['country_id'] == country_id:
-                    company_size = data_dict[index]['values']
-                    break
-                if index < len(data_dict) - 1:
-                    index += 1
-                else:
-                    break
-
-            company_size = json.dumps(company_size)
-        else:
-            company_size = 'Find no data for your country'
-
+    def _get_country_cached_stat(self, country_id):
+        attachment = request.env.ref('partner_dashboard.dashboard_partner_stats').sudo()
+        if not attachment.datas:
+            request.env['crm.lead']._refresh_dashboard_data()
+        data_dict = json.loads(base64.b64decode(attachment.datas))
+        country_dict = next(filter(lambda x: x['country_id'] == country_id, data_dict))
         return {
-            'company_size': company_size
+            'company_size': json.dumps(country_dict['lead_by_company_size']),
+            'country_leads': country_dict['country_leads'],
+            'country_partners': country_dict['country_partners'],
+            'country_customers': country_dict['country_customers'],
         }
 
     def _get_purchase_orders(self, partner_id):
         # assert not request.website.is_public_user()
-
-        ENTERPRISE_USER_IDS = [350, 209, 208, ]  # USe the IDs of the commissions items
         PurchaseOrder = request.env['purchase.order']
 
         last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
@@ -102,27 +84,12 @@ class PartnerDashboard(http.Controller):
             'last_12months_purchase_total': last_12months_purchase_total,
         }
 
-    def _get_country_stats(self, country_id):
-        Leads = request.env['crm.lead'].sudo()
-        Partners = request.env['res.partner']
-
-        # TODO: preprocess?
-        country_customers = Leads.search_count([('country_id', '=', country_id), ('partner_id', '!=', None)])
-        country_leads = Leads.search_count([('country_id', '=', country_id)])
-        country_partners = Partners.search_count([('country_id', '=', country_id), ('is_company', '=', True)])
-
-        return {
-            'country_leads': country_leads,
-            'country_partners': country_partners,
-            'country_customers': country_customers,
-        }
-
     def _get_grade(self, partner):
         ODOO_CERT_IDS = request.env['res.partner.category'].sudo().search([('name', '=ilike', 'Certification%')])
         ODOO_COMPANY_CERT_IDS = request.env['res.partner.category'].sudo().search([('name', '=ilike', 'CTP Certif%')])
-        NEXT_GRADE_USERS_VALUE = {'Bronze': 50, 'Silver': 100, 'Gold': 0, 'Platinum': -10}
-        NEXT_GRADE_CERTIFIED_VALUE = {'Bronze': 2, 'Silver': 4, 'Gold': 0, 'Platinum': -10}
-        NEXT_GRADE_COMMISSION_VALUE = {'Bronze': 10, 'Silver': 20, 'Gold': 0, 'Platinum': -10}
+        NEXT_GRADE_USERS_VALUE = {'Learning': 0, 'Bronze': 50, 'Silver': 100, 'Gold': 0, 'Platinum': -10}
+        NEXT_GRADE_CERTIFIED_VALUE = {'Learning': 1, 'Bronze': 2, 'Silver': 4, 'Gold': 0, 'Platinum': -10}
+        NEXT_GRADE_COMMISSION_VALUE = {'Learning': 5, 'Bronze': 10, 'Silver': 20, 'Gold': 0, 'Platinum': -10}
         partner_grade = partner.grade_id.name
 
         next_level_users = 0
@@ -173,155 +140,111 @@ class PartnerDashboard(http.Controller):
             'not_won_opportunities': not_won_opportunities,
         }
 
-    def _get_location(self, ip_address=None):
-        country_id = None
-        if not ip_address:
-            ip_address = request.httprequest.headers.get('X-Odoo-GeoIP') or request.httprequest.environ['REMOTE_ADDR']
-        if ip_address:
-            coordinates = ip2coordinates(ip_address)
-            country_code = coordinates['country_code']
-            country = request.env['res.country'].sudo().search([('code', '=', country_code.upper())], limit=1)
-            country_id = country
-        return {
-            'country_id': country_id,
-        }
+    def _get_geocountry(self):
+        country_code = request.session.geoip and request.session.geoip.get('country_code') or False
+        if country_code:
+            country = request.env['res.country'].sudo().search([('code', '=', country_code)], limit=1)
+        return country
+
+    def _get_random_partner(self):
+        Employee = request.env['hr.employee'].sudo()
+        return Employee.browse(POINT_OF_CONTACT_IDS[randint(0, len(POINT_OF_CONTACT_IDS) - 1)]).user_id.partner_id
 
     def _values(self, access_token):
-        Partner = request.env['res.partner'].sudo()
-        Employee = request.env['hr.employee'].sudo()
         Subscription = request.env['sale.subscription'].sudo()
         Lead = request.env['crm.lead'].sudo()
 
-        point_of_contact = [12, 17, 16, 3]
+        # TODO: Use location to assign a saleman from the correct sale ZONE departement
 
-        values = {}
-        is_access_token = False
+        subscription = False
+        saleman = False
+        partner = False
+        lead = False
 
         if access_token:
-            is_access_token = True
-            sub = Subscription.search([('uuid', '=', access_token), ('template_id.code', '=', "PART")])
-            if sub:
-                partner = sub.partner_id
+            subscription = Subscription.search([('uuid', '=', access_token), ('template_id.code', '=', "PART")], limit=1, order='create_date desc')
+        elif not request.website.is_public_user():
+            subscription = Subscription.search([('partner_id', '=', request.env.user.partner_id.commercial_partner_id.id), ('template_id.code', '=', "PART")], limit=1, order='create_date desc')
+
+        if subscription:
+            partner = subscription.partner_id
+            saleman = subscription.user_id and subscription.user_id.partner_id
         else:
-            partner = request.env.user.partner_id
+            if request.website.is_public_user():
+                lead_id = Lead.decode(request)
+                if lead_id:
+                    lead = Lead.browse(lead_id)
+                    saleman = lead.user_id.partner_id
+                    partner = lead.partner_id  # - TODO
+            else:
+                partner = request.env.user.partner_id
+                saleman = partner.user_id.partner_id
 
-        saleman = Employee.browse(point_of_contact[randint(0, len(point_of_contact) - 1)])
-        my_sub = Subscription.search([('partner_id', '=', partner.id), ('template_id.code', '=', "PART")], limit=1, order='create_date desc')
+        if not saleman:
+            print("NO SALEMAN")
+            # saleman = request.session.get('saleman_id', self._get_random_partner())
+            # request.session['saleman_id'] = saleman
+            saleman = self._get_random_partner()
 
-        if my_sub:
-            if my_sub.user_id:
-                saleman = Partner.browse(my_sub.user_id.partner_id.id)
+        country = (partner and partner.country_id) or (lead and lead.country_id) or self._get_geocountry()
 
-        if request.website.is_public_user() and Lead.decode(request) and not access_token:
-            lead = Lead.browse(Lead.decode(request))
-            if lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']:
+        values = {}
+        values.update(self._get_country_cached_stat(country.id))
+        values.update(self._get_events(country))
+        values.update({
+            'saleman': saleman,
+            'access_token': access_token,
+            'country_id': country,
+            'partner': partner,
+        })
+        # if subscription:
+
+        if request.website.is_public_user() and not access_token:
+            if lead:
                 lead_pic = lead.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', lead.id)])['datas']
-            else:
-                lead_pic = False
-            saleman = Partner.browse(lead.user_id.partner_id.id)
-            values = {
-                'saleman': saleman,
-                'saleman_id': False,
-            }
-            if not lead.country_id:
-                values.update(self._get_location())
-                values.update(self._get_country_stats(values['country_id'].id))
-                values.update(self._get_events(values['country_id']))
-                values.update(self._get_companies_size(values['country_id'].id))
-
-            else:
-                values.update(self._get_country_stats(lead.country_id.id))
-                values.update(self._get_events(lead.country_id))
-                values.update(self._get_companies_size(lead.country_id.id))
-                values.update({'country_id': lead.country_id})
-
-            values.update({
-                'partner': False,
-                'basic_infos': True,
-                'street'
-                'access_token': is_access_token,
-                'partner_name': lead.contact_name,
-                'partner_image': lead_pic,
-                'source': lead,
-                'email': lead.email_from,
-            })
-
-        elif request.website.is_public_user() and not access_token:
-            values = {
-                'saleman': saleman.user_id.partner_id,
-                'saleman_id': saleman,
-            }
-            values.update(self._get_location())
-            values.update(self._get_country_stats(values['country_id'].id))
-            values.update(self._get_events(values['country_id']))
-            values.update(self._get_companies_size(values['country_id'].id))
-            values.update({
-                'partner': False,
-                'basic_infos': False,
-                'access_token': is_access_token,
-            })
-
-        else:
-            values = self._get_subscriptions(partner.id)
+                values.update({
+                    'street': lead.street,
+                    'source': lead,
+                    'source_email': lead.email_from,
+                    'source_name': lead.contact_name,
+                    'source_image': lead_pic,
+                })
+        else:  # partner set
+            values.update(self._get_subscriptions(partner.id))
             values.update(self._get_purchase_orders(partner.id))
             values.update(self._get_grade(partner))
             values.update(self._get_opportunities(partner.id))
-
-            if not partner.country_id:
-                values.update(self._get_location())
-                values.update(self._get_country_stats(values['country_id'].id))
-                values.update(self._get_events(values['country_id']))
-                values.update(self._get_companies_size(values['country_id'].id))
-
-            else:
-                values.update(self._get_country_stats(partner.country_id.id))
-                values.update(self._get_events(partner.country_id))
-                values.update(self._get_companies_size(partner.country_id.id))
-                values.update({'country_id': partner.country_id})
-
             values.update({
-                'partner': partner,
-                'partner_name': partner.name,
-                'partner_image': partner.image_medium,
-                'currency': partner.country_id.currency_id.symbol,
-                'my_sub': my_sub,
-                'saleman': saleman,
-                'saleman_id': False,
-                'access_token': is_access_token,
                 'source': partner,
-                'email': partner.email,
+                'source_email': partner.email,
+                'source_name': partner.name,
+                'source_image': partner.image_medium,
+                'currency': partner.country_id.currency_id.symbol,  # TODO FIX ME
+                'my_sub': subscription,
             })
 
         return values
 
-    def _set_saleman_in_session(self, values):
-        if values['saleman_id'] is not False:
-            request.session['saleman_id'] = values['saleman_id'].id
-            return True
-        else:
-            return False
-
     @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
     def dashboard_token(self, access_token=None, **kw):
         values = self._values(access_token)
-        self._set_saleman_in_session(values)
         return request.render('partner_dashboard.dashboard', values)
 
     @http.route(['/dashboard/profile'], type='http', auth='public', website=True)
     def dasboardLead(self, redirect=None, **data):
-        Employees = request.env['hr.employee'].sudo()
+        # Employees = request.env['hr.employee'].sudo()
         MANDATORY_FIELDS = ["name", "phone", "email", "street", "city", "country_id"]
         OPTIONAL_FIELDS = ["zipcode", "state_id", "vat", "company_name", "website_description"]
 
         error = {}
         error_message = []
 
-        if request.session.get('saleman_id'):
-            saleman_id = request.session.get('saleman_id')
-            if saleman_id:
-                user_id = Employees.browse(saleman_id).user_id
-            else:
-                user_id = 0
+        # if request.session.get('saleman_id'):
+        #     saleman_id = request.session.get('saleman_id')
+        #     if saleman_id:
+        #         user_id = Employees.browse(saleman_id).user_id
+        #     else:
+        #         user_id = 0
 
         if request.website.is_public_user():
             partner = False
@@ -371,7 +294,7 @@ class PartnerDashboard(http.Controller):
                 if not partner:
                     # partner = request.env['res.partner'].sudo().create(values)
                     lead = request.env['crm.lead'].sudo().create({
-                        'name': "NEW PARTNERSHIP !! %s" % values['name'],
+                        'name': "NEW PARTNERSHIP for %s" % values['name'],
                         'partner_name': values['company_name'],
                         'street': values['street'],
                         'city': values['city'],
@@ -380,8 +303,7 @@ class PartnerDashboard(http.Controller):
                         'email_from': values['email'],
                         'phone': values['phone'],
                         'contact_name': values['name'],
-                        'description': values['website_description'],
-                        'user_id': user_id.id,
+                        # 'user_id': user_id.id,
                     })
                     if 'image' in values.keys():
                         attachment = {
@@ -416,28 +338,18 @@ class PartnerDashboard(http.Controller):
         })
 
         response = request.render("partner_dashboard.partner_form", data)
-        response.headers['X-Frame-Options'] = 'DENY'
         return response
 
     @http.route('/dashboard/pricing', type='http', auth="public", website=True)
     def pricing(self, **kw):
         Products = request.env['product.product']
 
-        learning_price = Products.sudo().browse(10)
-        official_price = Products.sudo().browse(36)
-        # first_year_discount = Products.sudo().browse(5216)
-
-        if request.website.is_public_user():
-            currency = self._get_location()['country_id'].currency_id
-        else:
-            partner = request.env.user.partner_id
-            currency = partner.country_id.currency_id
+        learning_price = Products.browse(10)
+        official_price = Products.browse(36)
 
         values = {
             'learning_price': learning_price,
             'official_price': official_price,
-            # 'first_year_discount': first_year_discount,
-            'currency': currency,
         }
 
         return request.render('partner_dashboard.plans_prices', values)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<odoo noupdate="1">
     <record id="company_size_cron" model="ir.cron">
         <field name="name">Partner Dashboard: Create the list of compay by size tag</field>
         <field name="active" eval="True"/>
@@ -10,4 +10,13 @@
         <field name="code">model._define_companies_size()</field>
         <field name="state">code</field>
     </record>
+
+    <record id="dashboard_partner_stats" model="ir.attachment">
+        <field name="name">Partner Dashboard Stat</field>
+        <field name="type">binary</field>
+        <field name="datas"/>
+        <field name="datas_fname">company_size.json</field>
+    </record>
+
+    <!-- <function model="crm.lead" name="_refresh_dashboard_data"/> -->
 </odoo>
