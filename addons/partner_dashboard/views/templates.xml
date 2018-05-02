@@ -20,7 +20,7 @@
                     <t t-call-assets="partner_dashboard.assets_nvd3"/>
                 </t>
                 <div class="container">
-                    <p class="h1">Partner Dashboard</p>
+                    <h1>Partner Dashboard</h1>
 
                     <!-- Left column -->
                     <div class='col-md-8'>
@@ -32,22 +32,13 @@
                         <div class="o_partner_dashboard_section">
                             <p class="h3">Your Business</p>
                             <div class="row">
-                                <t t-if="source">
+                                <t t-if="contact">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Company Informations</t>
                                         <t t-set="big_text"/>
                                         <t t-set="first_text">
                                             <div t-esc="source_image" t-if="source_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
-                                            <p><strong><t t-esc='source_name'/></strong></p>
-                                            <address>
-                                                <p>
-                                                    <span t-if="source.street"><t t-esc="source.street"/><br/></span>
-                                                    <span><t t-esc="source.city" t-if="source.city"/> <t t-esc="source.state_id.code" t-if="source.state_id"/> <t t-esc="source.zip" t-if="source.zip"/></span><br/>
-                                                    <span t-if="source.country_id"><t t-esc="source.country_id.name"/><br/></span>
-                                                </p>
-                                                <span t-if="source.phone"><i class="fa fa-phone fa-fw"/><t t-esc="source.phone"/></span><br/>
-                                                <span t-if="source_email"><i class="fa fa-envelope fa-fw"/><t t-esc="source_email"/></span>
-                                            </address>
+                                            <div t-field="contact.self" t-options="{'widget': 'contact','fields': ['address', 'name', 'phone', 'email']}" />
                                         </t>
 
                                         <t t-if="not access_token">
@@ -207,7 +198,7 @@
                                         </t>
                                         <t t-set="first_text">
                                             Certified Expert(s)
-                                            <p class="text-center text-success" t-if="partner_certif"><strong>You are <t t-esc="partner_certif.name"/></strong></p>
+                                            <p class="text-center text-success" t-if="partner_certif"><strong>You are certified for <t t-esc="partner_certif.mapped('display_name')"/></strong></p>
                                         </t>
                                         <t t-set="big_text">
                                             <t t-esc="nbr_certif"/>
@@ -659,7 +650,7 @@
                                 <br/>
                                 <t t-esc='saleman.function'/>
                                 <address t-field='saleman.self' t-options="dict(widget='contact', fields=['phone', 'email'], separator='\n')"/>
-                                <p><a href="/contact_us"><i class="fa fa-calendar"/> Schedule a meeting</a></p>
+                                <p><a href="/contactus"><i class="fa fa-calendar"/> Schedule a meeting</a></p>
                             </p>
                         </div>
                         <div calss="row">
@@ -887,20 +878,6 @@
                     <br/>
                     <t t-esc="stat_name"/>
                </p>
-            </div>
-        </template>
-
-        <template id="pricing_row">
-            <div class="row">
-                <div class="col-md-4">
-                    <t t-raw="col_1"/>
-                </div>
-                <div class="col-md-4 text-center">
-                    <t t-raw="col_2"/>
-                </div>
-                <div class="col-md-4 text-center">
-                    <t t-raw="col_3"/>
-                </div>
             </div>
         </template>
 

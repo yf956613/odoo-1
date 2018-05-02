@@ -15,6 +15,7 @@ class partner_dashboard(models.Model):
     def _refresh_dashboard_data(self):
         self = self.sudo()
         Partner = self.env['res.partner']
+        Subscription = self.env['sale.subscription']
         attach = self.env.ref('partner_dashboard.dashboard_partner_stats')
 
         last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
@@ -34,7 +35,7 @@ class partner_dashboard(models.Model):
 
             # Leads / Customers / Partner by country
             val_by_country['country_leads'] = self.search_count([('country_id', '=', country.id), ('create_date', '>', last_year)])
-            val_by_country['country_customers'] = Partner.search_count([('country_id', '=', country.id), ('grade_id', '=', False)])
+            val_by_country['country_customers'] = Subscription.search_count([('country_id', '=', country.id)])
             val_by_country['country_partners'] = Partner.search_count([('country_id', '=', country.id), ('grade_id', '!=', False)])
 
             # Add values to stats
