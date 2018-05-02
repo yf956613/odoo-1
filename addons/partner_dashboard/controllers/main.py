@@ -141,18 +141,20 @@ class PartnerDashboard(http.Controller):
         }
 
     def _get_geocountry(self):
+        country = False
         country_code = request.session.geoip and request.session.geoip.get('country_code') or False
         if country_code:
             country = request.env['res.country'].sudo().search([('code', '=', country_code)], limit=1)
-        return country
+        return country or request.env.ref('base.be')
 
     def _get_random_partner(self):
         Employee = request.env['hr.employee'].sudo()
-        return Employee.browse(POINT_OF_CONTACT_IDS[randint(0, len(POINT_OF_CONTACT_IDS) - 1)]).user_id.partner_id
+        return Employee.browse(POINT_OF_CONTACT_IDS[randint(0, len(POINT_OF_CONTACT_IDS) - 1)]).user_id.partner_id.id
 
     def _values(self, access_token):
         Subscription = request.env['sale.subscription'].sudo()
         Lead = request.env['crm.lead'].sudo()
+        Partner = request.env['res.partner'].sudo()
 
         # TODO: Use location to assign a saleman from the correct sale ZONE departement
 
@@ -168,23 +170,21 @@ class PartnerDashboard(http.Controller):
 
         if subscription:
             partner = subscription.partner_id
-            saleman = subscription.user_id and subscription.user_id.partner_id
+            saleman = subscription.user_id and subscription.user_id.partner_id.id
         else:
             if request.website.is_public_user():
                 lead_id = Lead.decode(request)
                 if lead_id:
                     lead = Lead.browse(lead_id)
-                    saleman = lead.user_id.partner_id
                     partner = lead.partner_id  # - TODO
             else:
                 partner = request.env.user.partner_id
-                saleman = partner.user_id.partner_id
+                saleman = partner.user_id.partner_id.id
 
         if not saleman:
             print("NO SALEMAN")
-            # saleman = request.session.get('saleman_id', self._get_random_partner())
-            # request.session['saleman_id'] = saleman
-            saleman = self._get_random_partner()
+            saleman = request.session.get('saleman_id', self._get_random_partner())
+            request.session['saleman_id'] = saleman
 
         country = (partner and partner.country_id) or (lead and lead.country_id) or self._get_geocountry()
 
@@ -192,12 +192,11 @@ class PartnerDashboard(http.Controller):
         values.update(self._get_country_cached_stat(country.id))
         values.update(self._get_events(country))
         values.update({
-            'saleman': saleman,
+            'saleman': Partner.browse(saleman),
             'access_token': access_token,
             'country_id': country,
             'partner': partner,
         })
-        # if subscription:
 
         if request.website.is_public_user() and not access_token:
             if lead:
@@ -238,13 +237,6 @@ class PartnerDashboard(http.Controller):
 
         error = {}
         error_message = []
-
-        # if request.session.get('saleman_id'):
-        #     saleman_id = request.session.get('saleman_id')
-        #     if saleman_id:
-        #         user_id = Employees.browse(saleman_id).user_id
-        #     else:
-        #         user_id = 0
 
         if request.website.is_public_user():
             partner = False
@@ -292,7 +284,6 @@ class PartnerDashboard(http.Controller):
                     img = base64.encodestring(file.stream.read())
                     values['image'] = img
                 if not partner:
-                    # partner = request.env['res.partner'].sudo().create(values)
                     lead = request.env['crm.lead'].sudo().create({
                         'name': "NEW PARTNERSHIP for %s" % values['name'],
                         'partner_name': values['company_name'],
@@ -303,7 +294,7 @@ class PartnerDashboard(http.Controller):
                         'email_from': values['email'],
                         'phone': values['phone'],
                         'contact_name': values['name'],
-                        # 'user_id': user_id.id,
+                        'user_id': False,
                     })
                     if 'image' in values.keys():
                         attachment = {

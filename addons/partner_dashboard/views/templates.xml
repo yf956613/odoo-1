@@ -31,7 +31,7 @@
                         <div class="o_partner_dashboard_section">
                             <p class="h3">Your Business</p>
                             <div class="row">
-                                <t t-if="partner or street">
+                                <t t-if="source">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Company Informations</t>
                                         <t t-set="big_text"/>
@@ -671,7 +671,7 @@
                         </div>
                         <div calss="row">
                             <h3>Useful Videos</h3>
-                            <iframe width="248px" height="138px" src="https://www.youtube.com/embed/vt1Pwfnh5pc?rel=0&amp;controls=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+                            <iframe width="248px" height="138px" src="https://www.youtube.com/embed/vt1Pwfnh5pc?rel=0&amp;" allowfullscreen="allowfullscreen" frameborder="0" allow="autoplay; encrypted-media"></iframe>
                             <p>
                                 <a href="/page/tour">See all videos ></a>
                             </p>
@@ -686,154 +686,154 @@
                 <t t-set="title">Plans &amp; Pricing</t>
                 <div class="container">
                     <p class="h1">Select Your Partnership</p>
-                    <table class="table mt48 openerp_website_pricing_packs">
+                    <table class="table mt48">
                         <thead>
                         <tr class="no-border">
                             <th/>
-                            <th width="35%" class="bg-delta text-center">
+                            <th width="35%" class="bg-gamma">
                                 <h2 class="mt0 mb0">Learning Partner</h2><br/>
                             </th>
-                            <th width="35%" class="bg-gamma text-center">
+                            <th width="35%" class="bg-delta">
                                 <h2 class="mt0 mb0">Official Partner</h2>
                                 <p>Ready - Silver - Gold</p>
                             </th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="no-border">
-                            <td/>
-                            <td><span t-field="learning_price.list_price" /></td>
-                            <td><span t-field="official_price.list_price" /></td>
-                        </tr>
-                        <tr class="no-border">
-                            <td class="h3 active">
-                                <strong>Included services</strong>
-                            </td>
-                            <td><button type="button" class="btn btn-info">Buy now</button></td>
-                            <td><button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button></td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>eLearning Product Training</td>
-                            <td>
-                                <i class="fa fa-1x fa-check text-delta"/>
-                            </td>
-                            <td>
-                                <i class="fa fa-1x fa-close text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Partner Knowledge</td>
-                            <td>
-                                <i class="fa fa-1x fa-check text-delta"/>
-                            </td>
-                            <td>
-                                <i class="fa fa-1x fa-close text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Brand Rights</td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Access to Enterprise</td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Access to GitHub</td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Visibility on Website</td>
-                            <td>
-                               <i class="fa fa-1x fa-close text-delta"/>
-                            </td>
-                            <td>Low - Medium - High</td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Get Leads</td>
-                            <td>
-                               <i class="fa fa-1x fa-close text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Dedicated Account Manager</td>
-                            <td>
-                               <i class="fa fa-1x fa-close text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Participations in roadshows</td>
-                            <td>
-                               <i class="fa fa-1x fa-close text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Offshore Developments <a href="#">LEARN MORE</a></td>
-                            <td>
-                               <i class="fa fa-1x fa-close text-delta"/>
-                            </td>
-                            <td>
-                               <i class="fa fa-1x fa-check text-gamma"/>
-                            </td>
-                        </tr>
-                        <br/>
-                        <tr class="no-border">
-                            <td class="h3"><strong>Commissions</strong></td>
-                            <td/>
-                            <td/>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Odoo Enterprise</td>
-                            <td>10%</td>
-                            <td>10% - 15% - 20%</td>
-                        </tr>
-                        <tr class="no-border">
-                            <td>Odoo.sh <a href="https://www.odoo.sh">LERAN MORE</a></td>
-                            <td>10%</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr>
-                            <td/>
-                            <td>
-                                <button type="button" class="btn btn-info">Buy now</button>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td/>
-                            <td>
-                                <a href="#">Contact us</a>
-                            </td>
-                            <td>
-                                <a href="#">Download Contract</a>
-                            </td>
-                        </tr>
+                            <tr class="no-border">
+                                <td/>
+                                <td><span t-field="learning_price.list_price" /></td>
+                                <td><span t-field="official_price.list_price" /></td>
+                            </tr>
+                            <tr class="no-border">
+                                <td class="h3 active">
+                                    <strong>Included services</strong>
+                                </td>
+                                <td><button type="button" class="btn btn-info">Buy now</button></td>
+                                <td><button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button></td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>eLearning Product Training</td>
+                                <td>
+                                    <i class="fa fa-1x fa-check text-gamma"/>
+                                </td>
+                                <td>
+                                    <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Partner Knowledge</td>
+                                <td>
+                                    <i class="fa fa-1x fa-check text-gamma"/>
+                                </td>
+                                <td>
+                                    <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Brand Rights</td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-gamma"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Access to Enterprise</td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-gamma"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Access to GitHub</td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-gamma"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Visibility on Website</td>
+                                <td>
+                                   <i class="fa fa-1x fa-close text-gray-light"/>
+                                </td>
+                                <td>Low - Medium - High</td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Get Leads</td>
+                                <td>
+                                   <i class="fa fa-1x fa-close text-gray-light"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Dedicated Account Manager</td>
+                                <td>
+                                   <i class="fa fa-1x fa-close text-gray-light"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Participations in roadshows</td>
+                                <td>
+                                   <i class="fa fa-1x fa-close text-gray-light"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Offshore Developments <a href="#">LEARN MORE</a></td>
+                                <td>
+                                   <i class="fa fa-1x fa-close text-gray-light"/>
+                                </td>
+                                <td>
+                                   <i class="fa fa-1x fa-check text-delta"/>
+                                </td>
+                            </tr>
+                            <br/>
+                            <tr class="no-border">
+                                <td class="h3"><strong>Commissions</strong></td>
+                                <td/>
+                                <td/>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Odoo Enterprise</td>
+                                <td>10%</td>
+                                <td>10% - 15% - 20%</td>
+                            </tr>
+                            <tr class="no-border">
+                                <td>Odoo.sh <a href="https://www.odoo.sh">LERAN MORE</a></td>
+                                <td>10%</td>
+                                <td>100%</td>
+                            </tr>
+                            <tr>
+                                <td/>
+                                <td>
+                                    <button type="button" class="btn btn-info">Buy now</button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td/>
+                                <td>
+                                    <a href="#">Contact us</a>
+                                </td>
+                                <td>
+                                    <a href="#">Download Contract</a>
+                                </td>
+                            </tr>
                       </tbody>
                   </table>
                 </div>
