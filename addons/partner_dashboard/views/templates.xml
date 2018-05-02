@@ -21,6 +21,7 @@
                 </t>
                 <div class="container">
                     <p class="h1">Partner Dashboard</p>
+
                     <!-- Left column -->
                     <div class='col-md-8'>
                         <div class="alert alert-info alert-dismissible" role="alert" >
@@ -38,7 +39,6 @@
                                         <t t-set="first_text">
                                             <div t-esc="source_image" t-if="source_image" class="pull-right o_partner_dashboard_img" t-options="dict(widget='image')"/>
                                             <p><strong><t t-esc='source_name'/></strong></p>
-                                            <br/>
                                             <address>
                                                 <p>
                                                     <span t-if="source.street"><t t-esc="source.street"/><br/></span>
@@ -46,7 +46,7 @@
                                                     <span t-if="source.country_id"><t t-esc="source.country_id.name"/><br/></span>
                                                 </p>
                                                 <span t-if="source.phone"><i class="fa fa-phone fa-fw"/><t t-esc="source.phone"/></span><br/>
-                                                <span t-if="email"><i class="fa fa-envelope fa-fw"/><t t-esc="source_email"/></span>
+                                                <span t-if="source_email"><i class="fa fa-envelope fa-fw"/><t t-esc="source_email"/></span>
                                             </address>
                                         </t>
 
@@ -485,7 +485,7 @@
                                         </table>
                                     </t>
                                     <t t-set="box_link">
-                                        <i class="fa fa-file-o" style="margin-right:5px;"/><a href="#">Sponsorship Brochure</a>
+                                        <i class="fa fa-file-o"/><a href="#">Sponsorship Brochure</a>
                                     </t>
                                 </t>
                                 <t t-call="partner_dashboard.infoBox" t-if="partner_grade and partner_grade != 'Learning'">
@@ -622,13 +622,13 @@
                                     Upgrade to unlock full eLearning access, download of source code and developers resources.
                                 </div>
                                 <div class="mt4">
-                                    <button href="/dashboard/pricing" type="button" class="btn btn-success col-md-6">Upgrade &amp; Pricing</button>
+                                    <a href="/dashboard/pricing" type="button" class="btn btn-success col-md-6">Upgrade &amp; Pricing</a>
                                     <a href="/contactus" class="col-md-6">Contact us</a>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <h3>Statistics in <strong><t t-esc="country_id.name"/></strong></h3>
+                            <h3>Statistics in <strong><t t-esc="country_id.name"/></strong><small class="text-muted"> (past 12 months)</small></h3>
                             <t t-call="partner_dashboard.countryStat">
                                 <t t-set="stat_value" t-value="country_leads"/>
                                 <t t-set="stat_name">
@@ -842,8 +842,8 @@
 
         <template id="infoBox">
             <div class="col-md-6 h-100">
-                <p class="h4" style="background-color:silver; padding: 5px"><t t-raw="box_title"/></p>
-                <p style="font-size:110%;">
+                <p class="h4 o_partner_info_box_title"><t t-raw="box_title"/></p>
+                <p>
                     <span t-if="big_text != ''" class="o_partner_dashboard_big_text">
                         <t t-raw="big_text"/>
                     </span>
@@ -857,8 +857,8 @@
 
         <template id="couponBox">
             <div class="col-md-6 h-100">
-                <div class="h4" style="background-color:silver; padding: 5px"><t t-raw="box_title"/></div>
-                <p style="font-size:110%;">
+                <div class="h4 o_partner_info_box_title"><t t-raw="box_title"/></div>
+                <p>
                     <p><t t-raw="intro_text"/></p>
                     <p class="o_partner_dashboard_big_text"><t t-raw="coupon"/></p>
                     <p><small><t t-esc="coupon_scope"/></small></p>
@@ -869,11 +869,11 @@
 
         <template id="addGithub">
             <div class="col-md-6 h-100">
-                <p class="h4" style="background-color:silver; padding: 5px"><t t-esc="box_title"/></p>
+                <p class="h4 o_partner_info_box_title"><t t-esc="box_title"/></p>
                 <p>
                     <t t-raw="box_link"/>
                 </p>
-                <p style="font-size:110%;">
+                <p>
                     <t t-raw="first_text"/>
                 </p>
 
@@ -922,47 +922,47 @@
                         </div>
                         <div t-attf-class="form-group #{error.get('name') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="name">Your Name</label>
-                            <input type="text" name="name" class="form-control" t-att-value="name or partner.name" />
+                            <input type="text" name="name" class="form-control" t-att-value="name or source_name" />
                         </div>
                         <div t-attf-class="form-group #{error.get('email') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="email">Email</label>
-                            <input type="email" name="email" class="form-control" t-att-value="email or partner.email" />
+                            <input type="email" name="email" class="form-control" t-att-value="email or source_email" />
                         </div>
                         <div t-attf-class="form-group #{error.get('phone') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="phone">Phone</label>
-                            <input type="tel" name="phone" class="form-control" t-att-value="phone or partner.phone" />
+                            <input type="tel" name="phone" class="form-control" t-att-value="phone or source.phone" />
                         </div>
 
                         <div class="clearfix" />
                         <div t-attf-class="form-group #{error.get('company_name') and 'has-error' or ''} col-lg-6">
                             <label class="control-label label-optional" for="company_name">Company Name</label>
-                            <p t-if="partner.commercial_partner_id.is_company" class="form-control" t-esc="partner.commercial_company_name"/>
-                            <input t-else="" type="text" name="company_name" class="form-control" t-att-value="company_name or partner.company_name"/>
+                            <p t-if="partner.commercial_partner_id.is_company or False" class="form-control" t-esc="partner.commercial_company_name"/>
+                            <input t-else="1" type="text" name="company_name" class="form-control" t-att-value="company_name or partner.company_name"/>
                         </div>
                         <div t-if="has_check_vat" t-attf-class="form-group #{error.get('vat') and 'has-error' or ''} col-lg-6">
                             <label class="control-label label-optional" for="vat">VAT Number</label>
-                            <input type="text" name="vat" class="form-control" t-att-value="vat or partner.vat" />
+                            <input type="text" name="vat" class="form-control" t-att-value="vat or partner.vat or None" />
                         </div>
 
                         <div class="clearfix" />
                         <div t-attf-class="form-group #{error.get('street') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="street">Street</label>
-                            <input type="text" name="street" class="form-control" t-att-value="street or partner.street"/>
+                            <input type="text" name="street" class="form-control" t-att-value="street or source.street"/>
                         </div>
                         <div t-attf-class="form-group #{error.get('city') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="city">City</label>
-                            <input type="text" name="city" class="form-control" t-att-value="city or partner.city" />
+                            <input type="text" name="city" class="form-control" t-att-value="city or source.city" />
                         </div>
                         <div t-attf-class="form-group #{error.get('zip') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="zipcode">Zip / Postal Code</label>
-                            <input type="text" name="zipcode" class="form-control" t-att-value="zipcode or partner.zip" />
+                            <input type="text" name="zipcode" class="form-control" t-att-value="zipcode or source.zip" />
                         </div>
                         <div t-attf-class="form-group #{error.get('country_id') and 'has-error' or ''} col-lg-6">
                             <label class="control-label" for="country_id">Country</label>
                             <select name="country_id" class="form-control">
                                 <option value="">Country...</option>
                                 <t t-foreach="countries or []" t-as="country">
-                                    <option t-att-value="country.id" t-att-selected="country.id == int(country_id) if country_id else country.id == partner.country_id.id">
+                                    <option t-att-value="country.id" t-att-selected="country.id == int(country_id) if country_id else country.id == source.country_id.id">
                                         <t t-esc="country.name" />
                                     </option>
                                 </t>
@@ -973,7 +973,7 @@
                             <select name="state_id" class="form-control">
                                 <option value="">select...</option>
                                 <t t-foreach="states or []" t-as="state">
-                                    <option t-att-value="state.id" style="display:none;" t-att-data-country_id="state.country_id.id" t-att-selected="state.id == partner.state_id.id">
+                                    <option t-att-value="state.id" style="display:none;" t-att-data-country_id="state.country_id.id" t-att-selected="state.id == source.state_id.id">
                                         <t t-esc="state.name" />
                                     </option>
                                 </t>
@@ -985,8 +985,8 @@
                             <input class="form-control readUrl" type="file" name="image" accept="image/*" aria-describedby="fileHelp"/>
                             <small id="fileHelp" class="form-text text-muted">.png or.jpg image file</small>
                         </div>
-                        <div t-if="partner and partner.image_small" t-attf-class="form-group col-lg-3 col-lg-offset-3"
-                             t-field="partner.image_small"  t-options="{'widget':'image', 'style':'float:right; max-width:100px;', 'class':'img_preview'}">
+                        <div t-if="source and source_image" t-attf-class="form-group col-lg-3 col-lg-offset-3"
+                             t-esc="source_image"  t-options="{'widget':'image', 'style':'float:right; max-width:100px;', 'class':'img_preview'}">
                         </div>
                         <div t-attf-class="form-group #{error.get('website_description') and 'has-error' or ''} col-lg-12">
                             <label class="control-label" for="website_description">Your summary</label>
