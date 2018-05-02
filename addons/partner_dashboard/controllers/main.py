@@ -231,7 +231,7 @@ class PartnerDashboard(http.Controller):
 
     @http.route(['/dashboard/profile'], type='http', auth='public', website=True)
     def dasboardLead(self, redirect=None, **data):
-        # Employees = request.env['hr.employee'].sudo()
+        Lead = request.env['crm.lead'].sudo()
         MANDATORY_FIELDS = ["name", "phone", "email", "street", "city", "country_id"]
         OPTIONAL_FIELDS = ["zipcode", "state_id", "vat", "company_name", "website_description"]
 
@@ -240,8 +240,24 @@ class PartnerDashboard(http.Controller):
 
         if request.website.is_public_user():
             partner = False
+            if Lead.decode(request):
+                source = Lead.browse(Lead.decode(request))
+                data.update({
+                    'partner': partner or request.env["res.partner"],
+                    'street': source.street,
+                    'source_email': source.email_from,
+                    'source_name': source.contact_name,
+                    'source_image': source.env['ir.attachment'].search([('datas_fname', '=', 'profile_pic'), ('res_id', '=', source.id)])['datas'],
+                })
         else:
             partner = request.env.user.partner_id.commercial_partner_id
+            source = partner
+            data.update({
+                'partner': partner or request.env["res.partner"],
+                'source_email': partner.email,
+                'source_name': partner.name,
+                'source_image': partner.image_medium,
+            })
 
         if request.httprequest.method == 'POST':
 
@@ -284,30 +300,55 @@ class PartnerDashboard(http.Controller):
                     img = base64.encodestring(file.stream.read())
                     values['image'] = img
                 if not partner:
-                    lead = request.env['crm.lead'].sudo().create({
-                        'name': "NEW PARTNERSHIP for %s" % values['name'],
-                        'partner_name': values['company_name'],
-                        'street': values['street'],
-                        'city': values['city'],
-                        'zip': values['zip'],
-                        'country_id': values['country_id'],
-                        'email_from': values['email'],
-                        'phone': values['phone'],
-                        'contact_name': values['name'],
-                        'user_id': False,
-                    })
-                    if 'image' in values.keys():
-                        attachment = {
-                            'name': 'Profile Picture',
-                            'datas': (values['image']),
-                            'datas_fname': 'profile_pic',
-                            'res_model': 'crm.lead',
-                            'res_id': lead.id,
-                        }
+                    if not Lead.decode(request):
+                        lead = Lead.create({
+                            'name': "NEW PARTNERSHIP for %s" % values['name'],
+                            'partner_name': values['company_name'],
+                            'street': values['street'],
+                            'city': values['city'],
+                            'zip': values['zip'],
+                            'country_id': values['country_id'],
+                            'email_from': values['email'],
+                            'phone': values['phone'],
+                            'contact_name': values['name'],
+                            'user_id': False,
+                        })
+                        if 'image' in values.keys():
+                            attachment = {
+                                'name': 'Profile Picture',
+                                'datas': (values['image']),
+                                'datas_fname': 'profile_pic',
+                                'res_model': 'crm.lead',
+                                'res_id': lead.id,
+                            }
 
-                        lead.env['ir.attachment'].create(attachment)
-                    sign = lead.encode(lead.id)
-                    resp.set_cookie('lead_id', sign)
+                            lead.env['ir.attachment'].create(attachment)
+                        sign = lead.encode(lead.id)
+                        resp.set_cookie('lead_id', sign)
+                    else:
+                        lead = Lead.browse(Lead.decode(request))
+                        lead.write({
+                            'name': "NEW PARTNERSHIP for %s" % values['name'],
+                            'partner_name': values['company_name'],
+                            'street': values['street'],
+                            'city': values['city'],
+                            'zip': values['zip'],
+                            'country_id': values['country_id'],
+                            'email_from': values['email'],
+                            'phone': values['phone'],
+                            'contact_name': values['name'],
+                            'user_id': False,
+                        })
+                        if 'image' in values.keys():
+                            attachment = {
+                                'name': 'Profile Picture',
+                                'datas': (values['image']),
+                                'datas_fname': 'profile_pic',
+                                'res_model': 'crm.lead',
+                                'res_id': lead.id,
+                            }
+
+                            lead.env['ir.attachment'].search([('res_id', '=', lead.id), ('datas_fname', 'ilike', 'profile_pic')]).write(attachment)
                 else:
                     if partner._vat_readonly(partner):
                         values.pop('vat')
@@ -320,7 +361,7 @@ class PartnerDashboard(http.Controller):
         states = request.env['res.country.state'].sudo().search([])
 
         data.update({
-            'partner': partner or request.env["res.partner"],
+            'source': source or request.env["res.partner"],
             'countries': countries,
             'states': states,
             'has_check_vat': hasattr(request.env['res.partner'], 'check_vat'),
@@ -331,16 +372,17 @@ class PartnerDashboard(http.Controller):
         response = request.render("partner_dashboard.partner_form", data)
         return response
 
-    @http.route('/dashboard/pricing', type='http', auth="public", website=True)
-    def pricing(self, **kw):
-        Products = request.env['product.product']
+    def _get_product(self):
+        Products = request.env['product.template'].sudo()
 
-        learning_price = Products.browse(10)
-        official_price = Products.browse(36)
+        learning_price = Products.browse(203)
+        official_price = Products.browse(204)
 
-        values = {
+        return {
             'learning_price': learning_price,
             'official_price': official_price,
         }
 
-        return request.render('partner_dashboard.plans_prices', values)
+    @http.route('/dashboard/pricing', type='http', auth="public", website=True)
+    def pricing(self, **kw):
+        return request.render('partner_dashboard.plans_prices', self._get_product())
