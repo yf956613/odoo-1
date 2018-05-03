@@ -97,18 +97,17 @@
                                 </t>
                             </div>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Enterprise Commission</t>
                                         <t t-set="first_text">
                                             Commission to receive
                                         </t>
                                         <t t-set="big_text">
-                                            <t t-esc="commission_to_receive"/>
-                                            <t t-esc="currency"/>
+                                            <t t-esc="commission_to_receive"/> <t t-esc="currency"/>
                                         </t>
                                         <t t-set="box_link">
-                                            <small class=" text-muted"><t t-esc="last_12months_purchase_total"/><t t-esc="currency"/> In The Last 12 Months</small>
+                                            <small class=" text-muted"><t t-esc="last_12months_purchase_total"/> <t t-esc="currency"/> In The Last 12 Months</small>
                                             <br/>
                                             <a href="/my">View details</a>
                                         </t>
@@ -164,7 +163,7 @@
                         <div class="o_partner_dashboard_section">
                             <h3>Learn</h3>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.couponBox">
                                         <t t-set="box_title">Product eLearning</t>
                                         <t t-set="intro_text">
@@ -236,7 +235,7 @@
                                 </t>
                             </div>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.couponBox">
                                         <t t-set="box_title">Partner Knowledge</t>
                                         <t t-set="intro_text">
@@ -297,7 +296,7 @@
                         <div class="o_partner_dashboard_section">
                             <h3>Develop And Deploy</h3>
                             <div class="row">
-                                <t t-if="partner">
+                                <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Download</t>
                                         <t t-set="first_text">
@@ -460,7 +459,7 @@
                                     <t t-set="box_title">Sponsor an Event</t>
                                     <t t-set="big_text"/>
                                     <t t-set="first_text">
-                                        <table class="table table-striped">
+                                        <table class="table-striped" width="100%" cellpadding="10">
                                             <tr>
                                                 <th>Date</th>
                                                 <th>Name</th>
