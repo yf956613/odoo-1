@@ -25,6 +25,7 @@
     # always loaded
     'data': [
         'views/templates.xml',
+        'views/partner_dashboard_res_partner_view.xml',
         'data/cron.xml',
     ],
 }

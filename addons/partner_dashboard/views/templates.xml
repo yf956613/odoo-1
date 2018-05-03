@@ -63,7 +63,7 @@
                                         </t>
                                     </t>
                                 </t>
-                                <t t-if="partner_grade and partner_grade != 'Learning'">
+                                <t t-if="partner_grade and partner_grade.id != 5">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Your Opportunities</t>
                                         <t t-set="first_text">
@@ -81,7 +81,7 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Your Opportunities <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
+                                        <t t-set="box_title">Your Opportunities <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
                                         <t t-set="first_text">
                                             Assigned Opportunities
                                             <br/>
@@ -395,7 +395,7 @@
                                         </t>
                                     </t>
                                 </t>
-                                <t t-if="partner_grade and partner_grade != 'Learning'">
+                                <t t-if="partner_grade and partner_grade.id != 5">
                                     <t t-call="partner_dashboard.couponBox">
                                         <t t-set="box_title">Odoo.sh</t>
                                         <t t-set="intro_text">
@@ -411,7 +411,7 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.couponBox">
-                                        <t t-set="box_title">Odoo.sh <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
+                                        <t t-set="box_title">Odoo.sh <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
                                         <t t-set="intro_text">
                                             <a href="https://www.odoo.sh/">Discover Odoo.sh</a>
                                         </t>
@@ -478,7 +478,7 @@
                                         <i class="fa fa-file-o"/><a href="#">Sponsorship Brochure</a>
                                     </t>
                                 </t>
-                                <t t-call="partner_dashboard.infoBox" t-if="partner_grade and partner_grade != 'Learning'">
+                                <t t-call="partner_dashboard.infoBox" t-if="partner_grade and partner_grade.id != 5">
                                     <t t-set="box_title">Success Story</t>
                                     <t t-set="first_text">
                                         Publish success stories on Odoo.com website
@@ -489,7 +489,7 @@
                                     </t>
                                 </t>
                                 <t t-call="partner_dashboard.infoBox" t-else="1">
-                                    <t t-set="box_title">Success Story <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
+                                    <t t-set="box_title">Success Story <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
                                     <t t-set="first_text">
                                         Publish success stories on Odoo.com website
                                     </t>
@@ -500,22 +500,22 @@
                                 </t>
                             </div>
                             <div class="row">
-                                <t t-if="partner_grade and partner_grade != 'Learning'">
+                                <t t-if="partner_grade and partner_grade.id != 5">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="box_title">Brand Assets</t>
                                         <t t-set="first_text">
                                             You have the rights to use the Odoo trademark
                                         </t>
                                         <t t-set="box_link">
-                                            <a href="https://www.odoo.com/page/brand-assets">Access all marketing materials</a>
+                                            <a href="/page/brand-assets">Access all marketing materials</a>
                                         </t>
                                     </t>
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="box_title">Brand Assets  <i class="fa fa-lock" t-if="partner_grade == 'Learning'"/></t>
+                                        <t t-set="box_title">Brand Assets  <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
                                         <t t-set="first_text">
-                                            You an use the <a href="https://www.odoo.com/page/brand-assets">Community logo</a>.
+                                            You an use the <a href="/page/brand-assets">Community logo</a>.
                                             Official Partners have the rights to use the Odoo trademark.
                                         </t>
                                         <t t-set="box_link">
@@ -531,15 +531,15 @@
                     <div class='col-md-4'>
                         <div class="row">
                             <h3>Your Partnership Grade</h3>
-                            <t t-if="partner_grade and partner_grade != 'Learning'">
-                                <t t-if="partner_grade != 'Platinum'">
-                                    <div t-attf-class="col-md-3 text-center panel #{partner_grade == 'Bronze' and 'o_partner_dashboard_grade_active_bronze' or 'o_partner_dashboard_grade_inactive'}">
+                            <t t-if="partner_grade and partner_grade.id != 5">
+                                <t t-if="partner_grade.id != 1">
+                                    <div t-attf-class="col-md-3 text-center panel #{partner_grade.id == 4 and 'o_partner_dashboard_grade_active_bronze' or 'o_partner_dashboard_grade_inactive'}">
                                         Ready Partner
                                     </div>
-                                    <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade == 'Silver' and 'o_partner_dashboard_grade_active_silver' or 'o_partner_dashboard_grade_inactive'}">
+                                    <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade.id == 3 and 'o_partner_dashboard_grade_active_silver' or 'o_partner_dashboard_grade_inactive'}">
                                             Silver Partner
                                     </div>
-                                    <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade == 'Gold' and 'o_partner_dashboard_grade_active_gold' or 'o_partner_dashboard_grade_inactive'}">
+                                    <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade.id == 2 and 'o_partner_dashboard_grade_active_gold' or 'o_partner_dashboard_grade_inactive'}">
                                             Gold Partner
                                     </div>
                                 </t>
@@ -553,14 +553,14 @@
                                 <div t-attf-class="col-md-3 text-center panel #{not partner_grade and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">
                                     Not a Partner
                                 </div>
-                                <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade == 'Learning' and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">
+                                <div t-attf-class="col-md-3 col-md-offset-1 text-center panel #{partner_grade and partner_grade.id == 5 and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">
                                     Learning Partner
                                 </div>
                                 <div class="col-md-3 col-md-offset-1 text-center panel o_partner_dashboard_grade_inactive">
                                     Official Partner
                                 </div>
                             </t>
-                            <div class="row o_partner_dashboard_section" t-if="partner_grade">
+                            <div class="row o_partner_dashboard_section" t-if="partner_grade and partner_grade.id != 5">
                                 <t t-if="partner_grade">
                                     <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
                                         <div class="col-md-4">
@@ -603,7 +603,7 @@
                                         </p>
                                     </t>
                                 </t>
-                                <div t-if="partner and partner_grade == 'Enterprise'">
+                                <div t-if="partner and partner_grade.id == 5">
                                     Become an Official Partner to promote your company on Odoo.com, to get leads and a 100% commission on <a href="https://www.odoo.sh/">Odoo.sh</a>
                                 </div>
                             </div>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import models, fields
 from datetime import date, timedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 from . import consts
@@ -62,10 +62,8 @@ class Partner(models.Model):
         }
 
     def _get_grade(self):
-        NEXT_GRADE_USERS_VALUE = {'Learning': 0, 'Bronze': 50, 'Silver': 100, 'Gold': 0, 'Platinum': -10}
-        NEXT_GRADE_CERTIFIED_VALUE = {'Learning': 1, 'Bronze': 2, 'Silver': 4, 'Gold': 0, 'Platinum': -10}
         NEXT_GRADE_COMMISSION_VALUE = {'Learning': 5, 'Bronze': 10, 'Silver': 20, 'Gold': 0, 'Platinum': -10}
-        partner_grade = self.grade_id.name
+        partner_grade = self.grade_id
 
         next_level_users = 0
         next_level_certified = 0
@@ -89,9 +87,9 @@ class Partner(models.Model):
         nbr_certified = len(certified_experts)
 
         if partner_grade:
-            next_level_users = NEXT_GRADE_USERS_VALUE[partner_grade]
-            next_level_certified = NEXT_GRADE_CERTIFIED_VALUE[partner_grade]
-            next_level_com = NEXT_GRADE_COMMISSION_VALUE[partner_grade]
+            next_level_users = partner_grade.target_users
+            next_level_certified = partner_grade.target_certif
+            next_level_com = NEXT_GRADE_COMMISSION_VALUE[partner_grade.name]
 
         return {
             'partner_grade': partner_grade,
@@ -112,3 +110,10 @@ class Partner(models.Model):
             'won_opportunities': won_opportunities,
             'not_won_opportunities': not_won_opportunities,
         }
+
+
+class Partner_Grade(models.Model):
+    _inherit = 'res.partner.grade'
+
+    target_users = fields.Integer(string="Target users")
+    target_certif = fields.Integer(string="Target certified experts")

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_grade_form" model="ir.ui.view">
+        <field name="name">partner_dashboard.partner.grade.form</field>
+        <field name="model">res.partner.grade</field>
+        <field name="inherit_id" ref="website_crm_partner_assign.view_partner_grade_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='revenue']" position="after">
+                <field name="target_users"/>
+                <field name="target_certif"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
