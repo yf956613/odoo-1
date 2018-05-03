@@ -2,143 +2,12 @@
 from odoo import http, tools, _
 from odoo.http import request
 from odoo.exceptions import ValidationError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
-from datetime import date, timedelta
 from random import randint
-import json
 import base64
 from ..models import consts
 
 
 class PartnerDashboard(http.Controller):
-
-    def _get_events(self, country_id):
-        Events = request.env['event.event'].sudo()
-        today = date.today().strftime(DEFAULT_SERVER_DATE_FORMAT)
-        oxp = Events.search([('event_type_id', '=', consts.ODOO_EXP_ID), ('date_begin', '>', today)], limit=1)
-        tour = Events.search([('event_type_id', '=', consts.ODOO_TOUR_ID), ('date_begin', '>', today)])
-
-        local_tour = tour.filtered(lambda x: x.country_id == country_id)
-        foreign_tour = tour.filtered(lambda x: x.country_id != country_id)
-        return {'events': (oxp + local_tour + foreign_tour)[:3]}
-
-    def _get_country_cached_stat(self, country_id):
-        attachment = request.env.ref('partner_dashboard.dashboard_partner_stats').sudo()
-        if not attachment.datas:
-            request.env['crm.lead']._refresh_dashboard_data()
-        data_dict = json.loads(base64.b64decode(attachment.datas))
-        country_dict = next(filter(lambda x: x['country_id'] == country_id, data_dict))
-        return {
-            'company_size': json.dumps(country_dict['lead_by_company_size']),
-            'country_leads': country_dict['country_leads'],
-            'country_partners': country_dict['country_partners'],
-            'country_customers': country_dict['country_customers'],
-        }
-
-    def _get_subscriptions(self, partner_id):
-        Subscription = request.env['sale.subscription'].sudo()
-
-        last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
-        subs = Subscription.search([
-            ('partner_id', '=', partner_id),
-            ('name', 'not ilike', 'PART-'),
-            ('recurring_next_date', '>', last_year)
-        ])
-
-        last_12month_enterprise_user = 0
-        current_enterprise_user = 0
-
-        for sub in subs:
-            for line in sub.recurring_invoice_line_ids:
-                if line.product_id.id in consts.ENTERPRISE_USER_IDS:
-                    last_12month_enterprise_user += line.quantity
-                    if sub.state == 'open':
-                        current_enterprise_user += line.quantity
-        return {
-            'subscriptions': subs,
-            'current_enterprise_user': current_enterprise_user,
-            'last_12month_enterprise_user': last_12month_enterprise_user,
-        }
-
-    def _get_purchase_orders(self, partner_id):
-        # assert not request.website.is_public_user()
-        PurchaseOrder = request.env['purchase.order']
-
-        last_year = (date.today() - timedelta(days=365)).strftime(DEFAULT_SERVER_DATE_FORMAT)
-        orders = PurchaseOrder.sudo().search([
-            ('partner_id', '=', partner_id),
-            ('date_order', '>', last_year),
-            ('state', '!=', 'cancel')
-        ])
-
-        last_12months_purchase_total = 0
-        commission_to_receive = 0
-
-        for order in orders:
-            for line in order.order_line:
-                if line.product_id.id in consts.ENTERPRISE_COMMISSION_USER_IDS:
-                    last_12months_purchase_total += line.price_subtotal
-                    if order.invoice_status == 'to invoice':
-                        commission_to_receive += line.price_subtotal
-
-        return {
-            'orders': orders,
-            'commission_to_receive': commission_to_receive,
-            'last_12months_purchase_total': last_12months_purchase_total,
-        }
-
-    def _get_grade(self, partner):
-        NEXT_GRADE_USERS_VALUE = {'Learning': 0, 'Bronze': 50, 'Silver': 100, 'Gold': 0, 'Platinum': -10}
-        NEXT_GRADE_CERTIFIED_VALUE = {'Learning': 1, 'Bronze': 2, 'Silver': 4, 'Gold': 0, 'Platinum': -10}
-        NEXT_GRADE_COMMISSION_VALUE = {'Learning': 5, 'Bronze': 10, 'Silver': 20, 'Gold': 0, 'Platinum': -10}
-        partner_grade = partner.grade_id.name
-
-        next_level_users = 0
-        next_level_certified = 0
-        next_level_com = 0
-
-        certified_experts = []
-        nbr_certified = 0
-        partner_certif = ''
-
-        for child in partner.child_ids:
-            certifs = []
-            for certif in child.website_tag_ids.filtered(lambda x: len(consts.ODOO_CERT_IDS & x)):
-                certifs.append(certif)
-            if certifs:
-                certified_experts.append({
-                    'partner': child,
-                    'certifs': certifs
-                })
-
-        company_certifs = partner.commercial_partner_id.website_tag_ids.filtered(lambda x: len(consts.ODOO_CERT_IDS & x))
-
-        nbr_certified = len(certified_experts)
-
-        if partner_grade:
-            next_level_users = NEXT_GRADE_USERS_VALUE[partner_grade]
-            next_level_certified = NEXT_GRADE_CERTIFIED_VALUE[partner_grade]
-            next_level_com = NEXT_GRADE_COMMISSION_VALUE[partner_grade]
-
-        return {
-            'partner_grade': partner_grade,
-            'company_certif': company_certifs,
-            'next_level_users': next_level_users,
-            'next_level_certified': next_level_certified,
-            'next_level_com': next_level_com,
-            'nbr_certif': nbr_certified,
-            'certified_experts': certified_experts,
-        }
-
-    def _get_opportunities(self, partner_id):
-        Lead = request.env['crm.lead'].sudo()
-        won_opportunities = Lead.search_count([('partner_id', "=", partner_id), ('stage_id', '=', 4)])
-        not_won_opportunities = Lead.search_count([('partner_id', "=", partner_id), ('stage_id', '!=', 4)])
-
-        return{
-            'won_opportunities': won_opportunities,
-            'not_won_opportunities': not_won_opportunities,
-        }
 
     def _get_geocountry(self):
         country = False
@@ -201,8 +70,8 @@ class PartnerDashboard(http.Controller):
         country = (partner and partner.country_id) or (lead and lead.country_id) or self._get_geocountry()
 
         values = {}
-        values.update(self._get_country_cached_stat(country.id))
-        values.update(self._get_events(country))
+        values.update(country._get_country_cached_stat())
+        values.update(country._get_events())
 
         values.update({
             'saleman': Partner.browse(saleman),
@@ -223,10 +92,10 @@ class PartnerDashboard(http.Controller):
                     'street': lead.street,
                 })
         else:  # partner set
-            values.update(self._get_subscriptions(partner.id))
-            values.update(self._get_purchase_orders(partner.id))
-            values.update(self._get_grade(partner))
-            values.update(self._get_opportunities(partner.id))
+            values.update(partner._get_subscriptions())
+            values.update(partner._get_purchase_orders())
+            values.update(partner._get_grade())
+            values.update(partner._get_opportunities())
             values.update({
                 'currency': partner.country_id.currency_id.symbol,  # TODO FIX ME
                 'my_sub': subscription,
@@ -342,8 +211,6 @@ class PartnerDashboard(http.Controller):
                         'vat' in values and values.pop('vat')
                         'name' in values and values.pop('name')
                         'company_name' in values and values.pop('company_name')
-                    import pprint;pprint.pprint(values)
-                    print(partner)
                     partner = partner.write(values)
                 return resp
 
