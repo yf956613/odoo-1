@@ -100,7 +100,7 @@ class PartnerDashboard(http.Controller):
                 'currency': partner.country_id.currency_id.symbol,  # TODO FIX ME
                 'my_sub': subscription,
             })
-
+        print(values['country_id'].currency_id)
         return values
 
     @http.route(['/dashboard', '/dashboard/<access_token>'], type='http', auth="public", website=True)
@@ -235,6 +235,10 @@ class PartnerDashboard(http.Controller):
     @http.route('/dashboard/pricing', type='http', auth="public", website=True)
     def pricing(self, **kw):
         Product = request.env['product.template'].sudo()
+        if request.env.user.partner_id:
+            country = request.env.user.partner_id.country_id
+        else:
+            country = self._get_geocountry()
 
         learning_price = Product.browse(consts.PRODUCT_LEARNING_PRICE)
         official_price = Product.browse(consts.PRODUCT_OFFICIAL_PRICE)
@@ -242,4 +246,5 @@ class PartnerDashboard(http.Controller):
         return request.render('partner_dashboard.plans_prices', {
             'learning_price': learning_price,
             'official_price': official_price,
+            'currency': country.currency_id,
         })

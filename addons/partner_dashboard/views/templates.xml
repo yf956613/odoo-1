@@ -104,10 +104,10 @@
                                             Commission to receive
                                         </t>
                                         <t t-set="big_text">
-                                            <t t-esc="commission_to_receive"/> <t t-esc="currency"/>
+                                            <t t-esc="commission_to_receive" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/>
                                         </t>
                                         <t t-set="box_link">
-                                            <small class=" text-muted"><t t-esc="last_12months_purchase_total"/> <t t-esc="currency"/> In The Last 12 Months</small>
+                                            <small class=" text-muted"><t t-esc="last_12months_purchase_total" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/> In The Last 12 Months</small>
                                             <br/>
                                             <a href="/my">View details</a>
                                         </t>
@@ -136,7 +136,8 @@
                                             <small class=" text-muted">In The Last 12 Months</small>
                                         </t>
                                         <t t-set="big_text">
-                                            0€
+                                            <t t-set="nullValue" t-value="0"/>
+                                            <t t-esc="nullValue" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/>
                                         </t>
                                         <t t-set="box_link">
                                             <a href="/dashboard/pricing">Get from 10% up to 20% commission</a>
@@ -661,7 +662,7 @@
                         </div>
                         <div calss="row">
                             <h3>Useful Videos</h3>
-                            <iframe width="248px" height="138px" src="https://www.youtube.com/embed/vt1Pwfnh5pc?rel=0&amp;" allowfullscreen="allowfullscreen" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+                            <iframe width="248px" height="138px" src="https://www.youtube.com/embed/ZrFMphnpYpM" allowfullscreen="allowfullscreen" frameborder="0" allow="autoplay; encrypted-media"></iframe>
                             <p>
                                 <a href="/page/tour">See all videos ></a>
                             </p>
@@ -692,15 +693,15 @@
                         <tbody>
                             <tr class="no-border">
                                 <td/>
-                                <td><span t-field="learning_price.list_price" /></td>
-                                <td><span t-field="official_price.list_price" /></td>
+                                <td><span t-field="learning_price.list_price" t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
+                                <td><span t-field="official_price.list_price" t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
                             </tr>
                             <tr class="no-border">
                                 <td class="h3 active">
                                     <strong>Included services</strong>
                                 </td>
-                                <td><button type="button" class="btn btn-info">Buy now</button></td>
-                                <td><button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button></td>
+                                <td><a type="button" class="btn btn-info" href="/shop/product/203">Buy now</a></td>
+                                <td><a type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</a></td>
                             </tr>
                             <tr class="no-border">
                                 <td>eLearning Product Training</td>
@@ -782,7 +783,7 @@
                                 </td>
                             </tr>
                             <tr class="no-border">
-                                <td>Offshore Developments <a href="#">LEARN MORE</a></td>
+                                <td>Offshore Developments <a href="/page/developers-on-demand">LEARN MORE</a></td>
                                 <td>
                                    <i class="fa fa-1x fa-close text-gray-light"/>
                                 </td>
@@ -809,10 +810,10 @@
                             <tr>
                                 <td/>
                                 <td>
-                                    <button type="button" class="btn btn-info">Buy now</button>
+                                    <a type="button" class="btn btn-info" href="/shop/product/learning-partnership-203">Buy now</a>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</button>
+                                    <a type="button" class="btn btn-info" href="https://odoo-expert.acuityscheduling.com/schedule.php?appointmentType=965390">Contact us</a>
                                 </td>
                             </tr>
                             <tr>
