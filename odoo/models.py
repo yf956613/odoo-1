@@ -5287,7 +5287,7 @@ class BaseModel(object):
 
         # invalidate fields and inverse fields, too
         spec = [(f, ids) for f in fields] + \
-               [(invf, None) for f in fields for invf in self._field_inverses[f]]
+               [(invf, ids) for f in fields for invf in self._field_inverses[f]]
         self.env.invalidate(spec)
 
     @api.multi
