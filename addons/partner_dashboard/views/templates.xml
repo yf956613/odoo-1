@@ -24,23 +24,25 @@
                                 <h1 class="display-3 mt32 mb32">Partner Dashboard</h1>
                             </div>
                         </section>
+
                 <div class="container">
                     <div class="row">
+
+                    <div class="col-md-12">
+                        <div class="alert alert-info alert-dismissible mb48" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&amp;times;</span></button>
+                            <p class="mb0"><b>Have a project right now?</b> <br/>We can help you sell and deliver your first project. Working together on your first project is the best way to success in Odoo. <br/>Learn more by reading our <a href="/documentation/user/11.0/getting_started/documentation.html" class="text-info"><u>Implementation Methodology</u></a></p>
+                        </div>
+                    </div>
 
                     <!-- Left column -->
                     <div class="col-md-7">
 
-                        <div class="alert alert-info alert-dismissible mb48" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&amp;times;</span></button>
-                            <h4 class="mt0">Have a project right now?</h4>
-                            <p class="mb0">We can help you sell and deliver your first project. Working together on your first project is the best way to success in Odoo. Learn more by reading our <a href="/documentation/user/11.0/getting_started/documentation.html" class="text-info"><u>Implementation Methodology</u></a></p>
-                        </div>
 
                         
-                        <h3 class="mt0 mb16">Your Business</h3>
+                        <h3>Your Business</h3>
                         <div class="o_partner_dashboard_section">
 
-                            
                             <!-- Company Information + Opportunities -->
                             <div class="row">
                                 <t t-if="contact">
@@ -51,8 +53,9 @@
                                             <div t-field="contact.self" t-options="{'widget': 'contact','fields': ['address', 'name', 'phone', 'email']}" />
                                         </t>
                                         <t t-if="not access_token">
-                                            <t t-set="link"><i class="fa fa-edit mr4"/>Update</t>
-                                            <t t-set="url">/dashboard/profile</t>
+                                            <t t-set="primary_button">
+                                                <a href="/dashboard/profile" class="btn btn-sm btn-default">Update</a>
+                                            </t>
                                         </t>
                                     </t>
                                 </t>
@@ -63,8 +66,7 @@
                                             <img src="http://www.headsub.com/attachment/2unBbWM3/Templates/Textures/yourLogo_icon_red.png" class="pull-right o_partner_dashboard_img"/>
                                             <p>Publish your company data profile on www.odoo.com</p>
                                         </t>
-                                        <t t-set="link">Create my Profile</t>
-                                        <t t-set="url">/dashboard/profile</t>
+                                        <t t-set="primary_button"><a href="/dashboard/profile" class="btn btn-sm btn-default">Create</a></t>
                                     </t>
                                 </t>
                                 <t t-if="partner_grade and partner_grade.id != 5">
@@ -72,9 +74,8 @@
                                         <t t-set="title">Opportunities</t>
                                         <t t-set="number"><t t-esc="not_won_opportunities"/></t>
                                         <t t-set="number_text">Assigned <br/>Opportunities</t>
-                                        <t t-set="text"><small class="text-muted"><t t-esc="won_opportunities"/> Won Opportunities</small></t>
-                                        <t t-set="link">View details</t>
-                                        <t t-set="url">/my</t>
+                                        <t t-set="text"><p><small class="text-muted"><t t-esc="won_opportunities"/> Won Opportunities</small></p></t>
+                                        <t t-set="primary_button"><a href="/my" class="btn btn-sm btn-default">View details</a></t>
                                     </t>
                                 </t>
                                 <t t-else="1">
@@ -82,91 +83,86 @@
                                         <t t-set="title">Opportunities <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
                                         <t t-set="number">0</t>
                                         <t t-set="number_text">Assigned <br/>Opportunities</t>
-                                        <t t-set="text"><small class="text-muted">0 In The Last 12 Months</small></t>
-                                        <t t-set="link">Upgrade And Get Opportunities</t>
-                                        <t t-set="url">/dashboard/pricing</t>
+                                        <t t-set="text"><small class="text-muted">0 in the last 12 Months</small></t>
+                                        <t t-set="primary_button"><a href="/dashboard/pricing" class="btn btn-sm btn-primary">Upgrade</a></t>
                                     </t>
                                 </t>
                             </div>
 
-                            <!-- Enterprise Commission + Sales -->
+
                             <div class="row">
-                                <t t-if="partner_grade">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Enterprise Commission</t>
-                                        <t t-set="number">
-                                            <t t-esc="commission_to_receive" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/>
-                                        </t>
-                                        <t t-set="number_text">Commission <br/>to receive</t>
+
+                                <!-- Enterprise Commission -->
+                                <t t-call="partner_dashboard.infoBox">
+                                    <t t-set="title">Enterprise Commission</t>
+                                    <t t-set="number_text">To <br/>Receive</t>
+                                    <t t-if="partner_grade">
+                                        <t t-set="number"><t t-esc="commission_to_receive" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/></t>
                                         <t t-set="text">
-                                            <small class="text-muted"><t t-esc="last_12months_purchase_total" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/><t t-esc="currency"/> In The Last 12 Months</small>
+                                            <small class="text-muted">
+                                                <t t-esc="last_12months_purchase_total" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/>
+                                                <t t-esc="currency"/> in the last 12 Months
+                                            </small>
                                         </t>
-                                        <t t-set="link">View details</t>
-                                        <t t-set="url">/my</t>
+                                        <t t-set="primary_button"><a href="/my" class="btn btn-sm btn-default">View details</a></t>
                                     </t>
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Sales</t>
-                                        <t t-set="number_text">Enterprise <br/>Users</t>
+                                    <t t-else="1">
                                         <t t-set="number">
-                                            <t t-esc="current_enterprise_user" t-options="{'widget': 'integer'}" />
-                                        </t>
-                                        <t t-set="text">
-                                            <small class="text-muted"><t t-esc="last_12month_enterprise_user" t-options="{ 'widget': 'integer'}"/> in the last 12 Months</small>
-                                        </t>
-                                        <t t-set="link">View details</t>
-                                        <t t-set="url">/my</t>
-                                    </t>
-                                </t>
-                                <t t-else="1">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Your Enterprise Commission</t>
-                                        <t t-set="text">
-                                            Commission to receive
-                                            <br/>
-                                            <small class=" text-muted">In The Last 12 Months</small>
-                                        </t>
-                                        <t t-set="big_text">
                                             <t t-set="nullValue" t-value="0"/>
                                             <t t-esc="nullValue" t-options="{'widget': 'monetary', 'display_currency': country_id.currency_id}"/>
                                         </t>
-                                        <t t-set="number">0€</t>
-                                        <t t-set="link">
-                                            <a href="/dashboard/pricing">Get from 10% up to 20% commission</a>
-                                        </t>
-                                    </t>
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Your Sales</t>
                                         <t t-set="text">
-                                            Entreprise Users
-                                            <br/>
-                                            <small class="text-muted">In the last 12 Months</small>
+                                            <small class="text-muted">in the last 12 Months</small><br/>
+                                            <p>Get from 10% up to 20% commission.</p>
                                         </t>
-                                        <t t-set="number">
-                                            0
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="/dashboard/pricing">Resell Odoo Enterprise</a>
-                                        </t>
+                                        <t t-set="primary_button"><a href="/dashboard/pricing" class="btn btn-sm btn-primary">Sell Enterprise</a></t>
                                     </t>
                                 </t>
+
+                                <!-- Sales -->
+                                <t t-call="partner_dashboard.infoBox">
+                                    <t t-set="title">Sales</t>
+                                    <t t-set="number_text">Enterprise <br/>Users</t>
+                                    <t t-if="partner_grade">
+                                        <t t-set="number"><t t-esc="current_enterprise_user" t-options="{'widget': 'integer'}"/></t>
+                                        <t t-set="text"><small class="text-muted"><t t-esc="last_12month_enterprise_user" t-options="{ 'widget': 'integer'}"/> in the last 12 Months</small></t>
+                                        <t t-set="primary_button"><a href="/my" class="btn btn-sm btn-default">View details</a></t>
+                                    </t>
+                                    <t t-else="1">
+                                        <t t-set="number">0</t>
+                                        <t t-set="primary_button"><a href="/dashboard/pricing" class="btn btn-sm btn-primary">Sell Enterprise</a></t>
+                                    </t>
+                                </t>
+                                
                             </div>
-                       
                        </div>
 
-                        <h2>Learn</h2>
+                        <h3>Learn</h3>
                         <div class="o_partner_dashboard_section">
                             <div class="row">
-
-                                <t t-if="partner_grade">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Product eLearning</t>
+                                <!-- eLearning -->
+                                <t t-call="partner_dashboard.infoBox">
+                                    <t t-set="title">Product eLearning</t>
+                                    <t t-set="primary_button"><a href="https://odoo.thinkific.com/courses/odoo-functional" class="btn btn-sm btn-primary">Start Learning</a></t>
+                                    <!-- Grade -->
+                                    <t t-if="partner_grade">
                                         <t t-set="text">Use this coupon to access all videos: <span class="h3">odoo112017</span> <br/><small>(Unlimited users)</small></t>
-                                        <t t-set="url">https://odoo.thinkific.com/courses/odoo-functional</t>
-                                        <t t-set="link">Start Learning</t>
                                     </t>
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Product Certification</t>
-                                        <t t-set="link">
+                                    <t t-else="1">
+                                        <t t-set="number">0%</t>
+                                        <t t-set="number_text">Course <br/>Progression</t>
+                                        <t t-set="secondary_button"><a href="https://odoo.thinkific.com/courses/odoo-functional" class="btn btn-sm btn-default">Preview videos</a></t>
+                                    </t>
+                                </t>
+                                <!-- Certification -->
+                                <t t-call="partner_dashboard.infoBox">
+                                    <t t-set="title">Product Certification</t>
+                                    <t t-set="number_text">Certified <br/>Expert(s)</t>
+                                    <t t-set="primary_button"><a href="https://odoo.runexam.com/store.aspx" class="btn btn-sm btn-primary">Buy a Certification</a></t>
+                                    <!-- Grade -->
+                                    <t t-if="partner_grade">
+                                        <t t-set="number"><t t-esc="nbr_certif"/></t>
+                                        <t t-set="text">
                                             <t t-foreach="certified_experts" t-as="expert">
                                                 <div class="row">
                                                     <span class="col-sm-6"><t t-esc="expert['partner'].name"/></span>
@@ -176,130 +172,67 @@
                                                         </t>
                                                     </div>
                                                 </div>
+                                                <p class="text-center text-success" t-if="partner_certif"><strong>You are certified for <t t-esc="partner_certif.mapped('display_name')"/></strong></p>
                                             </t>
-                                            <br/>
-                                        </t>
-                                        <t t-set="number"><t t-esc="nbr_certif"/></t>
-                                        <t t-set="number_text">Certified <br/>Expert(s)</t>
-                                        <t t-set="url">https://odoo.runexam.com/store.aspx</t>
-                                        <t t-set="link">Buy a Certification</t>
-                                        <!-- <p class="text-center text-success" t-if="partner_certif"><strong>You are certified for <t t-esc="partner_certif.mapped('display_name')"/></strong></p> -->
-                                    </t>
-                                </t>
-                                <t t-else="1">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Product eLearning</t>
-                                        <t t-set="text">
-                                            Course Progression
-                                        </t>
-                                        <t t-set="number">
-                                            0%
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="https://odoo.thinkific.com/courses/odoo-functional">Upgrade for full access</a>
-                                            or
-                                            <a href="https://odoo.thinkific.com/courses/odoo-functional">Preview videos</a>
                                         </t>
                                     </t>
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="nbr_certif" t-value="0"/>
-                                        <t t-set="title">Product Certification</t>
-                                        <t t-set="number">0</t>
-                                        <t t-set="number_text">Certified <br/>Expert(s)</t>
-                                        <t t-set="link">
-                                            <a href="https://odoo.runexam.com/store.aspx">Buy a Certification</a>
-                                        </t>
-                                    </t>
+                                    <t t-else="1"><t t-set="number">0</t></t>
                                 </t>
                             </div>
+
                             <div class="row">
-                                <t t-if="partner_grade">
-                                    <t t-call="partner_dashboard.couponBox">
-                                        <t t-set="title">Partner Knowledge</t>
-                                        <t t-set="intro_text">
-                                            Use this coupon to access all ressources:
-                                        </t>
-                                        <t t-set="coupon">
-                                            odooknow2016
-                                        </t>
-                                        <t t-set="coupon_scope">
-                                            (unlimited users)
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="https://odoo.thinkific.com/courses/odoo-partners">Start Learning</a>
+                                <!-- Knowledge -->
+                                <t t-call="partner_dashboard.infoBox">
+                                    <t t-set="title">Partner Knowledge</t>
+                                    <t t-set="primary_button"><a href="https://odoo.thinkific.com/courses/odoo-partners" class="btn btn-sm btn-primary">Upgrade</a></t>
+                                    <t t-if="partner_grade">
+                                        <t t-set="text">
+                                            <p>Use this coupon to access all resources:<br/>
+                                            <b>odooknow2016</b><br/>
+                                            (unlimited users)</p>
                                         </t>
                                     </t>
-                                    <!-- <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Partner Mailing List</t>
-                                        <t t-set="text">
-                                            Subscribed Employees
-                                        </t>
-                                        <t t-set="number">
-                                            0
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="#">Add an employee</a>
-                                        </t>
-                                    </t> -->
+                                    <t t-else="1">
+                                        <t t-set="number">0%</t>
+                                        <t t-set="number_text">Course <br/>Progression</t>
+                                    </t>
                                 </t>
-                                <t t-else="1">
-                                    <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Partner Knowledge</t>
-                                        <t t-set="text">
-                                            Course progression
-                                        </t>
-                                        <t t-set="number">
-                                            0%
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="https://odoo.thinkific.com/courses/odoo-partners">Upgrade for full access</a>
-                                        </t>
-                                    </t>
-                                    <!-- <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Partner Mailing List</t>
-                                        <t t-set="text">
-                                            Subscribed Employees
-                                        </t>
-                                        <t t-set="number">
-                                            0
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="#">Add an employee</a>
-                                        </t>
-                                    </t> -->
+                                <!-- Mailing List -->
+                                <t t-call="partner_dashboard.infoBox">
+                                    <t t-set="title">Partner Mailing List</t>
+                                    <t t-set="number_text">Subscribed <br/>Employee(s)</t>
+                                    <t t-set="number">0</t>
+                                    <t t-set="primary_button"><a href="#" class="btn btn-sm btn-default btn-sm">Add</a></t>
                                 </t>
                             </div>
                         </div>
 
-                        <h2>Develop &amp; Deploy</h2>
+                        <h3>Develop &amp; Deploy</h3>
                         <div class="o_partner_dashboard_section">
                             <div class="row">
                                 <t t-if="partner_grade">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="title">Odoo Enterprise</t>
-                                        <t t-set="text">
-                                            You can download Odoo Enterprise sources and Installers.
+                                        <t t-set="text">You can download Odoo Enterprise sources and Installers.</t>
+                                         <t t-set="primary_button">
+                                            <a href="/page/download" class="btn btn-sm btn-primary">Download</a>
                                         </t>
-                                        <t t-set="link">Download</t>
-                                        <t t-set="url">/page/download</t>
                                     </t>
                                     <t t-call="partner_dashboard.addGithub">
-                                        <t t-set="title">Enterprise Github Access</t>
+                                        <t t-set="title"><i class="fa fa-github-square"/>Enterprise Github Access</t>
                                         <t t-set="text">
 
 <!--                                             <t t-foreach="my_sub.github_user_ids" t-as="github_user">
                                                 <p><t t-esc="github_user.name"/></p>
                                             </t>
  -->
-                                            <form id="oe-github-add" t-attf-class="form-inline oe-github-access"
-                                      action="/odoo-enterprise/github/add" method="post">
-
+                                            <form id="oe-github-add" t-attf-class="form-inline oe-github-access" action="/odoo-enterprise/github/add" method="post">
                                                 <div class="form-group">
                                                     <input type="char" class="form-control" name="github_username" placeholder="Github Username"/>
                                                 </div>
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                 <input type="hidden" name="sub_uuid" t-att-value="my_sub.uuid"/>
-                                                <button type="submit" class="oe-github-add btn btn-primary">
+                                                <button type="submit" class="oe-github-add btn btn-sm btn-primary">
                                                     <i class="fa fa-user-plus" aria-hidden="true"></i> Add
                                                 </button>
                                             </form>
@@ -322,25 +255,20 @@
                                 </t>
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Download</t>
+                                        <t t-set="title">Odoo Enterprise</t>
                                         <t t-set="text">
-                                            Upgrade to Learning partner to get full access to Odoo Enterprise sources &amp; installers
+                                            <p class="mb0">Upgrade to <b>Learning Partner</b> to get full access to Odoo Enterprise sources and installers.</p>
                                         </t>
-                                        <t t-set="number"/>
-                                        <t t-set="link">
-                                            <a href="/page/download">Download Odoo Enterprise</a>
-                                        </t>
+                                        <t t-set="primary_button">
+                                            <a href="/page/download" class="btn btn-sm btn-primary">Download</a>
+                                        </t>                                        
                                     </t>
                                     <t t-call="partner_dashboard.infoBox">
-                                        <t t-set="title">Enterprise Github Access</t>
-                                        <t t-set="text">
-                                            Registered Developers
-                                        </t>
-                                        <t t-set="number">
-                                            0
-                                        </t>
-                                        <t t-set="link">
-                                            <a href="/dashboard/pricing">Add a developer</a>
+                                        <t t-set="title"><i class="fa fa-github mr8"/>Enterprise Github Access</t>
+                                        <t t-set="number">0</t>
+                                        <t t-set="number_text">Registered <br/>Developers</t>
+                                        <t t-set="primary_button">
+                                            <a href="/dashboard/pricing" class="btn btn-sm btn-primary">Add a developer</a>
                                         </t>
                                     </t>
                                 </t>
@@ -360,9 +288,10 @@
                                 <t t-else="1">
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="title">Free Trial Extension</t>
-                                        <t t-set="text">Partners get a special code to extend Odoo Enterprise evaluation period for their prospects</t>
-                                        <t t-set="url">/dashboard/pricing</t>
-                                        <t t-set="link">Get my special code</t>
+                                        <t t-set="text">Partners get a special code to extend Odoo Enterprise evaluation period for their prospects.</t>
+                                        <t t-set="primary_button">
+                                            <a href="/dashboard/pricing" class="btn btn-sm btn-primary">Get my special code</a>
+                                        </t>
                                     </t>
                                 </t>
                                 <t t-if="partner_grade and partner_grade.id != 5">
@@ -380,25 +309,22 @@
                                     </t>
                                 </t>
                                 <t t-else="1">
-
                                     <t t-call="partner_dashboard.infoBox">
                                         <t t-set="title">Odoo.sh <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
-                                        <t t-set="text">
-                                            <a href="https://www.odoo.sh/">Discover Odoo.sh</a>
-                                        </t>
-                                        <t t-set="number">
-                                            <span>10</span>0%
-                                        </t>
+                                        <t t-set="number"><span>10</span>0%</t>
                                         <t t-set="number_text"> Commission <br/>Rate</t>
-                                        <t t-set="url">/dashboard/pricing</t>
-                                        <t t-set="link">Get 100%</t>
-
+                                        <t t-set="primary_button">
+                                            <a href="/dashboard/pricing" class="btn btn-sm btn-primary">Get 100%</a>
+                                        </t>                                        
+                                        <t t-set="secondary_button">
+                                            <a href="https://www.odoo.sh" class="btn btn-sm btn-default" target="_blank">Discover Odoo.sh</a>
+                                        </t>
                                     </t>
                                 </t>
                             </div>
                             <div class="row">
                                 <t t-call="partner_dashboard.infoBox">
-                                    <t t-set="title">Developers on Demand</t>
+                                    <t t-set="title"><i class="fa fa-code mr8"/>Developers on Demand</t>
                                     <t t-set="number"/>
                                     <t t-set="text">
                                         <div class="row s_o_numbers mb32">
@@ -418,14 +344,13 @@
                                             </div>
                                         </div>
                                     </t>
-                                    <t t-set="link">
-                                        <a href="/page/developers-on-demand">More Info</a>
-                                    </t>
+                                    <t t-set="link">More Info</t>
+                                    <t t-set="url">/page/developers-on-demand</t>
                                 </t>
                             </div>
                         </div>
                         
-                        <h2>Marketing</h2>
+                        <h3>Marketing</h3>
                         <div class="o_partner_dashboard_section">
                             <div class="row">
                                 <t t-call="partner_dashboard.infoBox">
@@ -447,24 +372,23 @@
                                             </t>
                                         </table>
                                     </t>
-                                    <t t-set="link"><i class="fa fa-1x fa-file-pdf-o mr8"/>Sponsorship Brochure</t>
-                                    <t t-set="url">#</t>
+                                    <t t-set="primary_button"><a href="#" class="btn btn-sm btn-default"><i class="fa fa-1x fa-file-pdf-o mr8"/>Sponsorship Brochure</a></t>
                                 </t>
 
                                 <t t-call="partner_dashboard.infoBox" t-if="partner_grade and partner_grade.id != 5">
-                                    <t t-set="title">Success Story</t>
+                                    <t t-set="title"><i class="fa fa-star mr8"/>Success Story</t>
                                     <t t-set="text">Publish success stories on www.odoo.com</t>
-                                    <t t-set="link">
-                                        <a href="#" t-if="partner">Submit a Success Story</a>
-                                        <a href="/dashboard/pricing" t-else="1">Submit a Success Story</a>
+                                    <t t-set="primary_button">
+                                        <t t-if="partner"><a href="#" class="btn btn-sm btn-default">Submit</a></t>
+                                        <t t-else="1"><a href="/dashboard/pricing">Submit</a></t>
                                     </t>
                                 </t>
                                 <t t-call="partner_dashboard.infoBox" t-else="1">
-                                    <t t-set="title">Success Story <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
+                                    <t t-set="title"><i class="fa fa-star mr8"/>Success Story <i class="fa fa-lock" t-if="partner_grade and partner_grade.id == 5"/></t>
                                     <t t-set="text">Publish success stories on www.odoo.com website</t>
-                                    <t t-set="link">
-                                        <a href="#" t-if="partner">Submit a Success Story</a>
-                                        <a href="/dashboard/pricing" t-else="1">Submit a Success Story</a>
+                                    <t t-set="primary_button">
+                                        <t t-if="partner"><a href="#" class="btn btn-sm btn-default">Submit</a></t>
+                                        <t t-else="1"><a href="/dashboard/pricing">Submit</a></t>
                                     </t>
                                 </t>
                             </div>
@@ -484,7 +408,7 @@
                                             You can use the <a href="https://www.odoo.com/page/brand-assets">Community logo</a>.
                                             Official Partners have the rights to use the Odoo trademark.
                                         </t>
-                                        <t t-set="link">Upgrade to access all marketing materials</t>
+                                        <t t-set="link">Upgrade</t>
                                         <t t-set="url">/dashboard/pricing</t>
                                     </t>
                                 </t>
@@ -496,7 +420,9 @@
 
                     <div class="col-md-5">
 
-                            <h3>Your Partnership Grade</h3>
+                        <h3>Your Partnership Grade</h3>
+                        <div class="o_partner_dashboard_section">
+                        
                             <t t-if="partner_grade and partner_grade.id != 5">
                                 <t t-if="partner_grade.id != 1">
                                     <div t-attf-class="col-md-3 text-center panel #{partner_grade.id == 4 and 'o_partner_dashboard_grade_active_bronze' or 'o_partner_dashboard_grade_inactive'}">
@@ -515,15 +441,17 @@
                                     </div>
                                 </t>
                             </t>
+                        
                             <t t-else="1">
-
                                 <div class="btn-group btn-group-sm mb16" role="group">
-                                    <a href="#" role="button" t-attf-class="btn btn-default #{not partner_grade and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">Not a Partner</a>
-                                    <a href="#" role="button" t-attf-class="btn btn-default #{partner_grade and partner_grade.id == 5 and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">Learning Partner</a>
-                                    <a href="#" role="button" class="btn btn-default o_partner_dashboard_grade_inactive">Official Partner</a>
+                                    <a href="#" role="button" t-attf-class="btn btn-sm btn-default #{not partner_grade and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">Not a Partner</a>
+                                    <a href="#" role="button" t-attf-class="btn btn-sm btn-default #{partner_grade and partner_grade.id == 5 and 'o_partner_dashboard_grade_active' or 'o_partner_dashboard_grade_inactive'}">Learning Partner</a>
+                                    <a href="#" role="button" class="btn btn-sm btn-default o_partner_dashboard_grade_inactive">Official Partner</a>
                                 </div>
                             </t>
-                            <div class="row o_partner_dashboard_section" t-if="partner_grade and partner_grade.id != 5">
+                        
+                        
+                            <div class="" t-if="partner_grade and partner_grade.id != 5">
                                 <t t-if="partner_grade">
                                     <t t-if="(next_level_users - last_12month_enterprise_user) > 0">
                                         <div class="col-md-4">
@@ -572,13 +500,15 @@
                             </div>
                             <div t-else="1">
                                 <p>Upgrade to unlock full eLearning access, download of source code and developers resources.</p>
-                                <a href="/dashboard/pricing" type="button" class="btn btn-primary">Upgrade &amp; Pricing</a>
-                                <a href="/contactus" class="btn btn-default">Contact us</a>
+                                <a href="/dashboard/pricing" type="button" class="btn btn-sm btn-primary">Upgrade &amp; Pricing</a>
+                                <a href="/contactus" class="btn btn-sm btn-default">Contact us</a>
                             </div>
-
+                        </div>
+                        
                             <!-- Statistics -->
                             <h3>Statistics in <t t-esc="country_id.name"/></h3>
-                            <h5>(past 12 months)</h5>
+                            <!-- <h5>(past 12 months)</h5> -->
+                            <div class="o_partner_dashboard_section">
                             <t t-call="partner_dashboard.countryStat">
                                 <t t-set="stat_value" t-value="country_leads"/>
                                 <t t-set="stat_name">Leads</t>
@@ -595,8 +525,10 @@
                             <div id="chart" t-att-data-size="company_size">
                                 <svg/>
                             </div>
+                        </div>
                         
                             <h3>Your Point of Contact</h3>
+                            <div class="o_partner_dashboard_section">
                             <p>
                                 <span t-if="saleman.image_medium" t-field="saleman.image_medium" class="o_partner_dashboard_img pull-left" t-options="dict(widget='image')"/>
                                 <strong><t t-esc='saleman.name'/></strong>
@@ -604,21 +536,23 @@
                                 <t t-esc='saleman.function'/>
                                 <address t-field='saleman.self' t-options="dict(widget='contact', fields=['phone', 'email'], separator='\n')"/>
                             </p>
-                                <a href="/contactus" class='btn btn-default'><i class="fa fa-calendar mr8"/>Schedule a meeting</a>
+                                <a href="/contactus" class='btn btn-sm btn-default'><i class="fa fa-calendar mr8"/>Schedule a meeting</a>
                         
-                        
+                        </div>
+
                             <h3>Legal Documents</h3>
+                        <div class="o_partner_dashboard_section">
                             <a href="/page/legal"><i class="fa fa-file-pdf-o mr8"/>Odoo Partnership Agreement</a><br/>
                             <a href="/page/legal"><i class="fa fa-file-pdf-o mr8"/>Odoo Enterprise Agreement</a><br/>
                             <a href="/page/legal"><i class="fa fa-file-pdf-o mr8"/>Odoo.sh Terms of Use</a><br/>
                             <a href="/page/legal"><i class="fa fa-file-pdf-o mr8"/>Terms of Sale</a>
-                        
+                        </div>
                         
                             <h3>Useful Videos</h3>
-                            <iframe width="248px" height="138px" src="https://www.youtube.com/embed/ZrFMphnpYpM" allowfullscreen="allowfullscreen" frameborder="0" allow="autoplay; encrypted-media"></iframe>
-                            <p>
-                                <a href="/page/tour">See all videos ></a>
-                            </p>
+                        <div class="o_partner_dashboard_section">
+                            <iframe width="50%" height="150px" src="https://www.youtube.com/embed/ZrFMphnpYpM" allowfullscreen="allowfullscreen" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+                            <a href="/page/tour" class="btn btn-sm btn-default">See all videos</a>
+                        </div>
                         </div>
                         
                     <!-- </div> -->
@@ -787,18 +721,27 @@
         </template>
 
         <template id="infoBox">
-            <div class="col-md-6 mb48">
-                <!-- Title -->
-                <h4 class="mt0 mb16"><t t-raw="title"/></h4>
-                <!-- Number -->
-                <t t-if="number">
-                    <span class="pull-left display-1 mr8"><t t-raw="number"/></span>
-                    <p class="o_overflow_hidden"><t t-raw="number_text"/></p>
-                </t>
-                <!-- Text -->
-                <p class="mb24"><t t-raw="text"/></p>
-                <!-- Button -->
-                <a t-attf-href="#{url}" class="btn btn-sm btn-default"><t t-raw="link"/></a>
+            <div class="col-md-6">
+                <div class="o_partner_dashboard_box">
+                    <div class="header mb24">
+                        <h5 class="mt0 mb0"><t t-raw="title"/></h5>
+                    </div>
+                    <div class="body mb24">
+                        <t t-if="number">
+                        <div class="o_partner_dashboard_number">
+                            <span class="number"><t t-raw="number"/></span>
+                            <span class="text"><t t-raw="number_text"/></span>
+                        </div>
+                        </t>
+                        <t t-if="text">
+                            <t t-raw="text"/>
+                        </t>
+                    </div>
+                    <div class="footer">
+                        <t t-raw="primary_button"/>
+                        <t t-raw="secondary_button"/>
+                    </div>
+                </div>
             </div>
         </template>
 
@@ -920,7 +863,7 @@
                         </div>
                     </div>
                     <div class="clearfix">
-                        <button type="submit" class="btn btn-primary pull-right mb32 ">
+                        <button type="submit" class="btn btn-sm btn-primary pull-right mb32 ">
                             Confirm
                             <span class="fa fa-long-arrow-right" />
                         </button>
