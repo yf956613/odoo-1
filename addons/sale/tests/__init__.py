@@ -5,3 +5,4 @@ from . import test_sale_to_invoice
 from . import test_sale_order
 from . import test_product_id_change
 from . import test_reinvoice
+from . import test_performance
