@@ -109,10 +109,10 @@
                                 </div>
                                 <hr class="mt4 mb4"/>
                                 <div class="row">
-                                    <div class="col-xs-4 text-center">
+                                    <div class="col-4 text-center">
                                         <field name="value" widget="monetary"/>
                                     </div>
-                                    <div class="col-xs-offset-4 text-center">
+                                    <div class="offset-4 text-center">
                                         <field name="type"/>
                                     </div>
                                 </div>
