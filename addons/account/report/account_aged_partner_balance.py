@@ -210,12 +210,10 @@ class ReportAgedPartnerBalance(models.AbstractModel):
 
     @api.model
     def get_report_values(self, docids, data=None):
-        if not data.get('form') or not self.env.context.get('active_model') or not self.env.context.get('active_id'):
+        if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
         total = []
-        model = self.env.context.get('active_model')
-        docs = self.env[model].browse(self.env.context.get('active_id'))
 
         target_move = data['form'].get('target_move', 'all')
         date_from = data['form'].get('date_from', time.strftime('%Y-%m-%d'))
@@ -230,9 +228,7 @@ class ReportAgedPartnerBalance(models.AbstractModel):
         movelines, total, dummy = self._get_partner_move_lines(account_type, date_from, target_move, data['form']['period_length'])
         return {
             'doc_ids': self.ids,
-            'doc_model': model,
             'data': data['form'],
-            'docs': docs,
             'time': time,
             'get_partner_lines': movelines,
             'get_direction': total,
