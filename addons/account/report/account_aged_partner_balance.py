@@ -229,12 +229,12 @@ class ReportAgedPartnerBalance(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        if not data.get('form') or not self.env.context.get('active_model') or not self.env.context.get('active_id'):
+        if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
         total = []
-        model = self.env.context.get('active_model')
-        docs = self.env[model].browse(self.env.context.get('active_id'))
+        model = data['form'].get('active_model')
+        docs = self.env[model].browse(data['form'].get('id'))
 
         target_move = data['form'].get('target_move', 'all')
         date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
