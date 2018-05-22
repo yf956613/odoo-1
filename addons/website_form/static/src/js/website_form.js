@@ -150,7 +150,7 @@ odoo.define('website_form.animation', function (require) {
             // Loop on all fields
             this.$target.find('.form-field').each(function (k, field){
                 var $field = $(field);
-                var field_name = $field.find('.control-label').attr('for');
+                var field_name = $field.find('.col-form-label').attr('for');
 
                 // Validate inputs for this field
                 var inputs = $field.find('.o_website_form_input:not(#editable_select)');
