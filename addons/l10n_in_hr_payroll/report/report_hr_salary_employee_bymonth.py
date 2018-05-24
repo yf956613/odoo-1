@@ -94,11 +94,11 @@ class ReportHrSalaryEmployeeBymonth(models.AbstractModel):
 
     @api.model
     def get_report_values(self, docids, data=None):
-        if not data.get('form') or not self.env.context.get('active_model') or not self.env.context.get('active_id'):
+        if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        model = self.env.context.get('active_model')
-        docs = self.env[model].browse(self.env.context.get('active_id'))
+        model = data['form'].pop('active_model')
+        docs = self.env[model].browse(data['form'].pop('active_id'))
         get_periods, months, total_mnths = self.get_periods(data['form'])
         get_employee = self.get_employee(data['form'], months, total_mnths)
         get_months_tol = self.get_months_tol()
