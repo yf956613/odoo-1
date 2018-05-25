@@ -7,7 +7,7 @@
                 <t t-set="o" t-value="o.with_context({'lang':o.partner_id.lang})" />
                 <div class="page">
                     <div class="row" name="customer_address">
-                        <div class="col-4 pull-right">
+                        <div class="col-4 float-right">
                             <div>
                                 <span><strong>Customer Address:</strong></span>
                             </div>
