@@ -113,7 +113,7 @@
                     </div>
                 </div>
             </div>
-            <div class="help-block"/>
+            <div class="form-text"/>
             <div class="existing-attachments">
                 <t t-call="web_editor.dialog.image.existing"/>
             </div>
@@ -130,7 +130,7 @@
                     </header>
                     <main class="modal-body has-error">
                         <div class="existing-attachments"/>
-                        <div class="help-block"/>
+                        <div class="form-text"/>
                     </main>
                     <footer class="modal-footer">
                         <a data-dismiss="modal" href="#" aria-label="Discard">Discard</a>
@@ -151,7 +151,7 @@
         </div>
     </t>
     <t t-name="web_editor.dialog.image.existing.error">
-        <div class="help-block">
+        <div class="form-text">
             <p>The image could not be deleted because it is used in the
                following pages or views:</p>
             <ul t-as="view" t-foreach="views">

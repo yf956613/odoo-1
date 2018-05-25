@@ -450,7 +450,7 @@ var ImageWidget = MediaWidget.extend({
             .values()
             .value();
 
-        this.$('.help-block').empty();
+        this.$('.form-text').empty();
 
         this.$('.existing-attachments').replaceWith(QWeb.render('web_editor.dialog.image.existing.content', {rows: rows}));
 
@@ -538,7 +538,7 @@ var ImageWidget = MediaWidget.extend({
                     self._toggleImage(attachment, true);
                 } else {
                     $button.addClass('btn-danger');
-                    self.$el.addClass('has-error').find('.help-block').text(error);
+                    self.$el.addClass('has-error').find('.form-text').text(error);
                 }
 
                 if (!self.multiImages) {
@@ -576,7 +576,7 @@ var ImageWidget = MediaWidget.extend({
     _onImageSelection: function () {
         var $form = this.$('form');
         this.$el.addClass('nosave');
-        $form.removeClass('has-error').find('.help-block').empty();
+        $form.removeClass('has-error').find('.form-text').empty();
         this.$('.o_upload_image_button').removeClass('btn-danger btn-success');
         this._uploadImage();
     },
@@ -585,7 +585,7 @@ var ImageWidget = MediaWidget.extend({
      */
     _onRemoveClick: function (ev) {
         var self = this;
-        var $helpBlock = this.$('.help-block').empty();
+        var $helpBlock = this.$('.form-text').empty();
         var $a = $(ev.currentTarget);
         var id = parseInt($a.data('id'), 10);
         var attachment = _.findWhere(this.records, {id: id});
