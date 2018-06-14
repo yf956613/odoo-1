@@ -2085,7 +2085,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                 # leave the `False` value alone
                 if group.get(df):
                     group[df] = group[df][1]
-        return result
+        return tools.RichDisplayDictList(result)
 
     @api.model
     def _read_group_raw(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
@@ -2777,7 +2777,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             except MissingError:
                 pass
 
-        return result
+        return tools.RichDisplayDictList(result)
 
     @api.multi
     def _prefetch_field(self, field):
@@ -4513,7 +4513,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
 
         # reorder read
         index = {vals['id']: vals for vals in result}
-        return [index[record.id] for record in records if record.id in index]
+        return tools.RichDisplayDictList([index[record.id] for record in records if record.id in index])
 
     @api.multi
     def toggle_active(self):

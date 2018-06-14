@@ -347,6 +347,32 @@ def topological_sort(elems):
     return result
 
 
+class RichDisplayDictList(list):
+    def _repr_html_(self):
+        keys = []
+        for d in self:
+            for i, key in enumerate(d):
+                if key not in keys:
+                    before = next((k for k in list(d.keys())[i:] if k in keys), None)
+                    if before:
+                        keys.insert(keys.index(before), key)
+                    else:
+                        keys.append(key)
+
+        html = ["<table>"]
+        html.append("<tr>")
+        for key in keys:
+            html.append("<th>{0}</th>".format(key))
+        html.append("</tr>")
+        for d in self:
+            html.append("<tr>")
+            for key in keys:
+                html.append("<td>{0}</td>".format(d.get(key, False)))
+            html.append("</tr>")
+        html.append("</table>")
+        return ''.join(html)
+
+
 try:
     import xlwt
 
