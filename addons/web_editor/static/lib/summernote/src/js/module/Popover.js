@@ -79,7 +79,7 @@ define([
           isAirMode: isAirMode
         }));
       } else {
-        $linkPopover.hide();
+        _hidePopover($linkPopover); // ODOO override...
       }
 
       var $imagePopover = $popover.find('.note-image-popover');
@@ -89,7 +89,7 @@ define([
           isLeftTop: true
         }));
       } else {
-        $imagePopover.hide();
+        _hidePopover($imagePopover); // ODOO override...
       }
 
       var $airPopover = $popover.find('.note-air-popover');
@@ -103,7 +103,14 @@ define([
           });
         }
       } else {
-        $airPopover.hide();
+        _hidePopover($airPopover); // ODOO override...
+      }
+
+      function _hidePopover($popover) { // ODOO override...
+          if (!$popover.length) {
+              return;
+          }
+          $popover.hide()[0].style.setProperty('display', 'none', 'important');
       }
     };
 
