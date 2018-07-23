@@ -739,9 +739,7 @@ class ScssStylesheetAsset(PreprocessedCSS):
     @property
     def bootstrap_path(self):
         return get_resource_path('web', 'static', 'lib', 'bootstrap', 'scss')
-    @property
-    def bootstrap_components_path(self):
-        return get_resource_path('web', 'static', 'lib', 'bootstrap', 'scss', 'bootstrap')
+
     precision = 8
     output_style = 'expanded'
 
@@ -754,7 +752,6 @@ class ScssStylesheetAsset(PreprocessedCSS):
                 string=source,
                 include_paths=[
                     self.bootstrap_path,
-                    self.bootstrap_components_path,
                 ],
                 output_style=self.output_style,
                 precision=self.precision,
@@ -767,7 +764,7 @@ class ScssStylesheetAsset(PreprocessedCSS):
             sassc = misc.find_in_path('sassc')
         except IOError:
             sassc = 'sassc'
-        return [sassc, '--stdin', '--precision', str(self.precision), '--load-path', self.bootstrap_path, '--load-path', self.bootstrap_components_path, '-t', self.output_style]
+        return [sassc, '--stdin', '--precision', str(self.precision), '--load-path', self.bootstrap_path, '-t', self.output_style]
 
 
 class LessStylesheetAsset(PreprocessedCSS):
