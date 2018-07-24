@@ -12,31 +12,24 @@ font[class*='bg-'] {
 /* Images */
 
 img.rounded-circle,
-%rounded-circle {
+.rounded-circle {
     clip-path: circle(33% at center);
 }
 
-img.shadow,
-%shadow { 
-    box-shadow: 0 1px 2px rgba(0,0,0,.25);
-}
-
 img.img-thumbnail,
-%img-thumbnail {
-    padding: .5em;
-    @extend %shadow;
+.img-thumbnail {
+    padding: 0;
 }
 
-img.img-leaf,
-%leaf {
-    border-top-right-radius: $grid-gutter-width/2;
-    border-bottom-left-radius: $grid-gutter-width/2;
+img.rounded-leaf,
+.rounded-leaf {
+    border-top-left-radius: 2rem;
+    border-bottom-right-radius: 2rem;
 }
 
 /* Buttons */
 
 #wrapwrap [class*='s_'] .btn {
-    margin: $grid-gutter-width/2;
     .fa {
         vertical-align: middle;
     }
@@ -160,22 +153,23 @@ img.img-leaf,
 /* Odoo Icons */
 
 main [class*="s_"] { 
-    $o_icons_base_size: 1em;
+    $o_icons_base_size: 2rem;
     .fa {
-        &.rounded-circle,
-        &.rounded,
-        &.img-square,
+        &.rounded-circle, //circle
+        &.rounded, //$border-radius
+        &.rounded-0, //square
+        &.rounded-leaf,
         &.img-thumbnail,
         &.shadow {
             text-align: center;
             display: inline-block;
             vertical-align: middle;
-        }
-        @for $i from 1 through 5 {
-            &.fa-#{$i}x {
-                width: ($o_icons_base_size * $i);
-                height: ($o_icons_base_size * $i);
-                line-height: ($o_icons_base_size * $i);
+            @for $i from 1 through 5 {
+                &.fa-#{$i}x {
+                    width: ($o_icons_base_size * $i);
+                    height: ($o_icons_base_size * $i);
+                    line-height: ($o_icons_base_size * $i);
+                }
             }
         }
     }
@@ -428,8 +422,7 @@ $s_title_thin-font-weight: 300;
 
     .carousel-control-prev-icon,
     .carousel-control-next-icon {
-        // @include fa-size-generator(40px);
-        @extend %shadow;
+        @include box-shadow($box-shadow-lg);
         background-color: #fff;
         background-image: none;
         &:before {
@@ -450,7 +443,7 @@ $s_title_thin-font-weight: 300;
         cursor: pointer;
         magin-bottom: 0;
         li {
-            @extend %shadow;
+            @extend .shadow-sm;
             @include size(15px);
             &:hover:not(.active) {
                 background-color: rgba(255,255,255,.8);
@@ -790,7 +783,7 @@ $s_title_thin-font-weight: 300;
 // "Button" Snippet
 
 .btn {
-    padding: 12px 36px;
+    // padding: 12px 36px;
     // &.btn-lg { .button-size(18px; 48px; $font-size-large;     $line-height-large; $btn-border-radius-large); }
     // &.btn-sm { .button-size(8px;  24px; $font-size-small;     $line-height-small; $btn-border-radius-small); }
     // &.btn-xs { .button-size(4px;  12px; $font-size-small - 2; $line-height-small; $btn-border-radius-small); }
@@ -841,16 +834,16 @@ $s_title_thin-font-weight: 300;
     //     &.btn-delta   { .button-bordered-color(@color-delta); }
     //     &.btn-epsilon { .button-bordered-color(@color-epsilon); }
     // }
-    // &.s_btn_flat {
-    //     border: 0;
-    //     border-radius: 0;
-    //     letter-spacing: 0.05em;
-    //     text-transform: uppercase;
-    // }
-    // &.s_btn_rounded,
-    // &.s_btn_rounded_outline {
-    //     border-radius: 30px;
-    // }
+    &.s_btn_flat {
+        border: 0;
+        border-radius: 0;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    &.s_btn_rounded,
+    &.s_btn_rounded_outline {
+        border-radius: 30px;
+    }
 }
 
 

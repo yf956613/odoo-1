@@ -5,8 +5,8 @@
     <section class="s_text_block_image_fw parallax oe_img_bg oe_custom_bg pt96 pb96" style="background-image: url('/web/image/website.s_cover_default_image');" data-scroll-background-ratio="1">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 text-center s_padding_default">
-                    <h1 style="font-size: 62px;">Catchy Headline</h1>
+                <div class="col-lg-12 text-center p-3">
+                    <h1 class="display-3">Catchy Headline</h1>
                     <h2 class="lead">Click to customize this text.</h2>
                     <p class="pb16">Write one or two paragraphs describing your <b>product</b>, <b>services</b> or a <b>specific feature</b>.<br/> To be successful your content needs to be useful to your readers.</p>
                     <a href="/page/aboutus" class="btn btn-sm btn-outline-primary m-1">About us</a>
@@ -45,7 +45,7 @@
             <div class="carousel-item oe_img_bg pt64 pb64" style="background-image: url('/web/image/website.s_banner_default_image_2');">
                 <div class="container">
                     <div class="row content">
-                        <div class="carousel-content col-lg-6 bg-black-50 text-center offset-md-3 s_padding_md">
+                        <div class="carousel-content col-lg-6 bg-black-50 text-center offset-md-3 p-3">
                             <h2 style="font-size: 62px;">- Slide Title -</h2>
                             <h4 class="lead">Explain the benefits you offer.</h4>
                             <p class="mb16">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
@@ -86,14 +86,14 @@
             </div>
         </div>
         <!-- Controls -->
-        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <div class="carousel-control-prev" data-target="#myCarousel" data-slide="prev">
+            <i class="fa fa-1x fa-chevron-left rounded-0 carousel-control-prev-icon" aria-hidden="true"/>
             <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </div>
+        <div class="carousel-control-next" data-target="#myCarousel" data-slide="next">
+            <i class="fa fa-1x fa-chevron-right rounded-0 carousel-control-next-icon" aria-hidden="true"></i>
             <span class="sr-only">Next</span>
-        </a>
+        </div>
     </div>
 </template>
 
@@ -240,7 +240,7 @@
     <section class="s_text_block pt48 pb48">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 s_padding_default">
+                <div class="col-lg-12">
                     <p>A great way to catch your reader's attention is to tell a story. Everything you consider writing can be told as a story.</p>
                     <p><b>Great stories have personality.</b> Consider telling a great story that provides personality. Writing a story with personality for potential clients will assists with making a relationship connection. This shows up in small quirks like word choices or phrases. Write from your point of view, not from someone else's experience.</p>
                     <p><b>Great stories are for everyone even when only written for just one person.</b> If you try to write with a wide general audience in mind, your story will ring false and be bland. No one will be interested. Write for one person. If it’s genuine for the one, it’s genuine for the rest.</p>
@@ -284,8 +284,8 @@
     <section class="s_title">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 pt48 pb48" style="text-align: center;">
-                    <h1 class="s_title_default" style="font-size: 48px;">Your Website Title</h1>
+                <div class="col-lg-12 pt48 pb48 text-center">
+                    <h1 class="display-4">Your Website Title</h1>
                 </div>
             </div>
         </div>
@@ -312,52 +312,22 @@
                 <div class="col-lg-4 pb24 text-center">
                     <i class="fa fa-3x fa-gear rounded-circle bg-alpha"/>
                     <h3>First Feature</h3>
-                    <p>Tell what's the value for the <br/>customer for this feature.</p>
+                    <p class="text-gray">Tell what's the value for the <br/>customer for this feature.</p>
                 </div>
                 <div class="col-lg-4 pb24 text-center">
                     <i class="fa fa-3x fa-lock rounded-circle bg-beta"/>
                     <h3>Second Feature</h3>
-                    <p>Write what the customer would like to know, <br/>not what you want to show.</p>
+                    <p class="text-gray">Write what the customer would like to know, <br/>not what you want to show.</p>
                 </div>
                 <div class="col-lg-4 pb24 text-center">
                     <i class="fa fa-3x fa-leaf rounded-circle bg-primary"/>
                     <h3>Third Feature</h3>
-                    <p>A small explanation of this great <br/>feature, in clear words.</p>
+                    <p class="text-gray">A small explanation of this great <br/>feature, in clear words.</p>
                 </div>
             </div>
         </div>
     </section>
 </template>
-<!-- 
-<template id="s_features" name="Features">
-    <section class="s_features pt16 pb16">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 text-center">
-                    <span class="fa fa-suitcase fa-5x"></span>
-                    <div>
-                        <h3 class="mt8 mb0">First Feature</h3>
-                        <p class="text-muted">Tell what's the value for the<br/>customer for this feature.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <span class="fa fa-lock fa-5x"></span>
-                    <div>
-                        <h3 class="mt8 mb0">Second Feature</h3>
-                        <p class="text-muted">Write what the customer would like to know,<br/>not what you want to show.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <span class="fa fa-heart fa-5x"></span>
-                    <div>
-                        <h3 class="mt8 mb0">Third Feature</h3>
-                        <p class="text-muted">A small explanation of this great<br/>feature, in clear words.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</template> -->
 
 <template id="s_big_picture" name="Big Picture">
     <section class="s_big_picture bg-gray-lighter pt48 pb48">
@@ -372,10 +342,10 @@
                 <div class="col-lg-8 offset-lg-2 pb24">
                     <div class="card bg-light">
                         <div class="card-body">
-                            <img class="img img-fluid" src="/web/image/website.s_big_picture_default_image" alt="Odoo CMS - An other big picture"/>
-                        </div>
-                        <div class="card-footer text-center">
-                            <i class="fa fa-1x fa-picture-o mr8"/> Add a caption to enhance the meaning of this image.
+                            <figure class="figure m-0">
+                                <img class="img img-fluid rounded" src="/web/image/website.s_big_picture_default_image" alt="Odoo CMS - An other big picture"/>
+                                <figcaption class="figure-caption pt-3 text-center"><i class="fa fa-1x fa-picture-o"/> Add a caption to enhance the meaning of this image.</figcaption>
+                            </figure>
                         </div>
                     </div>
                 </div>
@@ -384,39 +354,13 @@
         </div>
     </section>
 </template>
-<!-- 
-<template id="s_big_picture" name="Big Picture">
-    <section class="s_big_picture bg-gray-lighter pb16">
-        <div class="container">
-            <h2 class="text-center">A Punchy Headline</h2>
-            <div class="row">
-                <div class="col-lg-12">
-                  <img class="img img-fluid" src="/web/image/website.s_big_picture_default_image" style="margin: 0 auto;"  alt="Odoo CMS - a big picture"/>
-                </div>
-                <div class="col-lg-6 offset-lg-3 mt16">
-                    <p class="text-center">
-                        <b>A Small Subtitle</b>
-                    </p>
-                    <p class="text-center">
-                        Choose a vibrant image and write an inspiring paragraph
-                        about it. It does not have to be long, but it should
-                        reinforce your image.
-                    </p>
-                    <p class="text-center">
-                        <a href="/contactus">Contact us »</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-</template> -->
 
 <template id="s_three_columns" name="Three Columns">
     <section class="s_three_columns pt48 pb24">
         <div class="container">
-            <!-- <div class="row"> -->
-                <div class="row card-deck flex-wrap">
-                    <div class="card border-primary col-lg-4 mb-3">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card h-100 mb-3">
                         <img class="card-img-top" src="/web/image/website.library_image_11" alt="Odoo - Sample 1 for three columns"/>
                         <div class="card-body">
                             <h5 class="card-title">Card title</h5>
@@ -426,7 +370,9 @@
                             <small class="text-muted">Last updated 3 mins ago</small>
                         </div>
                     </div>
-                    <div class="card border-primary col-lg-4 mb-3">
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100 mb-3">
                         <img class="card-img-top" src="/web/image/website.library_image_13" alt="Odoo - Sample 2 for three columns"/>
                         <div class="card-body">
                             <h5 class="card-title">Card title</h5>
@@ -436,7 +382,9 @@
                             <small class="text-muted">Last updated 3 mins ago</small>
                         </div>
                     </div>
-                    <div class="card border-primary col-lg-4 mb-3">
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100 mb-3">
                         <img class="card-img-top" src="/web/image/website.library_image_07" alt="Odoo - Sample 3 for three columns"/>
                         <div class="card-body">
                             <h5 class="card-title">Card title</h5>
@@ -447,10 +395,7 @@
                         </div>
                     </div>
                 </div>
-            
-                    
-
-            <!-- </div> -->
+            </div>
         </div>
     </section>
 </template>
@@ -512,26 +457,23 @@
     </section>
 </template>
 
-<template id="s_image_floating" name="Image Floating">
-    <div class="o_image_floating o_margin_l float-right s_image_floating">
-        <figure class="figure">
-            <img src="/web/image/website.s_image_floating_default_image" class="figure-img img-fluid rounded" alt="Image with an optional caption"/>
-            <figcaption class="figure-caption">A caption for the above image.</figcaption>
-        </figure>
-    </div>
-</template>
-
-<!-- <template id="s_image_floating" name="Image Floating">
-    <div class="o_image_floating o_margin_l float-right s_image_floating">
-        <div class="o_container">
-            <img class="img rounded img-fluid" src="/web/image/website.s_image_floating_default_image" alt="Odoo CMS- Sample image floating"/>
+<template id="s_image_overlay" name="Image Overlay">
+    <section class="s_image_overlay">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
+                        <div class="card-img-overlay bg-black-50">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="o_footer">
-            <small class="text-muted">A great way to catch your reader's attention is to tell a story. Everything you consider writing can be told as a story.</small>
-        </div>
-    </div>
+    </section>
 </template>
- -->
 
 <template id="s_share" name="Share">
     <div class="s_share">
@@ -889,7 +831,7 @@
                     <div class="row">
                         <div class="col-lg-12 pb48">
                             <h2>First list of Features</h2>
-                            <h5 class="text-primary">Add a great slogan.</h5>
+                            <h5>Add a great slogan.</h5>
                         </div>
                         <div class="col-lg-12 pb24">
                             <i class="fa fa-2x fa-font-awesome rounded-circle bg-primary s_feature_grid_icon"/>
@@ -918,7 +860,7 @@
                     <div class="row">
                         <div class="col-lg-12 pb48">
                             <h2>Second list of Features</h2>
-                            <h5 class="text-gray-light">Add a great slogan.</h5>
+                            <h5>Add a great slogan.</h5>
                         </div>
                         <div class="col-lg-12 pb24">
                             <i class="fa fa-2x fa-magic rounded bg-gray-lighter s_feature_grid_icon"/>
@@ -1253,7 +1195,7 @@
                     <t t-snippet="website.s_share" t-thumbnail="/website/static/src/img/blocks/block_share.png"/>
                     <t t-snippet="website.s_rating" t-thumbnail="/website/static/src/img/blocks/block_rating.png"/>
                     <t t-snippet="website.s_facebook_page" t-thumbnail="/website/static/src/img/blocks/block_facebook_page.png"/>
-                    <t t-snippet="website.s_image_floating" t-thumbnail="/website/static/src/img/blocks/block_image_floating.png"/>
+                    <t t-snippet="website.s_image_overlay" t-thumbnail="/website/static/src/img/blocks/block_image_overlay.png"/>
                 </div>
             </div>
         </div>
@@ -1376,9 +1318,21 @@
         </div>
     </div>
 
-<!--     <div data-js="colorpicker" 
-        data-color-prefix="panel-" 
-        data-selector=".s_panel.panel, .s_faq_collapse .panel"
+
+    <div data-js="colorpicker"
+        data-selector=".s_image_overlay" data-target=".card-img-overlay"
+        data-palette-exclude="grayscale, theme, ui"
+        data-palette-default="transparent_grayscale"
+        data-palette-title="Background Color">
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Filter</a>
+            <div class="dropdown-menu"/>
+        </div>
+    </div>
+
+    <div data-js="colorpicker" 
+        data-color-prefix="bg-" 
+        data-selector=".card"
         data-palette-exclude="transparent_grayscale"
         data-palette-title="Panel Color">
         <li class="dropdown-submenu">
@@ -1388,7 +1342,30 @@
             </ul>
         </li>
     </div>    
- -->
+
+    <div data-selector="[class*='s_'] .fa">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-pencil"/>Style</a>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="rounde-none">None</a>
+                <a href="#" class="dropdown-item" data-select-class="rounded">Rounded</a>
+                <a href="#" class="dropdown-item" data-select-class="rounded-circle">Circle</a>
+                <a href="#" class="dropdown-item" data-select-class="rounded-0">Square</a>
+                <a href="#" class="dropdown-item" data-select-class="rounded-leaf">Leaf</a>
+                <a href="#" class="dropdown-item" data-select-class="img-thumbnail">Thumbnail</a>
+            </div>
+        </li>
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-pencil"/>Shadow</a>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="shadow-none">None</a>
+                <a href="#" class="dropdown-item" data-select-class="shadow-sm">Small</a>
+                <a href="#" class="dropdown-item" data-select-class="shadow">Medium</a>
+                <a href="#" class="dropdown-item" data-select-class="shadow-lg">Large</a>
+            </div>
+        </li>
+    </div>
+
     <div data-selector=".s_hr" data-target="hr">
         <li class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-minus"/>Thickness</a>
@@ -1417,7 +1394,7 @@
         </li>
     </div>
 
-    <div data-selector=".s_title" data-target="h1, h2, h3, h4, h5, h6">
+    <div data-selector="h1, h2, h3, h4, h5, h6">
         <li class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Typography</a>
             <div class="dropdown-menu">
@@ -1444,7 +1421,7 @@
         </li>
     </div>
 
-    <div data-selector=".s_text_block_image_fw [class*='col-lg-'], .s_text_block [class*='col-lg-'], .s_three_columns [class*='col-lg-'], .s_banner .carousel-content">
+    <div data-selector=".s_text_block_image_fw [class*='col-lg-'], .s_text_block [class*='col-lg-'], .s_three_columns [class*='col-lg-'], .s_banner .carousel-content, .s_image_overlay [class*='col-lg-']">
         <li class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Border</a>
             <div class="dropdown-menu">
