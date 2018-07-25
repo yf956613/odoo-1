@@ -42,48 +42,35 @@
 </template>
 
 <template id="s_text_image" name="Text-Image">
-    <section class="s_text_image pt32 pb32">
+    <section class="s_text_image pt24 pb24">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-6 mt32">
-                    <h3 style="text-align: right;">A Section Subtitle</h3>
-                    <p style="text-align: right;">
-                        Write one or two paragraphs describing your product or
-                        services.<br/>To be successful your content needs to be
-                        useful to your readers.
-                    </p><p style="text-align: right;">
-                        Start with the customer – find out what they want
-                        and give it to them.
-                    </p>
+            <div class="row d-flex align-items-center">
+                <div class="col-lg-6 pt24 pb24">
+                    <h2>A Section Subtitle</h2>
+                    <p>Write one or two paragraphs describing your product or services. <br/>To be successful your content needs to be useful to your readers.</p>
+                    <p>Start with the customer – find out what they want and give it to them.</p>
+                    <a href="#" class="btn btn-primary">Read more</a>
                 </div>
-                <div class="col-lg-6">
-                  <img class="img img-fluid float-left mb16" src="/web/image/website.s_text_image_default_image" alt="Odoo text and image block"/>
+                <div class="col-lg-6 pt24 pb24">
+                    <img src="/web/image/website.s_text_image_default_image" class="img img-fluid mx-auto" alt="Odoo • Text and Image"/>
                 </div>
             </div>
         </div>
     </section>
 </template>
 
-<template id="s_image_text" name="Image-Text">
-    <section class="s_image_text pt32 pb32">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                  <img class="img img-fluid d-block mx-auto mb16" src="/web/image/website.s_image_text_default_image"  alt="Odoo image and text block"/>
-                </div>
-                <div class="col-lg-6 mt32">
-                    <h3>A Section Subtitle</h3>
-                    <p>
-                        Write one or two paragraphs describing your product,
-                        services or a specific feature. To be successful
-                        your content needs to be useful to your readers.
-                    </p><p>
-                        Start with the customer – find out what they want
-                        and give it to them.
-                    </p>
-                </div>
-            </div>
-        </div>
+<template id="s_text_block_image_fw" name="Text block - Image">
+    <section class="s_text_block_image_fw oe_img_bg oe_custom_bg pt96 pb96" style="background-image: url('/web/image/website.s_text_block_image_fw_default_image'); background-position: 50% 50%;">
+       <div class="container">
+           <div class="row">
+               <div class="col-lg-6 bg-white">
+                   <h2>A Section Subtitle</h2>
+                   <p>Write one or two paragraphs describing your product, services or a specific feature. To be successful your content needs to be useful to your readers.</p>
+                   <p>Start with the customer – find out what they want and give it to them.</p>
+                   <a href="#" class="btn btn-primary">Read more</a>
+               </div>
+           </div>
+       </div>
     </section>
 </template>
 
@@ -666,7 +653,7 @@
                     <t t-snippet="website.s_title" t-thumbnail="/website/static/src/img/blocks/block_title.png"/>
                     <t t-snippet="website.s_cover" t-thumbnail="/website/static/src/img/blocks/block_banner.png"/>
                     <t t-snippet="website.s_text_image" t-thumbnail="/website/static/src/img/blocks/block_text_image.png"/>
-                    <t t-snippet="website.s_image_text" t-thumbnail="/website/static/src/img/blocks/block_image_text.png"/>
+                    <t t-snippet="website.s_text_block_image_fw" t-thumbnail="/website/static/src/img/blocks/block_text_block_image_fw.png"/>
                     <t t-snippet="website.s_big_message" t-thumbnail="/website/static/src/img/blocks/block_big_message.png"/>
                     <t t-snippet="website.s_text_block" t-thumbnail="/website/static/src/img/blocks/block_text_block.png"/>
                     <t t-snippet="website.s_features" t-thumbnail="/website/static/src/img/blocks/block_features.png"/>
@@ -772,6 +759,19 @@
             </div>
         </li>
         <div class="dropdown-divider"/>
+    </div>
+
+    <div data-selector=".s_text_image" data-target=".d-flex">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Alignement</a>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="align-items-start">Top</a>
+                <a href="#" class="dropdown-item" data-select-class="align-items-center">Middle</a>
+                <a href="#" class="dropdown-item" data-select-class="align-items-end">Bottom</a>
+                <div class="dropdown-divider"/>
+                <a href="#" class="dropdown-item" data-select-class="">Default</a>
+            </div>
+        </li>
     </div>
 
     <div data-js='gallery' data-selector=".o_gallery">
