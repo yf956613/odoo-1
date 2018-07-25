@@ -1525,9 +1525,10 @@ var LinkDialog = Dialog.extend({
         }
 
         var style = this.$('input[name="link_style_color"]:checked').val() || '';
+        var shape = this.$('select[name="link_style_shape"]').val() || '';
         var size = this.$('select[name="link_style_size"]').val() || '';
         var classes = (this.data.className || '')
-            + ((style && style.length) ? (' btn btn-' + style) : '')
+            + ((style && style.length) ? (' btn btn-' + ((shape && shape.length) ? (shape + '-') : '') + style) : '')
             + ((size && size.length) ? (' btn-' + size) : '');
         var isNewWindow = this.$('input[name="is_new_window"]').prop('checked');
 

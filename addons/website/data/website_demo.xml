@@ -243,5 +243,443 @@ response = request.render("website.template_partner_comment", {
             <field name="website_id" ref="website2"/>
             <field name="page_id" ref="website2_contactus_page" />
         </record>
+
+
+        <record id="snippets-nmi" model="ir.ui.view">
+            <field name="name">Snippets</field>
+            <field name="type">qweb</field>
+            <field name="key">website.snippets-nmi</field>
+            <field name="arch" type="xml">
+                <t name="Snippets" t-name="website.snippets-nmi">
+                    <t t-call="website.layout">
+                        <div id="wrap">
+
+                            <t t-call="website.s_title"/>
+                            <t t-call="website.s_cover"/>
+                            <t t-call="website.s_text_image"/>
+                            <t t-call="website.s_image_text"/>
+                            <t t-call="website.s_banner"/>
+                            <t t-call="website.s_text_block"/>
+                            <t t-call="website.s_features"/>
+                            <t t-call="website.s_picture"/>
+                            <t t-call="website.s_three_columns"/>
+                            <t t-call="website.s_carousel"/>
+
+                            <t t-call="website.s_image_gallery"/>
+                            <t t-call="website.s_comparisons"/>
+                            <t t-call="website.s_company_team"/>
+                            <t t-call="website.s_call_to_action"/>
+                            <t t-call="website.s_references"/>
+                            <t t-call="website.s_faq_collapse"/>
+                            <t t-call="website.s_features_grid"/>
+                            <t t-call="website.s_tabs"/>
+
+                            <t t-call="website.s_parallax"/>
+                            <t t-call="website.s_quotes_carousel"/>
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_btn"/></div>
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_hr"/></div>
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_alert"/></div>
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_card"/></div>
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_share"/></div>
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_rating"/></div>
+                                    <div class="col-lg-12 mt32 mb32"><t t-call="website.s_facebook_page"/></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </field>
+        </record>
+        <record id="snippets-nmi-page" model="website.page">
+            <field name="website_published">True</field>
+            <field name="url">/snippets</field>
+            <field name="view_id" ref="snippets-nmi" />
+        </record>
+
+        <record id="buttons-nmi" model="ir.ui.view">
+            <field name="name">Buttons</field>
+            <field name="type">qweb</field>
+            <field name="key">website.buttons-nmi</field>
+            <field name="arch" type="xml">
+                <t name="Buttons" t-name="website.buttons-nmi">
+                    <t t-call="website.layout">
+                        <div id="wrap">
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 pt64 mb64">
+
+                <div class="mt48 mb24"><b>SMALL</b></div>
+                <a href="#" class="btn btn-sm btn-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-sm btn-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-sm btn-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-sm btn-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-sm btn-epsilon m-2">Epsilon Button</a>
+                <div class="my-3"></div>
+                <a href="#" class="btn btn-sm btn-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-sm btn-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-sm btn-info m-2">Info Button</a>
+                <a href="#" class="btn btn-sm btn-success m-2">Success Button</a>
+                <a href="#" class="btn btn-sm btn-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-sm btn-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-sm btn-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-sm btn-light m-2">Light Button</a>
+                <a href="#" class="btn btn-sm btn-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>REGULAR</b></div>
+                <a href="#" class="btn btn-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-info m-2">Info Button</a>
+                <a href="#" class="btn btn-success m-2">Success Button</a>
+                <a href="#" class="btn btn-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-light m-2">Light Button</a>
+                <a href="#" class="btn btn-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>LARGE</b></div>
+                <a href="#" class="btn btn-lg btn-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-lg btn-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-lg btn-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-lg btn-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-lg btn-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-lg btn-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-lg btn-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-lg btn-info m-2">Info Button</a>
+                <a href="#" class="btn btn-lg btn-success m-2">Success Button</a>
+                <a href="#" class="btn btn-lg btn-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-lg btn-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-lg btn-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-lg btn-light m-2">Light Button</a>
+                <a href="#" class="btn btn-lg btn-link m-2">Link Button</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 pt64 mb64">
+
+                <div class="mt48 mb24"><b>SMALL</b></div>
+                <a href="#" class="btn btn-sm btn-rounded-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-epsilon m-2">Epsilon Button</a>
+                <div class="my-3"></div>
+                <a href="#" class="btn btn-sm btn-rounded-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-info m-2">Info Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-success m-2">Success Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-light m-2">Light Button</a>
+                <a href="#" class="btn btn-sm btn-rounded-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>REGULAR</b></div>
+                <a href="#" class="btn btn-rounded-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-rounded-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-rounded-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-rounded-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-rounded-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-rounded-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-rounded-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-rounded-info m-2">Info Button</a>
+                <a href="#" class="btn btn-rounded-success m-2">Success Button</a>
+                <a href="#" class="btn btn-rounded-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-rounded-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-rounded-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-rounded-light m-2">Light Button</a>
+                <a href="#" class="btn btn-rounded-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>LARGE</b></div>
+                <a href="#" class="btn btn-lg btn-rounded-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-lg btn-rounded-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-info m-2">Info Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-success m-2">Success Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-light m-2">Light Button</a>
+                <a href="#" class="btn btn-lg btn-rounded-link m-2">Link Button</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 pt64 mb64">
+
+                <div class="mt48 mb24"><b>SMALL</b></div>
+                <a href="#" class="btn btn-sm btn-outline-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-sm btn-outline-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-sm btn-outline-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-sm btn-outline-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-sm btn-outline-epsilon m-2">Epsilon Button</a>
+                <div class="my-3"></div>
+                <a href="#" class="btn btn-sm btn-outline-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-sm btn-outline-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-sm btn-outline-info m-2">Info Button</a>
+                <a href="#" class="btn btn-sm btn-outline-success m-2">Success Button</a>
+                <a href="#" class="btn btn-sm btn-outline-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-sm btn-outline-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-sm btn-outline-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-sm btn-outline-light m-2">Light Button</a>
+                <a href="#" class="btn btn-sm btn-outline-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>REGULAR</b></div>
+                <a href="#" class="btn btn-outline-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-outline-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-outline-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-outline-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-outline-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-outline-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-outline-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-outline-info m-2">Info Button</a>
+                <a href="#" class="btn btn-outline-success m-2">Success Button</a>
+                <a href="#" class="btn btn-outline-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-outline-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-outline-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-outline-light m-2">Light Button</a>
+                <a href="#" class="btn btn-outline-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>LARGE</b></div>
+                <a href="#" class="btn btn-lg btn-outline-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-lg btn-outline-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-lg btn-outline-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-lg btn-outline-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-lg btn-outline-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-lg btn-outline-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-lg btn-outline-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-lg btn-outline-info m-2">Info Button</a>
+                <a href="#" class="btn btn-lg btn-outline-success m-2">Success Button</a>
+                <a href="#" class="btn btn-lg btn-outline-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-lg btn-outline-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-lg btn-outline-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-lg btn-outline-light m-2">Light Button</a>
+                <a href="#" class="btn btn-lg btn-outline-link m-2">Link Button</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 pt64 mb64">
+
+                <div class="mt48 mb24"><b>SMALL</b></div>
+                <a href="#" class="btn btn-sm btn-outline-rounded-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-epsilon m-2">Epsilon Button</a>
+                <div class="my-3"></div>
+                <a href="#" class="btn btn-sm btn-outline-rounded-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-info m-2">Info Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-success m-2">Success Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-light m-2">Light Button</a>
+                <a href="#" class="btn btn-sm btn-outline-rounded-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>REGULAR</b></div>
+                <a href="#" class="btn btn-outline-rounded-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-outline-rounded-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-outline-rounded-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-outline-rounded-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-outline-rounded-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-outline-rounded-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-outline-rounded-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-outline-rounded-info m-2">Info Button</a>
+                <a href="#" class="btn btn-outline-rounded-success m-2">Success Button</a>
+                <a href="#" class="btn btn-outline-rounded-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-outline-rounded-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-outline-rounded-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-outline-rounded-light m-2">Light Button</a>
+                <a href="#" class="btn btn-outline-rounded-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>LARGE</b></div>
+                <a href="#" class="btn btn-lg btn-outline-rounded-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-lg btn-outline-rounded-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-info m-2">Info Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-success m-2">Success Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-light m-2">Light Button</a>
+                <a href="#" class="btn btn-lg btn-outline-rounded-link m-2">Link Button</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 pt64 mb64">
+
+                <div class="mt48 mb24"><b>SMALL</b></div>
+                <a href="#" class="btn btn-sm btn-flat-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-sm btn-flat-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-sm btn-flat-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-sm btn-flat-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-sm btn-flat-epsilon m-2">Epsilon Button</a>
+                <div class="my-3"></div>
+                <a href="#" class="btn btn-sm btn-flat-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-sm btn-flat-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-sm btn-flat-info m-2">Info Button</a>
+                <a href="#" class="btn btn-sm btn-flat-success m-2">Success Button</a>
+                <a href="#" class="btn btn-sm btn-flat-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-sm btn-flat-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-sm btn-flat-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-sm btn-flat-light m-2">Light Button</a>
+                <a href="#" class="btn btn-sm btn-flat-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>REGULAR</b></div>
+                <a href="#" class="btn btn-flat-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-flat-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-flat-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-flat-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-flat-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-flat-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-flat-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-flat-info m-2">Info Button</a>
+                <a href="#" class="btn btn-flat-success m-2">Success Button</a>
+                <a href="#" class="btn btn-flat-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-flat-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-flat-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-flat-light m-2">Light Button</a>
+                <a href="#" class="btn btn-flat-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>LARGE</b></div>
+                <a href="#" class="btn btn-lg btn-flat-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-lg btn-flat-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-lg btn-flat-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-lg btn-flat-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-lg btn-flat-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-lg btn-flat-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-lg btn-flat-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-lg btn-flat-info m-2">Info Button</a>
+                <a href="#" class="btn btn-lg btn-flat-success m-2">Success Button</a>
+                <a href="#" class="btn btn-lg btn-flat-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-lg btn-flat-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-lg btn-flat-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-lg btn-flat-light m-2">Light Button</a>
+                <a href="#" class="btn btn-lg btn-flat-link m-2">Link Button</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 pt64 mb64">
+
+                <div class="mt48 mb24"><b>SMALL</b></div>
+                <a href="#" class="btn btn-sm btn-3d-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-sm btn-3d-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-sm btn-3d-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-sm btn-3d-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-sm btn-3d-epsilon m-2">Epsilon Button</a>
+                <div class="my-3"></div>
+                <a href="#" class="btn btn-sm btn-3d-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-sm btn-3d-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-sm btn-3d-info m-2">Info Button</a>
+                <a href="#" class="btn btn-sm btn-3d-success m-2">Success Button</a>
+                <a href="#" class="btn btn-sm btn-3d-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-sm btn-3d-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-sm btn-3d-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-sm btn-3d-light m-2">Light Button</a>
+                <a href="#" class="btn btn-sm btn-3d-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>REGULAR</b></div>
+                <a href="#" class="btn btn-3d-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-3d-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-3d-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-3d-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-3d-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-3d-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-3d-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-3d-info m-2">Info Button</a>
+                <a href="#" class="btn btn-3d-success m-2">Success Button</a>
+                <a href="#" class="btn btn-3d-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-3d-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-3d-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-3d-light m-2">Light Button</a>
+                <a href="#" class="btn btn-3d-link m-2">Link Button</a>
+
+                <div class="mt48 mb24"><b>LARGE</b></div>
+                <a href="#" class="btn btn-lg btn-3d-alpha m-2">Alpha Button</a>
+                <a href="#" class="btn btn-lg btn-3d-beta m-2">Beta Button</a>
+                <a href="#" class="btn btn-lg btn-3d-gamma m-2">Gamma Button</a>
+                <a href="#" class="btn btn-lg btn-3d-delta m-2">Delta Button</a>
+                <a href="#" class="btn btn-lg btn-3d-epsilon m-2">Epsilon Button</a>
+                <div class="m-3"/>
+                <a href="#" class="btn btn-lg btn-3d-primary m-2">Primary Button</a>
+                <a href="#" class="btn btn-lg btn-3d-secondary m-2">Secondary Button</a>
+                <a href="#" class="btn btn-lg btn-3d-info m-2">Info Button</a>
+                <a href="#" class="btn btn-lg btn-3d-success m-2">Success Button</a>
+                <a href="#" class="btn btn-lg btn-3d-warning m-2">Warning Button</a>
+                <a href="#" class="btn btn-lg btn-3d-danger m-2">Danger Button</a>
+                <a href="#" class="btn btn-lg btn-3d-dark m-2">Dark Button</a>
+                <a href="#" class="btn btn-lg btn-3d-light m-2">Light Button</a>
+                <a href="#" class="btn btn-lg btn-3d-link m-2">Link Button</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+                        </div>
+                    </t>
+                </t>
+            </field>
+        </record>
+        <record id="buttons-nmi-page" model="website.page">
+            <field name="website_published">True</field>
+            <field name="url">/buttons</field>
+            <field name="view_id" ref="buttons-nmi" />
+        </record>
     </data>
 </odoo>
