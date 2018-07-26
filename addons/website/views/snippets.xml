@@ -117,29 +117,23 @@
 </template>
 
 <template id="s_features" name="Features">
-    <section class="s_features pt16 pb16">
+    <section class="s_features pt48 pb24">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4 text-center">
-                    <span class="fa fa-suitcase fa-5x" role="img" aria-label="Suitcase" title="Suitcase"></span>
-                    <div>
-                        <h3 class="mt8 mb0">First Feature</h3>
-                        <p class="text-muted">Tell what's the value for the<br/>customer for this feature.</p>
-                    </div>
+                <div class="col-lg-4 pb24 text-center">
+                    <i class="fa fa-3x fa-gear rounded-circle bg-gamma mx-3 mb-4"/>
+                    <h3>First Feature</h3>
+                    <p class="text-600">Tell what's the value for the <br/>customer for this feature.</p>
                 </div>
-                <div class="col-lg-4 text-center">
-                    <span class="fa fa-lock fa-5x" role="img" aria-label="Lock" title="Lock"></span>
-                    <div>
-                        <h3 class="mt8 mb0">Second Feature</h3>
-                        <p class="text-muted">Write what the customer would like to know,<br/>not what you want to show.</p>
-                    </div>
+                <div class="col-lg-4 pb24 text-center">
+                    <i class="fa fa-3x fa-photo rounded bg-epsilon mx-3 mb-4"/>
+                    <h3>Second Feature</h3>
+                    <p class="text-600">Write what the customer would like to know, <br/>not what you want to show.</p>
                 </div>
-                <div class="col-lg-4 text-center">
-                    <span class="fa fa-heart fa-5x" role="img" aria-label="Heart" title="Heart"></span>
-                    <div>
-                        <h3 class="mt8 mb0">Third Feature</h3>
-                        <p class="text-muted">A small explanation of this great<br/>feature, in clear words.</p>
-                    </div>
+                <div class="col-lg-4 pb24 text-center">
+                    <i class="fa fa-3x fa-leaf rounded-leaf bg-alpha mx-3 mb-4"/>
+                    <h3>Third Feature</h3>
+                    <p class="text-600">A small explanation of this great <br/>feature, in clear words.</p>
                 </div>
             </div>
         </div>
@@ -527,53 +521,65 @@
     </section>
 </template>
 
-<template id="s_feature_grid" name="Feature Grid">
-    <section class="s_feature_grid pt16">
+<template id="s_features_grid" name="Features Grid">
+    <section class="s_features_grid pt48 pb24">
         <div class="container">
             <div class="row">
-                <div class="col-lg-5 offset-lg-1">
+                <div class="col-lg-6 pb24">
                     <div class="row">
-                        <div class="col-lg-12 pb16">
-                            <h3 class="mb0">List of Features</h3>
-                            <h5 class="text-muted">Add a great slogan</h5>
+                        <div class="col-lg-12 pb48">
+                            <h2>First list of Features</h2>
+                            <h5>Add a great slogan.</h5>
                         </div>
-                        <div class="col-lg-12">
-                            <span style="min-width: 45px" class="fa fa-2x fa-comment float-left mb16" role="img" aria-label="Change icons" title="Change icons"></span>
-                            <h4 class="mt0 mb0">Change Icons</h4>
-                            <p>Click on the icon to adapt it to your feature</p><br/>
+                        <div class="col-lg-12 pb24">
+                            <i class="fa fa-2x fa-font-awesome rounded-circle bg-alpha s_features_grid_icon"/>
+                            <div class="s_features_grid_content">
+                                <h4>Change Icons</h4>
+                                <p>Double click an icon to replace it with one of your choice.</p>
+                            </div>
                         </div>
-                        <div class="col-lg-12">
-                            <span style="min-width: 45px" class="fa fa-2x fa-columns float-left mb16" role="img" aria-label="Duplicate" title="Duplicate"></span>
-                            <h4 class="mt0 mb0">Duplicate</h4>
-                            <p>Duplicate blocks to add more features.</p><br/>
+                        <div class="col-lg-12 pb24">
+                            <i class="fa fa-2x fa-files-o rounded-circle bg-alpha s_features_grid_icon"/>
+                            <div class="s_features_grid_content">
+                                <h4>Duplicate</h4>
+                                <p>Duplicate blocks and columns to add more features.</p>
+                            </div>
                         </div>
-                        <div class="col-lg-12">
-                            <span style="min-width: 45px" class="fa fa-2x fa-user float-left mb16" role="img" aria-label="Delete blocks" title="Delete blocks"></span>
-                            <h4 class="mt0 mb0">Delete Blocks</h4>
-                            <p>Select and delete blocks to remove some features.</p><br/>
+                        <div class="col-lg-12 pb24">
+                            <i class="fa fa-2x fa-trash rounded-circle bg-alpha s_features_grid_icon"/>
+                            <div class="s_features_grid_content">
+                                <h4>Delete Blocks</h4>
+                                <p>Select and delete blocks to remove some features.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-5">
+                <div class="col-lg-6 pb24">
                     <div class="row">
-                        <div class="col-lg-12 pb16">
-                            <h3 class="mb0">Second List</h3>
-                            <h5 class="text-muted">Add a great slogan</h5>
+                        <div class="col-lg-12 pb48">
+                            <h2>Second list of Features</h2>
+                            <h5>Add a great slogan.</h5>
                         </div>
-                        <div class="col-lg-12">
-                            <span style="min-width: 45px" class="fa fa-2x fa-magic float-left mb16" role="img" aria-label="Great value" title="Great value"></span>
-                            <h4 class="mt0 mb0">Great Value</h4>
-                            <p>Tell features the visitor would like to know, not what you'd like to say.</p>
+                        <div class="col-lg-12 pb24">
+                            <i class="fa fa-2x fa-magic rounded bg-beta s_features_grid_icon"/>
+                            <div class="s_features_grid_content">
+                                <h4>Great Value</h4>
+                                <p>Turn every feature into a benefit for your reader.</p>
+                            </div>
                         </div>
-                        <div class="col-lg-12">
-                            <span style="min-width: 45px" class="fa fa-2x fa-bolt float-left mb16" role="img" aria-label="Change background" title="Change background"></span>
-                            <h4 class="mt0 mb0">Change Background</h4>
-                            <p>From the main container, you can change the background to highlight features.</p>
+                        <div class="col-lg-12 pb24">
+                            <i class="fa fa-2x fa-eyedropper rounded bg-beta s_features_grid_icon"/>
+                            <div class="s_features_grid_content">
+                                <h4>Edit Styles</h4>
+                                <p>You can edit colors and background to highlight features.</p>
+                            </div>
                         </div>
-                        <div class="col-lg-12">
-                            <span style="min-width: 45px" class="fa fa-2x fa-picture-o float-left mb16" role="img" aria-label="Sample images" title="Change background"></span>
-                            <h4 class="mt0 mb0">Sample images</h4>
-                            <p>All these icons are licensed under creative commons so that you can use them.</p>
+                        <div class="col-lg-12 pb24">
+                            <i class="fa fa-2x fa-picture-o rounded bg-beta s_features_grid_icon"/>
+                            <div class="s_features_grid_content">
+                                <h4>Sample Icons</h4>
+                                <p>All these icons are completely free for commercial use.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -676,7 +682,7 @@
                     <t t-snippet="website.s_button" t-thumbnail="/website/static/src/img/blocks/block_button.png"/>
                     <t t-snippet="website.s_references" t-thumbnail="/website/static/src/img/blocks/block_references.png"/>
                     <t t-snippet="website.s_faq_collapse" t-thumbnail="/website/static/src/img/blocks/block_faq.png"/>
-                    <t t-snippet="website.s_feature_grid" t-thumbnail="/website/static/src/img/blocks/block_feature_grid.png"/>
+                    <t t-snippet="website.s_features_grid" t-thumbnail="/website/static/src/img/blocks/block_features_grid.png"/>
                 </div>
             </div>
 

@@ -234,10 +234,15 @@ $s-text-block-image-fw-padding: 0 30px;
     }
 }
 
-// Features Grid
-// To prevent paragraph text coming below the feature grid icon / image
-.s_feature_grid p {
-    overflow: auto;
+// Fatures + Features Grid
+.s_features_grid {
+    &_content {
+        overflow: hidden;
+    }
+    &_icon {
+        float: left;
+        margin-right: $grid-gutter-width/2;
+    }
 }
 
 // Comparisons
