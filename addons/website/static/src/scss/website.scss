@@ -115,6 +115,48 @@ table.table_desc tr td {
     }
 }
 
+// Icons
+
+main [class*="s_"] {
+    $o_icons_base_size: 2rem;
+    .fa {
+        &.rounded-circle, // circle
+        &.rounded, // border-radius
+        &.rounded-0, // square
+        &.rounded-leaf,
+        &.img-thumbnail,
+        &.shadow {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            // .fa-1x is not output
+            width: $o_icons_base_size;
+            height: $o_icons_base_size;
+            line-height: $o_icons_base_size;
+            @for $i from 1 through 5 {
+                &.fa-#{$i}x {
+                    width: ($o_icons_base_size * $i);
+                    height: ($o_icons_base_size * $i);
+                    line-height: ($o_icons_base_size * $i);
+                }
+            }
+            &:not([class*="bg-"]) {
+                background-color: $gray-100; // Default Background Color
+            }
+        }
+        &.img-thumbnail {
+            padding: 0;
+        }
+    }
+    img.rounded-circle {
+        clip-path: circle(33% at center); // TODO
+    }
+    .rounded-leaf {
+        border-top-left-radius: 2rem;
+        border-bottom-right-radius: 2rem;
+    }
+}
+
 //
 // Snippets
 //
