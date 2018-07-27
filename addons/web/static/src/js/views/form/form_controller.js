@@ -441,6 +441,7 @@ var FormController = BasicController.extend({
         function saveAndExecuteAction () {
             return self.saveRecord(self.handle, {
                 stayInEdit: true,
+                additionalContext: attrs.context || {},
             }).then(function () {
                 // we need to reget the record to make sure we have changes made
                 // by the basic model, such as the new res_id, if the record is

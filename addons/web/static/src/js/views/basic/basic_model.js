@@ -1037,6 +1037,8 @@ var BasicModel = AbstractModel.extend({
      *   be restored later by call discardChanges with option rollback to true
      * @param {string} [options.viewType] current viewType. If not set, we will
      *   assume main viewType from the record
+     * @param {Object} [options.additionalContext] if given, propagate this
+     *   context when saving the record
      * @returns {Deferred}
      *   Resolved with the list of field names (whose value has been modified)
      */
@@ -1094,11 +1096,12 @@ var BasicModel = AbstractModel.extend({
             // in the case of a write, only perform the RPC if there are changes to save
             if (method === 'create' || changedFields.length) {
                 var args = method === 'write' ? [[record.data.id], changes] : [changes];
+                var additionalContext = options.additionalContext || {};
                 self._rpc({
                         model: record.model,
                         method: method,
                         args: args,
-                        context: record.getContext(),
+                        context: record.getContext({additionalContext: additionalContext}),
                     }).then(function (id) {
                         if (method === 'create') {
                             record.res_id = id;  // create returns an id, write returns a boolean

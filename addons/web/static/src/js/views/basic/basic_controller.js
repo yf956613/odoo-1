@@ -416,6 +416,8 @@ var BasicController = AbstractController.extend(FieldManagerMixin, {
      * @param {boolean} [options.savePoint=false]
      *        if true, the record will only be 'locally' saved: its changes
      *        will move from the _changes key to the data key
+     * @param {Object} [options.additionalContext] if given, propagate this
+     *   context when saving the record
      * @returns {Deferred}
      *        Resolved with the list of field names (whose value has been modified)
      *        Rejected if the record can't be saved
@@ -436,6 +438,7 @@ var BasicController = AbstractController.extend(FieldManagerMixin, {
                 reload: options.reload,
                 savePoint: options.savePoint,
                 viewType: options.viewType,
+                additionalContext: options.additionalContext,
             });
             if (!options.stayInEdit) {
                 saveDef = saveDef.then(function (fieldNames) {
