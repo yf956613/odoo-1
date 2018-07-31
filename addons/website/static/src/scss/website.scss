@@ -280,15 +280,40 @@ $s-text-block-image-fw-padding: 0 30px;
 }
 
 // FAQ
-.s_faq_collapse .container .card {
-    background-color: inherit;
-    border : 1px solid rgba(0, 0, 0, 0.15);
-    .card-body {
-        border-top: none;
-        border-bottom-left-radius: ($card-border-radius - 1);
-        border-bottom-right-radius: ($card-border-radius - 1);
+.s_faq_collapse {
+    .card {
+        margin-bottom: .5em;
+        .card-header {
+            padding: 0;
+            .card-title { margin: 0; }
+            a {
+                cursor: pointer;
+                display: inline-block;
+                width: 100%;
+                padding: .5em 0;
+                &:before {
+                    content:'\f056';
+                    font-family: 'FontAwesome';
+                    display: inline-block;
+                    margin: 0 .5em 0 .75em;
+                    color: inherit;
+                }
+                &.collapsed:before {
+                    content:'\f055';
+                    font-family: 'FontAwesome';
+                }
+            }
+        }
+        .card-body {
+            padding: 1em 2.5em;
+        }
+    }
+    .card-body p:last-child,
+    .card-body ul:last-child {
+        margin-bottom: 0;
     }
 }
+
 
 // References
 .s_references .img-thumbnail {

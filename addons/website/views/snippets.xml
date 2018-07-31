@@ -443,49 +443,44 @@
 </template>
 
 <template id="s_faq_collapse" name="FAQ">
-    <section class="s_faq_collapse">
+    <section class="s_faq_collapse pt48 pb24">
         <div class="container">
-            <h2 class="page-header"> General Terms and Conditions / Service Policies </h2>
-            <div class="accordion" role="tablist">
-                <div class="card">
-                    <h4 class="card-header bg-gray-lighter" role="tab" data-toggle="collapse">Terms of service</h4>
-                    <div class="collapse" role="tabpanel">
-                        <div class="card-body bg-white-50">
-                            <p>
-                                These terms of service ("Terms", "Agreement") are an agreement between the website
-                                ("Website operator", "us", "we" or "our") and you ("User", "you" or "your").
-                            </p>
-                            <p>
-                                This Agreement sets forth the general terms and conditions of your use of this website
-                                and any of its products or services (collectively, "Website" or "Services").
-                            </p>
-                        </div>
-                    </div>
+            <div class="row">
+                <div class="col-lg-12 pb24">
+                    <h2>FAQ</h2>
                 </div>
-                <div class="card">
-                    <h4 class="card-header bg-gray-lighter" role="tab" data-toggle="collapse">Links to other websites</h4>
-                    <div class="collapse" role="tabpanel">
-                        <div class="card-body bg-white-50">
-                            <p>
-                                Although this Website may be linked to other websites, we are not, directly or
-                                indirectly, implying any approval, association, sponsorship, endorsement, or
-                                affiliation with any linked website, unless specifically stated herein.
-                            </p>
-                            <p>
-                                You should carefully review the legal statements and other conditions of use of
-                                any website which you access through a link from this Website. Your linking to
-                                any other off-site pages or other websites is at your own risk.
-                            </p>
+                <div class="col-lg-12 pb24">
+                    <div class="accordion" role="tablist">
+                        <div class="card">
+                            <div class="card-header">
+                                <a href="#" role="tab" data-toggle="collapse" aria-expanded="true">Terms of service</a>
+                            </div>
+                            <div class="collapse show" role="tabpanel">
+                                <div class="card-body">
+                                    <p>These terms of service ("Terms", "Agreement") are an agreement between the website ("Website operator", "us", "we" or "our") and you ("User", "you" or "your"). This Agreement sets forth the general terms and conditions of your use of this website and any of its products or services (collectively, "Website" or "Services").</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h4 class="card-header bg-gray-lighter" role="tab" data-toggle="collapse">Use Of Cookies</h4>
-                    <div class="collapse" role="tabpanel">
-                        <div class="card-body bg-white-50">
-                            <p>Website may use cookies to personalize and facilitate maximum navigation of the
-                                User by this site. The User may configure his / her browser to notify and
-                                reject the installation of the cookies sent by us.</p>
+                        <div class="card">
+                            <div class="card-header">
+                                <a href="#" role="tab" data-toggle="collapse" aria-expanded="false" class="collapsed">Links to other Websites</a>
+                            </div>
+                            <div class="collapse" role="tabpanel">
+                                <div class="card-body">
+                                    <p>Although this Website may be linked to other websites, we are not, directly or indirectly, implying any approval, association, sponsorship, endorsement, or affiliation with any linked website, unless specifically stated herein.</p>
+                                    <p>You should carefully review the legal statements and other conditions of use of any website which you access through a link from this Website. Your linking to any other off-site pages or other websites is at your own risk.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <a href="#" role="tab" data-toggle="collapse" aria-expanded="false" class="collapsed">Use of Cookies</a>
+                            </div>
+                            <div class="collapse" role="tabpanel">
+                                <div class="card-body">
+                                    <p>Website may use cookies to personalize and facilitate maximum navigation of the User by this site. The User may configure his / her browser to notify and reject the installation of the cookies sent by us.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
