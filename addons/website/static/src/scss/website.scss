@@ -251,16 +251,31 @@ $s-text-block-image-fw-padding: 0 30px;
     }
 }
 
-// Comparisons
-.s_comparisons .card .list-group-item:not(.active) {
-    color: #666;
 }
+
+
+// Comparisons
 .s_comparisons {
-    .card small {
-        color: inherit;
+    .card-body {
+        .card-title {
+            margin: 0;
+        }
+        .s_comparisons_currency,
+        .s_comparisons_price,
+        .s_comparisons_decimal {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .s_comparisons_currency,
+        .s_comparisons_decimal {
+            font-size: 80%;
+        }
+        .s_comparisons_price {
+            font-size: 200%;
+        }
     }
-    .text-muted {
-        color: $text-muted;
+    .list-group-item {
+        color: $body-color;
     }
 }
 
