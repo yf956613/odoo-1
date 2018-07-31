@@ -291,15 +291,23 @@
 </template>
 
 <template id="s_share" name="Share">
-    <div class="oe_share s_share">
-        <h3>
-            <span>Share</span>
-            <a target="_Blank" class="oe_share_facebook" href="https://www.facebook.com/sharer/sharer.php?u={url}" aria-label="Facebook" title="Facebook"><i class="fa fa-facebook-square"></i></a>
-            <a target="_Blank" class="oe_share_twitter" href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" aria-label="Twitter" title="Twitter"><i class="fa fa-twitter"></i></a>
-            <a target="_Blank" class="oe_share_linkedin" href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" aria-label="LinkedIn" title="LinkedIn"><i class="fa fa-linkedin"></i></a>
-            <a target="_Blank" class="oe_share_google" href="https://plus.google.com/share?url={url}" aria-label="Google Plus" title="Google Plus"><i class="fa fa-google-plus-square"></i></a>
-            <a href="mailto:?body={url}&amp;subject={title}" aria-label="Email" title="Email"><i class="fa fa-envelope-o"></i></a>
-        </h3>
+    <div class="s_share">
+        <h5>Share</h5>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
+            <i class="fa fa-3x fa-facebook-square"/>
+        </a>
+        <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
+            <i class="fa fa-3x fa-twitter-square"/>
+        </a>
+        <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
+            <i class="fa fa-3x fa-linkedin-square"/>
+        </a>
+        <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
+            <i class="fa fa-3x fa-google-plus-square"></i>
+        </a>
+        <a href="mailto:?body={url}&amp;subject={title}">
+            <i class="fa fa-3x fa-envelope-square"></i>
+        </a>
     </div>
 </template>
 
@@ -1004,8 +1012,8 @@
     </div>
 
     <div data-js='content'
-        data-selector="blockquote, .card, .s_panel, .o_facebook_page, .oe_share, .o_image_floating"
-        data-drop-near="p, h1, h2, h3, blockquote, .card, .o_facebook_page, .s_panel, .oe_share"
+        data-selector="blockquote, .card, .s_panel, .o_facebook_page, .s_share, .o_image_floating"
+        data-drop-near="p, h1, h2, h3, blockquote, .card, .o_facebook_page, .s_panel, .s_share"
         data-drop-in=".content">
     </div>
 
