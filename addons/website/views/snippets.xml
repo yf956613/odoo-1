@@ -279,17 +279,6 @@
     </div>
 </template>
 
-<template id="s_image_floating" name="Image Floating">
-    <div class="o_image_floating o_margin_l float-right s_image_floating">
-        <div class="o_container">
-            <img class="img rounded img-fluid" src="/web/image/website.s_image_floating_default_image" alt="Odoo CMS- Sample image floating"/>
-        </div>
-        <div class="o_footer">
-            <small class="text-muted">A great way to catch your reader's attention is to tell a story. Everything you consider writing can be told as a story.</small>
-        </div>
-    </div>
-</template>
-
 <template id="s_share" name="Share">
     <div class="s_share">
         <h5>Share</h5>
@@ -787,7 +776,6 @@
                 <div class="o_panel_body">
                     <t t-snippet="website.s_well" t-thumbnail="/website/static/src/img/blocks/block_well.png"/>
                     <t t-snippet="website.s_panel" t-thumbnail="/website/static/src/img/blocks/block_panel.png"/>
-                    <t t-snippet="website.s_image_floating" t-thumbnail="/website/static/src/img/blocks/block_text_image.png"/>
                     <t t-snippet="website.s_share" t-thumbnail="/website/static/src/img/blocks/block_share.png"/>
                     <t t-snippet="website.s_facebook_page" t-thumbnail="/website/static/src/img/blocks/block_facebook_page.png"/>
                 </div>
@@ -1012,7 +1000,7 @@
     </div>
 
     <div data-js='content'
-        data-selector="blockquote, .card, .s_panel, .o_facebook_page, .s_share, .o_image_floating"
+        data-selector="blockquote, .card, .s_panel, .o_facebook_page, .s_share"
         data-drop-near="p, h1, h2, h3, blockquote, .card, .o_facebook_page, .s_panel, .s_share"
         data-drop-in=".content">
     </div>
@@ -1020,29 +1008,6 @@
     <div data-js='separator'
         data-selector="hr"
         data-drop-in=".oe_structure, [data-oe-type=html]">
-    </div>
-
-    <div data-selector=".o_image_floating">
-        <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-expand"/>Margin</a>
-            <div class="dropdown-menu" role="menu">
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="o_margin_xl">Extra-Large</a>
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="o_margin_l">Large</a>
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="o_margin_m">Medium</a>
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="o_margin_s">Small</a>
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="">None</a>
-            </div>
-        </div>
-    </div>
-
-    <div data-selector=".o_image_floating">
-        <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-magnet"/>Float</a>
-            <div class="dropdown-menu" role="menu" data-no-preview="true">
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="float-left">Left</a>
-                <a href="#" class="dropdown-item" role="menuitem" data-select-class="float-right">Right</a>
-            </div>
-        </div>
     </div>
 
     <div data-js="parallax" data-selector=".parallax">

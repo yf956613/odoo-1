@@ -320,51 +320,6 @@ $s-text-block-image-fw-padding: 0 30px;
     border: none;
 }
 
-// Image Floating
-.o_image_floating {
-    width: 40%;
-    margin: 4px;
-    div.o_container {
-        position: relative;
-    }
-    &.o_margin_s {
-        margin-bottom: 4px;
-    }
-    &.o_margin_s.float-right {
-        margin-left: 8px;
-    }
-    &.o_margin_s.float-left {
-        margin-right: 8px;
-    }
-    &.o_margin_m {
-        margin-bottom: 8px;
-    }
-    &.o_margin_m.float-right {
-        margin-left: 12px;
-    }
-    &.o_margin_m.float-left {
-        margin-right: 12px;
-    }
-    &.o_margin_l {
-        margin-bottom: 12px;
-    }
-    &.o_margin_l.float-right {
-        margin-left: 16px;
-    }
-    &.o_margin_l.float-left {
-        margin-right: 16px;
-    }
-    &.o_margin_xl {
-        margin-bottom: 24px;
-    }
-    &.o_margin_xl.float-right {
-        margin-left: 32px;
-    }
-    &.o_margin_xl.float-left {
-        margin-right: 32px;
-    }
-}
-
 // carousel
 .s_banner .carousel-inner {
     // Content
