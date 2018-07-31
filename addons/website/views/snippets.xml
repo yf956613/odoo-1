@@ -5,11 +5,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <h1 class="display-3">Catchy Headline</h1>
-                    <h2 class="lead">Click to customize this text.</h2>
-                    <p>Write one or two paragraphs describing your <b>product</b>, <b>services</b> or a <b>specific feature</b>.<br/> To be successful your content needs to be useful to your readers.</p>
-                    <a href="/page/aboutus" class="btn btn-outline-primary m-1">About us</a>
-                    <a href="/page/contactus" class="btn btn-outline-success m-1">Contact us</a>
+                    <h1 class="s_title_opt display-3">Catchy Headline</h1>
+                    <p class="lead mb-4">Click to customize this text.</p>
+                    <p class="mb-4">Write one or two paragraphs describing your <b>product</b>, <b>services</b> or a <b>specific feature</b>.<br/> To be successful your content needs to be useful to your readers.</p>
+                    <a href="/page/aboutus" class="btn btn-primary m-1">About us</a>
+                    <a href="/page/contactus" class="btn btn-alpha m-1">Contact us</a>
                 </div>
             </div>
         </div>
