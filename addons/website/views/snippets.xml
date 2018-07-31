@@ -109,7 +109,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="s_title_default display-4" style="text-align: center;">Your Website Title</h1>
+                    <h1 class="s_title_opt display-4" style="text-align: center;">Your Website Title</h1>
                 </div>
             </div>
         </div>
@@ -729,7 +729,7 @@
 <template id="snippet_options">
     <t t-call="web_editor.snippet_options"/>
 
-    <div data-selector=".s_title" data-target=".s_title_default">
+    <div data-selector=".s_title" data-target=".s_title_opt">
         <li class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Font</a>
             <div class="dropdown-menu">
@@ -751,11 +751,11 @@
                 <a href="#" class="dropdown-item" data-select-class="s_title_underlined">Underlined</a>
                 <a href="#" class="dropdown-item" data-select-class="s_title_uppercase">Uppercase</a>
                 <div class="dropdown-divider"/>
-                <a href="#" class="dropdown-item" data-select-class="s_title_default">Default</a>
+                <a href="#" class="dropdown-item" data-select-class="">Default</a>
             </div>
         </li>
         <li class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Display</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-text-height"/>Display</a>
             <div class="dropdown-menu">
                 <a href="#" class="dropdown-item" data-select-class="display-1">1</a>
                 <a href="#" class="dropdown-item" data-select-class="display-2">2</a>
