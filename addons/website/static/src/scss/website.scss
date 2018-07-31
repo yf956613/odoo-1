@@ -366,42 +366,66 @@ $s-text-block-image-fw-padding: 0 30px;
 }
 
 // carousel
-.carousel-inner {
+.s_banner .carousel-inner {
+    // Content
+    overflow: hidden;
     height: 100%;
     .item {
         height: 100%;
     }
-    .carousel-control {
-        cursor: pointer;
-        span {
-            top: 50%;
-            position: absolute;
-            margin-top: -8px;
-        }
-    }
 }
-.carousel .carousel-control {
-    &.left {
-        left: -10px;
-        * {
-            position: absolute;
-            top: 50%;
-            z-index: 5;
-            right: 50%;
+.s_banner,
+.s_quotes_slider {
+    // Controls
+    .carousel-control-prev,
+    .carousel-control-next {
+        cursor: pointer;
+        width: 10%;
+        &:hover {
+            opacity: 1;
         }
     }
-    &.right {
-        right: -10px;
-        * {
-            position: absolute;
-            top: 50%;
-            z-index: 5;
-            left: 50%;
+    .carousel-control-prev { justify-content: flex-start; }
+    .carousel-control-next { justify-content: flex-end; }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        @include box-shadow($box-shadow-lg);
+        background-color: #fff;
+        background-image: none;
+        color: $body-color;
+        font-size: 1.25em;
+        &:before {
+
+            &:hover,
+            &:focus {
+                color: $primary;
+            }
+        }
+    }
+    .carousel-control-prev-icon { margin-right: 5px; }
+    .carousel-control-next-icon { margin-left: 5px; }
+    // Indicators
+    .carousel-indicators {
+        cursor: pointer;
+        margin-bottom: 0;
+        li {
+            // @extend .shadow-sm;
+            @include size(15px);
+            &:hover:not(.active) {
+                background-color: rgba(255,255,255,.8);
+            }
         }
     }
 }
 
+
 div.carousel .container {
+    .carousel-img img,
+    .carousel-content {
+        max-height: 95%;
+        padding: 10px;
+    }
     > .carousel-caption {
         @include o-position-absolute($right: 50%, $left: 50%);
         bottom: 20px;
@@ -465,26 +489,23 @@ div.carousel .container {
     }
 }
 
-div.carousel {
-    .carousel-indicators li {
-        box-shadow: 0 0 0 1px grey;
-        &:hover:not(.active) {
-            background-color: $color-white-50;
+// Quotes Slider
+.s_quotes_slider {
+    blockquote {
+        padding: $grid-gutter-width;
+        border-left-color: $primary;
+        img {
+            max-width: 40px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        footer {
+            background-color: transparent;
+            &:before {
+                content:"";
+            }
         }
     }
-    span.carousel-img img,
-    div.carousel-content {
-        max-height: 95%;
-        padding: 10px;
-    }
-    .carousel-control {
-        cursor: pointer;
-    }
-}
-
-// Quotes slider
-.quotecarousel {
-    padding-bottom: 16px;
 }
 
 // Gallery
