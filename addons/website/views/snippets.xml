@@ -100,7 +100,7 @@
 <template id="s_text_image" name="Text-Image">
     <section class="s_text_image pt24 pb24">
         <div class="container">
-            <div class="row d-flex align-items-center">
+            <div class="row align-items-center">
                 <div class="col-lg-6 pt24 pb24">
                     <h2>A Section Subtitle</h2>
                     <p>Write one or two paragraphs describing your product or services. <br/>To be successful your content needs to be useful to your readers.</p>
