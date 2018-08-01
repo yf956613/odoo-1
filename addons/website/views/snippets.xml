@@ -119,7 +119,7 @@
     <section class="s_text_block_image_fw oe_img_bg oe_custom_bg pt96 pb96" style="background-image: url('/web/image/website.s_text_block_image_fw_default_image'); background-position: 50% 50%;">
        <div class="container">
            <div class="row">
-               <div class="col-lg-6 bg-white">
+               <div class="col-lg-7 p-5 bg-white-75">
                    <h2>A Section Subtitle</h2>
                    <p>Write one or two paragraphs describing your product, services or a specific feature. To be successful your content needs to be useful to your readers.</p>
                    <p>Start with the customer – find out what they want and give it to them.</p>
