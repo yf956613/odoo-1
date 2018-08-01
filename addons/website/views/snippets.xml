@@ -314,6 +314,9 @@
     </div>
 </template>
 
+<template id="s_btn" name="Button">
+    <a href="#" class="btn btn-primary s_btn">Read more</a>
+</template>
 <template id="s_facebook_page" name="Facebook Page">
     <div class="o_facebook_page">
         <div class="o_facebook_alert alert alert-info" role="status">
@@ -485,21 +488,17 @@
     </section>
 </template>
 
-<template id="s_button" name="Call to Action">
-    <section class="jumbotron s_button bg-gray-lighter">
+<template id="s_call_to_action" name="Call to Action">
+    <section class="s_call_to_action bg-300 pt48 pb64">
         <div class="container">
             <div class="row">
                 <div class="col-lg-9">
-                    <p class="mb0">
-                        <strong>50,000+ companies run Odoo to grow their businesses.</strong>
-                    </p><p class="mb0">
-                        Join us and make your company a better place.
-                    </p>
+                    <h2>50,000+ companies run Odoo to grow their businesses.</h2>
+                    <h4 class="text-600">Join us and make your company a better place.</h4>
                 </div>
-                <div class="col-lg-3">
-                    <a role="button" href="/contactus" class="btn btn-primary btn-lg float-right mt8" aria-label="Contact Us Now" title="">
-                        <span>Contact Us Now</span>
-                        <i class="fa fa-chevron-right"></i>
+                <div class="col-lg-3 pt24" style="text-align: right;">
+                    <a href="/contactus" class="btn btn-primary btn-lg">
+                        Contact us <i class="fa fa-1x fa-fw fa-long-arrow-right"/>
                     </a>
                 </div>
             </div>
@@ -766,7 +765,7 @@
                     <t t-snippet="website.s_image_gallery" t-thumbnail="/website/static/src/img/blocks/block_image_gallery.png"/>
                     <t t-snippet="website.s_comparisons" t-thumbnail="/website/static/src/img/blocks/block_comparison.png"/>
                     <t t-snippet="website.s_company_team" t-thumbnail="/website/static/src/img/blocks/block_company_team.png"/>
-                    <t t-snippet="website.s_button" t-thumbnail="/website/static/src/img/blocks/block_button.png"/>
+                    <t t-snippet="website.s_call_to_action" t-thumbnail="/website/static/src/img/blocks/block_call_to_action.png"/>
                     <t t-snippet="website.s_references" t-thumbnail="/website/static/src/img/blocks/block_references.png"/>
                     <t t-snippet="website.s_faq_collapse" t-thumbnail="/website/static/src/img/blocks/block_faq.png"/>
                     <t t-snippet="website.s_features_grid" t-thumbnail="/website/static/src/img/blocks/block_features_grid.png"/>
