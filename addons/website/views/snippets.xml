@@ -256,25 +256,22 @@
     </section>
 </template>
 
-<template id="s_well" name="Well">
-    <div class="card s_well clearfix">
-        <div class="card-body">
-            <p>
-                Explain the benefits you offer. Don't write about products or
-                services here, write about solutions.
-            </p>
-        </div>
+<template id="s_alert" name="Alert">
+    <div class="s_alert s_alert_md alert alert-info w-100">
+        <i class="fa fa-2x fa-info-circle mr-3"/>
+        <p>Explain the benefits you offer. Don't write about products or services here, write about solutions.</p>
     </div>
 </template>
 
-<template id="s_panel" name="Panel">
-    <div class="card o_panel s_panel">
-        <h3 class="card-header">Feature Title</h3>
+<template id="s_card" name="Card">
+    <div class="s_card card w-100 bg-white border-primary">
+        <h4 class="card-header">Feature Title</h4>
         <div class="card-body">
-            <p>
-                Panels are a great tool to compare offers or to emphasize on
-                key features. To compare products, use the inside columns.
-            </p>
+            <p class="card-text">A card is a flexible and extensible content container. It includes options for headers and footers, a wide variety of content, contextual background colors, and powerful display options.</p>
+            <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
+        </div>
+        <div class="card-footer text-600">
+            <i class="fa fa-1x fa-clock-o mr8"/><small>2 days ago</small>
         </div>
     </div>
 </template>
@@ -794,9 +791,9 @@
                     <i class="fa fa-indent"/> Inner content
                 </div>
                 <div class="o_panel_body">
-                    <t t-snippet="website.s_well" t-thumbnail="/website/static/src/img/blocks/block_well.png"/>
-                    <t t-snippet="website.s_panel" t-thumbnail="/website/static/src/img/blocks/block_panel.png"/>
                     <t t-snippet="website.s_hr" t-thumbnail="/website/static/src/img/blocks/block_separator.png"/>
+                    <t t-snippet="website.s_alert" t-thumbnail="/website/static/src/img/blocks/block_alert.png"/>
+                    <t t-snippet="website.s_card" t-thumbnail="/website/static/src/img/blocks/block_card.png"/>
                     <t t-snippet="website.s_share" t-thumbnail="/website/static/src/img/blocks/block_share.png"/>
                     <t t-snippet="website.s_rating" t-thumbnail="/website/static/src/img/blocks/block_rating.png"/>
                     <t t-snippet="website.s_facebook_page" t-thumbnail="/website/static/src/img/blocks/block_facebook_page.png"/>

@@ -251,6 +251,39 @@ $s-text-block-image-fw-padding: 0 30px;
     }
 }
 
+.s_alert {
+    margin: $grid-gutter-width 0;
+    p, ul, ol {
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+    &.s_alert_sm {
+        padding: 10px;
+        font-size: $font-size-sm;
+    }
+    &.s_alert_md {
+        padding: 20px;
+        font-size: $font-size-base;
+    }
+    &.s_alert_lg {
+        padding: 30px;
+        font-size: $font-size-lg;
+    }
+}
+
+// Card
+
+.s_card {
+    margin: $grid-gutter-width 0;
+    .card-body {
+        // color: initial;
+        p, ul, ol {
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
 }
 
 
