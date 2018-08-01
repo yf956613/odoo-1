@@ -317,6 +317,13 @@
 <template id="s_btn" name="Button">
     <a href="#" class="btn btn-primary s_btn">Read more</a>
 </template>
+
+<template id="s_hr" name="Separator">
+    <section class="s_hr text-center pt32 pb32">
+        <hr class="s_hr_1px s_hr_solid s_hr_full"/>
+    </section>
+</template>
+
 <template id="s_facebook_page" name="Facebook Page">
     <div class="o_facebook_page">
         <div class="o_facebook_alert alert alert-info" role="status">
@@ -789,6 +796,7 @@
                 <div class="o_panel_body">
                     <t t-snippet="website.s_well" t-thumbnail="/website/static/src/img/blocks/block_well.png"/>
                     <t t-snippet="website.s_panel" t-thumbnail="/website/static/src/img/blocks/block_panel.png"/>
+                    <t t-snippet="website.s_hr" t-thumbnail="/website/static/src/img/blocks/block_separator.png"/>
                     <t t-snippet="website.s_share" t-thumbnail="/website/static/src/img/blocks/block_share.png"/>
                     <t t-snippet="website.s_rating" t-thumbnail="/website/static/src/img/blocks/block_rating.png"/>
                     <t t-snippet="website.s_facebook_page" t-thumbnail="/website/static/src/img/blocks/block_facebook_page.png"/>
@@ -1013,16 +1021,17 @@
         data-drop-near=".row:not(.s_no_resize_cols) > [class*='col-lg-']">
     </div>
 
+
     <div data-js='content'
-        data-selector="blockquote, .card, .s_panel, .o_facebook_page, .s_share"
-        data-drop-near="p, h1, h2, h3, blockquote, .card, .o_facebook_page, .s_panel, .s_share, .s_rating"
+        data-selector="blockquote, .s_btn, .s_card, .s_alert, .o_facebook_page, .s_share, .s_rating, .s_hr"
+        data-drop-near="p, h1, h2, h3, blockquote, .s_btn, .s_card, .s_alert, .o_facebook_page, .s_share, .s_rating, .s_hr"
         data-drop-in=".content">
     </div>
 
-    <div data-js='separator'
+    <!-- <div data-js='separator'
         data-selector="hr"
         data-drop-in=".oe_structure, [data-oe-type=html]">
-    </div>
+    </div> -->
 
     <div data-js="parallax" data-selector=".parallax">
         <div class="dropdown-submenu">
@@ -1046,39 +1055,68 @@
     </div>
 
     <div data-selector=".s_rating [class*='col-lg-']">
-            <li class="dropdown-submenu">
-                <a tabindex="-1" href="#">Icon</a>
-                <ul class="dropdown-menu">
-                    <li data-select-class="s_rating_stars"><a href="#"><i class="fa fa-star"/> Stars</a></li>
-                    <li data-select-class="s_rating_squares"><a href="#"><i class="fa fa-square"/> Squares</a></li>
-                    <li data-select-class="s_rating_hearts"><a href="#"><i class="fa fa-heart"/> Hearts</a></li>
-                    <li data-select-class="s_rating_bar"><a href="#"><i class="fa fa-tasks"/> Progress Bar</a></li>
-                </ul>
-            </li>
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item">Icon</a>
+            <div class="dropdown-menu" role="menu">
+                <a href="#" class="dropdown-item" data-select-class="s_rating_stars"><i class="fa fa-star"/> Stars</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_squares"><i class="fa fa-square"/> Squares</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_hearts"><i class="fa fa-heart"/> Hearts</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_bar"><i class="fa fa-tasks"/> Progress Bar</a>
+            </div>
         </div>
-         <div data-selector=".s_rating [class*='col-lg-']">
-            <li class="dropdown-submenu">
-                <a tabindex="-1" href="#">Value</a>
-                <ul class="dropdown-menu">
-                    <li data-select-class=""><a href="#">0</a></li>
-                    <li data-select-class="s_rating_1"><a href="#">1/5</a></li>
-                    <li data-select-class="s_rating_2"><a href="#">2/5</a></li>
-                    <li data-select-class="s_rating_3"><a href="#">3/5</a></li>
-                    <li data-select-class="s_rating_4"><a href="#">4/5</a></li>
-                    <li data-select-class="s_rating_5"><a href="#">5/5</a></li>
-                </ul>
-            </li>
+    </div>
+    <div data-selector=".s_rating [class*='col-lg-']">
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item">Value</a>
+            <div class="dropdown-menu" role="menu">
+                <a href="#" class="dropdown-item" data-select-class="">0</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_1">1/5</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_2">2/5</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_3">3/5</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_4">4/5</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_5">5/5</a>
+            </div>
         </div>
-         <div data-selector=".s_rating [class*='col-lg-']">
-            <li class="dropdown-submenu">
-                <a tabindex="-1" href="#">Size</a>
-                <ul class="dropdown-menu">
-                    <li data-select-class="s_rating_1x"><a href="#">Small</a></li>
-                    <li data-select-class="s_rating_2x"><a href="#">Medium</a></li>
-                    <li data-select-class="s_rating_3x"><a href="#">Big</a></li>
-                </ul>
-            </li>
+    </div>
+     <div data-selector=".s_rating [class*='col-lg-']">
+        <div class="dropdown-submenu" role="menu">
+            <a tabindex="-1" href="#" class="dropdown-item">Size</a>
+            <div class="dropdown-menu" role="menu">
+                <a href="#" class="dropdown-item" data-select-class="s_rating_1x">Small</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_2x">Medium</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_3x">Big</a>
+            </div>
         </div>
+    </div>
+
+    <div data-selector=".s_hr" data-target="hr">
+        <div class="dropdown-submenu" role="menu">
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-minus"/>Thickness</a>
+            <div class="dropdown-menu" role="menu">
+                <t t-foreach="range(1,6)" t-as="s_hr_thickness">
+                    <a href="#" class="dropdown-item" t-attf-data-select-class="s_hr_{{s_hr_thickness}}px"><t t-esc="s_hr_thickness"/>px</a>
+                </t>
+            </div>
+        </div>
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-pencil"/>Style</a>
+            <div class="dropdown-menu" role="menu">
+                <a href="#" class="dropdown-item" data-select-class="s_hr_solid">Solid</a>
+                <a href="#" class="dropdown-item" data-select-class="s_hr_dashed">Dashed</a>
+                <a href="#" class="dropdown-item" data-select-class="s_hr_dotted">Dotted</a>
+                <a href="#" class="dropdown-item" data-select-class="s_hr_double">Double</a>
+            </div>
+        </div>
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-arrows-h"/>Width</a>
+            <div class="dropdown-menu" role="menu">
+                <a href="#" class="dropdown-item" data-select-class="w-25">25%</a>
+                <a href="#" class="dropdown-item" data-select-class="w-50">50%</a>
+                <a href="#" class="dropdown-item" data-select-class="w-75">75%</a>
+                <a href="#" class="dropdown-item" data-select-class="w-100">100%</a>
+            </div>
+        </div>
+    </div>
 
     <div data-js="facebookPage" data-selector=".o_facebook_page">
         <a href="#" class="dropdown-item" data-fb-page-options="true" data-no-preview="true"><i class="fa fa-facebook"/>Options</a>
