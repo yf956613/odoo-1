@@ -21,10 +21,6 @@
                                 <label class="col-lg-3 o_light_label" string="API secret" for="twitter_api_secret"/>
                                 <field name="twitter_api_secret" class="oe_inline"/>
                             </div>
-                            <div class="row">
-                                <label class="col-lg-3 o_light_label" string="Favorites From" for="twitter_screen_name"/>
-                                <field name="twitter_screen_name" class="oe_inline"/>
-                            </div>
                             <div>
                                 <a data-toggle="modal" class="fa fa-arrow-right" href="#" data-target="#twitter_tutorial" aria-label="Twitter tutorial">
                                     Tutorial

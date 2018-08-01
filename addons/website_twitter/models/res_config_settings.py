@@ -35,11 +35,6 @@ class ResConfigSettings(models.TransientModel):
         string='API secret',
         help='Twitter API secret you can get it from https://apps.twitter.com/')
     twitter_tutorial = fields.Boolean(string='Show me how to obtain the Twitter API Key and Secret')
-    twitter_screen_name = fields.Char(
-        related='website_id.twitter_screen_name',
-        string='Favorites From',
-        help='Screen Name of the Twitter Account from which you want to load favorites.'
-             'It does not have to match the API Key/Secret.')
 
     def _get_twitter_exception_message(self, error_code):
         if error_code in TWITTER_EXCEPTION:
@@ -49,28 +44,29 @@ class ResConfigSettings(models.TransientModel):
 
     def _check_twitter_authorization(self):
         try:
-            self.website_id.fetch_favorite_tweets()
-
+            # TODO: Check with a random call to the API that the authorization workers
+            # For instance just asking current user name or something like that.
+            pass
         except requests.HTTPError as e:
             _logger.info("%s - %s" % (e.response.status_code, e.response.reason), exc_info=True)
             raise UserError("%s - %s" % (e.response.status_code, e.response.reason) + ':' + self._get_twitter_exception_message(e.response.status_code))
         except IOError:
             _logger.info(_('We failed to reach a twitter server.'), exc_info=True)
             raise UserError(_('Internet connection refused') + ' ' + _('We failed to reach a twitter server.'))
-        except Exception:
-            _logger.info(_('Please double-check your Twitter API Key and Secret!'), exc_info=True)
+        except Exception as e:
+            _logger.exception(_('Please double-check your Twitter API Key and Secret!'), exc_info=True)
             raise UserError(_('Twitter authorization error!') + ' ' + _('Please double-check your Twitter API Key and Secret!'))
 
     @api.model
     def create(self, vals):
         TwitterConfig = super(ResConfigSettings, self).create(vals)
-        if vals.get('twitter_api_key') or vals.get('twitter_api_secret') or vals.get('twitter_screen_name'):
+        if vals.get('twitter_api_key') or vals.get('twitter_api_secret'):
             TwitterConfig._check_twitter_authorization()
         return TwitterConfig
 
     @api.multi
     def write(self, vals):
         TwitterConfig = super(ResConfigSettings, self).write(vals)
-        if vals.get('twitter_api_key') or vals.get('twitter_api_secret') or vals.get('twitter_screen_name'):
+        if vals.get('twitter_api_key') or vals.get('twitter_api_secret'):
             self._check_twitter_authorization()
         return TwitterConfig

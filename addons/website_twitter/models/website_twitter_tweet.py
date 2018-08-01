@@ -8,7 +8,7 @@ class WebsiteTwitterTweet(models.Model):
     _name = 'website.twitter.tweet'
 
     website_id = fields.Many2one('website', string='Website')
-    screen_name = fields.Char(string='Screen Name')
+    query_id = fields.Many2one('website.twitter.query')
     tweet = fields.Text(string='Tweets')
 
     # Twitter IDs are 64-bit unsigned ints, so we need to store them in

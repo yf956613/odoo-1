@@ -15,7 +15,6 @@ Display best tweets
     'depends': ['website'],
     'data': [
         'security/ir.model.access.csv',
-        'data/website_twitter_data.xml',
         'views/res_config_settings_views.xml',
         'views/website_twitter_snippet_templates.xml'
     ],
