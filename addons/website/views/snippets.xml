@@ -321,6 +321,24 @@
     </section>
 </template>
 
+<template id="s_image_overlay" name="Image Overlay">
+    <section class="s_image_overlay">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
+                        <div class="card-img-overlay bg-black-50">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>
+
 <template id="s_facebook_page" name="Facebook Page">
     <div class="o_facebook_page">
         <div class="o_facebook_alert alert alert-info" role="status">
@@ -783,6 +801,8 @@
                 <div class="o_panel_body">
                     <t t-snippet="website.s_parallax" t-thumbnail="/website/static/src/img/blocks/block_parallax.png"/>
                     <t t-snippet="website.s_quotes_slider" t-thumbnail="/website/static/src/img/blocks/block_quotes_slider.png"/>
+                    <t t-snippet="website.s_image_overlay" t-thumbnail="/website/static/src/img/blocks/block_image_overlay.png"/>
+
                 </div>
             </div>
 
