@@ -162,8 +162,8 @@
     <section class="s_title pt48 pb48">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12">
-                    <h1 class="s_title_opt display-4" style="text-align: center;">Your Website Title</h1>
+                <div class="col-lg-12 p-3" style="text-align: center;">
+                    <h1 class="s_title_thin" style="font-size: 62px;">Your Website Title</h1>
                 </div>
             </div>
         </div>
