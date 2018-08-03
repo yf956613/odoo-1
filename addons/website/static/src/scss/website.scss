@@ -410,9 +410,9 @@ $s_title_thin-font-weight: 300;
     .carousel-control-next {
         cursor: pointer;
         width: 10%;
-        &:hover {
+
             opacity: 1;
-        }
+
     }
     .carousel-control-prev { justify-content: flex-start; }
     .carousel-control-next { justify-content: flex-end; }
@@ -424,12 +424,9 @@ $s_title_thin-font-weight: 300;
         background-image: none;
         color: $body-color;
         font-size: 1.25em;
-        &:before {
-
-            &:hover,
-            &:focus {
-                color: $primary;
-            }
+        &:hover,
+        &:focus {
+            color: $color-alpha;
         }
     }
     .carousel-control-prev-icon { margin-right: 5px; }
@@ -522,7 +519,12 @@ div.carousel .container {
 .s_quotes_slider {
     blockquote {
         padding: $grid-gutter-width;
-        border-left-color: $primary;
+        margin-bottom: 0;
+        .s_quotes_slider_icon {
+            position: absolute;
+            top: 0;
+            left: -2rem;
+        }
         img {
             max-width: 40px;
             margin-right: 5px;
