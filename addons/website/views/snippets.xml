@@ -272,11 +272,11 @@
 </template>
 
 <template id="s_card" name="Card">
-    <div class="s_card card w-100 bg-white border-primary">
+    <div class="s_card card w-100 bg-white">
         <h4 class="card-header">Feature Title</h4>
         <div class="card-body">
             <p class="card-text">A card is a flexible and extensible content container. It includes options for headers and footers, a wide variety of content, contextual background colors, and powerful display options.</p>
-            <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
+            <!-- <a href="#" class="btn btn-alpha btn-sm">Go somewhere</a> -->
         </div>
         <div class="card-footer text-600">
             <i class="fa fa-1x fa-clock-o mr8"/><small>2 days ago</small>
