@@ -838,7 +838,7 @@
                     <t t-snippet="website.s_title" t-thumbnail="/website/static/src/img/blocks/block_title.png"/>
                     <t t-snippet="website.s_cover" t-thumbnail="/website/static/src/img/blocks/block_banner.png"/>
                     <t t-snippet="website.s_text_image" t-thumbnail="/website/static/src/img/blocks/block_text_image.png"/>
-                    <t t-snippet="website.s_text_block_image_fw" t-thumbnail="/website/static/src/img/blocks/block_text_block_image_fw.png"/>
+                    <t t-snippet="website.s_image_text" t-thumbnail="/website/static/src/img/blocks/block_image_text.png"/>
                     <t t-snippet="website.s_big_message" t-thumbnail="/website/static/src/img/blocks/block_big_message.png"/>
                     <t t-snippet="website.s_text_block" t-thumbnail="/website/static/src/img/blocks/block_text_block.png"/>
                     <t t-snippet="website.s_features" t-thumbnail="/website/static/src/img/blocks/block_features.png"/>
