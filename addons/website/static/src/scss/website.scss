@@ -271,18 +271,6 @@ $s_title_thin-font-weight: 300;
     font-weight: $s_title_thin-font-weight;
 }
 
-
-// Cover
-$s-text-block-image-fw-padding: 0 30px;
-.s_text_block_image_fw {
-    .container {
-        padding: $s-text-block-image-fw-padding;
-        > .row > div {
-            padding: 30px;
-        }
-    }
-}
-
 // Fatures + Features Grid
 .s_features_grid {
     &_content {
