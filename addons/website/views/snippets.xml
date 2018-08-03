@@ -696,6 +696,52 @@
     </section>
 </template>
 
+<template id="s_tabs" name="Tabs">
+    <section class="s_tabs">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 pt48 pb48">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="card-body tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                                <h3>Details</h3>
+                                <p><b>Great stories have personality.</b> Consider telling a great story that provides personality. Writing a story with personality for potential clients will assists with making a relationship connection. This shows up in small quirks like word choices or phrases. Write from your point of view, not from someone else's experience.</p>
+                            </div>
+                            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                                <h3>Shipping</h3>
+                                <p><b>Great stories are for everyone even when only written for just one person.</b> If you try to write with a wide general audience in mind, your story will ring false and be bland. No one will be interested. Write for one person. If it’s genuine for the one, it’s genuine for the rest.</p>
+                            </div>
+                            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                                <h3>Review</h3>
+                                <blockquote>
+                                    <p>Write a quote here from one of your customers. Quotes are a great way to build confidence in your products or services.</p>
+                                    <footer>— Jane DOE, CEO of <b>MyCompany</b></footer>
+                                </blockquote>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>
+
 <template id="s_parallax" name="Parallax">
     <section class="parallax s_parallax oe_img_bg s_parallax_is_fixed" style="background-image: url(/web/image/website.s_parallax_default_image); background-position: 50% 50%;" data-scroll-background-ratio="1">
         <div class="oe_structure s_parallax_content bg-black-50">
@@ -813,6 +859,7 @@
                     <t t-snippet="website.s_references" t-thumbnail="/website/static/src/img/blocks/block_references.png"/>
                     <t t-snippet="website.s_faq_collapse" t-thumbnail="/website/static/src/img/blocks/block_faq.png"/>
                     <t t-snippet="website.s_features_grid" t-thumbnail="/website/static/src/img/blocks/block_features_grid.png"/>
+                    <t t-snippet="website.s_tabs" t-thumbnail="/website/static/src/img/blocks/block_tabs.png"/>
                 </div>
             </div>
 
