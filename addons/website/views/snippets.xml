@@ -17,7 +17,7 @@
 </template>
 
 <template id="s_banner" name="Slider">
-    <div id="myCarousel" class="carousel slide s_banner" data-interval="10000">
+    <div id="myCarousel" class="carousel carousel-fade slide s_banner" data-interval="10000">
         <!-- Indicators -->
         <ol class="carousel-indicators">
             <li data-target="#myCarousel" data-slide-to="0" class="active"/>
@@ -27,13 +27,13 @@
         <!-- Content -->
         <div class="carousel-inner">
             <!-- #01 -->
-            <div class="carousel-item oe_img_bg active pt96 pb96" style="background-image: url('/web/image/website.s_banner_default_image_1');">
+            <div class="carousel-item oe_img_bg active pt128 pb128" style="background-image: url('/web/image/website.s_banner_default_image_1');">
                 <div class="container">
                     <div class="row content">
                         <div class="carousel-content col-lg-6">
-                            <h2 class="display-4">Slide Title</h2>
-                            <h4 class="lead">Click to customize this text.</h4>
-                            <p>Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
+                            <h2 style="font-size: 62px;">Slide Title</h2>
+                            <h4 class="mb-3">Click to customize this text.</h4>
+                            <p class="mb-3">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
                             <a href="/aboutus" class="btn btn-beta m-1">About us</a>
                             <a href="/contactus" class="btn btn-alpha m-1">Contact us</a>
                         </div>
@@ -44,11 +44,11 @@
             <div class="carousel-item oe_img_bg pt96 pb96" style="background-image: url('/web/image/website.s_banner_default_image_2');">
                 <div class="container">
                     <div class="row content">
-                        <div class="carousel-content col-lg-6 offset-lg-3 bg-black-50 text-center offset-md-3 p-3">
-                            <h2 class="display-4">Slide Title</h2>
-                            <h4 class="lead">Explain the benefits you offer.</h4>
-                            <p class="mb16">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
-                            <a href="/aboutus" class="btn btn-info">Read more</a>
+                        <div class="carousel-content col-lg-8 offset-lg-2 bg-black-50 text-center pt32 pb32">
+                            <h2 class="s_title_thin" style="font-size: 62px;">Slide Title</h2>
+                            <h4 class="s_title_thin mb-3">Explain the benefits you offer.</h4>
+                            <p class="mb-3">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
+                            <a href="/aboutus" class="btn btn-rounded-epsilon">Read more</a>
                         </div>
                     </div>
                 </div>
