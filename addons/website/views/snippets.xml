@@ -334,7 +334,25 @@
     <section class="s_image_overlay">
         <div class="container">
             <div class="row">
-                <div class="col-lg-6">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
+                        <div class="card-img-overlay bg-black-50">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
+                        <div class="card-img-overlay bg-black-50">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
                     <div class="card">
                         <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
                         <div class="card-img-overlay bg-black-50">
