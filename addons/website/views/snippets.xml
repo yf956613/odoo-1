@@ -301,8 +301,8 @@
 
 <template id="s_rating" name="Rating">
     <div class="s_rating row">
-        <div class="col-md-12 s_rating_stars s_rating_3 s_rating_1x">
-            <h5>Quality</h5>
+        <div class="col-lg-12 s_rating_stars s_rating_3 s_rating_1x pt16 pb16">
+            <h4>Quality</h4>
             <i class="fa fa-1x"/>
             <i class="fa fa-1x"/>
             <i class="fa fa-1x"/>
