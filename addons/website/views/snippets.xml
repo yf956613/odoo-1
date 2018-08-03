@@ -869,19 +869,8 @@
 <template id="snippet_options">
     <t t-call="web_editor.snippet_options"/>
 
-    <div data-selector=".s_title" data-target=".s_title_opt">
-        <li class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Font</a>
-            <div class="dropdown-menu">
-                <a href="#" class="dropdown-item" data-select-class="s_title_lobster">Rounded</a>
-                <a href="#" class="dropdown-item" data-select-class="s_title_letterhand">Letterhand</a>
-                <a href="#" class="dropdown-item" data-select-class="s_title_retro">Retro</a>
-                <a href="#" class="dropdown-item" data-select-class="s_title_serif">Serif</a>
-                <div class="dropdown-divider"/>
-                <a href="#" class="dropdown-item" data-select-class="">Default</a>
-            </div>
-        </li>
-        <li class="dropdown-submenu">
+    <div data-selector="[class*='s_title_']">
+        <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Style</a>
             <div class="dropdown-menu">
                 <a href="#" class="dropdown-item" data-select-class="s_title_boxed">Boxed</a>
@@ -891,32 +880,45 @@
                 <a href="#" class="dropdown-item" data-select-class="s_title_underlined">Underlined</a>
                 <a href="#" class="dropdown-item" data-select-class="s_title_uppercase">Uppercase</a>
                 <div class="dropdown-divider"/>
-                <a href="#" class="dropdown-item" data-select-class="">Default</a>
+                <a href="#" class="dropdown-item" data-select-class="s_title_default">Default</a>
             </div>
-        </li>
-        <li class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-text-height"/>Display</a>
-            <div class="dropdown-menu">
-                <a href="#" class="dropdown-item" data-select-class="display-1">1</a>
-                <a href="#" class="dropdown-item" data-select-class="display-2">2</a>
-                <a href="#" class="dropdown-item" data-select-class="display-3">3</a>
-                <a href="#" class="dropdown-item" data-select-class="display-4">4</a>
-                <div class="dropdown-divider"/>
-                <a href="#" class="dropdown-item" data-select-class="">Default</a>
-            </div>
-        </li>
-        <div class="dropdown-divider"/>
+        </div>
     </div>
 
-    <div data-selector=".s_text_image" data-target=".d-flex">
+    <div data-selector=".s_text_image, .s_three_columns" data-target=".row">
         <li class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Alignement</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-v"/>Alignement</a>
             <div class="dropdown-menu">
                 <a href="#" class="dropdown-item" data-select-class="align-items-start">Top</a>
                 <a href="#" class="dropdown-item" data-select-class="align-items-center">Middle</a>
                 <a href="#" class="dropdown-item" data-select-class="align-items-end">Bottom</a>
                 <div class="dropdown-divider"/>
+                <a href="#" class="dropdown-item" data-select-class="align-items-stretch">Equal height</a>
+                <div class="dropdown-divider"/>
                 <a href="#" class="dropdown-item" data-select-class="">Default</a>
+            </div>
+        </li>
+    </div>
+
+    <div data-selector=".s_alert">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows"/>Size</a>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="s_alert_sm">Small</a>
+                <a href="#" class="dropdown-item" data-select-class="s_alert_md">Medium</a>
+                <a href="#" class="dropdown-item" data-select-class="s_alert_lg">Large</a>
+            </div>
+        </li>
+    </div>
+
+    <div data-selector=".s_alert, .s_card">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-h"/>Width</a>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="w-25">25%</a>
+                <a href="#" class="dropdown-item" data-select-class="w-50">50%</a>
+                <a href="#" class="dropdown-item" data-select-class="w-75">75%</a>
+                <a href="#" class="dropdown-item" data-select-class="w-100">100%</a>
             </div>
         </li>
     </div>
@@ -988,6 +990,19 @@
         <a tabindex="-1" href="#" class="dropdown-item background_position_li" data-background-position="true" data-no-preview="true"><i class="fa fa-arrows"/>Background Image Sizing</a>
     </div>
 
+    <!-- TODO: Conflict with Background-color -->
+    <!-- <div data-js="colorpicker"
+        data-selector="section [class*='col-lg-'], .s_banner .carousel-content, .card"
+        data-select-class="border"
+        data-color-prefix="border-"
+        data-palette-title="Border Color">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Border Color</a>
+            <div class="dropdown-menu" role="menu"/>
+        </li>
+    </div> -->
+
+    <!-- DEFAULT -->
     <div data-js="colorpicker"
         data-selector="section, :not(.o_gallery > .container) > .carousel"
         data-exclude=".parallax">
@@ -996,15 +1011,59 @@
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
+
+    <!-- All columns -->
     <div data-js="colorpicker"
-        data-selector=".s_text_block_image_fw .row > div, .s_banner .carousel-content"
-        data-palette-exclude="grayscale"
+        data-selector="section [class*='col-lg-']">
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <div class="dropdown-menu" role="menu"/>
+        </div>
+    </div>
+
+    <!-- 3-columns + Comparisons -->
+    <div data-js="colorpicker"
+        data-selector=".s_three_columns [class*='col-lg-'], .s_comparisons [class*='col-lg-']"
+        data-target=".card">
+        <div class="dropdown-submenu">
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <div class="dropdown-menu" role="menu"/>
+        </div>
+    </div>
+
+    <!-- HR -->
+    <div data-js="colorpicker"
+        data-selector=".s_hr"
+        data-target="hr"
+        data-color-prefix="border-"
+        data-palette-exclude="transparent_grayscale"
+        data-palette-title="Separator Color">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Color</a>
+            <div class="dropdown-menu" role="menu"/>
+        </li>
+    </div>
+
+    <!-- Parallax -->
+    <div data-js="colorpicker"
+        data-selector=".s_parallax" data-target=".s_parallax_content"
+        data-palette-exclude="grayscale, theme, ui"
         data-palette-default="transparent_grayscale"
         data-palette-title="Overlay Color">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Overlay color</a>
-            <div class="dropdown-menu" role="menu"/>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Filter</a>
+            <div class="dropdown-menu"/>
         </div>
+    </div>
+
+    <!-- Card & Alert -->
+    <div data-js="colorpicker"
+        data-selector=".s_card, .s_alert"
+        data-palette-title="Card Color">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Box Color</a>
+            <div class="dropdown-menu" role="menu"/>
+        </li>
     </div>
 
     <div data-js='gallery_img' data-selector=".o_gallery img">
@@ -1047,7 +1106,7 @@
     <div data-js="layout_column"
         data-selector="section"
         data-target="> * > .row"
-        data-exclude=".s_text_block_image_fw, .s_company_team, .s_big_picture">
+        data-exclude=".s_big_message, .s_company_team, .s_big_picture">
         <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-columns"/>Number of columns</a>
             <div class="dropdown-menu" role="menu" data-no-preview="true">
@@ -1066,17 +1125,11 @@
         data-drop-near=".row:not(.s_no_resize_cols) > [class*='col-lg-']">
     </div>
 
-
     <div data-js='content'
         data-selector="blockquote, .s_btn, .s_card, .s_alert, .o_facebook_page, .s_share, .s_rating, .s_hr"
         data-drop-near="p, h1, h2, h3, blockquote, .s_btn, .s_card, .s_alert, .o_facebook_page, .s_share, .s_rating, .s_hr"
         data-drop-in=".content">
     </div>
-
-    <!-- <div data-js='separator'
-        data-selector="hr"
-        data-drop-in=".oe_structure, [data-oe-type=html]">
-    </div> -->
 
     <div data-js="parallax" data-selector=".parallax">
         <div class="dropdown-submenu">
