@@ -163,6 +163,66 @@ main [class*="s_"] {
     }
 }
 
+$enable-gradients: true;
+@each $color, $value in $theme-colors {
+  .btn-flat-#{$color} {
+    @include button-variant($value, $value);
+  }
+  .btn-rounded-#{$color} {
+    @include button-variant($value, $value);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .btn-outline-rounded-#{$color} {
+    @include button-outline-variant($value);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .btn-3d-#{$color} {
+    @include gradient-bg($value);
+    color: color-yiq($value);
+  }
+}
+
+
+.btn {
+    @include button-size(0.5rem, 1rem, $font-size-base, $btn-line-height, $btn-border-radius);
+    &.btn-lg { @include button-size(1rem, 2rem, $font-size-lg, $btn-line-height-lg, $btn-border-radius-lg); }
+    &.btn-sm { @include button-size(0.25rem, 0.5rem, $font-size-sm, $btn-line-height-sm, $btn-border-radius-sm); }
+    &.btn-xs { @include button-size(0.15rem, 0.3rem, ($font-size-base * .75), $btn-line-height-sm, $btn-border-radius-sm); }
+
+    &[class*="btn-3d-"]{
+        border: 0;
+    }
+
+    &[class*="btn-outline-"],
+    &[class*="btn-outline-rounded"] {
+        background-color: transparent;
+        border-width: 2px;
+    }
+    &[class*="btn-flat-"] {
+        border: 0;
+        border-radius: 0;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-size: 80%;
+    }
+    &[class*="btn-rounded-"],
+    &[class*="btn-outline-rounded"]{
+        border-radius: 30px;
+    }
+}
+
+// .btn-lg {
+//   @include button-size($btn-padding-y-lg, $btn-padding-x-lg, $font-size-lg, $btn-line-height-lg, $btn-border-radius-lg);
+// }
+//
+// .btn-sm {
+//   @include button-size($btn-padding-y-sm, $btn-padding-x-sm, $font-size-sm, $btn-line-height-sm, $btn-border-radius-sm);
+// }
+
 //
 // Snippets
 //

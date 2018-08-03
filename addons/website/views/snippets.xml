@@ -312,7 +312,7 @@
 </template>
 
 <template id="s_btn" name="Button">
-    <a href="#" class="btn btn-primary s_btn">Read more</a>
+    <a href="#" class="btn btn-alpha s_btn">Read more</a>
 </template>
 
 <template id="s_hr" name="Separator">
