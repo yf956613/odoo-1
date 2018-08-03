@@ -538,16 +538,16 @@
 </template>
 
 <template id="s_call_to_action" name="Call to Action">
-    <section class="s_call_to_action bg-300 pt48 pb64">
+    <section class="s_call_to_action bg-300 pt48 pb24">
         <div class="container">
             <div class="row">
-                <div class="col-lg-9">
-                    <h2>50,000+ companies run Odoo to grow their businesses.</h2>
-                    <h4 class="text-600">Join us and make your company a better place.</h4>
+                <div class="col-lg-9 pb24">
+                    <h3><b>50,000+ companies</b> run Odoo to grow their businesses.</h3>
+                    <p class="lead text-600 mb-0">Join us and make your company a better place.</p>
                 </div>
-                <div class="col-lg-3 pt24" style="text-align: right;">
-                    <a href="/contactus" class="btn btn-primary btn-lg">
-                        Contact us <i class="fa fa-1x fa-fw fa-long-arrow-right"/>
+                <div class="col-lg-3 pt8 pb24" style="text-align: right;">
+                    <a href="/contactus" class="btn btn-alpha btn-lg">
+                        Contact us <i class="fa fa-1x fa-fw fa-arrow-circle-right ml-1"/>
                     </a>
                 </div>
             </div>
