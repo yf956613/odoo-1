@@ -287,22 +287,22 @@
 
 <template id="s_share" name="Share">
     <div class="s_share">
-        <h5>Share</h5>
-        <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
-            <i class="fa fa-3x fa-facebook-square"/>
-        </a>
-        <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
-            <i class="fa fa-3x fa-twitter-square"/>
-        </a>
-        <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
-            <i class="fa fa-3x fa-linkedin-square"/>
-        </a>
-        <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
-            <i class="fa fa-3x fa-google-plus-square"></i>
-        </a>
-        <a href="mailto:?body={url}&amp;subject={title}">
-            <i class="fa fa-3x fa-envelope-square"></i>
-        </a>
+            <h4>Share</h4>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
+                <i class="fa fa-2x fa-facebook rounded text-alpha m-1"/>
+            </a>
+            <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
+                <i class="fa fa-2x  fa-twitter rounded text-alpha m-1"/>
+            </a>
+            <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
+                <i class="fa fa-2x fa-linkedin rounded text-alpha m-1"/>
+            </a>
+            <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
+                <i class="fa fa-2x fa-google-plus rounded text-alpha m-1"/>
+            </a>
+            <a href="mailto:?body={url}&amp;subject={title}">
+                <i class="fa fa-2x fa-envelope rounded text-alpha m-1"/>
+            </a>
     </div>
 </template>
 
