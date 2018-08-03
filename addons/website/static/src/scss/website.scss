@@ -283,23 +283,33 @@ $s_title_thin-font-weight: 300;
 }
 
 .s_alert {
-    margin: $grid-gutter-width 0;
+    @include clearfix;
+    margin: $grid-gutter-width/2 0;
+    border: 1px solid;
+    border-radius: 0.25rem;
     p, ul, ol {
         &:last-child {
             margin-bottom: 0;
         }
     }
-    &.s_alert_sm {
-        padding: 10px;
+    &_sm {
+        padding: $grid-gutter-width/3;
         font-size: $font-size-sm;
     }
-    &.s_alert_md {
-        padding: 20px;
+    &_md {
+        padding: $grid-gutter-width/2;
         font-size: $font-size-base;
     }
-    &.s_alert_lg {
-        padding: 30px;
+    &_lg {
+        padding: $grid-gutter-width;
         font-size: $font-size-lg;
+    }
+    &_icon {
+        float: left;
+        margin-right: 10px;
+    }
+    &_content {
+        overflow: hidden;
     }
 }
 
