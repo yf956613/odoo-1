@@ -392,7 +392,7 @@
                     <h1 class="text-center">Our Offers</h1>
                 </div>
                 <div class="col-lg-4 text-center pb24">
-                    <div class="card bg-gray-lighter">
+                    <div class="card bg-300">
                         <h4 class="card-header">Beginner</h4>
                         <div class="card-body text-center">
                             <h2 class="card-title">
@@ -415,7 +415,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4 text-center pb24">
-                    <div class="card bg-primary">
+                    <div class="card bg-alpha">
                         <h4 class="card-header">Professional</h4>
                         <div class="card-body">
                             <h2 class="card-title">
@@ -438,7 +438,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4 text-center pb24">
-                    <div class="card bg-success text-light">
+                    <div class="card bg-beta">
                         <h4 class="card-header">Expert</h4>
                         <div class="card-body text-center">
                             <h2 class="card-title">
