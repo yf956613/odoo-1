@@ -9,9 +9,9 @@ font[class*='bg-'] {
 }
 
 
-.lead {
-    font-size: 1.75rem;
-}
+// .lead {
+//     font-size: 1.75rem;
+// }
 
 
 // Blockquotes
@@ -23,11 +23,11 @@ font[class*='bg-'] {
 }
 
 // Buttons
-#wrapwrap [class*='s_'] .btn {
-    .fa {
-        vertical-align: middle;
-    }
-}
+// #wrapwrap [class*='s_'] .btn {
+//     .fa {
+//         vertical-align: middle;
+//     }
+// }
 
 // Background Images
 .oe_img_bg {
@@ -163,7 +163,8 @@ main [class*="s_"] {
     }
 }
 
-$enable-gradients: true;
+
+
 @each $color, $value in $theme-colors {
   .btn-flat-#{$color} {
     @include button-variant($value, $value);
@@ -181,17 +182,14 @@ $enable-gradients: true;
 
 @each $color, $value in $theme-colors {
   .btn-3d-#{$color} {
-    @include gradient-bg($value);
+      $enable-gradients: true;
+      @include button-variant($value, $value);
     color: color-yiq($value);
   }
 }
 
 
 .btn {
-    @include button-size(0.5rem, 1rem, $font-size-base, $btn-line-height, $btn-border-radius);
-    &.btn-lg { @include button-size(1rem, 2rem, $font-size-lg, $btn-line-height-lg, $btn-border-radius-lg); }
-    &.btn-sm { @include button-size(0.25rem, 0.5rem, $font-size-sm, $btn-line-height-sm, $btn-border-radius-sm); }
-    &.btn-xs { @include button-size(0.15rem, 0.3rem, ($font-size-base * .75), $btn-line-height-sm, $btn-border-radius-sm); }
 
     &[class*="btn-3d-"]{
         border: 0;
@@ -199,29 +197,42 @@ $enable-gradients: true;
 
     &[class*="btn-outline-"],
     &[class*="btn-outline-rounded"] {
-        background-color: transparent;
         border-width: 2px;
     }
     &[class*="btn-flat-"] {
         border: 0;
-        border-radius: 0;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        font-size: 80%;
+        @include button-size(0.75rem, 1.5rem, ($font-size-base * .75), $btn-line-height, 0);
+        &.btn-lg { @include button-size(1rem, 2rem, ($font-size-lg * .75), $btn-line-height-lg, 0); }
+        &.btn-sm { @include button-size(.5rem, 1rem, ($font-size-sm * .75), $btn-line-height-sm, 0); }
+        &.btn-xs { @include button-size(.25rem, .5rem, ($font-size-base * .5), $btn-line-height-sm, 0); }
     }
     &[class*="btn-rounded-"],
     &[class*="btn-outline-rounded"]{
-        border-radius: 30px;
+        @include button-size(0.45rem, 1.35rem, $font-size-base, $btn-line-height, 30px);
+        &.btn-lg { @include button-size(.6rem, 1.8rem, $font-size-lg, $btn-line-height-lg, 30px); }
+        &.btn-sm { @include button-size(.3rem, .9rem, $font-size-sm, $btn-line-height-sm, 30px); }
+        &.btn-xs { @include button-size(.15rem, .45rem, ($font-size-base * .75), $btn-line-height-sm, 30px); }
     }
 }
 
-// .btn-lg {
-//   @include button-size($btn-padding-y-lg, $btn-padding-x-lg, $font-size-lg, $btn-line-height-lg, $btn-border-radius-lg);
-// }
-//
-// .btn-sm {
-//   @include button-size($btn-padding-y-sm, $btn-padding-x-sm, $font-size-sm, $btn-line-height-sm, $btn-border-radius-sm);
-// }
+// Share
+
+.s_share {
+    .s_share_facebook {
+        &, &:hover, &:focus { color: #3b5998; }
+    }
+    .s_share_twitter {
+        &, &:hover, &:focus { color: #1da1f2; }
+    }
+    .s_share_linkedin {
+        &, &:hover, &:focus { color: #0077b5; }
+    }
+    .s_share_google {
+        &, &:hover, &:focus { color: #db4437; }
+    }
+}
 
 //
 // Snippets
@@ -233,9 +244,10 @@ $s_title_thin-font-weight: 300;
 
 
 [class*="s_title_"] {
-    padding: 0;
-    margin: 0;
+    // padding: 0;
+    // margin: 0;
 }
+
 .s_title_boxed {
     display: inline-block;
     padding: $grid-gutter-width;
@@ -280,6 +292,11 @@ $s_title_thin-font-weight: 300;
         float: left;
         margin-right: $grid-gutter-width/2;
     }
+}
+
+.s_jumbotron {
+    padding: $grid-gutter-width;
+    border-radius: $border-radius;
 }
 
 .s_alert {
@@ -365,12 +382,13 @@ $s_title_thin-font-weight: 300;
                 display: inline-block;
                 width: 100%;
                 padding: .5em 0;
+                color: $body-color;
                 &:before {
                     content:'\f056';
                     font-family: 'FontAwesome';
                     display: inline-block;
                     margin: 0 .5em 0 .75em;
-                    color: inherit;
+                    color: $color-alpha;
                 }
                 &.collapsed:before {
                     content:'\f055';
@@ -388,6 +406,9 @@ $s_title_thin-font-weight: 300;
     }
 }
 
+// .s_tabs .card-header-tabs .nav-link {
+//     color: $color-alpha;
+// }
 
 // References
 .s_references .img-thumbnail {
@@ -410,9 +431,7 @@ $s_title_thin-font-weight: 300;
     .carousel-control-next {
         cursor: pointer;
         width: 10%;
-
-            opacity: 1;
-
+        opacity: 1;
     }
     .carousel-control-prev { justify-content: flex-start; }
     .carousel-control-next { justify-content: flex-end; }
@@ -424,10 +443,6 @@ $s_title_thin-font-weight: 300;
         background-image: none;
         color: $body-color;
         font-size: 1.25em;
-        &:hover,
-        &:focus {
-            color: $color-alpha;
-        }
     }
     .carousel-control-prev-icon { margin-right: 5px; }
     .carousel-control-next-icon { margin-left: 5px; }
@@ -753,7 +768,12 @@ div.carousel .container {
     > * {
         display: inline-block;
         vertical-align: middle;
-        margin: 0 5px 0 0;
+        // margin: 0 5px 0 0;
+    }
+}
+.s_btn_col {
+    .btn + .btn {
+        margin-left: .75rem;
     }
 }
 

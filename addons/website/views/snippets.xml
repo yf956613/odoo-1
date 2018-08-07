@@ -4,12 +4,14 @@
     <section class="s_cover parallax oe_img_bg oe_custom_bg pt96 pb96" style="background-image: url('/web/image/website.s_cover_default_image');" data-scroll-background-ratio="1">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 text-center">
+                <div class="col-lg-12 s_title_col text-center">
                     <h1 class="s_title_default display-3">Catchy Headline</h1>
-                    <p class="lead mb-4">Click to customize this text.</p>
-                    <p class="mb-4">Write one or two paragraphs describing your <b>product</b>, <b>services</b> or a <b>specific feature</b>.<br/> To be successful your content needs to be useful to your readers.</p>
-                    <a href="/page/aboutus" class="btn btn-3d-delta m-1">About us</a>
-                    <a href="/page/contactus" class="btn btn-3d-alpha m-1">Contact us</a>
+                    <h4 class="mb-4">Click to customize this text.</h4>
+                    <p class="lead">Write one or two paragraphs describing your product, services or a specific feature.<br/> To be successful your content needs to be useful to your readers.</p>
+                </div>
+                <div class="col-lg-12 s_btn_col d-flex justify-content-center pt16 pb16">
+                    <a href="/page/aboutus" class="btn btn-rounded-delta">About us</a>
+                    <a href="/page/contactus" class="btn btn-rounded-alpha">Contact us</a>
                 </div>
             </div>
         </div>
@@ -17,7 +19,7 @@
 </template>
 
 <template id="s_banner" name="Slider">
-    <div id="myCarousel" class="carousel carousel-fade slide s_banner" data-interval="10000">
+    <div id="myCarousel" class="carousel carousel-fade slide s_banner" data-interval="10000" style="height: 510px;">
         <!-- Indicators -->
         <ol class="carousel-indicators">
             <li data-target="#myCarousel" data-slide-to="0" class="active"/>
@@ -27,7 +29,7 @@
         <!-- Content -->
         <div class="carousel-inner">
             <!-- #01 -->
-            <div class="carousel-item oe_img_bg active pt128 pb128" style="background-image: url('/web/image/website.s_banner_default_image_1');">
+            <div class="carousel-item oe_img_bg pt128 pb128" style="background-image: url('/web/image/website.s_banner_default_image_1');">
                 <div class="container">
                     <div class="row content">
                         <div class="carousel-content col-lg-6">
@@ -41,12 +43,12 @@
                 </div>
             </div>
             <!-- #02 -->
-            <div class="carousel-item oe_img_bg pt96 pb96" style="background-image: url('/web/image/website.s_banner_default_image_2');">
+            <div class="carousel-item oe_img_bg pt128 pb128" style="background-image: url('/web/image/website.s_banner_default_image_2');">
                 <div class="container">
                     <div class="row content">
                         <div class="carousel-content col-lg-8 offset-lg-2 bg-black-50 text-center pt32 pb32">
-                            <h2 class="s_title_thin" style="font-size: 62px;">Slide Title</h2>
-                            <h4 class="s_title_thin mb-3">Explain the benefits you offer.</h4>
+                            <h2 style="font-size: 62px;">Slide Title</h2>
+                            <h4 class="mb-3">Explain the benefits you offer.</h4>
                             <p class="mb-3">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
                             <a href="/aboutus" class="btn btn-rounded-epsilon">Read more</a>
                         </div>
@@ -54,30 +56,29 @@
                 </div>
             </div>
             <!-- #03 -->
-            <div class="carousel-item oe_img_bg pt96 pb96" style="background-image: url('/web/image/website.s_banner_default_image_3');">
+            <div class="carousel-item oe_img_bg active pt128 pb128" style="background-image: url('/web/image/website.s_banner_default_image_3');">
                 <div class="container">
                     <div class="row content">
                         <div class="carousel-content col-lg-6 offset-lg-6">
-                            <h2 class="display-4">Slide Title</h2>
-                            <h4 class="lead">Click to customize this text.</h4>
-                            <p class="mb16">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
+                            <h2 style="font-size: 62px;">Slide Title</h2>
+                            <h4 class="mb-3">Click to customize this text.</h4>
+                            <p class="mb-3">Use this snippet to presents your content in a slideshow-like format.<br/> Don't write about products or services here, write about solutions.</p>
                             <div class="s_share">
-                                <h5>Share</h5>
-                                <i class="fa fa-1x fa-long-arrow-right"/>
+
                                 <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
-                                    <i class="fa fa-2x fa-facebook-square"/>
+                                    <i class="fa fa-1x fa-facebook rounded shadow-sm m-1"/>
                                 </a>
                                 <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
-                                    <i class="fa fa-2x fa-twitter-square"/>
+                                    <i class="fa fa-1x fa-twitter rounded shadow-sm m-1"/>
                                 </a>
                                 <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
-                                    <i class="fa fa-2x fa-linkedin-square"/>
+                                    <i class="fa fa-1x fa-linkedin rounded shadow-sm m-1"/>
                                 </a>
                                 <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
-                                    <i class="fa fa-2x fa-google-plus-square"></i>
+                                    <i class="fa fa-1x fa-google-plus rounded shadow-sm m-1"/>
                                 </a>
                                 <a href="mailto:?body={url}&amp;subject={title}">
-                                    <i class="fa fa-2x fa-envelope-square"></i>
+                                    <i class="fa fa-1x fa-envelope rounded shadow-sm text-600 m-1"/>
                                 </a>
                             </div>
                         </div>
@@ -120,13 +121,20 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 pt24 pb24">
-                    <img src="/web/image/website.library_image_16" class="img img-fluid mx-auto" alt="Odoo • Image and Text"/>
+                    <img src="/web/image/website.s_image_text_default_image" class="img img-fluid mx-auto" alt="Odoo • Image and Text"/>
                 </div>
                 <div class="col-lg-6 pt24 pb24">
-                    <h2>A Section Subtitle</h2>
+                    <h2> Section Subtitle</h2>
+                    <section class="s_hr pt8 pb32">
+                        <hr class="s_hr_1px s_hr_solid w-100 border-secondary"/>
+                    </section>
                     <p>Write one or two paragraphs describing your product or services. <br/>To be successful your content needs to be useful to your readers.</p>
                     <p>Start with the customer – find out what they want and give it to them.</p>
-                    <a href="#" class="btn btn-outline-delta">Read more</a>
+                    <div class="row">
+                        <div class="col-lg-12 pt16 pb16">
+                            <a href="#" class="btn btn-outline-alpha">Discover more</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,20 +142,19 @@
 </template>
 
 <template id="s_big_message" name="Big Message">
-    <section class="s_big_message oe_img_bg oe_custom_bg pt96 pb96" style="background-image: url('/web/image/website.s_text_block_image_fw_default_image'); background-position: 50% 50%;">
-       <div class="container">
+    <section class="s_big_message parallax s_parallax oe_img_bg s_parallax_is_fixed pt96 pb96" data-scroll-background-ratio="1">
+        <span class="s_parallax_bg" style="background-image: url('/web/image/website.s_big_message_default_image'); background-position: 50% 0;"/>
+        <div class="oe_structure s_parallax_content">
+        <div class="container">
            <div class="row">
-               <div class="col-lg-6 bg-white-75 s_jumbotron">
-                   <h1 class="display-4">Sell Online. Easily</h1>
-                   <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-                   <section class="s_hr text-center pt8 pb24">
-                       <hr class="s_hr_1px s_hr_solid s_hr_full"/>
-                   </section>
-                   <p>Write one sentence to convince visitor about your message.</p>
-                   <a href="#" class="btn btn-alpha">Read more</a>
+               <div class="col-lg-7 bg-white s_jumbotron">
+                   <h1 class="s_title_default display-4"><b>Sell Online.</b> Easily.</h1>
+                   <p class="lead mt-3 mb-5">This is a simple hero unit, a simple jumbotron-style component <br/>for calling extra attention to featured content or information.</p>
+                   <a href="#" class="btn btn-rounded-epsilon">Go somewhere</a>
                </div>
            </div>
        </div>
+   </div>
     </section>
 </template>
 
@@ -169,7 +176,7 @@
     <section class="s_title pt48 pb48">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 p-3" style="text-align: center;">
+                <div class="col-lg-12 s_title_col pt32 pb32" style="text-align: center;">
                     <h1 class="s_title_thin" style="font-size: 62px;">Your Website Title</h1>
                 </div>
             </div>
@@ -229,9 +236,9 @@
 <template id="s_three_columns" name="Three Columns">
     <section class="s_three_columns bg-300 pt32 pb32">
         <div class="container">
-            <div class="row d-flex">
+            <div class="row d-flex align-items-stretch">
                 <div class="col-lg-4 pt16 pb16">
-                    <div class="card p-0">
+                    <div class="card h-100 p-0">
                         <img class="card-img-top" src="/web/image/website.library_image_11" alt="Odoo - Sample 1 for three columns"/>
                         <div class="card-body">
                             <h3 class="card-title">Feature One</h3>
@@ -240,7 +247,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4 pt16 pb16">
-                    <div class="card p-0">
+                    <div class="card h-100 p-0">
                         <img class="card-img-top" src="/web/image/website.library_image_13" alt="Odoo - Sample 2 for three columns"/>
                         <div class="card-body">
                             <h3 class="card-title">Feature Two</h3>
@@ -249,7 +256,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4 pt16 pb16">
-                    <div class="card p-0">
+                    <div class="card h-100 p-0">
                         <img class="card-img-top" src="/web/image/website.library_image_07" alt="Odoo - Sample 3 for three columns"/>
                         <div class="card-body">
                             <h3 class="card-title">Feature Three</h3>
@@ -286,22 +293,22 @@
 
 <template id="s_share" name="Share">
     <div class="s_share">
-            <h4>Share</h4>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
-                <i class="fa fa-2x fa-facebook rounded text-alpha m-1"/>
-            </a>
-            <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
-                <i class="fa fa-2x  fa-twitter rounded text-alpha m-1"/>
-            </a>
-            <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
-                <i class="fa fa-2x fa-linkedin rounded text-alpha m-1"/>
-            </a>
-            <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
-                <i class="fa fa-2x fa-google-plus rounded text-alpha m-1"/>
-            </a>
-            <a href="mailto:?body={url}&amp;subject={title}">
-                <i class="fa fa-2x fa-envelope rounded text-alpha m-1"/>
-            </a>
+        <h4>Share</h4>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
+            <i class="fa fa-2x fa-facebook rounded shadow-sm m-1"/>
+        </a>
+        <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
+            <i class="fa fa-2x fa-twitter rounded shadow-sm m-1"/>
+        </a>
+        <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
+            <i class="fa fa-2x fa-linkedin rounded shadow-sm m-1"/>
+        </a>
+        <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
+            <i class="fa fa-2x fa-google-plus rounded shadow-sm m-1"/>
+        </a>
+        <a href="mailto:?body={url}&amp;subject={title}">
+            <i class="fa fa-2x fa-envelope rounded shadow-sm text-600 m-1"/>
+        </a>
     </div>
 </template>
 
@@ -324,16 +331,16 @@
 </template>
 
 <template id="s_hr" name="Separator">
-    <section class="s_hr text-center pt32 pb32">
-        <hr class="s_hr_1px s_hr_solid s_hr_full"/>
+    <section class="s_hr pt32 pb32">
+        <hr class="s_hr_1px s_hr_solid border-secondary w-100"/>
     </section>
 </template>
 
 <template id="s_image_overlay" name="Image Overlay">
-    <section class="s_image_overlay">
+    <section class="s_image_overlay pt48 pb24">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4">
+                <div class="col-lg-4 pb24">
                     <div class="card">
                         <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
                         <div class="card-img-overlay bg-black-50">
@@ -342,7 +349,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-4 pb24">
                     <div class="card">
                         <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
                         <div class="card-img-overlay bg-black-50">
@@ -351,7 +358,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-4 pb24">
                     <div class="card">
                         <img class="card-img" src="/web/image/website.s_big_picture_default_image" alt=""/>
                         <div class="card-img-overlay bg-black-50">
@@ -562,7 +569,7 @@
                     <h2>FAQ</h2>
                 </div>
                 <div class="col-lg-12 pb24">
-                    <div class="accordion" role="tablist">
+                    <div id="myCollapse" class="accordion" role="tablist">
                         <div class="card">
                             <div class="card-header">
                                 <a href="#" role="tab" data-toggle="collapse" aria-expanded="true">Terms of service</a>
@@ -911,9 +918,9 @@
 <template id="snippet_options">
     <t t-call="web_editor.snippet_options"/>
 
-    <div data-selector="[class*='s_title_']">
+    <div data-selector=".s_title_col" data-target="[class*='s_title_']">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Style</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-font"/>Styles</a>
             <div class="dropdown-menu">
                 <a href="#" class="dropdown-item" data-select-class="s_title_boxed">Boxed</a>
                 <a href="#" class="dropdown-item" data-select-class="s_title_lines">Line-On-Sides</a>
@@ -927,19 +934,17 @@
         </div>
     </div>
 
-    <div data-selector=".s_text_image, .s_three_columns" data-target=".row">
-        <li class="dropdown-submenu">
+    <div data-selector=".s_text_image, .s_image_text, .s_three_columns, .s_image_overlay" data-target=".row">
+        <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-v"/>Alignement</a>
             <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="align-items-default">Default</a>
                 <a href="#" class="dropdown-item" data-select-class="align-items-start">Top</a>
                 <a href="#" class="dropdown-item" data-select-class="align-items-center">Middle</a>
                 <a href="#" class="dropdown-item" data-select-class="align-items-end">Bottom</a>
-                <div class="dropdown-divider"/>
                 <a href="#" class="dropdown-item" data-select-class="align-items-stretch">Equal height</a>
-                <div class="dropdown-divider"/>
-                <a href="#" class="dropdown-item" data-select-class="">Default</a>
             </div>
-        </li>
+        </div>
     </div>
 
     <div data-selector=".s_alert">
@@ -961,6 +966,17 @@
                 <a href="#" class="dropdown-item" data-select-class="w-50">50%</a>
                 <a href="#" class="dropdown-item" data-select-class="w-75">75%</a>
                 <a href="#" class="dropdown-item" data-select-class="w-100">100%</a>
+            </div>
+        </li>
+    </div>
+
+    <div data-selector=".s_btn_col">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-text-left"/>Alignement</a>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-select-class="justify-content-start">Left</a>
+                <a href="#" class="dropdown-item" data-select-class="justify-content-center">Center</a>
+                <a href="#" class="dropdown-item" data-select-class="justify-content-end">Right</a>
             </div>
         </li>
     </div>
@@ -1023,7 +1039,7 @@
     </div>
 
     <div data-js="background"
-        data-selector="section, :not(.o_gallery > .container) > .carousel, .parallax, .s_banner .carousel-content">
+        data-selector="section:not(.s_hr), :not(.o_gallery > .container) > .carousel, .parallax, .s_banner .carousel-content">
         <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="fa fa-picture-o"/>Choose Background Image</a>
     </div>
 
@@ -1068,7 +1084,7 @@
         data-selector=".s_three_columns [class*='col-lg-'], .s_comparisons [class*='col-lg-']"
         data-target=".card">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Box Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -1078,10 +1094,10 @@
         data-selector=".s_hr"
         data-target="hr"
         data-color-prefix="border-"
-        data-palette-exclude="transparent_grayscale"
+        data-palette-exclude="transparent_grayscale, grayscale"
         data-palette-title="Separator Color">
         <li class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Color</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Color</a>
             <div class="dropdown-menu" role="menu"/>
         </li>
     </div>
@@ -1100,8 +1116,19 @@
 
     <!-- Card & Alert -->
     <div data-js="colorpicker"
-        data-selector=".s_card, .s_alert"
+        data-selector=".s_card"
         data-palette-title="Card Color">
+        <li class="dropdown-submenu">
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Box Color</a>
+            <div class="dropdown-menu" role="menu"/>
+        </li>
+    </div>
+
+    <!-- Card & Alert -->
+    <div data-js="colorpicker"
+        data-selector=".s_alert"
+        data-color-prefix="alert-"
+        data-palette-title="Box Color">
         <li class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-alt"/>Box Color</a>
             <div class="dropdown-menu" role="menu"/>
@@ -1142,14 +1169,14 @@
         data-drop-in=":not(p).oe_structure, :not(p)[data-oe-type=html]"/>
 
     <div data-js="sizing_y"
-        data-selector="section, .row:not(.s_no_resize_cols) > [class*='col-lg-'], :not(.o_gallery > .container) > .carousel, .parallax, hr">
+        data-selector="section, .row:not(.s_no_resize_cols) > [class*='col-lg-'], :not(.o_gallery > .container) > .carousel, .parallax, .s_hr">
     </div>
 
     <div data-js="layout_column"
         data-selector="section"
         data-target="> * > .row"
         data-exclude=".s_big_message, .s_company_team, .s_big_picture">
-        <div class="dropdown-submenu">
+        <li class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-columns"/>Number of columns</a>
             <div class="dropdown-menu" role="menu" data-no-preview="true">
                 <a href="#" class="dropdown-item" role="menuitem" data-select-count="1">1</a>
@@ -1159,7 +1186,7 @@
                 <a href="#" class="dropdown-item" role="menuitem" data-select-count="5">5</a>
                 <a href="#" class="dropdown-item" role="menuitem" data-select-count="6">6</a>
             </div>
-        </div>
+        </li>
     </div>
 
     <div data-js="sizing_x"

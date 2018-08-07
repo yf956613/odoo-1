@@ -801,7 +801,7 @@ options.registry.collapse = options.Class.extend({
         $tab.data('parent', '#'+tablist_id);
 
         // link to the collapse
-        var $panel = this.$target.find('.panel-collapse');
+        var $panel = this.$target.find('.collapse');
         var panel_id = $panel.attr('id');
         if (!panel_id) {
             while ($('#'+(panel_id = 'myCollapseTab' + time)).length) {

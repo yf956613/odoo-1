@@ -965,7 +965,7 @@ $.summernote.lang.odoo = {
       normal: _t('Normal'),
       blockquote: _t('Quote'),
       pre: _t('Code'),
-      pre: _t('Small'),
+      small: _t('Small'),
       h1: _t('Header 1'),
       h2: _t('Header 2'),
       h3: _t('Header 3'),
