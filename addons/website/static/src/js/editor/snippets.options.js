@@ -120,6 +120,48 @@ options.registry.company_data = options.Class.extend({
     },
 });
 
+// c(･o･)ɔ
+options.registry.tabs = options.Class.extend({
+    start: function () {
+       this.$target.on('click', 'a', function () {
+           activateTab($(this));
+       });
+
+       function activateTab($link) {
+           var tabid = $link.attr('href');
+           tabid = tabid.replace('#', '');
+           $('.tab-pane').removeClass('active show');
+           $('.tab-content #' + tabid).addClass('active show');
+       }
+       activateTab(this.$('.active.show'));
+   },
+
+   unique_id: function () {
+       return "myTab-" + new Date().getTime();
+   },
+
+   add_tab: function (type, value, $li) {
+       // if (type !== 'click') return;
+       var self = this;
+       self.id = self.unique_id();
+       this.$target.find('.nav-link.active').parent().after(function() {
+           return '<li class="nav-item"><a href="#' + self.id + '" aria-controls="' + self.id + '" role="tab" data-toggle="tab" class="nav-link text-primary">New Tab</a></li>';
+       });
+       this.$target.find('.tab-pane.active').after(function() {
+           return '<div id="' + self.id + '" class="tab-pane fade" role="tabpanel" aria-labelledby="' + self.id + '"><p>Your content...</p></div>';
+       });
+   },
+
+   remove_tab: function (type, value, $li) {
+       // if (type !== 'click') return;
+       var self = this;
+       self.$target.find('.active.show').remove();
+       self.$target.find('.nav-tabs li:first-child a').addClass('active show');
+       self.$target.find('.tab-content .tab-pane:first-child').addClass('active show');
+   },
+});
+// c(･o･)ɔ
+
 /**
  * @todo should be refactored / reviewed
  */

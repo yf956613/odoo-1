@@ -374,6 +374,19 @@ table.table_desc tr td {
 }
 
 
+// Tabs
+.s_tabs {
+    .nav-link {
+        &:hover, &:focus {
+            outline: 0;
+        }
+    }
+    .card-body {
+        color: $body-color;
+    }
+}
+
+
 // References
 .s_references .img-thumbnail {
     border: none;
