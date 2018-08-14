@@ -903,7 +903,7 @@
         data-selector=".s_hr"
         data-target="hr"
         data-color-prefix="border-"
-        data-palette-exclude="transparent_grayscale, grayscale"
+        data-palette-exclude="transparent_grayscale, common"
         data-palette-title="Separator Color">
         <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Color</a>
