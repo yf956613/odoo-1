@@ -957,7 +957,7 @@
     </div>
 
     <!-- H-ALIGN | .s_btn -->
-    <div data-selector=".s_btn">
+    <div data-selector=".s_btn, .s_share">
         <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-align-left"/>Alignment</a>
             <div class="dropdown-menu" role="menu">
