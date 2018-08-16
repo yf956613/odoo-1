@@ -156,6 +156,9 @@
                             <h3 class="card-title">Feature Two</h3>
                             <p class="card-text">To add a fourth column, reduce the size of these three columns using the right icon of each block. Then, duplicate one of the column to create a new one as a copy.</p>
                         </div>
+                        <div class="card-footer">
+                            <i class="fa fa-info-circle mr-1"/> <small>An additional information</small>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-4 s_col_no_bgcolor pt16 pb16">
@@ -164,6 +167,9 @@
                         <div class="card-body">
                             <h3 class="card-title">Feature Three</h3>
                             <p class="card-text">Delete the above image or replace it with a picture that illustrates your message. Click on the picture to change it's <em>rounded corner</em> style.</p>
+                            <div class="s_btn text-left pb0 pt16" data-name="Button">
+                                <a href="#" class="btn btn-primary btn-sm">Learn more</a>
+                            </div>
                         </div>
                     </div>
                 </div>
