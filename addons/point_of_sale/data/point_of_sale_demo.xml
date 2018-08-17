@@ -32,6 +32,36 @@
         <record id="pos_category_chairs" model="pos.category">
           <field name="name">Chairs</field>
         </record>
+        <record id="pos_category_pizza" model="pos.category">
+          <field name="name">Pizza</field>
+        </record>
+        <record id="pos_category_pasta" model="pos.category">
+          <field name="name">Pasta</field>
+        </record>
+        <record id="pos_category_burger" model="pos.category">
+          <field name="name">Burger</field>
+        </record>
+        <record id="pos_category_sandwich" model="pos.category">
+          <field name="name">Sandwich</field>
+        </record>
+        <record id="pos_category_sushi" model="pos.category">
+          <field name="name">Sushi</field>
+        </record>
+        <record id="pos_category_temaki" model="pos.category">
+          <field name="name">Temaki</field>
+        </record>
+        <record id="pos_category_chirashi" model="pos.category">
+          <field name="name">Chirashi</field>
+        </record>
+
+        <record id="product_category_pos" model="product.category">
+            <field name="parent_id" ref="product.product_category_1"/>
+            <field name="name">PoS</field>
+        </record>
+        <record id="product_category_food" model="product.category">
+            <field name="parent_id" ref="point_of_sale.product_category_food"/>
+            <field name="name">Food</field>
+        </record>
 
         <!-- Resource: product.product -->
         <record id="stock.product_cable_management_box" model="product.product">
@@ -191,7 +221,7 @@
           <field name="image" type="base64" file="point_of_sale/static/img/whiteboard_pen.png"/>
         </record>
 
-<!--         <record id="product_product_pos_1" model="product.product">
+        <record id="product_product_pos_1" model="product.product">
           <field name="available_in_pos">True</field>
           <field name="list_price">7.00</field>
           <field name="name">Margherita</field>
@@ -202,7 +232,7 @@
           <field name="uom_id" ref="uom.product_uom_kgm" />
           <field name="uom_po_id" ref="uom.product_uom_kgm" />
           <field name="image" type="base64" file="point_of_sale/static/img/whiteboard_pen.png"/>
-        </record> -->
+        </record>
 
         <record id="product.product_product_1" model="product.product">
           <field name="available_in_pos" eval="True"/>
