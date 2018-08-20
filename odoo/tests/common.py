@@ -440,6 +440,7 @@ class ChromeBrowser():
             return
         switches = {
             '--headless': '',
+            '--deterministic-fetch': '',
             '--enable-logging': 'stderr',
             '--no-default-browser-check': '',
             '--no-first-run': '',
