@@ -419,6 +419,7 @@ class ChromeBrowser():
         self.user_data_dir = tempfile.mkdtemp(suffix='_chrome_odoo')
         self.chrome_process = None
         self.screencast_frames = []
+        self._set_screenshots_dir()
         self._chrome_start()
         self._find_websocket()
         self._logger.info('Websocket url found: %s', self.ws_url)
@@ -602,15 +603,25 @@ class ChromeBrowser():
                 self._logger.debug('chrome devtools protocol event: %s', res)
         self._logger.info('timeout exceeded while waiting for : %s', method)
 
+    def _set_screenshots_dir(self):
+        """ creates the screenshot directory if possible
+            alongside the logfile or in the data_dir if the logfile config is
+            not set
+        """
+        config_dir = odoo.tools.config.get('logfile') and os.path.splitext(odoo.tools.config['logfile'])[0]
+        data_dir = config_dir or odoo.tools.config.get('data_dir')
+        self.screenshots_dir = data_dir and os.path.join(data_dir, 'screenshots')
+        if self.screenshots_dir and not os.path.isdir(self.screenshots_dir):
+            os.mkdir(self.screenshots_dir)
+
     def _get_shotname(self, prefix, ext):
         """ return a unique filename for screenshot or screencast"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-        base_file = os.path.splitext(odoo.tools.config['logfile'])[0]
-        name = '%s_%s_%s.%s' % (base_file, prefix, timestamp, ext)
-        return name
+        name = '%s_%s.%s' % (prefix, timestamp, ext)
+        return os.path.join(self.screenshots_dir, name)
 
     def take_screenshot(self, prefix='failed'):
-        if not odoo.tools.config['logfile']:
+        if not self.screenshots_dir:
             self._logger.info('Screenshot disabled !')
             return None
         ss_id = self._websocket_send('Page.captureScreenshot')
@@ -626,7 +637,7 @@ class ChromeBrowser():
     def _save_screencast(self, prefix='failed'):
         # could be encododed with something like that
         #  ffmpeg -framerate 3 -i frame_%05d.png  output.mp4
-        if not odoo.tools.config['logfile']:
+        if not self.screenshots_dir:
             self._logger.info('Screencast disabled !')
             return None
         sdir = tempfile.mkdtemp(suffix='_chrome_odoo_screencast')
@@ -867,9 +878,10 @@ class HttpCase(TransactionCase):
             url = "http://%s:%s%s" % (HOST, PORT, url_path or '/')
             self._logger.info('Open "%s" in browser', url)
 
-            if odoo.tools.config['logfile']:
-                self._logger.info('Starting screen cast')
-                self.browser.start_screencast()
+            # FIXME screencast is too slow
+            # A config option could be added to enable it
+            # self._logger.info('Starting screen cast')
+            # self.browser.start_screencast()
             self.browser.navigate_to(url)
 
             # Needed because tests like test01.js (qunit tests) are passing a ready
