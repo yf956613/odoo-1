@@ -320,7 +320,7 @@ tour.register('main_flow_tour', {
     position: "right",
     run: "text the_flow.product",
 }, {
-    trigger: ".ui-menu-item > a:contains('the_flow.product')",
+    trigger: ".ui-menu-item > a:contains('the_flo.product')",
     auto: true,
     in_modal: false,
     run: function (actions) {
