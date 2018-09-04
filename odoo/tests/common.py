@@ -13,6 +13,7 @@ import json
 import logging
 import operator
 import os
+import psutil
 import platform
 import re
 import requests
@@ -441,7 +442,8 @@ class ChromeBrowser():
     def stop(self):
         if self.chrome_process is not None:
             self._logger.info("Closing chrome headless with pid %s", self.chrome_process.pid)
-            self._websocket_send('Browser.close')
+            if self.ws:
+                self._websocket_send('Browser.close')
             if self.chrome_process.poll() is None:
                 self._logger.info("Terminating chrome headless with pid %s", self.chrome_process.pid)
                 self.chrome_process.terminate()
@@ -502,6 +504,7 @@ class ChromeBrowser():
         except OSError:
             raise unittest.SkipTest("%s not found" % cmd[0])
         self._logger.info('Chrome pid: %s', self.chrome_process.pid)
+        self._wait_chrome_listen()
 
     def _find_websocket(self):
         version = self._json_command('version')
@@ -514,6 +517,20 @@ class ChromeBrowser():
             raise unittest.SkipTest('No tab found in Chrome')
         self.ws_url = infos['webSocketDebuggerUrl']
         self._logger.info('Chrome headless temporary user profile dir: %s', self.user_data_dir)
+
+    def _wait_chrome_listen(self):
+        t0 = time.time()
+        procinfos = psutil.Process(self.chrome_process.pid)
+        while True:
+            if time.time() - t0 > 20:
+                msg = 'Chrome took more than 20 sec to start listening on port %s' % self.devtools_port
+                self._logger.error(msg)
+                self.stop()
+                raise unittest.SkipTest(msg)
+            for con in procinfos.connections():
+                if con.status == 'LISTEN' and con.laddr[1] == self.devtools_port:
+                    self._logger.info('Chrome headless started listening on port %s', self.devtools_port)
+                    return
 
     def _json_command(self, command, timeout=3):
         """
