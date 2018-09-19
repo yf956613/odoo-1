@@ -20,9 +20,11 @@ class TestAllL10n(SingleTransactionCase):
     @classmethod
     def setUpClass(cls):
         super(TestAllL10n, cls).setUpClass()
+        black_list = ['l10n_es_reports', 'l10n_jp', 'l10n_lu']
         l10n_mods = cls.env['ir.module.module'].search([
             ('name', 'like', 'l10n%'),
             ('state', '=', 'uninstalled'),
+            ('name', 'not in', black_list)
         ])
         _logger.info("Modules to install: %s" % [x.name for x in l10n_mods])
         for mod in l10n_mods:
