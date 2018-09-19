@@ -20,7 +20,7 @@ class TestAllL10n(SingleTransactionCase):
     @classmethod
     def setUpClass(cls):
         super(TestAllL10n, cls).setUpClass()
-        black_list = ['l10n_es_reports', 'l10n_jp', 'l10n_lu']
+        black_list = ['l10n_es_reports', 'l10n_jp', 'l10n_lu', 'l10n_jp_reports', 'l10n_lu_reports', 'l10n_es', 'l10n_es_real_estates']
         l10n_mods = cls.env['ir.module.module'].search([
             ('name', 'like', 'l10n%'),
             ('state', '=', 'uninstalled'),
