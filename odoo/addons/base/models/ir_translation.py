@@ -778,51 +778,34 @@ class IrTranslation(models.Model):
         return IrTranslationImport(self)
 
     @api.model_cr_context
-    def load_module_terms(self, modules, langs):
+    def load_module_terms(self, modules, langs, overwrite=False):
         """ Load PO files of the given modules for the given languages. """
         # make sure the given languages are active
-        res_lang = self.env['res.lang'].sudo()
-        for lang in langs:
-            res_lang.load_lang(lang)
         # load i18n files
+        po_read_method = self.env['res.lang']._get_po_read_method()
         for module_name in modules:
             modpath = get_module_path(module_name)
             if not modpath:
                 continue
             for lang in langs:
-                context = dict(self._context)
-                lang_code = tools.get_iso_codes(lang)
+                context = dict(self._context, overwrite=overwrite)
+                lang_code = tools.get_iso_codes(lang.code)
                 base_lang_code = None
                 if '_' in lang_code:
                     base_lang_code = lang_code.split('_')[0]
 
                 # Step 1: for sub-languages, load base language first (e.g. es_CL.po is loaded over es.po)
                 if base_lang_code:
-                    base_trans_file = get_module_resource(module_name, 'i18n', base_lang_code + '.po')
-                    if base_trans_file:
-                        _logger.info('module %s: loading base translation file %s for language %s', module_name, base_lang_code, lang)
-                        tools.trans_load(self._cr, base_trans_file, lang, verbose=False, module_name=module_name, context=context)
+                    for po_file in po_read_method(module_name, base_lang_code):
+                        _logger.info('module %s: loading base translation file %s for language %s', module_name, base_lang_code, lang.name)
+                        tools.trans_load_data(self._cr, po_file, 'po', lang.code, verbose=False, module_name=module_name, context=context)
                         context['overwrite'] = True  # make sure the requested translation will override the base terms later
 
-                    # i18n_extra folder is for additional translations handle manually (eg: for l10n_be)
-                    base_trans_extra_file = get_module_resource(module_name, 'i18n_extra', base_lang_code + '.po')
-                    if base_trans_extra_file:
-                        _logger.info('module %s: loading extra base translation file %s for language %s', module_name, base_lang_code, lang)
-                        tools.trans_load(self._cr, base_trans_extra_file, lang, verbose=False, module_name=module_name, context=context)
-                        context['overwrite'] = True  # make sure the requested translation will override the base terms later
+                for po_file in po_read_method(module_name, lang_code):
+                    _logger.info('module %s: loading base translation file %s for language %s', module_name, lang_code, lang.name)
+                    tools.trans_load_data(self._cr, po_file, 'po', lang.code, verbose=False, module_name=module_name, context=context)
+                    context['overwrite'] = True  # make sure the requested translation will override the base terms later
 
-                # Step 2: then load the main translation file, possibly overriding the terms coming from the base language
-                trans_file = get_module_resource(module_name, 'i18n', lang_code + '.po')
-                if trans_file:
-                    _logger.info('module %s: loading translation file (%s) for language %s', module_name, lang_code, lang)
-                    tools.trans_load(self._cr, trans_file, lang, verbose=False, module_name=module_name, context=context)
-                elif lang_code != 'en_US':
-                    _logger.info('module %s: no translation for language %s', module_name, lang_code)
-
-                trans_extra_file = get_module_resource(module_name, 'i18n_extra', lang_code + '.po')
-                if trans_extra_file:
-                    _logger.info('module %s: loading extra translation file (%s) for language %s', module_name, lang_code, lang)
-                    tools.trans_load(self._cr, trans_extra_file, lang, verbose=False, module_name=module_name, context=context)
         return True
 
     @api.model

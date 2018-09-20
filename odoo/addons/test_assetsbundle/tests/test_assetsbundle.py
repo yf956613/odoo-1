@@ -34,7 +34,7 @@ class TestJavascriptAssetsBundle(TransactionCase):
         super(TestJavascriptAssetsBundle, self).setUp()
         self.jsbundle_xmlid = 'test_assetsbundle.bundle1'
         self.cssbundle_xmlid = 'test_assetsbundle.bundle2'
-        self.env['res.lang'].load_lang('ar_SY')
+        self.env['res.lang']._lang_get('ar_SY')._activate_lang()
 
     def _get_asset(self, xmlid, env=None):
         env = (env or self.env)

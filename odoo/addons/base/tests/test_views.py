@@ -607,7 +607,7 @@ class TestNoModel(ViewCase):
         """
         Test if translations work correctly without a model
         """
-        self.env['res.lang'].load_lang('fr_FR')
+        self.env['res.lang']._lang_get('fr_FR')._activate_lang()
         ARCH = '<template name="foo">%s</template>'
         TEXT_EN = "Copyright copyrighter"
         TEXT_FR = u"Copyrighter, tous droits réservés"

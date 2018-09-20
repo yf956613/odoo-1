@@ -25,25 +25,29 @@ class BaseLanguageImport(models.TransientModel):
                                help="If you enable this option, existing translations (including custom ones) "
                                     "will be overwritten and replaced by those in this file")
 
-    @api.multi
     def import_lang(self):
-        this = self[0]
-        this = this.with_context(overwrite=this.overwrite)
+        self.ensure_one()
         with TemporaryFile('wb+') as buf:
             try:
-                buf.write(base64.decodestring(this.data))
+                buf.write(base64.decodestring(self.data))
 
                 # now we determine the file format
                 buf.seek(0)
-                fileformat = os.path.splitext(this.filename)[-1][1:].lower()
+                fileformat = os.path.splitext(self.filename)[-1][1:].lower()
 
-                tools.trans_load_data(this._cr, buf, fileformat, this.code,
-                                      lang_name=this.name, context=this._context)
+                lang = self.env['res.lang']._lang_get(self.code)
+                if not lang:
+                    # lets create the language with locale information
+                    self.env['res.lang']._create_lang(lang=self.code, lang_name=self.name)
+                else:
+                    lang._activate_lang()
+
+                tools.trans_load_data(self._cr, buf, fileformat, self.code, context=dict(self._context, overwrite=self.overwrite))
             except Exception as e:
                 _logger.exception('File unsuccessfully imported, due to format mismatch.')
                 raise UserError(
                     _('File %r not imported due to format mismatch or a malformed file.'
-                      ' (Valid formats are .csv, .po, .pot)\n\nTechnical Details:\n%s') % \
-                    (this.filename, tools.ustr(e))
+                      ' (Valid formats are .csv, .po, .pot)\n\nTechnical Details:\n%s') %
+                      (self.filename, tools.ustr(e))
                 )
         return True

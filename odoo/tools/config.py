@@ -241,6 +241,10 @@ class configmanager(object):
                          help="overwrites existing translation terms on updating a module or importing a CSV or a PO file.")
         group.add_option("--modules", dest="translate_modules",
                          help="specify modules to export. Use in combination with --i18n-export")
+        group.add_option("--i18n-download", dest="download_translations", action="store_true", my_default=True,
+                         help="fetch latest translations online, to disable for offline system or custom translations")
+        group.add_option("--i18n-save-fs", dest="translations_fs_store", action="store_true", my_default=False,
+                         help="translations fetched online are saved on the filesystem instead of ir.attachment")
         parser.add_option_group(group)
 
         security = optparse.OptionGroup(parser, 'Security-related options')

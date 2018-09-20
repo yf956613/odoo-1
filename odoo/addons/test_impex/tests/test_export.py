@@ -280,7 +280,7 @@ class test_selection(CreatorCase):
             [[u"Bar"]])
 
     def test_localized_export(self):
-        self.env['res.lang'].load_lang('fr_FR')
+        self.env['res.lang']._lang_get('fr_FR')._activate_lang()
         Translations = self.env['ir.translation']
         for source, value in self.translations_fr:
             Translations.create({

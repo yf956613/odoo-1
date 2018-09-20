@@ -244,6 +244,13 @@ class Module(models.Model):
                 with tools.file_open(path, 'rb') as image_file:
                     module.icon_image = base64.b64encode(image_file.read())
 
+    def _get_i18n_location(self):
+        # TODO fallback on config settings?
+        default = "https://nightly.odoo.com"
+        for module in self:
+            manifest_info = odoo.http.addons_manifest.get(module.name, {})
+            module.i18n_location = manifest_info.get('i18n_location', default)
+
     name = fields.Char('Technical Name', readonly=True, required=True, index=True)
     category_id = fields.Many2one('ir.module.category', string='Category', readonly=True, index=True)
     shortdesc = fields.Char('Module Name', readonly=True, translate=True)
@@ -294,6 +301,10 @@ class Module(models.Model):
     icon = fields.Char('Icon URL')
     icon_image = fields.Binary(string='Icon', compute='_get_icon_image')
     to_buy = fields.Boolean('Odoo Enterprise Module', default=False)
+    i18n_location = fields.Char("URL of the server hosting the translations",
+        compute='_get_i18n_location',
+        help="If specified, the fetch of translations will be made on the given server. "
+             "The translations are expected to be located at <i18n_location>/i18n/<version>/<lang>.tar.xz")
 
     _sql_constraints = [
         ('name_uniq', 'UNIQUE (name)', 'The name of the module must be unique!'),
@@ -874,12 +885,16 @@ class Module(models.Model):
             self.write({'category_id': cat_id})
 
     @api.multi
-    def _update_translations(self, filter_lang=None):
+    def _update_translations(self, filter_lang=None, overwrite=False):
+        """
+        Load the translations files of the given installed modules
+        The translations files are expected to be already available
+
+        :param filter_lang: a list of res.lang to update (all active languages if not specified)
+        :param overwrite: overwrite the existing translations
+        """
         if not filter_lang:
-            langs = self.env['res.lang'].search([('translatable', '=', True)])
-            filter_lang = [lang.code for lang in langs]
-        elif not isinstance(filter_lang, (list, tuple)):
-            filter_lang = [filter_lang]
+            filter_lang = self.env['res.lang'].search([('translatable', '=', True)])
 
         update_mods = self.filtered(lambda r: r.state in ('installed', 'to install', 'to upgrade'))
         mod_dict = {
@@ -887,7 +902,7 @@ class Module(models.Model):
             for mod in update_mods
         }
         mod_names = topological_sort(mod_dict)
-        self.env['ir.translation'].load_module_terms(mod_names, filter_lang)
+        self.env['ir.translation'].load_module_terms(mod_names, filter_lang, overwrite=overwrite)
 
     @api.multi
     def _check(self):

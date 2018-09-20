@@ -1,13 +1,27 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import base64
 import json
 import locale
 import logging
+import os
 import re
+import shutil
+import tarfile
+import tempfile
+from collections import defaultdict
+from datetime import timedelta
 from operator import itemgetter
+from io import BytesIO, StringIO
+from werkzeug.urls import url_join
 
-from odoo import api, fields, models, tools, _
+import requests
+
+from odoo import api, fields, models, http, tools, release, _
+from odoo.modules.module import ad_paths
+from odoo.modules import get_module_path, get_module_resource
+from odoo.tools.misc import file_open
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError, ValidationError
 
@@ -15,6 +29,8 @@ _logger = logging.getLogger(__name__)
 
 DEFAULT_DATE_FORMAT = '%m/%d/%Y'
 DEFAULT_TIME_FORMAT = '%H:%M:%S'
+MAX_FILE_SIZE = 15 * 1024 * 1024  # in megabytes
+REFRESH_THRESHOLD = timedelta(hours=12)
 
 
 class Lang(models.Model):
@@ -47,6 +63,7 @@ class Lang(models.Model):
              "Provided ',' as the thousand separator in each case.")
     decimal_point = fields.Char(string='Decimal Separator', required=True, default='.', trim=False)
     thousands_sep = fields.Char(string='Thousands Separator', default=',', trim=False)
+    last_fetch_date = fields.Datetime(string='Last Translations Fetch')
 
     _sql_constraints = [
         ('name_uniq', 'unique(name)', 'The name of the language must be unique !'),
@@ -88,15 +105,25 @@ class Lang(models.Model):
         if not self.search_count([]):
             _logger.error("No language is active.")
 
+    def _activate_lang(self):
+        """ activate languages. """
+        self.filtered(lambda l: not l.active).write({'active': True})
+        return self
+
+    # TODO v13, remove me
     @api.model
     def load_lang(self, lang, lang_name=None):
-        """ Create the given language if necessary, and make it active. """
-        # if the language exists, simply make it active
-        language = self.with_context(active_test=False).search([('code', '=', lang)], limit=1)
+        _logger.warning("Call to deprecated method load_lang, use _create_lang or _activate_lang instead")
+        language = self._lang_get(lang)
         if language:
-            language.write({'active': True})
-            return language.id
+            language._activate_lang()
+        else:
+            self._create_lang(lang, lang_name=lang_name)
 
+
+    @api.model
+    def _create_lang(self, lang, lang_name=None):
+        """ Create the given language if necessary, and make it active. """
         # create the language with locale information
         fail = True
         iso_lang = tools.get_iso_codes(lang)
@@ -155,6 +182,222 @@ class Lang(models.Model):
             tools.resetlocale()
 
     @api.model
+    def _get_i18n_url(self, base, lang):
+        """ Generate the URL to fetch the translation resource
+            e.g. https://nightly.odoo.com/i18n/13.0/fr.tar.xz
+        """
+        version = release.version
+        return url_join(base, "i18n/{}/{}.tar.xz".format(version, lang))
+
+    @api.model
+    def _read_po_from_i18n_folder(self, addons, lang):
+        path = get_module_resource(addons, 'i18n', lang + '.po')
+        if path:
+            with file_open(path, 'rb') as f:
+                yield f
+
+        extra_path = get_module_resource(addons, 'i18n_extra', lang + '.po')
+        if extra_path:
+            with file_open(extra_path, 'rb') as f:
+                yield f
+
+        if not path and not extra_path:
+            _logger.info('module %s: no translation for language %s', addons, lang)
+
+    @api.model
+    def _read_po_from_attachment(self, addons, lang):
+        module = self.env['ir.module.module'].search([('name', '=', addons)])
+        if not module:
+            return None
+
+        attachment_name = "{}/i18n/{}.po".format(addons, lang)
+        po_file = self.env['ir.attachment'].search([
+            ('res_model', '=', 'ir.module.module'),
+            ('res_id', '=', module.id),
+            ('name', '=', attachment_name)
+        ], limit=1)
+
+        if po_file:
+            yield StringIO(po_file.datas)
+
+    @api.model
+    def _extract_po_to_i18n_folder(self, addons, tmp, extracted_file):
+        """ Extraction method if the po are stored on filesystem, inside /i18n/ folders """
+        path = get_module_path(addons)
+        if not os.access(path, os.W_OK):
+            _logger.warning("Path %s is not writeable", path)
+            return False
+
+        src_file = os.path.join(tmp, extracted_file)
+        dst_file = os.path.join(path, extracted_file)
+        shutil.move(src_file, dst_file)
+
+    @api.model
+    def _extract_po_to_attachment(self, addons, tmp, extracted_file):
+        """ Extraction method if the po are stored in db, inside ir.attachments """
+        module = self.env['ir.module.module'].search([('name', '=', addons)], limit=1)
+        if not module:
+            _logger.info("Skip translations extraction for unexpected module %s", addons)
+            return
+
+        src_file = os.path.join(tmp, extracted_file)
+        with open(src_file, 'r') as po_file:
+            po_content = base64.b64encode(po_file.read().encode()).decode()
+
+        # sudo to be able to search and write, even if no rights on ir.module.module
+        Attachment = self.env['ir.attachment'].sudo()
+
+        attached_po = Attachment.search([
+            ('res_model', '=', 'ir.module.module'),
+            ('res_id', '=', module.id)
+            ('name', '=', extracted_file)
+        ], limit=1)
+        if attached_po:
+            attached_po.write({'datas': po_content})
+        else:
+            attached_po = Attachment.create({
+                'datas': po_content,
+                'res_model': 'ir.module.module',
+                'res_id': module.id,
+                'name': extracted_file,
+            })
+        return attached_po
+
+    @api.model
+    def _extract_i18n_file_content(self, fileobj, lang, module_list, extraction_method):
+        """ Extract the translations from the given archive
+
+        The expected archive is a .tar.xz file using the structure:
+            <module>/i18n/<lang>.po
+
+        Regional variants are accepted (e.g. fr.tar.xz can contain both fr and
+        fr_BE files)
+
+        :param fileobj: a file object containing the compressed translation files
+        :param lang: the simplified language code to load (e.g. 'fr')
+        :param module_list: the list of modules to update from this archive
+        :param extraction_method: the method to call with the extracted .po file
+        """
+        with tarfile.open(mode='r:xz', fileobj=fileobj) as tar_content:
+            with tempfile.TemporaryDirectory() as tmp:
+                for filename in tar_content.getnames():
+                    if not filename.endswith('.po'):
+                        _logger.info("Skip unexpected file %s", filename)
+                        continue
+
+                    # TODO different separators for windows in tar?
+                    addons = filename.split('/')[0]
+                    if addons not in module_list:
+                        _logger.debug("Skip translations for unexpected module %s", addons)
+                        continue
+
+                    po_lang = filename.split('/')[-1][:-3]
+                    if po_lang.split('_')[0] != lang:
+                        _logger.debug("Skip translations for unexpected language %s", po_lang)
+                        continue
+
+                    _logger.debug("Extracting translation file %s to %s", filename, tmp)
+                    tar_content.extract(filename, path=tmp)
+                    extraction_method(addons, tmp, filename)
+
+        return True
+
+    @api.model
+    def _get_po_extract_method(self):
+        """ Get the method that will be used to process retrieved po file """
+        save_to_fs = tools.config.get('translations_fs_store', False)
+        if save_to_fs:
+            return self._extract_po_to_i18n_folder
+        else:
+            return self._extract_po_to_attachment
+
+    @api.model
+    def _get_po_read_method(self):
+        """ Get the method that will be used to find po file for a lang and module """
+        save_to_fs = tools.config.get('translations_fs_store', False)
+        if True:
+            return self._read_po_from_i18n_folder
+        else:
+            return self._read_po_from_attachment
+
+    def _download_translation_files(self):
+        """ Download the translation files of all modules from the i18n servers """
+        mods = self.env['ir.module.module'].search_read([('state', '!=', 'uninstallable'),],
+                                                        fields=['name', 'i18n_location'])
+        urls = defaultdict(list)
+        # [{'id': 1, 'name': 'base', 'i18n_location': 'https://...'},...] -> {'https://...': ['base',...],...}
+        for module_info in mods:
+            urls[module_info['i18n_location']].append(module_info['name'])
+
+        # will the files be extracted on filesystem or saved in ir.attachments
+        extraction_method = self._get_po_extract_method()
+
+        # ['fr_BE', 'fr', 'nl_BE'] -> {'fr', 'nl'}
+        langs = {lang.split('_')[0] for lang in self.mapped('code')}
+
+        for lang in langs:
+            for url in urls:
+                full_url = self._get_i18n_url(url, lang)
+                try:
+                    stream = requests.get(full_url, stream=True)
+                    if stream.status_code != 200:
+                        _logger.error("Could not fetch translations from %s, error code %s", full_url, stream.status_code)
+                        continue
+
+                    if int(stream.headers['content-length']) > MAX_FILE_SIZE:
+                        raise UserError("Content too long (got %.2fMB, max %.2fMB)" % (
+                            int(stream.headers['content-length']) / (1024*1024),
+                            MAX_FILE_SIZE / (1024*1024)
+                        ))
+                    bio = BytesIO()
+                    bio.write(stream.content)
+                    bio.seek(0)
+                    self._extract_i18n_file_content(bio, lang, urls[url], extraction_method)
+                except requests.exceptions.RequestException as err:
+                    _logger.error("Could not fetch translations from %s, error: %s", full_url, err)
+
+    def _lang_to_download(self):
+        """ Filter which languages should be downloaded """
+       
+        res = self.browse()
+
+        if not tools.config.get('download_translations', True):
+            return res
+
+        # languages that are being installed yet should be downloaded
+        inactive_languages = self.filtered(lambda l: not l.active)
+        res |= inactive_languages
+
+        now = fields.Datetime.now()
+        for lang in self - inactive_languages:
+            if not lang.last_fetch_date or \
+                    (now - lang.last_fetch_date) > REFRESH_THRESHOLD:
+                # has never been fetched or old enough
+                res |= lang
+
+        return res
+
+    def _install_language(self, overwrite=False, remote=True):
+        """
+        Install/update a lang
+        1. download language pack (if needed)
+        2. load translations
+        """
+
+        to_download = self.browse()
+        if remote:
+            to_download = self._lang_to_download()
+        self._activate_lang()
+
+        if to_download:
+            to_download._download_translation_files()
+
+        # appropriate module filtering is done in _update_translations
+        mods = self.env['ir.module.module'].search([])
+        return mods._update_translations(filter_lang=self, overwrite=overwrite)
+
+
+    @api.model
     def _set_default_lang(self):
         """
 
@@ -167,9 +410,11 @@ class Lang(models.Model):
         """
         # config['load_language'] is a comma-separated list or None
         lang_code = (tools.config.get('load_language') or 'en_US').split(',')[0]
-        lang = self.search([('code', '=', lang_code)])
-        if not lang:
-            self.load_lang(lang_code)
+        lang = self._lang_get(lang_code)
+        if lang:
+            lang._activate_lang()
+        else:
+            self._create_lang(lang=lang_code)
         IrDefault = self.env['ir.default']
         default_value = IrDefault.get('res.partner', 'lang')
         if default_value is None:
@@ -182,12 +427,15 @@ class Lang(models.Model):
 
     @tools.ormcache('code')
     def _lang_get_id(self, code):
-        return (self.search([('code', '=', code)]) or
-                self.search([('code', '=', 'en_US')]) or
-                self.search([], limit=1)).id
+        self.env.cr.execute("""
+            SELECT id
+            FROM res_lang
+            WHERE code=%s
+            """, (code,))
+        lang_id = self.env.cr.fetchone()
+        return lang_id and lang_id[0] or None
 
     @api.model
-    @api.returns('self', lambda value: value.id)
     def _lang_get(self, code):
         return self.browse(self._lang_get_id(code))
 

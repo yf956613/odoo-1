@@ -1006,20 +1006,27 @@ def trans_generate(lang, modules, cr):
 
 
 def trans_load(cr, filename, lang, verbose=True, module_name=None, context=None):
+    _logger.warning("TODO: deprecate calls to trans_load")
     try:
         with file_open(filename, mode='rb') as fileobj:
             _logger.info("loading %s", filename)
             fileformat = os.path.splitext(filename)[-1][1:].lower()
-            result = trans_load_data(cr, fileobj, fileformat, lang, verbose=verbose, module_name=module_name, context=context)
-            return result
+            return trans_load_data(cr, fileobj, fileformat, lang, verbose=verbose, module_name=module_name, context=context)
     except IOError:
         if verbose:
             _logger.error("couldn't read translation file %s", filename)
         return None
 
 
-def trans_load_data(cr, fileobj, fileformat, lang, lang_name=None, verbose=True, module_name=None, context=None):
-    """Populates the ir_translation table."""
+def trans_load_data(cr, fileobj, fileformat, lang, verbose=True, module_name=None, context=None):
+    """Populates the ir_translation table.
+
+    :params cr: cursor to the database
+    :param fileobj: bytestream to the file containing translations
+    :param fileformat: one of 'csv', 'po'
+    :param lang: language code (e.g. 'fr')
+    :param module_name: name of the module the translations should be linked to
+    """
     if verbose:
         _logger.info('loading translation file for language %s', lang)
 
@@ -1028,9 +1035,9 @@ def trans_load_data(cr, fileobj, fileformat, lang, lang_name=None, verbose=True,
     Translation = env['ir.translation']
 
     try:
-        if not Lang.search_count([('code', '=', lang)]):
-            # lets create the language with locale information
-            Lang.load_lang(lang=lang, lang_name=lang_name)
+        if not Lang._lang_get(lang):
+            _logger.error("Couldn't read translation for lang '%s', language not found", lang)
+            return None
 
         # Parse also the POT: it will possibly provide additional targets.
         # (Because the POT comments are correct on Launchpad but not the
