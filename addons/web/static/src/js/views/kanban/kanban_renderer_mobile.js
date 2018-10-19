@@ -5,7 +5,6 @@ odoo.define('web.KanbanRendererMobile', function (require) {
  * The purpose of this file is to improve the UX of grouped kanban views in
  * mobile. It includes the KanbanRenderer (in mobile only) to only display one
  * column full width, and enables the swipe to browse to the other columns.
- * Moreover, records in columns are lazy-loaded.
  */
 
 var config = require('web.config');
@@ -237,7 +236,7 @@ KanbanRenderer.include({
      * @returns {integer} outerWidth of the found column
      * @private
      */
-    _getTabWidth : function (column) {
+    _getTabWidth: function (column) {
         var columnID = column.id || column.db_id;
         return this.$('.o_kanban_mobile_tab[data-id="' + columnID + '"]').outerWidth();
     },
@@ -248,7 +247,7 @@ KanbanRenderer.include({
      * @private
      * @param {boolean} [animate=false] set to true to animate
      */
-    _layoutUpdate : function (animate) {
+    _layoutUpdate: function (animate) {
         this._computeCurrentColumn();
         this._computeTabPosition();
         this._computeColumnPosition(animate);
@@ -272,13 +271,21 @@ KanbanRenderer.include({
         var def = $.Deferred();
         this.activeColumnIndex = moveToIndex;
         var column = this.widgets[this.activeColumnIndex];
-        this.trigger_up('kanban_load_records', {
+        var activeColumnData = column.data;
+        var infoKanbanLoadRecords = {
             columnID: column.db_id,
             onSuccess: function () {
                 self._layoutUpdate(animate);
                 def.resolve();
-            },
-        });
+            }
+        };
+        // Use of fetch collapsed column
+        var needToFetch = activeColumnData.offset === 0 && activeColumnData.count > 0 && activeColumnData.data.length === 0;
+        if (needToFetch === true) {
+            this.trigger_up('kanban_load_collapsed_column_records', infoKanbanLoadRecords);
+        } else {
+            infoKanbanLoadRecords.onSuccess();
+        }
         return def;
     },
 
@@ -293,8 +300,7 @@ KanbanRenderer.include({
             if (!group.value) {
                 group = _.extend({}, group, {value: _t('Undefined')});
                 data.unshift(group);
-            }
-            else {
+            } else {
                 data.push(group);
             }
         });

@@ -30,7 +30,7 @@ var KanbanController = BasicController.extend({
         kanban_column_add_record: '_onAddRecordToColumn',
         kanban_column_resequence: '_onColumnResequence',
         kanban_load_more: '_onLoadMore',
-        kanban_load_records: '_onLoadColumnRecords',
+        kanban_load_collapsed_column_records: '_onLoadCollapsedColumnRecords',
         column_toggle_fold: '_onToggleColumn',
         kanban_column_records_toggle_active: '_onToggleActiveRecords',
         search_panel_domain_updated: '_onSearchPanelDomainUpdated',
@@ -405,13 +405,12 @@ var KanbanController = BasicController.extend({
             });
     },
     /**
-     * Loads the record of a given column (used in mobile, as the columns are
-     * lazy loaded)
+     * Loads the record of given collapsed columns (used in mobile)
      *
      * @private
      * @param {OdooEvent} ev
      */
-    _onLoadColumnRecords: function (ev) {
+    _onLoadCollapsedColumnRecords: function (ev) {
         var self = this;
         this.model.loadColumnRecords(ev.data.columnID).then(function (dbID) {
             var data = self.model.get(dbID);
