@@ -849,7 +849,7 @@ class HttpCase(TransactionCase):
                                         thread.name, getattr(thread, 'url', '<UNKNOWN>'))
                         lsof = subprocess.run(['lsof', '-itcp:%s' % PORT], stdout=subprocess.PIPE)
                         for l in lsof.stdout.decode('utf-8').split('\n'):
-                        self._logger.warning("LSOF: %s", l)
+                            self._logger.warning("LSOF: %s", l)
                         break
                     time.sleep(0.5)
                     t1 = int(time.time())
