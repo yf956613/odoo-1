@@ -130,11 +130,15 @@ class ProductConfiguratorController(http.Controller):
             [('product_tmpl_id', '=', product.id), ('active', '=', False)])
 
         if archived_combinations:
+            relevant_attributes_count = len(product.attribute_line_ids.filtered(
+                lambda attribute_line: attribute_line.attribute_id.type != 'no_variant'
+            ))
             # Old archived variants could have a different set of attributes and are not relevant here
             # -> filter them out
             attribute_ids = product_attribute_values.mapped('attribute_id')
             archived_combinations = archived_combinations.filtered(
-                lambda product: all(
+                lambda product: len(product.attribute_value_ids) == relevant_attributes_count and
+                all(
                     attribute_id in product.mapped('product_template_attribute_value_ids.attribute_id')
                     for attribute_id in attribute_ids
                 )
