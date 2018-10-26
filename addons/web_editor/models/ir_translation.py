@@ -5,6 +5,9 @@ from lxml import etree
 
 from odoo import models, api
 from odoo.tools.translate import encode, xml_translate, html_translate
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 def edit_translation_mapping(data):
@@ -44,4 +47,5 @@ class IrTranslation(models.Model):
             # root is html > body > div
             # serialize div as HTML and discard surrounding tags
             value = etree.tostring(root[0][0], encoding='utf-8', method='html')[5:-6]
+        _logger.info('value: %s', value)
         return self.write({'value': value})
