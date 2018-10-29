@@ -320,7 +320,7 @@ return core.Class.extend(mixins.EventDispatcherMixin, ServicesMixin, {
                 _.each(this._log, function (log) {
                     console.log(log);
                 });
-                console.log(document.body.outerHTML);
+                console.log(document.body.parentElement.outerHTML);
                 console.error(error); // will be displayed as error info
                 console.log("error"); // phantomJS wait for message starting by error to stop
             } else {
