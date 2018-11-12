@@ -73,14 +73,13 @@ class ChangeProductionQty(models.TransientModel):
                             documents[key] = [value]
 
                 production._update_raw_move(line, line_data)
-
             production._log_manufacture_exception(documents)
             operation_bom_qty = {}
             for bom, bom_data in boms:
                 for operation in bom.routing_id.operation_ids:
                     operation_bom_qty[operation.id] = bom_data['qty']
             finished_moves_modification = self._update_finished_moves(production, production.product_qty - qty_produced, old_production_qty)
-            production._log_downside_manufactured_quantity(finished_moves_modification)
+            production._log_downside_manufactured_quantity(finished_moves_modification, cancel=True)
             moves = production.move_raw_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
             moves._action_assign()
             for wo in production.workorder_ids:
