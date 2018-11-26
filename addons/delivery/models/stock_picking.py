@@ -187,6 +187,17 @@ class StockPicking(models.Model):
         sale_order = self.sale_id
         if sale_order.invoice_shipping_on_delivery:
             sale_order._create_delivery_line(self.carrier_id, self.carrier_price)
+        else:
+            delivery_line = sale_order.order_line.filtered(lambda line: line.is_delivery and line.price_unit == 0)
+            if delivery_line:
+                res = self.carrier_id.rate_shipment(sale_order)
+                if res['success']:
+                    delivery_line.qty_delivered = 1  # to trigger the invoice status
+                    delivery_line.price_unit = res['price']
+                    # remove the estimated price from the description
+                    delivery_line.name = delivery_line.name.split('(Estimated')[0]
+                else:
+                    raise UserError(_("Unable to update the delivery price because of: " + res['error_message']))
 
     @api.multi
     def open_website_url(self):

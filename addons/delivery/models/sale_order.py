@@ -112,6 +112,14 @@ class SaleOrder(models.Model):
         if self.order_line:
             values['sequence'] = self.order_line[-1].sequence + 1
         sol = SaleOrderLine.sudo().create(values)
+
+        # Adapt delivery line based on invoice policy
+        if carrier.invoice_policy == 'real':
+            sol.price_unit = 0
+            if sol.currency_id.position == 'before':
+                sol.name += ' (Estimated Cost: ' + sol.currency_id.symbol + str(price_unit) + ')'
+            else:
+                sol.name += ' (Estimated Cost: ' + str(price_unit) + sol.currency_id.symbol + ')'
         return sol
 
     @api.depends('state', 'order_line.invoice_status', 'order_line.invoice_lines',
