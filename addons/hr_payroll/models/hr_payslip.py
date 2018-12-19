@@ -493,6 +493,14 @@ class HrPayslip(models.Model):
         else:
             return 0.0
 
+    @api.multi
+    def action_print_payslip(self):
+        return {
+            'name': 'Payslip',
+            'type': 'ir.actions.act_url',
+            'url': '/hr/payroll/print_report?list_ids=%(list_ids)s' % {'list_ids': ','.join(str(x) for x in self.ids)},
+        }
+
 
 class HrPayslipLine(models.Model):
     _name = 'hr.payslip.line'
