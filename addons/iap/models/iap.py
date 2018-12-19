@@ -85,9 +85,8 @@ def authorize(env, key, account_token, credit, dbuuid=False, description=None, c
         'credit': credit,
         'key': key,
         'description': description,
+        'dbuuid': dbuuid,
     }
-    if dbuuid:
-        params.update({'dbuuid': dbuuid})
     try:
         transaction_token = jsonrpc(endpoint + '/iap/1/authorize', params=params)
     except InsufficientCreditError as e:
