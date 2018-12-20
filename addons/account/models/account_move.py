@@ -1373,6 +1373,103 @@ class AccountPartialReconcile(models.Model):
         readonly=True, copy=False, store=True,
         help='Technical field used to determine at which date this reconciliation needs to be shown on the aged receivable/payable reports.')
 
+    # Cash basis fields.
+    matched_percentage_debit = fields.Float(string='Debit Matched Percentage')
+    matched_percentage_credit = fields.Float(string='Credit Matched Percentage')
+
+    @api.multi
+    def _compute_matched_percentage(self):
+        ''' The cash basis only affect the accounts having a type 'receivable' or 'payable' and being
+        not on a 'cash' or 'bank' journal. The idea is to consider only the part of the debit/credit
+        that is already paid.
+
+        For example:
+
+        Invoice:
+        Id  | Account         | Debit     | Credit
+        -------------------------------------------
+        1   | Receivable      | 120       |
+        2   | Tax Received    |           | 20
+        3   | Product Sales   |           | 100
+
+        Payment 1:                                          Partial 1:
+        Id  | Account         | Debit     | Credit          Debit id    | Credit id     | Paid percentage
+        -------------------------------------------         ----------------------------------------------
+        4   | Receivable      |           | 60              1           | 4             | 50%
+        5   | Bank            | 60        |
+
+        Payment 2:                                          Partial 2:
+        Id  | Account         | Debit     | Credit          Debit id    | Credit id     | Paid percentage
+        -------------------------------------------         ----------------------------------------------
+        6   | Receivable      |           | 30              1           | 4             | 25%
+        7   | Bank            | 30        |
+
+        It means the invoice is paid at 50 + 25 = 75% and then, the account.move.lines in cash basis will be:
+
+        Invoices (cash_basis):
+        Id  | Account         | Debit     | Credit
+        -------------------------------------------
+        1   | Receivable      | 90        |
+        2   | Tax Received    |           | 15
+        3   | Product Sales   |           | 75
+        '''
+        if not self:
+            return
+
+        query = '''
+            SELECT
+                part.id,
+                'matched_percentage_debit' AS field,
+                credit_line.credit / (
+                    SELECT ABS(SUM(same_account_line.balance))
+                    FROM account_move_line same_account_line
+                    WHERE same_account_line.move_id = debit_line.move_id
+                    AND same_account_line.account_id = debit_line.account_id
+                )   AS matched_percentage
+            FROM account_partial_reconcile part
+            INNER JOIN account_move_line debit_line ON debit_line.id = part.debit_move_id
+            LEFT JOIN account_account_type account_type ON account_type.id = debit_line.user_type_id
+            LEFT JOIN account_journal journal ON journal.id = debit_line.journal_id
+            INNER JOIN account_move_line credit_line ON credit_line.id = part.credit_move_id
+            WHERE part.id IN %s
+            AND account_type.type IN ('receivable', 'payable')
+            AND journal.type NOT IN ('cash', 'bank')
+            
+            UNION ALL
+            
+            SELECT
+                part.id,
+                'matched_percentage_credit' AS field,
+                debit_line.debit / (
+                    SELECT ABS(SUM(same_account_line.balance))
+                    FROM account_move_line same_account_line
+                    WHERE same_account_line.move_id = credit_line.move_id
+                    AND same_account_line.account_id = credit_line.account_id
+                )   AS matched_percentage
+            FROM account_partial_reconcile part
+            INNER JOIN account_move_line credit_line ON credit_line.id = part.credit_move_id
+            LEFT JOIN account_account_type account_type ON account_type.id = credit_line.user_type_id
+            LEFT JOIN account_journal journal ON journal.id = credit_line.journal_id
+            INNER JOIN account_move_line debit_line ON debit_line.id = part.debit_move_id
+            WHERE part.id IN %s
+            AND account_type.type IN ('receivable', 'payable')
+            AND journal.type NOT IN ('cash', 'bank')
+        '''
+        params = [tuple(self.ids), tuple(self.ids)]
+
+        query_results = {}
+        self._cr.execute(query, params)
+        for res in self._cr.fetchall():
+            query_results[(res[0], res[1])] = res[2]
+
+        for partial in self:
+            matched_percentage_debit = query_results.get((partial.id, 'matched_percentage_debit'), 1.0)
+            matched_percentage_credit = query_results.get((partial.id, 'matched_percentage_credit'), 1.0)
+            partial.write({
+                'matched_percentage_debit': matched_percentage_debit,
+                'matched_percentage_credit': matched_percentage_credit,
+            })
+
     @api.multi
     @api.depends('debit_move_id.date', 'credit_move_id.date')
     def _compute_max_date(self):
@@ -1562,6 +1659,13 @@ class AccountPartialReconcile(models.Model):
             'ref': self.credit_move_id.move_id.name if self.credit_move_id.payment_id else self.debit_move_id.move_id.name,
         }
         return self.env['account.move'].create(move_vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(AccountPartialReconcile, self).create(vals_list)
+        # Call _compute_matched_percentage manually to avoid cyclic compute dependencies.
+        records._compute_matched_percentage()
+        return records
 
     @api.multi
     def unlink(self):
