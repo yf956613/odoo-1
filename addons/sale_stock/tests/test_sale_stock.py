@@ -723,3 +723,53 @@ class TestSaleStock(TestSale):
         return_picking.button_validate()
         # Checks the delivery amount (must still be 10).
         self.assertEqual(sale_order.order_line.qty_delivered, 10)
+
+    def test_08_sale_return_qty_and_cancel(self):
+        """
+        Test a SO with a product on delivery. Deliver the SO,
+        then do a return of the delivered picking (for all quantities).
+        Then cancel Sale order, it won't raise any warning, it should be cancelled.
+        """
+        partner = self.env.ref('base.res_partner_1')
+        product = self.env.ref('product.product_delivery_01')
+        so_vals = {
+            'partner_id': partner.id,
+            'partner_invoice_id': partner.id,
+            'partner_shipping_id': partner.id,
+            'order_line': [(0, 0, {
+                'name': product.name,
+                'product_id': product.id,
+                'product_uom_qty': 5.0,
+                'product_uom': product.uom_id.id,
+                'price_unit': product.list_price})],
+            'pricelist_id': self.env.ref('product.list0').id,
+        }
+        so = self.env['sale.order'].create(so_vals)
+
+        # confirm our standard so, check the picking
+        so.action_confirm()
+        self.assertTrue(so.picking_ids, 'Sale Stock: no picking created for "invoice on delivery" storable products')
+
+        # deliver completely
+        pick = so.picking_ids
+        pick.move_lines.write({'quantity_done': 5})
+        pick.button_validate()
+
+        # Create return picking
+        stock_return_picking_form = Form(self.env['stock.return.picking'].with_context(active_ids=pick.ids, active_id=pick.ids[0], active_model='stock.picking'))
+        return_wiz = stock_return_picking_form.save()
+        return_wiz.product_return_moves.quantity = 5.0
+        return_wiz.product_return_moves.to_refund = True
+        res = return_wiz.create_returns()
+        return_pick = self.env['stock.picking'].browse(res['res_id'])
+
+        # Validate picking
+        return_pick.move_lines.write({'quantity_done': 5})
+        return_pick.button_validate()
+
+        # Cancel sale order
+        so.action_cancel()
+        wizard = self.env['sale.order.cancel'].with_context({'sale_id': so.id}).create({'sale_id': so.id})
+        wizard.action_cancel()
+
+        self.assertEqual(so.state, 'cancel')

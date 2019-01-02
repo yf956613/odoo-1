@@ -146,10 +146,25 @@ class SaleOrder(models.Model):
     def action_cancel(self):
         documents = None
         for sale_order in self:
+            if any(picking.state == 'done' for picking in sale_order.picking_ids) and not self._context.get('disable_cancel_warning'):
+                note = _('Are you sure to cancel this sales order? Some products have already been delivered.')
+                if sale_order.invoice_ids.filtered(lambda inv: inv.state == 'draft'):
+                    note += _('<br/>The order has been already invoiced in draft. The invoice will be cancelled too.')
+                return {
+                    'name': _('Cancel Sales Order'),
+                    'view_mode': 'form',
+                    'res_model': 'sale.order.cancel',
+                    'view_id': self.env.ref('sale_stock.sale_order_cancel_view_form').id,
+                    'type': 'ir.actions.act_window',
+                    'context': {'default_sale_id': self.id, 'default_note': note},
+                    'target': 'new'
+                }
             if sale_order.state == 'sale' and sale_order.order_line:
                 sale_order_lines_quantities = {order_line: (order_line.product_uom_qty, 0) for order_line in sale_order.order_line}
                 documents = self.env['stock.picking']._log_activity_get_documents(sale_order_lines_quantities, 'move_ids', 'UP')
-        self.mapped('picking_ids').action_cancel()
+        self.picking_ids.filtered(lambda p: p.state != 'done').action_cancel()
+        inv = self.invoice_ids.filtered(lambda inv: inv.state == 'draft')
+        inv.button_cancel()
         if documents:
             filtered_documents = {}
             for (parent, responsible), rendering_context in documents.items():
