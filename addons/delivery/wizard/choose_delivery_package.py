@@ -40,9 +40,13 @@ class ChooseDeliveryPackage(models.TransientModel):
             stock_quant_package = self.env['stock.quant.package'].browse(self.env.context['default_stock_quant_package_id'])
             return stock_quant_package.shipping_weight
         else:
-            picking_id = self.env['stock.picking'].browse(self.env.context['active_id'])
-            move_line_ids = [po for po in picking_id.move_line_ids if po.qty_done > 0 and not po.result_package_id]
-            total_weight = sum([po.qty_done * po.product_id.weight for po in move_line_ids])
+            picking_id = self.env.context.get('picking_id')
+            if picking_id:
+                picking = self.env['stock.picking'].browse(picking_id)
+                move_line_ids = [po for po in picking.move_line_ids if po.qty_done > 0 and not po.result_package_id]
+                total_weight = sum([po.qty_done * po.product_id.weight for po in move_line_ids])
+            else:
+                total_weight = 0
             return total_weight
 
     @api.onchange('delivery_packaging_id', 'shipping_weight')
@@ -55,8 +59,14 @@ class ChooseDeliveryPackage(models.TransientModel):
             return {'warning': warning_mess}
 
     def put_in_pack(self):
+        if not self.stock_quant_package_id:
+            picking_id = self.env.context.get('picking_id')
+            if picking_id:
+                picking = self.env['stock.picking'].browse(picking_id)
+                stock_quant_package = picking._put_in_pack()
+                self.stock_quant_package_id = stock_quant_package
         # write shipping weight and product_packaging on 'stock_quant_package' if needed
-        if self.delivery_packaging_id:
+        if self.stock_quant_package_id and self.delivery_packaging_id:
             self.stock_quant_package_id.packaging_id = self.delivery_packaging_id
             if self.shipping_weight:
                 self.stock_quant_package_id.shipping_weight = self.shipping_weight

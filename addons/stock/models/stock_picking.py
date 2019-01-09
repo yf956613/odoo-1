@@ -994,13 +994,14 @@ class Picking(models.Model):
         return _explore(self.env['stock.picking'], self.env['stock.move'], moves)
 
     def check_destinations(self):
+        res = None
         if len(self.move_line_ids.filtered(lambda l: l.qty_done > 0 and not l.result_package_id).mapped('location_dest_id')) > 1:
             view_id = self.env.ref('stock.stock_package_destination_form_view').id
             wiz = self.env['stock.package.destination'].create({
                 'picking_id': self.id,
                 'location_dest_id': self.move_line_ids[0].location_dest_id.id,
             })
-            return {
+            res = {
                 'name': _('Choose destination location'),
                 'view_type': 'form',
                 'view_mode': 'form',
@@ -1011,8 +1012,7 @@ class Picking(models.Model):
                 'res_id': wiz.id,
                 'target': 'new'
             }
-        else:
-            return {}
+        return res
 
     def _put_in_pack(self):
         package = False
@@ -1053,9 +1053,9 @@ class Picking(models.Model):
 
     def put_in_pack(self):
         res = self.check_destinations()
-        if res.get('type'):
-            return res
-        return self._put_in_pack()
+        if not res:
+            res = self._put_in_pack()
+        return res
 
     def button_scrap(self):
         self.ensure_one()

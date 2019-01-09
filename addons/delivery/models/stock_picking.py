@@ -42,6 +42,7 @@ class StockMoveLine(models.Model):
             'context': {
                 'default_stock_quant_package_id': self.result_package_id.id,
                 'current_package_carrier_type': self.picking_id.carrier_id.delivery_type if self.picking_id.carrier_id.delivery_type not in ['base_on_rule', 'fixed'] else 'none',
+                'picking_id': self.id,
                 }
         }
 
@@ -112,28 +113,26 @@ class StockPicking(models.Model):
         return res
 
     @api.multi
-    def put_in_pack(self):
-        res = super(StockPicking, self).put_in_pack()
-        if isinstance(res, dict) and res.get('type'):
-            return res
-        if self.carrier_id and self.carrier_id.delivery_type not in ['base_on_rule', 'fixed']:
-            view_id = self.env.ref('delivery.choose_delivery_package_view_form').id
-            return {
-                'name': _('Package Details'),
-                'type': 'ir.actions.act_window',
-                'view_mode': 'form',
-                'res_model': 'choose.delivery.package',
-                'view_id': view_id,
-                'views': [(view_id, 'form')],
-                'target': 'new',
-                'context': dict(
-                    self.env.context,
-                    current_package_carrier_type=self.carrier_id.delivery_type,
-                    default_stock_quant_package_id=res.id
-                ),
-            }
-        else:
-            return res
+    def check_destinations(self):
+        res = super(StockPicking, self).check_destinations()
+        if not res:
+            if self.carrier_id and self.carrier_id.delivery_type not in ['base_on_rule', 'fixed']:
+                view_id = self.env.ref('delivery.choose_delivery_package_view_form').id
+                res = {
+                    'name': _('Package Details'),
+                    'type': 'ir.actions.act_window',
+                    'view_mode': 'form',
+                    'res_model': 'choose.delivery.package',
+                    'view_id': view_id,
+                    'views': [(view_id, 'form')],
+                    'target': 'new',
+                    'context': dict(
+                        self.env.context,
+                        current_package_carrier_type=self.carrier_id.delivery_type,
+                        picking_id=self.id,
+                    ),
+                }
+        return res
 
     @api.multi
     def action_send_confirmation_email(self):
