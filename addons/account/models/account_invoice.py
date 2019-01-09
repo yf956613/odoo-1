@@ -892,6 +892,7 @@ class AccountInvoice(models.Model):
                 with invoice.env.do_in_draft():
                     invoice.number, invoice.state = invoice.move_name, 'open'
                     attachment = self.env.ref('account.account_invoices').retrieve_attachment(invoice)
+                    invoice.number, invoice.state = False, 'draft'
                 if attachment:
                     attachment.unlink()
         return True
