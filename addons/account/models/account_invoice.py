@@ -77,10 +77,10 @@ class AccountInvoice(models.Model):
         help="Reference of the document that produced this invoice.",
         readonly=True, states={'draft': [('readonly', False)]})
     type = fields.Selection([
-            ('out_invoice','Customer Invoice'),
-            ('in_invoice','Vendor Bill'),
-            ('out_refund','Customer Credit Note'),
-            ('in_refund','Vendor Credit Note'),
+            ('out_invoice', 'Customer Invoice'),
+            ('in_invoice', 'Vendor Bill'),
+            ('out_refund', 'Customer Credit Note'),
+            ('in_refund', 'Vendor Credit Note'),
         ], readonly=True, states={'draft': [('readonly', False)]}, index=True, change_default=True,
         default=lambda self: self._context.get('type', 'out_invoice'),
         tracking=True)

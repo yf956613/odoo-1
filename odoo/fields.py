@@ -698,7 +698,7 @@ class Field(MetaField('DummyField', (object,), {})):
                 inv_model = model0.env[inv_field.model_name]
                 inv_path = None if path is None else path + [field.name]
                 result.append((inv_model, inv_field, inv_path))
-            if not field.store and field not in seen:
+            if (self.inherited or not field.store) and field not in seen:
                 result += field.resolve_deps(model, path, seen)
 
         return result
@@ -996,6 +996,10 @@ class Field(MetaField('DummyField', (object,), {})):
             if self.relational:
                 spec += self.modified_draft(record)
             env.cache.invalidate(spec)
+
+            # assign inherited field to its corresponding parent record
+            if self.inherited:
+                self._inverse_related(record)
 
         else:
             # Write to database

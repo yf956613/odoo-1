@@ -4886,6 +4886,19 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         record = self.browse([NewId(ref)])
         record._cache.update(record._convert_to_cache(values, update=True))
 
+        # assign inherited fields on corresponding parent records
+        inherited = {name: {} for name in self._inherits.values()}
+        for key, val in values.items():
+            field = self._fields[key]
+            if field.inherited:
+                inherited[field.related[0]][key] = val
+        for name, parent_values in inherited.items():
+            parent = record[name]
+            if parent:
+                parent._cache.update(parent._convert_to_cache(parent_values, update=True))
+            else:
+                record[name] = parent.new(parent_values)
+
         if record.env.in_onchange:
             # The cache update does not set inverse fields, so do it manually.
             # This is useful for computing a function field on secondary

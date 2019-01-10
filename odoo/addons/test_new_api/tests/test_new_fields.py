@@ -938,6 +938,51 @@ class TestFields(common.TransactionCase):
             self.assertNotEqual(message.sudo().env, message.env)
             self.assertEqual(message.discussion_name, discussion.name)
 
+    def test_43_new_inherits(self):
+        """ test the behavior of new records on models with _inherits """
+        Model = self.env['res.users']
+        self.assertEqual(Model._inherits, {'res.partner': 'partner_id'})
+        self.assertTrue(Model._fields['name'].inherited)
+
+        parent0 = self.env.ref('base.res_partner_1')
+        parent1 = parent0.child_ids[0]
+
+        # create a new child record without an existing parent record
+        with self.env.do_in_onchange():
+            record = Model.new({'name': 'Foo'})
+            parent = record.partner_id
+            self.assertTrue(parent)
+            self.assertEqual(parent.name, 'Foo')
+
+            parent.name = 'Bar'
+            self.assertEqual(record.name, 'Bar')
+
+            record.name = 'Baz'
+            self.assertEqual(parent.name, 'Baz')
+
+            # change dependency of computed field on parent record
+            self.assertEqual(record.commercial_partner_id, parent)
+            record.parent_id = parent0
+            self.assertEqual(record.commercial_partner_id, parent0)
+
+        # create a new child record with an existing parent record
+        with self.env.do_in_onchange():
+            record = Model.new({'name': 'Foo', 'partner_id': parent1.id})
+            parent = record.partner_id
+            self.assertEqual(parent, parent1)
+            self.assertEqual(parent.name, 'Foo')
+
+            parent.name = 'Bar'
+            self.assertEqual(record.name, 'Bar')
+
+            record.name = 'Baz'
+            self.assertEqual(parent.name, 'Baz')
+
+            # change dependency of computed field on parent record
+            self.assertEqual(record.commercial_partner_id, parent0)
+            record.parent_id = False
+            self.assertEqual(record.commercial_partner_id, parent1)
+
     def test_50_defaults(self):
         """ test default values. """
         fields = ['discussion', 'body', 'author', 'size']
