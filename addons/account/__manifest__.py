@@ -63,7 +63,7 @@ You could use this simplified accounting in case you work with an (external) acc
         'wizard/account_invoice_send_views.xml',
     ],
     'demo': [
-        'demo/account_demo.xml',
+        # 'demo/account_demo.xml',
     ],
     'qweb': [
         "static/src/xml/account_reconciliation.xml",

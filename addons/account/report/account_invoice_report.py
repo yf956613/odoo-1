@@ -165,22 +165,23 @@ class AccountInvoiceReport(models.Model):
 
     @api.model_cr
     def init(self):
+        return
         # self._table = account_invoice_report
-        tools.drop_view_if_exists(self.env.cr, self._table)
-        self.env.cr.execute("""CREATE or REPLACE VIEW %s as (
-            WITH currency_rate AS (%s)
-            %s
-            FROM (
-                %s %s WHERE ail.account_id IS NOT NULL %s
-            ) AS sub
-            LEFT JOIN currency_rate cr ON
-                (cr.currency_id = sub.currency_id AND
-                 cr.company_id = sub.company_id AND
-                 cr.date_start <= COALESCE(sub.date, NOW()) AND
-                 (cr.date_end IS NULL OR cr.date_end > COALESCE(sub.date, NOW())))
-        )""" % (
-                    self._table, self.env['res.currency']._select_companies_rates(),
-                    self._select(), self._sub_select(), self._from(), self._group_by()))
+        # tools.drop_view_if_exists(self.env.cr, self._table)
+        # self.env.cr.execute("""CREATE or REPLACE VIEW %s as (
+        #     WITH currency_rate AS (%s)
+        #     %s
+        #     FROM (
+        #         %s %s WHERE ail.account_id IS NOT NULL %s
+        #     ) AS sub
+        #     LEFT JOIN currency_rate cr ON
+        #         (cr.currency_id = sub.currency_id AND
+        #          cr.company_id = sub.company_id AND
+        #          cr.date_start <= COALESCE(sub.date, NOW()) AND
+        #          (cr.date_end IS NULL OR cr.date_end > COALESCE(sub.date, NOW())))
+        # )""" % (
+        #             self._table, self.env['res.currency']._select_companies_rates(),
+        #             self._select(), self._sub_select(), self._from(), self._group_by()))
 
 
 class ReportInvoiceWithPayment(models.AbstractModel):

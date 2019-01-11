@@ -138,9 +138,13 @@ class account_journal(models.Model):
         the bar graph's data as its first element, and the arguments dictionary
         for it as its second.
         """
-        return ("""SELECT sum(residual_company_signed) as total, min(date_due) as aggr_date
-               FROM account_invoice
-               WHERE journal_id = %(journal_id)s and state = 'open'""", {'journal_id':self.id})
+        return ('''
+            SELECT SUM(invoice.residual_company_signed) AS total,
+            MIN(invoice.date_due) AS aggr_date
+            FROM account_invoice invoice
+            INNER JOIN account_move move ON move.id = invoice.move_id
+            WHERE move.journal_id = %(journal_id)s and invoice.state = 'open'
+        ''', {'journal_id': self.id})
 
     @api.multi
     def get_journal_dashboard_datas(self):
@@ -186,7 +190,17 @@ class account_journal(models.Model):
             query_results_drafts = self.env.cr.dictfetchall()
 
             today = datetime.today()
-            query = """SELECT amount_total, currency_id AS currency, type, date_invoice, company_id FROM account_invoice WHERE journal_id = %s AND date <= %s AND state = 'open';"""
+            query = '''
+                SELECT
+                    invoice.amount_total,
+                    move.currency_id AS currency,
+                    invoice.type,
+                    invoice.date_invoice,
+                    move.company_id
+                FROM account_invoice invoice
+                INNER JOIN account_move move ON move.id = invoice.move_id
+                WHERE move.journal_id = %s AND move.date <= %s AND invoice.state = 'open';
+            '''
             self.env.cr.execute(query, (self.id, today))
             late_query_results = self.env.cr.dictfetchall()
             (number_waiting, sum_waiting) = self._count_results_and_sum_amounts(query_results_to_pay, currency)
@@ -216,9 +230,18 @@ class account_journal(models.Model):
         data as its first element, and the arguments dictionary to use to run
         it as its second.
         """
-        return ("""SELECT state, residual_signed as amount_total, currency_id AS currency, type, date_invoice, company_id
-                  FROM account_invoice
-                  WHERE journal_id = %(journal_id)s AND state = 'open';""", {'journal_id':self.id})
+        return ('''
+            SELECT
+                invoice.state, 
+                invoice.residual_signed AS amount_total,
+                move.currency_id AS currency,
+                invoice.type,
+                invoice.date_invoice,
+                move.company_id
+            FROM account_invoice invoice
+            INNER JOIN account_move move ON move.id = invoice.move_id
+            WHERE move.journal_id = %(journal_id)s AND invoice.state = 'open';
+        ''', {'journal_id': self.id})
 
     def _get_draft_bills_query(self):
         """
@@ -226,9 +249,18 @@ class account_journal(models.Model):
         gather the bills in draft state data, and the arguments
         dictionary to use to run it as its second.
         """
-        return ("""SELECT state, amount_total, currency_id AS currency, type, date_invoice, company_id
-                  FROM account_invoice
-                  WHERE journal_id = %(journal_id)s AND state = 'draft';""", {'journal_id':self.id})
+        return ('''
+            SELECT
+                invoice.state, 
+                invoice.residual_signed AS amount_total,
+                move.currency_id AS currency,
+                invoice.type,
+                invoice.date_invoice,
+                move.company_id
+            FROM account_invoice invoice
+            INNER JOIN account_move move ON move.id = invoice.move_id
+            WHERE move.journal_id = %(journal_id)s AND invoice.state = 'draft';
+        ''', {'journal_id': self.id})
 
     def _count_results_and_sum_amounts(self, results_dict, target_currency):
         """ Loops on a query result to count the total number of invoices and sum

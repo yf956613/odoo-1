@@ -20,8 +20,8 @@ Install some generic chart of accounts.
         'data/account_chart_template_data.xml',
     ],
     'demo': [
-        'data/account_bank_statement_demo.xml',
-        'data/account_invoice_demo.xml',
+        # 'data/account_bank_statement_demo.xml',
+        # 'data/account_invoice_demo.xml',
     ],
     'uninstall_hook': 'uninstall_hook',
 }

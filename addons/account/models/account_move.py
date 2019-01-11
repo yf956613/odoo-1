@@ -87,11 +87,13 @@ class AccountMove(models.Model):
         '''
         self.line_ids._onchange_amount_currency()
 
-    name = fields.Char(string='Number', required=True, copy=False, default='/')
+    name = fields.Char(string='Number', required=True, readonly=True, copy=False, default='/')
     ref = fields.Char(string='Reference', copy=False)
     date = fields.Date(required=True, states={'posted': [('readonly', True)]}, index=True, default=fields.Date.context_today)
     journal_id = fields.Many2one('account.journal', string='Journal', required=True, states={'posted': [('readonly', True)]}, default=_get_default_journal)
     currency_id = fields.Many2one('res.currency', compute='_compute_currency', store=True, string="Currency")
+    company_currency_id = fields.Many2one(related='company_id.currency_id',
+        string="Company Currency", readonly=True)
     state = fields.Selection([('draft', 'Unposted'), ('posted', 'Posted')], string='Status',
       required=True, readonly=True, copy=False, default='draft',
       help='All manually created new journal entries are usually in the status \'Unposted\', '
@@ -102,6 +104,11 @@ class AccountMove(models.Model):
     line_ids = fields.One2many('account.move.line', 'move_id', string='Journal Items',
         states={'posted': [('readonly', True)]}, copy=True)
     partner_id = fields.Many2one('res.partner', compute='_compute_partner_id', string="Partner", store=True, readonly=True)
+    invoice_id = fields.Many2one('account.invoice',
+        string='Invoice', ondelete='cascade', readonly=True)
+    commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity', compute_sudo=True,
+        related='partner_id.commercial_partner_id', store=True, readonly=True,
+        help="The commercial entity")
     amount = fields.Monetary(compute='_amount_compute', store=True)
     narration = fields.Text(string='Internal Note')
     company_id = fields.Many2one('res.company', related='journal_id.company_id', string='Company', store=True, readonly=True)
@@ -576,7 +583,8 @@ class AccountMoveLine(models.Model):
         self.counterpart = ",".join(counterpart)
 
     name = fields.Char(string="Label")
-    quantity = fields.Float(digits=dp.get_precision('Product Unit of Measure'),
+    quantity = fields.Float(string='Quantity',
+        digits=dp.get_precision('Product Unit of Measure'),
         help="The optional quantity expressed by this line, eg: number of product sold. The quantity is not a legal requirement but is very useful for some reports.")
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
     product_id = fields.Many2one('product.product', string='Product')
@@ -629,8 +637,10 @@ class AccountMoveLine(models.Model):
     company_id = fields.Many2one('res.company', related='account_id.company_id', string='Company', store=True, readonly=True)
     counterpart = fields.Char("Counterpart", compute='_get_counterpart', help="Compute the counter part accounts of this journal item for this journal entry. This can be needed in reports.")
 
-    # TODO: put the invoice link and partner_id on the account_move
-    invoice_id = fields.Many2one('account.invoice', oldname="invoice")
+    invoice_id = fields.Many2one(related='move_id.invoice_id', store=True)
+    invoice_payment_term_id = fields.Many2one('account.invoice',
+        string='Invoice Payment Terms', readonly=True,
+        help="The invoice using this journal item as a payment term line.")
     partner_id = fields.Many2one('res.partner', string='Partner', ondelete='restrict')
     user_type_id = fields.Many2one('account.account.type', related='account_id.user_type_id', index=True, store=True, oldname="user_type", readonly=True)
     tax_exigible = fields.Boolean(string='Appears in VAT report', default=True,
