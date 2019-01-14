@@ -1680,14 +1680,6 @@ class AccountInvoiceLine(models.Model):
     _description = "Invoice Line"
     _order = "invoice_id,sequence,id"
 
-    @api.model
-    def _default_account(self):
-        if self._context.get('journal_id'):
-            journal = self.env['account.journal'].browse(self._context.get('journal_id'))
-            if self._context.get('type') in ('out_invoice', 'in_refund'):
-                return journal.default_credit_account_id.id
-            return journal.default_debit_account_id.id
-
     # Not-relational fields.
     # /!\ name can't be related due to line having display_type.
     name = fields.Text(string='Description', required=True)
@@ -1743,7 +1735,7 @@ class AccountInvoiceLine(models.Model):
     company_id = fields.Many2one(related='invoice_id.company_id', store=True, readonly=True)
     partner_id = fields.Many2one(related='move_line_id.partner_id', store=True, readonly=True)
     currency_id = fields.Many2one(related='invoice_id.currency_id', store=True, readonly=False)
-    company_currency_id = fields.Many2one(string='Company Currency', related='move_line_id.company_currency_id')
+    company_currency_id = fields.Many2one(string='Company Currency', related='move_line_id.company_currency_id', store=True, readonly=False)
 
     # -------------------------------------------------------------------------
     # INVOICE LINE <-> MOVE LINE SYNCHRONIZATION
