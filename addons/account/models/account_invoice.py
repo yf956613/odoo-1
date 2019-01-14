@@ -339,6 +339,8 @@ class AccountInvoice(models.Model):
     @api.multi
     def _update_move_from_invoice(self):
         for inv in self:
+            print('_update_move_from_invoice before:\n%s\n' % str([(l.debit, l.credit) for l in inv.move_id.line_ids]))
+
             company = inv.company_id
             company_currency = inv.company_currency_id
 
@@ -400,7 +402,9 @@ class AccountInvoice(models.Model):
                 move_line_ids += [(0, None, line_vals) for line_vals in to_create]
 
             # /!\ This checks the journal entry is well balanced.
-            inv.move_line_ids = move_line_ids
+            inv.with_context(check_move_validity=False).move_line_ids = move_line_ids
+
+            print('_update_move_from_invoice after:\n%s\n' % str([(l.debit, l.credit) for l in inv.move_id.line_ids]))
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
@@ -410,6 +414,7 @@ class AccountInvoice(models.Model):
     @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'tax_line_ids.amount_rounding',
                  'currency_id', 'company_id', 'date_invoice', 'type')
     def _compute_amount(self):
+        print('\n_compute_amount\n')
         round_curr = self.currency_id.round
         self.amount_untaxed = sum(line.price_subtotal for line in self.invoice_line_ids)
         self.amount_tax = sum(round_curr(line.amount_total) for line in self.tax_line_ids)
@@ -828,16 +833,16 @@ class AccountInvoice(models.Model):
         invoices._update_move_from_invoice()
         return invoices
 
-    @api.multi
-    def _write(self, vals):
-        pre_not_reconciled = self.filtered(lambda invoice: not invoice.reconciled)
-        pre_reconciled = self - pre_not_reconciled
-        res = super(AccountInvoice, self)._write(vals)
-        reconciled = self.filtered(lambda invoice: invoice.reconciled)
-        not_reconciled = self - reconciled
-        (reconciled & pre_reconciled).filtered(lambda invoice: invoice.state == 'open').action_invoice_paid()
-        (not_reconciled & pre_not_reconciled).filtered(lambda invoice: invoice.state in ('in_payment', 'paid')).action_invoice_re_open()
-        return res
+    # @api.multi
+    # def _write(self, vals):
+    #     pre_not_reconciled = self.filtered(lambda invoice: not invoice.reconciled)
+    #     pre_reconciled = self - pre_not_reconciled
+    #     res = super(AccountInvoice, self)._write(vals)
+    #     reconciled = self.filtered(lambda invoice: invoice.reconciled)
+    #     not_reconciled = self - reconciled
+    #     (reconciled & pre_reconciled).filtered(lambda invoice: invoice.state == 'open').action_invoice_paid()
+    #     (not_reconciled & pre_not_reconciled).filtered(lambda invoice: invoice.state in ('in_payment', 'paid')).action_invoice_re_open()
+    #     return res
 
     @api.multi
     def write(self, vals):
@@ -1768,13 +1773,13 @@ class AccountInvoiceLine(models.Model):
                 move_line_vals.update({
                     'amount_currency':  amount_currency,
                     'currency_id': invoice.currency_id.id,
-                    'debit': balance > 0.0 and balance or 0.0,
-                    'credit': balance < 0.0 and balance or 0.0,
+                    'debit': balance < 0.0 and -balance or 0.0,
+                    'credit': balance > 0.0 and balance or 0.0,
                 })
             else:
                 move_line_vals.update({
-                    'debit': balance > 0.0 and balance or 0.0,
-                    'credit': balance < 0.0 and balance or 0.0,
+                    'debit': balance < 0.0 and -balance or 0.0,
+                    'credit': balance > 0.0 and balance or 0.0,
                 })
             line.move_line_id = self.env['account.move.line']\
                 .with_context(check_move_validity=False)\
@@ -2010,6 +2015,7 @@ class AccountInvoiceLine(models.Model):
     def unlink(self):
         if self.filtered(lambda r: r.invoice_id and r.invoice_id.state != 'draft'):
             raise UserError(_('You can only delete an invoice line if the invoice is in draft state.'))
+        self.mapped('move_line_id').with_context(check_move_validity=False).unlink()
         return super(AccountInvoiceLine, self).unlink()
 
     @api.model
@@ -2078,31 +2084,30 @@ class AccountInvoiceTax(models.Model):
     # TAX LINE <-> MOVE LINE SYNCHRONIZATION
     # -------------------------------------------------------------------------
 
-    @api.multi
-    def _update_move_line_from_tax_line(self):
-        for tax_line in self:
-            invoice = tax_line.invoice_id
-            company = tax_line.company_id
-            company_currency = tax_line.company_currency_id
-            balance = invoice._get_as_balance(tax_line.amount_total)
+    @api.model
+    def _compute_debit_credit_vals(self, invoice, amount_total):
+        company = invoice.company_id
+        company_currency = invoice.company_currency_id
+        balance = invoice._get_as_balance(amount_total)
 
-            if invoice.currency_id != company.currency_id:
-                amount_currency = balance
-                balance = invoice.currency_id._convert(balance, company_currency, company, invoice.date)
-                to_write = {
-                    'debit': balance > 0 and balance or 0.0,
-                    'credit': balance < 0 and -balance or 0.0,
-                    'currency_id': invoice.currency_id.id,
-                    'amount_currency': amount_currency,
-                }
-            else:
-                to_write = {
-                    'debit': balance > 0 and balance or 0.0,
-                    'credit': balance < 0 and -balance or 0.0,
-                    'currency_id': False,
-                    'amount_currency': 0.0,
-                }
-            tax_line.write(to_write)
+        # Multi-currency.
+        if invoice.currency_id != company.currency_id:
+            amount_currency = balance
+            balance = invoice.currency_id._convert(balance, company_currency, company, invoice.date)
+            return {
+                'debit': balance < 0.0 and -balance or 0.0,
+                'credit': balance > 0.0 and balance or 0.0,
+                'currency_id': invoice.currency_id.id,
+                'amount_currency': amount_currency,
+            }
+
+        # Single-currency.
+        return {
+            'debit': balance < 0.0 and -balance or 0.0,
+            'credit': balance > 0.0 and balance or 0.0,
+            'currency_id': False,
+            'amount_currency': 0.0,
+        }
 
     # -------------------------------------------------------------------------
     # LOW-LEVEL METHODS
@@ -2111,8 +2116,39 @@ class AccountInvoiceTax(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         # OVERRIDE
-        invoices = self.env['account.invoice'].browse(vals['invoice_id'] for vals in vals_list)
-        invoices_map = dict((inv.id, inv) for inv in invoices)
+        # The 'check_move_validity' is mandatory because the newly created account.move.line leads to an
+        # unbalanced journal entry.
+        # The journal entry becomes balanced after the call to '_update_move_from_invoice'.
+        self = self.with_context(check_move_validity=False)
+
+        # Populate initial values with them used to create the account.move.line (see _inherits).
+        # /!\ Default values / computed values are not present inside vals_list.
         for vals in vals_list:
-            vals['move_id'] = invoices_map[vals['invoice_id']].move_id.id
-        return super(AccountInvoiceTax, self.with_context(check_move_validity=False)).create(vals_list)
+            invoice = self.env['account.invoice'].browse(vals['invoice_id'])
+            amount_total = vals.get('amount', 0.0) + vals.get('amount_rounding', 0.0)
+
+            vals['move_id'] = invoice.move_id.id
+            vals.update(self._compute_debit_credit_vals(invoice, amount_total))
+
+        return super(AccountInvoiceTax, self).create(vals_list)
+
+    @api.multi
+    def write(self, vals):
+        # OVERRIDE
+        # The 'check_move_validity' is mandatory because the newly created account.move.line leads to an
+        # unbalanced journal entry.
+        # The journal entry becomes balanced after the call to '_update_move_from_invoice'.
+        self = self.with_context(check_move_validity=False)
+
+        # Perform the write record by record to avoid a corruption of the journal entries.
+        res = True
+        for record in self:
+            invoice = record.invoice_id
+            amount_total = vals.get('amount', record.amount) + vals.get('amount_rounding', record.amount_rounding)
+
+            to_write = vals.copy()
+            to_write.update(record._compute_debit_credit_vals(invoice, amount_total))
+
+            if not super(AccountInvoiceTax, record).write(to_write):
+                res = False
+        return res
