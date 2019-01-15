@@ -494,12 +494,16 @@ class AccountInvoice(models.Model):
         self = self.with_context(skip_push_changes_to_move=True)
 
         for inv in self:
+            print('_push_changes_to_move before\n%s\n' % str([(l.debit, l.credit) for l in inv.move_line_ids]))
+
             to_keep, to_create = inv._compute_diff_move_line_ids()
 
             # Commit diff to the 'move_line_ids' field:
             (inv.move_line_ids - to_keep).with_context(check_move_validity=False).unlink()
             self.env['account.move.line'].with_context(check_move_validity=False).create(to_create)
             inv.move_id.assert_balanced()
+
+            print('_push_changes_to_move after\n%s\n' % str([(l.debit, l.credit) for l in inv.move_line_ids]))
 
     @api.multi
     def _pull_changed_from_move(self):
@@ -509,24 +513,25 @@ class AccountInvoice(models.Model):
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
 
-    @api.one
-    @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'tax_line_ids.amount_rounding',
-                 'currency_id', 'company_id', 'date_invoice', 'type')
+    @api.depends(
+        'currency_id', 'company_id', 'date_invoice', 'type',
+        'invoice_line_ids.price_subtotal',
+        'tax_line_ids.amount', 'tax_line_ids.amount_rounding')
     def _compute_amount(self):
-        round_curr = self.currency_id.round
-        self.amount_untaxed = sum(line.price_subtotal for line in self.invoice_line_ids)
-        self.amount_tax = sum(round_curr(line.amount_total) for line in self.tax_line_ids)
-        self.amount_total = self.amount_untaxed + self.amount_tax
-        amount_total_company_signed = self.amount_total
-        amount_untaxed_signed = self.amount_untaxed
-        if self.currency_id and self.company_id and self.currency_id != self.company_id.currency_id:
-            currency_id = self.currency_id
-            amount_total_company_signed = currency_id._convert(self.amount_total, self.company_id.currency_id, self.company_id, self.date_invoice or fields.Date.today())
-            amount_untaxed_signed = currency_id._convert(self.amount_untaxed, self.company_id.currency_id, self.company_id, self.date_invoice or fields.Date.today())
-        sign = self.type in ['in_refund', 'out_refund'] and -1 or 1
-        self.amount_total_company_signed = amount_total_company_signed * sign
-        self.amount_total_signed = self.amount_total * sign
-        self.amount_untaxed_signed = amount_untaxed_signed * sign
+        for inv in self:
+            currency = inv.currency_id
+            date = inv.date or fields.Date.today()
+            sign = 1 if inv.type in ('out_invoice', 'in_invoice') else -1
+
+            inv.amount_tax = sum(inv.mapped('tax_line_ids.amount_total'))
+            inv.amount_untaxed = sum(inv.mapped('invoice_line_ids.price_subtotal'))
+            inv.amount_total = inv.amount_untaxed + inv.amount_tax
+            inv.amount_total_signed = sign * inv.amount_total
+            inv.amount_total_company_signed = currency._convert(
+                inv.amount_total_signed, inv.company_currency_id, inv.company_id, date)
+            inv.amount_untaxed_signed = sign * inv.amount_untaxed
+            inv.amount_untaxed_signed = currency._convert(
+                inv.amount_untaxed_signed, inv.company_currency_id, inv.company_id, date)
 
     @api.one
     @api.depends(
@@ -1977,24 +1982,31 @@ class AccountInvoiceLine(models.Model):
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
 
-    @api.one
-    @api.depends('price_unit', 'discount', 'invoice_line_tax_ids', 'quantity',
-        'product_id', 'invoice_id.partner_id', 'invoice_id.currency_id', 'invoice_id.company_id',
+    @api.depends(
+        'price_unit', 'discount', 'quantity',
+        'invoice_line_tax_ids', 'product_id',
+        'invoice_id.partner_id', 'invoice_id.currency_id', 'invoice_id.company_id',
         'invoice_id.date_invoice', 'invoice_id.date')
     def _compute_price(self):
-        currency = self.invoice_id and self.invoice_id.currency_id or None
-        price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
-        taxes = False
-        if self.invoice_line_tax_ids:
-            taxes = self.invoice_line_tax_ids.compute_all(price, currency, self.quantity, product=self.product_id, partner=self.invoice_id.partner_id)
-        self.price_subtotal = price_subtotal_signed = taxes['total_excluded'] if taxes else self.quantity * price
-        self.price_total = taxes['total_included'] if taxes else self.price_subtotal
-        if self.invoice_id.currency_id and self.invoice_id.currency_id != self.invoice_id.company_id.currency_id:
-            currency = self.invoice_id.currency_id
-            date = self.invoice_id._get_currency_rate_date()
-            price_subtotal_signed = currency._convert(price_subtotal_signed, self.invoice_id.company_id.currency_id, self.company_id or self.env.user.company_id, date or fields.Date.today())
-        sign = self.invoice_id.type in ['in_refund', 'out_refund'] and -1 or 1
-        self.price_subtotal_signed = price_subtotal_signed * sign
+        for line in self:
+            invoice = line.invoice_id
+            currency = invoice.currency_id
+            price_unit = line.price_unit * (1 - (line.discount / 100.0))
+            date = invoice.date or fields.Date.today()
+            sign = 1 if invoice.type in ('out_invoice', 'in_invoice') else -1
+
+            if line.invoice_line_tax_ids:
+                taxes = line.invoice_line_tax_ids.compute_all(price_unit,
+                    currency=currency, quantity=line.quantity, product=line.product_id, partner=line.partner_id)
+                line.price_subtotal = taxes['total_excluded']
+                line.price_total = taxes['total_included']
+            else:
+                line.price_subtotal = line.price_total = price_unit * line.quantity
+
+            # price_subtotal_signed is expressed in the company's currency.
+            line.price_subtotal_signed = sign * line.price_subtotal
+            line.price_subtotal_signed = currency._convert(
+                line.price_subtotal_signed, invoice.company_currency_id, invoice.company_id, date)
 
     @api.depends('price_total', 'price_subtotal')
     def _get_price_tax(self):
