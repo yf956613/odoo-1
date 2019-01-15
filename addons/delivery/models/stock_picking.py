@@ -187,6 +187,8 @@ class StockPicking(models.Model):
         sale_order = self.sale_id
         if sale_order.invoice_shipping_on_delivery:
             sale_order._create_delivery_line(self.carrier_id, self.carrier_price)
+            delivery_line = sale_order.order_line.filtered(lambda line: line.is_delivery and line.price_unit == 0)
+            delivery_line.qty_delivered = 1
         else:
             delivery_line = sale_order.order_line.filtered(lambda line: line.is_delivery and line.price_unit == 0)
             if delivery_line:

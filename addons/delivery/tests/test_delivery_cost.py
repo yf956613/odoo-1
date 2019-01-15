@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo.tests import common
+from odoo.tests import common, Form
 from odoo.tools import float_compare
 
 
@@ -112,12 +112,15 @@ class TestDeliveryCost(common.TransactionCase):
                 'product_uom': self.product_uom_hour.id,
                 'price_unit': 38.25,
             })],
-            'carrier_id': self.free_delivery.id
         })
 
         # I add free delivery cost in Sales order
-        self.delivery_sale_order_cost.get_delivery_price()
-        self.delivery_sale_order_cost.set_delivery_line()
+        delivery_wizard = Form(self.env['choose.delivery.carrier'].with_context({
+            'default_order_id': self.delivery_sale_order_cost.id,
+            'default_carrier_id': self.free_delivery.id
+        }))
+        choose_delivery_carrier = delivery_wizard.save()
+        choose_delivery_carrier.button_confirm()
 
         # I check sales order after adding delivery cost
         line = self.SaleOrderLine.search([('order_id', '=', self.delivery_sale_order_cost.id),

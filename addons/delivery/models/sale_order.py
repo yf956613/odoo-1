@@ -14,18 +14,13 @@ class SaleOrder(models.Model):
     delivery_message = fields.Char(readonly=True, copy=False)
     delivery_rating_success = fields.Boolean(copy=False)
     invoice_shipping_on_delivery = fields.Boolean(string="Invoice Shipping on Delivery", copy=False)
-    available_carrier_ids = fields.Many2many("delivery.carrier", compute="_compute_available_carrier", string="Available Carriers")
+    delivery_set = fields.Boolean(compute='_compute_delivery_set', default=False)
+    to_recompute = fields.Boolean(compute='_compute_to_recompute', default=False)
 
     def _compute_amount_total_without_delivery(self):
         self.ensure_one()
         delivery_cost = sum([l.price_total for l in self.order_line if l.is_delivery])
         return self.amount_total - delivery_cost
-
-    @api.depends('partner_id')
-    def _compute_available_carrier(self):
-        carriers = self.env['delivery.carrier'].search([])
-        for rec in self:
-            rec.available_carrier_ids = carriers.available_carriers(rec.partner_id) if rec.partner_id else carriers
 
     def get_delivery_price(self):
         for order in self.filtered(lambda o: o.state in ('draft', 'sent') and len(o.order_line) > 0):
@@ -42,19 +37,19 @@ class SaleOrder(models.Model):
                 order.delivery_price = 0.0
                 order.delivery_message = res['error_message']
 
-    @api.onchange('carrier_id')
-    def onchange_carrier_id(self):
-        if self.state in ('draft', 'sent'):
-            self.delivery_price = 0.0
-            self.delivery_rating_success = False
-            self.delivery_message = False
+    @api.depends('order_line')
+    def _compute_delivery_set(self):
+        self.delivery_set = any(line.is_delivery for line in self.order_line)
 
-    @api.onchange('partner_id')
-    def onchange_partner_id_carrier_id(self):
-        if self.partner_id:
-            self.carrier_id = self.partner_id.property_delivery_carrier_id.filtered('active')
+    @api.depends('order_line')
+    def _compute_to_recompute(self):
+        self.to_recompute = any(line.to_recompute for line in self.order_line)
 
-    # TODO onchange sol, clean delivery price
+    @api.onchange('order_line', 'partner_id')
+    def onchange_order_line(self):
+        self.order_line.filtered('is_delivery').update({
+            'to_recompute': True,
+        })
 
     @api.multi
     def _action_confirm(self):
@@ -78,13 +73,31 @@ class SaleOrder(models.Model):
                 raise UserError(_('You can add delivery price only on unconfirmed quotations.'))
             elif not order.carrier_id:
                 raise UserError(_('No carrier set for this order.'))
-            elif not order.delivery_rating_success:
-                raise UserError(_('Please use "Check price" in order to compute a shipping price for this quotation.'))
             else:
-                price_unit = order.carrier_id.rate_shipment(order)['price']
-                # TODO check whether it is safe to use delivery_price here
-                order._create_delivery_line(order.carrier_id, price_unit)
+                order._create_delivery_line(order.carrier_id, order.delivery_price)
         return True
+
+    def open_delivery_wizard(self):
+        view_id = self.env.ref('delivery.choose_delivery_carrier_view_form').id
+        return {
+            'name': _('Add a shipping method'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'choose.delivery.carrier',
+            'view_id': view_id,
+            'views': [(view_id, 'form')],
+            'target': 'new',
+            'context': {
+                'default_order_id': self.id,
+                'default_carrier_id': self.partner_id.property_delivery_carrier_id.id,
+            }
+        }
+
+    def recompute_delivery_cost(self):
+        delivery_line = self.order_line.filtered('is_delivery')
+        res = self.carrier_id.rate_shipment(self)
+        delivery_line.price_unit = res['price']
+        delivery_line.to_recompute = False
 
     def _create_delivery_line(self, carrier, price_unit):
         SaleOrderLine = self.env['sale.order.line']
@@ -136,6 +149,7 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     is_delivery = fields.Boolean(string="Is a Delivery", default=False)
+    to_recompute = fields.Boolean(string="Delivery cost needs to be recomputed", default=False)
     product_qty = fields.Float(compute='_compute_product_qty', string='Quantity', digits=dp.get_precision('Product Unit of Measure'))
 
     @api.depends('product_id', 'product_uom', 'product_uom_qty')
