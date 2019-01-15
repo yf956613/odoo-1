@@ -338,7 +338,7 @@ class AccountInvoice(models.Model):
 
         # Compute payment terms.
         if self.payment_term_id:
-            to_compute = self.payment_term_id.compute(amount_total, date_ref=inv.date_invoice, currency=self.currency_id)
+            to_compute = self.payment_term_id.compute(amount_total, date_ref=self.date_invoice, currency=self.currency_id)
         else:
             to_compute = [(self.date_due, amount_total)]
 
@@ -355,7 +355,8 @@ class AccountInvoice(models.Model):
             candidate = self._search_candidate_records(candidates, searched_values)
 
             if candidate:
-                candidate.update({
+                method = candidate.update if self.env.in_onchange else candidate.write
+                method({
                     'debit': balance > 0.0 and balance or 0.0,
                     'credit': balance < 0.0 and -balance or 0.0,
                     'currency_id': foreign_currency,
@@ -371,6 +372,7 @@ class AccountInvoice(models.Model):
                     'currency_id': foreign_currency,
                     'amount_currency': self._get_as_balance(amount_total_currency),
                     'account_id': self.account_id.id,
+                    'invoice_id': self.id,
                     'move_id': self.move_id.id,
                     'date_maturity': date_maturity,
                     'invoice_payment_term_id': self.id,
@@ -416,7 +418,8 @@ class AccountInvoice(models.Model):
                 # Update existing account.invoice.tax.
                 candidate = self._search_candidate_records(candidates, searched_values)
                 if candidate:
-                    candidate.update({
+                    method = candidate.update if self.env.in_onchange else candidate.write
+                    method({
                         'name': tax_results['name'],
                         'base': tax_results['base'],
                         'amount': tax_results['amount'],
@@ -429,8 +432,11 @@ class AccountInvoice(models.Model):
                 # Update existing candidate in to_keep.
                 candidate = self._search_candidate_records(to_keep, searched_values)
                 if candidate:
-                    candidate.base += tax_results['base']
-                    candidate.amount += tax_results['amount']
+                    method = candidate.update if self.env.in_onchange else candidate.write
+                    method({
+                        'base': candidate.base + tax_results['base'],
+                        'amount': candidate.amount + tax_results['amount'],
+                    })
                     continue
 
                 # Create new account.invoice.tax.
@@ -440,6 +446,7 @@ class AccountInvoice(models.Model):
                     'amount': tax_results['amount'],
                     'manual': False,
                     'sequence': tax_results['sequence'],
+                    'invoice_id': self.id,
                     'tax_line_id': tax.id,
                     'account_id': account.id,
                     'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
@@ -485,18 +492,14 @@ class AccountInvoice(models.Model):
         # This key is mandatory to avoid a maximum recursion depth exceeded when writing the new values of
         # 'move_line_ids'.
         self = self.with_context(skip_push_changes_to_move=True)
-        AccountInvoiceLine = self.env['account.move.line'].with_context(check_move_validity=False)
 
         for inv in self:
-            print('_push_changes_to_move before:\n%s\n' % str([(l.debit, l.credit) for l in inv.move_id.line_ids]))
-
             to_keep, to_create = inv._compute_diff_move_line_ids()
 
             # Commit diff to the 'move_line_ids' field:
             (inv.move_line_ids - to_keep).with_context(check_move_validity=False).unlink()
-            AccountInvoiceLine.create(to_create)
-
-            print('_push_changes_to_move after:\n%s\n' % str([(l.debit, l.credit) for l in inv.move_id.line_ids]))
+            self.env['account.move.line'].with_context(check_move_validity=False).create(to_create)
+            inv.move_id.assert_balanced()
 
     @api.multi
     def _pull_changed_from_move(self):
@@ -924,19 +927,9 @@ class AccountInvoice(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         # OVERRIDE
-
-        # TODO FIXME
-        self = self.with_context(skip_push_changes_to_move=True)
-
-
         invoices = super(AccountInvoice, self.with_context(mail_create_nolog=True)).create(vals_list)
         for inv in invoices:
             inv.move_id.invoice_id = inv.id
-
-            # TODO FIXME
-            tax_lines = self.env['account.invoice.tax'].search([('invoice_id', '=', inv.id)])
-            inv.tax_line_ids = [(6, 0, tax_lines.ids)]
-
         invoices._push_changes_to_move()
         return invoices
 
@@ -1823,7 +1816,7 @@ class AccountInvoiceLine(models.Model):
         string='Journal Item', ondelete='cascade', readonly=True,
         help="Technical field used to make the link with the journal item.")
     invoice_id = fields.Many2one('account.invoice',
-        string='Invoice', ondelete='cascade', index=True, readonly=True)
+        string='Invoice', ondelete='cascade', required=True, index=True, readonly=True)
     uom_id = fields.Many2one(related='move_line_id.product_uom_id', store=True, readonly=False)
     product_id = fields.Many2one(related='move_line_id.product_id', store=True, readonly=False)
     account_id = fields.Many2one(string='Account', related='move_line_id.account_id',
@@ -1841,7 +1834,7 @@ class AccountInvoiceLine(models.Model):
         related='move_line_id.analytic_tag_ids', store=True, readonly=False)
 
     # Related fields - Not-relational fields.
-    invoice_type = fields.Selection(related='move_line_id.invoice_id.type', readonly=True)
+    invoice_type = fields.Selection(related='invoice_id.type', readonly=True)
     product_image = fields.Binary(string='Product Image', related="product_id.image", store=False, readonly=True)
 
     # Related fields - Relational fields.

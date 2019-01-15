@@ -637,7 +637,7 @@ class AccountMoveLine(models.Model):
     company_id = fields.Many2one('res.company', related='account_id.company_id', string='Company', store=True, readonly=True)
     counterpart = fields.Char("Counterpart", compute='_get_counterpart', help="Compute the counter part accounts of this journal item for this journal entry. This can be needed in reports.")
 
-    invoice_id = fields.Many2one(related='move_id.invoice_id', store=True)
+    invoice_id = fields.Many2one('account.invoice', string='Invoice', readonly=True)
     invoice_payment_term_id = fields.Many2one('account.invoice',
         string='Invoice Payment Terms', readonly=True,
         help="The invoice using this journal item as a payment term line.")
