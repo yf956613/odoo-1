@@ -32,8 +32,9 @@ class AccountPaymentTerm(models.Model):
         if len(lines) > 1:
             raise ValidationError(_('A Payment Term should have only one line of type Balance.'))
 
-    @api.one
+    @api.multi
     def compute(self, value, date_ref=False, currency=None):
+        self.ensure_one()
         date_ref = date_ref or fields.Date.today()
         amount = value
         sign = value < 0 and -1 or 1
