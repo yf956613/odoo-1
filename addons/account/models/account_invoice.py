@@ -318,8 +318,8 @@ class AccountInvoice(models.Model):
         ''' Compute the diff between existing move_line_ids and the expected ones by the payment terms.
 
         :return: A tuple (to_keep, to_create) where:
-                - to_keep is an account.move.line recordset.
-                - to_create is a list of dictionary to create new account.move.line records.
+            - to_keep is an account.move.line recordset.
+            - to_create is a list of dictionary to create new account.move.line records.
         '''
         self.ensure_one()
 
@@ -355,7 +355,7 @@ class AccountInvoice(models.Model):
             candidate = self._search_candidate_records(candidates, searched_values)
 
             if candidate:
-                candidate.write({
+                candidate.update({
                     'debit': balance > 0.0 and balance or 0.0,
                     'credit': balance < 0.0 and -balance or 0.0,
                     'currency_id': foreign_currency,
@@ -382,8 +382,8 @@ class AccountInvoice(models.Model):
         ''' Compute the diff between existing tax_line_ids and the expected ones by the taxes set on the invoice lines.
 
         :return: A tuple (to_keep, to_create) where:
-                - to_keep is an account.invoice.tax recordset.
-                - to_create is a list of dictionary to create new account.invoice.tax records.
+            - to_keep is an account.invoice.tax recordset.
+            - to_create is a list of dictionary to create new account.invoice.tax records.
         '''
         self.ensure_one()
 
@@ -412,29 +412,39 @@ class AccountInvoice(models.Model):
                     'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
                     'analytic_tag_ids': tax.analytic and line.analytic_tag_ids.ids or [],
                 }
-                candidate = self._search_candidate_records(candidates, searched_values)
 
+                # Update existing account.invoice.tax.
+                candidate = self._search_candidate_records(candidates, searched_values)
                 if candidate:
-                    candidate.write({
-                        'name': tax['name'],
-                        'base': tax['base'],
-                        'amount': tax['amount'],
+                    candidate.update({
+                        'name': tax_results['name'],
+                        'base': tax_results['base'],
+                        'amount': tax_results['amount'],
                         'manual': False,
                     })
                     candidates = candidates - candidate
                     to_keep += candidate
-                else:
-                    to_create.append({
-                        'name': tax['name'],
-                        'base': tax['base'],
-                        'amount': tax['amount'],
-                        'manual': False,
-                        'sequence': tax['sequence'],
-                        'tax_line_id': tax.id,
-                        'account_id': account.id,
-                        'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
-                        'analytic_tag_ids': [(6, 0, tax.analytic and line.analytic_tag_ids.ids or [])],
-                    })
+                    continue
+
+                # Update existing candidate in to_keep.
+                candidate = self._search_candidate_records(to_keep, searched_values)
+                if candidate:
+                    candidate.base += tax_results['base']
+                    candidate.amount += tax_results['amount']
+                    continue
+
+                # Create new account.invoice.tax.
+                to_create.append({
+                    'name': tax_results['name'],
+                    'base': tax_results['base'],
+                    'amount': tax_results['amount'],
+                    'manual': False,
+                    'sequence': tax_results['sequence'],
+                    'tax_line_id': tax.id,
+                    'account_id': account.id,
+                    'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
+                    'analytic_tag_ids': [(6, 0, tax.analytic and line.analytic_tag_ids.ids or [])],
+                })
         return to_keep, to_create
 
     @api.multi
@@ -455,73 +465,6 @@ class AccountInvoice(models.Model):
             identification_number = self.partner_id.id
             prefix = 'CUST'
         return '%s/%s' % (prefix, str(identification_number % 97).rjust(2, '0'))
-
-    @api.multi
-    def get_taxes_values(self):
-        tax_grouped = {}
-        for line in self.invoice_line_ids:
-            if not line.account_id:
-                continue
-            price_unit = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            taxes = line.invoice_line_tax_ids.compute_all(price_unit, self.currency_id, line.quantity, line.product_id, self.partner_id)['taxes']
-            for tax in taxes:
-                val = self._prepare_tax_line_vals(line, tax)
-                key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
-
-                if key not in tax_grouped:
-                    tax_grouped[key] = val
-                else:
-                    tax_grouped[key]['amount'] += val['amount']
-                    tax_grouped[key]['base'] += val['base']
-        return tax_grouped
-
-    def _prepare_tax_line_vals(self, line, tax):
-        """ Prepare values to create an account.invoice.tax line
-
-        The line parameter is an account.invoice.line, and the
-        tax parameter is the output of account.tax.compute_all().
-        """
-        vals = {
-            'invoice_id': self.id,
-            'name': tax['name'],
-            'tax_line_id': tax['id'],
-            'amount': tax['amount'],
-            'base': tax['base'],
-            'manual': False,
-            'sequence': tax['sequence'],
-            'analytic_account_id': tax['analytic'] and line.account_analytic_id.id or False,
-            'account_id': self.type in ('out_invoice', 'in_invoice') and (tax['account_id'] or line.account_id.id) or (tax['refund_account_id'] or line.account_id.id),
-            'analytic_tag_ids': tax['analytic'] and line.analytic_tag_ids.ids or False,
-        }
-
-        # If the taxes generate moves on the same financial account as the invoice line,
-        # propagate the analytic account from the invoice line to the tax line.
-        # This is necessary in situations were (part of) the taxes cannot be reclaimed,
-        # to ensure the tax move is allocated to the proper analytic account.
-        if not vals.get('analytic_account_id') and line.account_analytic_id and vals['account_id'] == line.account_id.id:
-            vals['analytic_account_id'] = line.account_analytic_id.id
-        return vals
-
-    # @api.multi
-    # def compute_taxes(self):
-    #     """Function used in other module to compute the taxes on a fresh invoice created (onchanges did not applied)"""
-    #     account_invoice_tax = self.env['account.invoice.tax']
-    #     ctx = dict(self._context)
-    #     for invoice in self:
-    #         # Delete non-manual tax lines
-    #         self._cr.execute("DELETE FROM account_invoice_tax WHERE invoice_id=%s AND manual is False", (invoice.id,))
-    #         if self._cr.rowcount:
-    #             self.invalidate_cache()
-    #
-    #         # Generate one tax line per tax, however many invoice lines it's applied to
-    #         tax_grouped = invoice.get_taxes_values()
-    #
-    #         # Create new tax lines
-    #         for tax in tax_grouped.values():
-    #             account_invoice_tax.create(tax)
-    #
-    #     # dummy write on self to trigger recomputations
-    #     return self.with_context(ctx).write({'invoice_line_ids': []})
 
     @api.multi
     def get_delivery_partner_id(self):
@@ -814,13 +757,13 @@ class AccountInvoice(models.Model):
 
     @api.onchange('invoice_line_ids')
     def _onchange_invoice_line_ids(self):
-        import pudb; pudb.set_trace()
-        taxes_grouped = self.get_taxes_values()
-        tax_lines = self.tax_line_ids.filtered('manual')
-        for tax in taxes_grouped.values():
-            tax_lines += tax_lines.new(tax)
-        self.tax_line_ids = tax_lines
-        return
+        to_keep, to_create = self._compute_diff_tax_line_ids()
+
+        # Commit diff to the 'tax_line_ids' field:
+        tax_line_ids = to_keep
+        for values in to_create:
+            tax_line_ids += self.env['account.invoice.tax'].new(values)
+        self.tax_line_ids = tax_line_ids
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
@@ -2220,25 +2163,6 @@ class AccountInvoiceTax(models.Model):
         string='Journal Item', ondelete='cascade',
         required=True, readonly=True,
         help="Technical field used to make the inherits to the journal item.")
-
-    # @api.depends('invoice_id.invoice_line_ids')
-    # def _compute_base_amount(self):
-    #     tax_grouped = {}
-    #     for invoice in self.mapped('invoice_id'):
-    #         tax_grouped[invoice.id] = invoice.get_taxes_values()
-    #     for tax in self:
-    #         tax.base = 0.0
-    #         if tax.tax_line_id:
-    #             key = tax.tax_line_id.get_grouping_key({
-    #                 'tax_line_id': tax.tax_line_id.id,
-    #                 'account_id': tax.account_id.id,
-    #                 'analytic_account_id': tax.analytic_account_id.id,
-    #                 'analytic_tag_ids': tax.analytic_tag_ids.ids or False,
-    #             })
-    #             if tax.invoice_id and key in tax_grouped[tax.invoice_id.id]:
-    #                 tax.base = tax_grouped[tax.invoice_id.id][key]['base']
-    #             else:
-    #                 _logger.warning('Tax Base Amount not computable probably due to a change in an underlying tax (%s).', tax.tax_line_id.name)
 
     @api.depends('amount', 'amount_rounding')
     def _compute_amount_total(self):
