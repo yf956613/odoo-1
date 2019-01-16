@@ -307,11 +307,36 @@ class AccountInvoice(models.Model):
         return None
 
     @api.multi
-    def _get_as_balance(self, amount):
-        ''' Helper to convert amounts as a journal item's balance. '''
+    def _compute_persistent_move_line_vals(self, amount):
         self.ensure_one()
+
         sign = 1 if self.type in ('out_invoice', 'in_refund') else -1
-        return sign * amount
+        company_currency = self.company_currency_id
+        balance = sign * amount
+
+        persistent_vals = {
+            'partner_id': self.partner_id.commercial_partner_id.id,
+        }
+
+        # Multi-currency.
+        if self.currency_id != company_currency:
+            amount_currency = balance
+            balance = self.currency_id._convert(balance, company_currency, self.company_id, self.date)
+            persistent_vals.update({
+                'debit': balance > 0.0 and balance or 0.0,
+                'credit': balance < 0.0 and -balance or 0.0,
+                'currency_id': self.currency_id.id,
+                'amount_currency': amount_currency,
+            })
+        else:
+            # Single-currency.
+            persistent_vals.update({
+                'debit': balance > 0.0 and balance or 0.0,
+                'credit': balance < 0.0 and -balance or 0.0,
+                'currency_id': False,
+                'amount_currency': 0.0,
+            })
+        return persistent_vals
 
     @api.multi
     def _compute_diff_move_line_ids(self):
@@ -323,61 +348,41 @@ class AccountInvoice(models.Model):
         '''
         self.ensure_one()
 
-        company = self.company_id
-        company_currency = self.company_currency_id
-
-        # Manage multi-currency.
-        if self.currency_id != company_currency:
-            amount_total = self.currency_id._convert(self.amount_total, company_currency, company, self.date)
-            foreign_currency = self.currency_id
-            amount_total_currency = self.amount_total
-        else:
-            amount_total = self.amount_total
-            foreign_currency = None
-            amount_total_currency = 0.0
-
         # Compute payment terms.
         if self.payment_term_id:
-            to_compute = self.payment_term_id.compute(amount_total, date_ref=self.date_invoice, currency=self.currency_id)
+            to_compute = self.payment_term_id.compute(
+                self.amount_total, date_ref=self.date_invoice, currency=self.currency_id)
         else:
-            to_compute = [(self.date_due, amount_total)]
+            to_compute = [(self.date_due, self.amount_total)]
 
         # Compute move_line_ids diff.
         candidates = self.move_line_ids
-        to_keep = self.env['account.move.line']
+        to_update = []
         to_create = []
 
         for date_maturity, amount in to_compute:
-            balance = self._get_as_balance(amount)
+            to_write = self._compute_persistent_move_line_vals(amount)
 
             # Find an existing line matching the current payment term.
-            searched_values = {'date_maturity': date_maturity}
+            searched_values = {
+                'date_maturity': date_maturity,
+                'account_id': self.account_id.id,
+            }
             candidate = self._search_candidate_records(candidates, searched_values)
 
             if candidate:
-                method = candidate.update if self.env.in_onchange else candidate.write
-                method({
-                    'debit': balance > 0.0 and balance or 0.0,
-                    'credit': balance < 0.0 and -balance or 0.0,
-                    'currency_id': foreign_currency,
-                    'amount_currency': self._get_as_balance(amount_total_currency),
-                })
-                candidates = candidates - candidate
-                to_keep += candidate
+                to_update.append((candidate, to_write))
             else:
-                to_create.append({
+                to_write.update({
                     'name': self.name,
-                    'debit': balance > 0.0 and balance or 0.0,
-                    'credit': balance < 0.0 and -balance or 0.0,
-                    'currency_id': foreign_currency,
-                    'amount_currency': self._get_as_balance(amount_total_currency),
                     'account_id': self.account_id.id,
                     'invoice_id': self.id,
                     'move_id': self.move_id.id,
                     'date_maturity': date_maturity,
                     'invoice_payment_term_id': self.id,
                 })
-        return to_keep, to_create
+                to_create.append(to_write)
+        return to_update, to_create
 
     @api.multi
     def _compute_diff_tax_line_ids(self):
@@ -390,7 +395,7 @@ class AccountInvoice(models.Model):
         self.ensure_one()
 
         candidates = self.tax_line_ids
-        to_keep = self.env['account.invoice.tax']
+        to_update_map = {}
         to_create = []
         invoice_line_ids = self.invoice_line_ids.filtered(lambda line: line.account_id)
 
@@ -418,23 +423,18 @@ class AccountInvoice(models.Model):
                 # Update existing account.invoice.tax.
                 candidate = self._search_candidate_records(candidates, searched_values)
                 if candidate:
-                    method = candidate.update if self.env.in_onchange else candidate.write
-                    method({
+                    to_update_map[candidate] = {
                         'name': tax_results['name'],
-                        'base': tax_results['base'],
                         'amount': tax_results['amount'],
                         'manual': False,
-                    })
+                    }
                     candidates = candidates - candidate
-                    to_keep += candidate
                     continue
 
                 # Update existing candidate in to_keep.
-                candidate = self._search_candidate_records(to_keep, searched_values)
+                candidate = self._search_candidate_records(to_update_map.keys(), searched_values)
                 if candidate:
-                    method = candidate.update if self.env.in_onchange else candidate.write
-                    method({
-                        'base': candidate.base + tax_results['base'],
+                    to_update_map[candidate].update({
                         'amount': candidate.amount + tax_results['amount'],
                     })
                     continue
@@ -442,7 +442,6 @@ class AccountInvoice(models.Model):
                 # Create new account.invoice.tax.
                 to_create.append({
                     'name': tax_results['name'],
-                    'base': tax_results['base'],
                     'amount': tax_results['amount'],
                     'manual': False,
                     'sequence': tax_results['sequence'],
@@ -452,7 +451,8 @@ class AccountInvoice(models.Model):
                     'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
                     'analytic_tag_ids': [(6, 0, tax.analytic and line.analytic_tag_ids.ids or [])],
                 })
-        return to_keep, to_create
+        to_update = list(to_update_map.items())
+        return to_update, to_create
 
     @api.multi
     def _get_computed_reference(self):
@@ -488,26 +488,115 @@ class AccountInvoice(models.Model):
     # -------------------------------------------------------------------------
 
     @api.multi
+    def _get_amount_from_move_line(self, move_line):
+        self.ensure_one()
+
+        sign = 1 if self.type in ('out_invoice', 'in_refund') else -1
+        balance = move_line.currency_id and move_line.amount_currency or move_line.balance
+        return sign * balance
+
+    @api.multi
     def _push_changes_to_move(self):
         # This key is mandatory to avoid a maximum recursion depth exceeded when writing the new values of
         # 'move_line_ids'.
-        self = self.with_context(skip_push_changes_to_move=True)
+        if self._context.get('check_move_validity') is not False:
+            self = self.with_context(check_move_validity=False)
 
         for inv in self:
-            print('_push_changes_to_move before\n%s\n' % str([(l.debit, l.credit) for l in inv.move_line_ids]))
+            print('_push_changes_to_move before\n%s\n' % str([(l.debit, l.credit) for l in inv.move_id.line_ids]))
 
-            to_keep, to_create = inv._compute_diff_move_line_ids()
+            to_update, to_create = inv._compute_diff_move_line_ids()
 
             # Commit diff to the 'move_line_ids' field:
-            (inv.move_line_ids - to_keep).with_context(check_move_validity=False).unlink()
-            self.env['account.move.line'].with_context(check_move_validity=False).create(to_create)
+            move_lines = self.env['account.move.line']
+            for record, vals in to_update:
+                record.update(vals)
+                move_lines += record
+
+            (inv.move_line_ids - move_lines).with_context(check_move_validity=False).unlink()
+            if inv.invoice_line_ids or inv.tax_line_ids:
+                self.env['account.move.line'].with_context(check_move_validity=False).create(to_create)
+
+            print('_push_changes_to_move after\n%s\n' % str([(l.debit, l.credit) for l in inv.move_id.line_ids]))
+
             inv.move_id.assert_balanced()
 
-            print('_push_changes_to_move after\n%s\n' % str([(l.debit, l.credit) for l in inv.move_line_ids]))
-
     @api.multi
-    def _pull_changed_from_move(self):
-        pass
+    def _pull_changes_from_move(self):
+        for inv in self.with_context(ignore_move_synchronization=True):
+            print('_pull_changes_from_move before\n\n')
+
+            payment_term_lines = inv.move_id.line_ids.filtered(lambda line: line.account_id == inv.account_id)
+            tax_lines = (inv.move_id.line_ids - payment_term_lines).filtered(lambda line: line.tax_line_id)
+            product_lines = (inv.move_id.line_ids - payment_term_lines - tax_lines)
+
+            # Ensure there are journal items being the payment terms.
+            if not payment_term_lines:
+                raise UserError(_('blablabla payment terms'))
+
+            # Check diff of the 'type' field.
+            total_invoice = sum(payment_term_lines.mapped('balance'))
+            if inv.journal_id.type == 'sale':
+                invoice_type = 'out_invoice' if total_invoice > 0 else 'out_refund'
+            else:
+                invoice_type = 'in_invoice' if total_invoice < 0 else 'in_refund'
+
+            if invoice_type != inv.type:
+                inv.type = invoice_type
+
+            # ==== Check diff of the 'tax_line_ids' field. ====
+            to_remove = inv.tax_line_ids.filtered(lambda invoice_tax: invoice_tax.move_line_id not in tax_lines)
+            to_update = inv.tax_line_ids - to_remove
+            to_create = tax_lines - to_update.mapped('move_line_id')
+
+            # - Remove tax lines that are no longer needed.
+            to_remove.unlink()
+
+            # - Update tax lines that already exists but have the wrong amounts.
+            for invoice_tax in to_update:
+                amount_total = -inv._get_amount_from_move_line(invoice_tax.move_line_id)
+                invoice_tax.write({
+                    'amount': amount_total,
+                    'amount_rounding': 0.0,
+                })
+
+            # - Create missing tax lines.
+            to_create.write({'invoice_id': inv.id})
+            for move_line in to_create:
+                amount_total = -inv._get_amount_from_move_line(move_line)
+                self.env['account.invoice.tax'].create({
+                    'amount': amount_total,
+                    'manual': False,
+                    'move_line_id': move_line.id,
+                })
+
+            # ==== Check diff of the 'invoice_line_ids' field. ====
+            to_remove = inv.invoice_line_ids.filtered(lambda invoice_line: invoice_line.move_line_id not in product_lines)
+            to_update = inv.invoice_line_ids - to_remove
+            to_create = product_lines - to_update.mapped('move_line_id')
+
+            # - Remove invoice lines that are no longer needed.
+            to_remove.unlink()
+
+            # - Update invoice lines that already exists but have the wrong amounts.
+            for invoice_line in to_update:
+                move_line = invoice_line.move_line_id
+                amount_total = -inv._get_amount_from_move_line(move_line)
+                invoice_line.write({
+                    'price_unit': amount_total / (move_line.quantity or 1.0),
+                    'discount': 0.0,
+                })
+
+            # - Create missing invoice lines.
+            to_create.write({'invoice_id': inv.id})
+            for move_line in to_create:
+                amount_total = -inv._get_amount_from_move_line(move_line)
+                self.env['account.invoice.line'].create({
+                    'price_unit': amount_total,
+                    'name': move_line.name,
+                    'invoice_id': inv.id,
+                    'move_line_id': move_line.id,
+                })
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
@@ -765,10 +854,13 @@ class AccountInvoice(models.Model):
 
     @api.onchange('invoice_line_ids')
     def _onchange_invoice_line_ids(self):
-        to_keep, to_create = self._compute_diff_tax_line_ids()
+        to_update, to_create = self._compute_diff_tax_line_ids()
 
         # Commit diff to the 'tax_line_ids' field:
-        tax_line_ids = to_keep
+        tax_line_ids = self.env['account.invoice.tax']
+        for invoice_tax, vals in to_update:
+            invoice_tax.update(vals)
+            tax_line_ids += invoice_tax
         for values in to_create:
             tax_line_ids += self.env['account.invoice.tax'].new(values)
         self.tax_line_ids = tax_line_ids
@@ -935,7 +1027,8 @@ class AccountInvoice(models.Model):
         invoices = super(AccountInvoice, self.with_context(mail_create_nolog=True)).create(vals_list)
         for inv in invoices:
             inv.move_id.invoice_id = inv.id
-        invoices._push_changes_to_move()
+        if not self._context.get('ignore_move_synchronization'):
+            invoices._push_changes_to_move()
         return invoices
 
     # @api.multi
@@ -953,7 +1046,7 @@ class AccountInvoice(models.Model):
     def write(self, vals):
         # OVERRIDE
         res = super(AccountInvoice, self).write(vals)
-        if not self._context.get('skip_push_changes_to_move'):
+        if not self._context.get('ignore_move_synchronization'):
             self._push_changes_to_move()
         return res
 
@@ -1852,44 +1945,22 @@ class AccountInvoiceLine(models.Model):
     # INVOICE LINE <-> MOVE LINE SYNCHRONIZATION
     # -------------------------------------------------------------------------
 
-    @api.model
-    def _compute_move_line_id(self):
-        for line in self.filtered(lambda line: not line.display_type and not line.move_line_id):
-            invoice = line.invoice_id
-            company = invoice.company_id
-            company_currency = invoice.company_currency_id
-            balance = invoice._get_as_balance(line.price_subtotal)
-
-            move_line_vals = {
-                'quantity': line.quantity,
-                'name': line.name,
-                'product_id': line.product_id.id,
-                'product_uom_id': line.uom_id.id,
-                'move_id': invoice.move_id.id,
-                'account_id': line.account_id.id,
-                'partner_id': invoice.partner_id.id,
-                'analytic_account_id': line.account_analytic_id.id,
-                'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
-                'tax_ids': [(6, 0, line.invoice_line_tax_ids.ids)],
-            }
-
-            if invoice.currency_id != company_currency:
-                amount_currency = balance
-                balance = invoice.currency_id._convert(balance, company_currency, company, invoice.date)
-                move_line_vals.update({
-                    'amount_currency':  amount_currency,
-                    'currency_id': invoice.currency_id.id,
-                    'debit': balance < 0.0 and -balance or 0.0,
-                    'credit': balance > 0.0 and balance or 0.0,
-                })
-            else:
-                move_line_vals.update({
-                    'debit': balance < 0.0 and -balance or 0.0,
-                    'credit': balance > 0.0 and balance or 0.0,
-                })
-            line.move_line_id = self.env['account.move.line']\
-                .with_context(check_move_validity=False)\
-                .create(move_line_vals)
+    @api.multi
+    def _prepare_move_line_vals(self):
+        self.ensure_one()
+        return {
+            'quantity': self.quantity,
+            'name': self.name,
+            'product_id': self.product_id.id,
+            'product_uom_id': self.uom_id.id,
+            'move_id': self.invoice_id.move_id.id,
+            'invoice_id': self.invoice_id.id,
+            'account_id': self.account_id.id,
+            'partner_id': self.invoice_id.partner_id.commercial_partner_id.id,
+            'analytic_account_id': self.account_analytic_id.id,
+            'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)],
+            'tax_ids': [(6, 0, self.invoice_line_tax_ids.ids)],
+        }
 
     # -------------------------------------------------------------------------
     # MISC
@@ -2115,14 +2186,42 @@ class AccountInvoiceLine(models.Model):
                 vals.update(price_unit=0, account_id=False, quantity=0)
 
         lines = super(AccountInvoiceLine, self).create(vals_list)
-        lines._compute_move_line_id()
+
+        # The 'check_move_validity' is mandatory because the newly created account.move.line leads to an
+        # unbalanced journal entry.
+        # The journal entry becomes balanced after the call to '_push_changes_to_move'.
+        if self._context.get('check_move_validity') is not False:
+            self = self.with_context(check_move_validity=False)
+
+        for line in lines.filtered(lambda line: not line.display_type and not line.move_line_id):
+            move_line_vals = line._prepare_move_line_vals()
+            line.move_line_id = self.env['account.move.line'].create(move_line_vals)
         return lines
 
     @api.multi
-    def write(self, values):
-        if 'display_type' in values and self.filtered(lambda line: line.display_type != values.get('display_type')):
+    def write(self, vals):
+        # OVERRIDE
+        # - prevent writing on lines having a display_type.
+        # - update debit/credit on the corresponding move line.
+        if 'display_type' in vals and self.filtered(lambda line: line.display_type != vals.get('display_type')):
             raise UserError("You cannot change the type of an invoice line. Instead you should delete the current line and create a new line of the proper type.")
-        return super(AccountInvoiceLine, self).write(values)
+
+        res = super(AccountInvoiceLine, self).write(vals)
+
+        if self._context.get('ignore_move_synchronization'):
+            return res
+
+        # The 'check_move_validity' is mandatory because the newly created account.move.line leads to an
+        # unbalanced journal entry.
+        # The journal entry becomes balanced after the call to '_push_changes_to_move'.
+        if self._context.get('check_move_validity') is not False:
+            self = self.with_context(check_move_validity=False)
+
+        for line in self:
+            to_write = line.invoice_id._compute_persistent_move_line_vals(-line.price_subtotal)
+            line.move_line_id.write(to_write)
+
+        return res
 
     @api.multi
     def unlink(self):
@@ -2161,7 +2260,6 @@ class AccountInvoiceTax(models.Model):
     amount_total = fields.Monetary(string="Amount Total", compute='_compute_amount_total')
     manual = fields.Boolean(default=True)
     sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
-    base = fields.Monetary(string='Base', compute='_compute_base_amount', store=True)
 
     # Relational fields.
     move_line_id = fields.Many2one('account.move.line',
@@ -2173,35 +2271,6 @@ class AccountInvoiceTax(models.Model):
     def _compute_amount_total(self):
         for tax_line in self:
             tax_line.amount_total = tax_line.amount + tax_line.amount_rounding
-
-    # -------------------------------------------------------------------------
-    # TAX LINE <-> MOVE LINE SYNCHRONIZATION
-    # -------------------------------------------------------------------------
-
-    @api.model
-    def _compute_debit_credit_vals(self, invoice, amount_total):
-        company = invoice.company_id
-        company_currency = invoice.company_currency_id
-        balance = invoice._get_as_balance(amount_total)
-
-        # Multi-currency.
-        if invoice.currency_id != company.currency_id:
-            amount_currency = balance
-            balance = invoice.currency_id._convert(balance, company_currency, company, invoice.date)
-            return {
-                'debit': balance < 0.0 and -balance or 0.0,
-                'credit': balance > 0.0 and balance or 0.0,
-                'currency_id': invoice.currency_id.id,
-                'amount_currency': amount_currency,
-            }
-
-        # Single-currency.
-        return {
-            'debit': balance < 0.0 and -balance or 0.0,
-            'credit': balance > 0.0 and balance or 0.0,
-            'currency_id': False,
-            'amount_currency': 0.0,
-        }
 
     # -------------------------------------------------------------------------
     # LOW-LEVEL METHODS
@@ -2219,17 +2288,23 @@ class AccountInvoiceTax(models.Model):
         # Populate initial values with them used to create the account.move.line (see _inherits).
         # /!\ Default values / computed values are not present inside vals_list.
         for vals in vals_list:
+            if vals.get('move_line_id'):
+                continue
+
             invoice = self.env['account.invoice'].browse(vals['invoice_id'])
             amount_total = vals.get('amount', 0.0) + vals.get('amount_rounding', 0.0)
 
             vals['move_id'] = invoice.move_id.id
-            vals.update(self._compute_debit_credit_vals(invoice, amount_total))
+            vals.update(invoice._compute_persistent_move_line_vals(-amount_total))
 
         return super(AccountInvoiceTax, self).create(vals_list)
 
     @api.multi
     def write(self, vals):
         # OVERRIDE
+        if self._context.get('ignore_move_synchronization'):
+            return super(AccountInvoiceTax, self).write(vals)
+
         # The 'check_move_validity' is mandatory because the newly created account.move.line leads to an
         # unbalanced journal entry.
         # The journal entry becomes balanced after the call to '_push_changes_to_move'.
@@ -2243,7 +2318,7 @@ class AccountInvoiceTax(models.Model):
             amount_total = vals.get('amount', record.amount) + vals.get('amount_rounding', record.amount_rounding)
 
             to_write = vals.copy()
-            to_write.update(record._compute_debit_credit_vals(invoice, amount_total))
+            to_write.update(invoice._compute_persistent_move_line_vals(-amount_total))
 
             if not super(AccountInvoiceTax, record).write(to_write):
                 res = False

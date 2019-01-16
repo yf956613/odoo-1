@@ -284,6 +284,7 @@ class AccountMove(models.Model):
         if 'line_ids' in vals:
             res = super(AccountMove, self.with_context(check_move_validity=False)).write(vals)
             self.assert_balanced()
+            self.mapped('invoice_id')._pull_changes_from_move()
         else:
             res = super(AccountMove, self).write(vals)
         return res
@@ -584,6 +585,7 @@ class AccountMoveLine(models.Model):
 
     name = fields.Char(string="Label")
     quantity = fields.Float(string='Quantity',
+        default=1.0,
         digits=dp.get_precision('Product Unit of Measure'),
         help="The optional quantity expressed by this line, eg: number of product sold. The quantity is not a legal requirement but is very useful for some reports.")
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure')

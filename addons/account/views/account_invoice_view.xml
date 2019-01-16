@@ -121,7 +121,7 @@
                     <field name="manual"/>
                     <field name="name" string="Tax Description"/>
                     <field name="account_id" groups="account.group_account_user"/>
-                    <field name="base"/>
+                    <field name="tax_base_amount"/>
                     <field name="amount_total" string="Amount"/>
                     <field name="currency_id" invisible="1"/>
                 </tree>
@@ -140,7 +140,7 @@
                         <field name="analytic_account_id" domain="[('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting"/>
                         <field name="manual"/>
                         <field name="amount_total" string="Amount"/>
-                        <field name="base"/>
+                        <field name="tax_base_amount"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
                 </form>
