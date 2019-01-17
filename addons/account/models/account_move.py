@@ -1,37 +1,14 @@
 # -*- coding: utf-8 -*-
-
-import time
-from datetime import date
-from collections import OrderedDict
 from odoo import api, fields, models, _
-from odoo.osv import expression
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
-from odoo.tools.misc import formatLang, format_date
-from odoo.tools import float_is_zero, float_compare
-from odoo.tools.safe_eval import safe_eval
+from odoo.tools import float_is_zero, float_compare, safe_eval
 from odoo.addons import decimal_precision as dp
-from lxml import etree
 
-#----------------------------------------------------------
-# Entries
-#----------------------------------------------------------
 
 class AccountMove(models.Model):
     _name = "account.move"
     _description = "Journal Entries"
     _order = 'date desc, id desc'
-
-    @api.multi
-    @api.depends('name', 'state')
-    def name_get(self):
-        result = []
-        for move in self:
-            if move.state == 'draft':
-                name = '* ' + str(move.id)
-            else:
-                name = move.name
-            result.append((move.id, name))
-        return result
 
     @api.multi
     @api.depends('line_ids.debit', 'line_ids.credit')
@@ -62,11 +39,6 @@ class AccountMove(models.Model):
             else:
                 move.matched_percentage = total_reconciled / total_amount
 
-    @api.one
-    @api.depends('company_id')
-    def _compute_currency(self):
-        self.currency_id = self.company_id.currency_id or self.env.user.company_id.currency_id
-
     @api.multi
     def _get_default_journal(self):
         if self.env.context.get('default_journal_type'):
@@ -87,11 +59,25 @@ class AccountMove(models.Model):
         '''
         self.line_ids._onchange_amount_currency()
 
+    # Not-relational fields.
     name = fields.Char(string='Number', required=True, readonly=True, copy=False, default='/')
     ref = fields.Char(string='Reference', copy=False)
-    date = fields.Date(required=True, states={'posted': [('readonly', True)]}, index=True, default=fields.Date.context_today)
-    journal_id = fields.Many2one('account.journal', string='Journal', required=True, states={'posted': [('readonly', True)]}, default=_get_default_journal)
-    currency_id = fields.Many2one('res.currency', compute='_compute_currency', store=True, string="Currency")
+    date = fields.Date(string='Date', required=True, index=True,
+        states={'posted': [('readonly', True)]}, default=fields.Date.context_today)
+
+    # Relational fields.
+    journal_id = fields.Many2one('account.journal', string='Journal', required=True,
+        states={'posted': [('readonly', True)]}, default=_get_default_journal)
+
+    # Related fields.
+    company_id = fields.Many2one(string='Company', store=True, readonly=True,
+        related='journal_id.company_id')
+    currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=True,
+        states={'posted': [('readonly', True)]},
+        compute='_compute_currency_id',
+        inverse='_inverse_currency_id')
+
+
     company_currency_id = fields.Many2one(related='company_id.currency_id',
         string="Company Currency", readonly=True)
     state = fields.Selection([('draft', 'Unposted'), ('posted', 'Posted')], string='Status',
@@ -111,7 +97,6 @@ class AccountMove(models.Model):
         help="The commercial entity")
     amount = fields.Monetary(compute='_amount_compute', store=True)
     narration = fields.Text(string='Internal Note')
-    company_id = fields.Many2one('res.company', related='journal_id.company_id', string='Company', store=True, readonly=True)
     matched_percentage = fields.Float('Percentage Matched', compute='_compute_matched_percentage', digits=0, store=True, readonly=True, help="Technical field used in cash basis method")
     # Dummy Account field to search on account.move by account_id
     dummy_account_id = fields.Many2one('account.account', related='line_ids.account_id', string='Account', store=False, readonly=True)
@@ -125,10 +110,26 @@ class AccountMove(models.Model):
     reverse_entry_id = fields.Many2one('account.move', String="Reverse entry", store=True, readonly=True)
     tax_type_domain = fields.Char(store=False, help='Technical field used to have a dynamic taxes domain on the form view.')
 
-    @api.constrains('line_ids', 'journal_id', 'auto_reverse', 'reverse_date')
-    def _validate_move_modification(self):
-        if 'posted' in self.mapped('line_ids.payment_id.state'):
-            raise ValidationError(_("You cannot modify a journal entry linked to a posted payment."))
+    # -------------------------------------------------------------------------
+    # HELPERS
+    # -------------------------------------------------------------------------
+
+    @api.model
+    def _get_default_currency_id(self, values):
+        ''' Retrieve the default currency_id.
+        /!\ This default is done manually because it depends of others fields.
+        :param values:  Others computed default values in 'default_get'.
+        :return:        A res.currency record's id.
+        '''
+        if not values.get('journal_id'):
+            return None
+
+        journal = self.env['account.journal'].browse(values['journal_id'])
+        return journal.currency_id.id or journal.company_id.currency_id.id or self.env.user.company_id.currency_id.id
+
+    # -------------------------------------------------------------------------
+    # ONCHANGE METHODS
+    # -------------------------------------------------------------------------
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
@@ -265,13 +266,73 @@ class AccountMove(models.Model):
             # Keep record of the values used as taxes the last time this method has been run.
             line.tax_line_grouping_key = _build_grouping_key(line)
 
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        res = super(AccountMove, self).fields_view_get(
-            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-        if self._context.get('vat_domain'):
-            res['fields']['line_ids']['views']['tree']['fields']['tax_line_id']['domain'] = [('tag_ids', 'in', [self.env.ref(self._context.get('vat_domain')).id])]
-        return res
+    # -------------------------------------------------------------------------
+    # COMPUTE METHODS
+    # -------------------------------------------------------------------------
+
+    @api.depends('line_ids.currency_id', 'journal_id.company_id.currency_id')
+    def _compute_currency_id(self):
+        for move in self:
+            if move.line_ids:
+                currencies = move.line_ids.mapped('currency_id')
+            else:
+                currencies = move.journal_id.currency_id or move.journal_id.company_id.currency_id
+            if len(currencies) == 1:
+                move.currency_id = currencies
+            else:
+                move.currency_id = False
+
+    @api.multi
+    def _inverse_currency_id(self):
+        for move in self.filtered(lambda move: move.currency_id):
+            company = move.journal_id.company_id
+            for line in move.line_ids:
+                line.currency_id = move.currency_id
+                line.amount_currency = company.currency_id._convert(line.balance, move.currency_id, company, move.date)
+
+    # -------------------------------------------------------------------------
+    # CONSTRAINS METHODS
+    # -------------------------------------------------------------------------
+
+    @api.constrains('line_ids', 'journal_id', 'auto_reverse', 'reverse_date')
+    def _validate_move_modification(self):
+        if 'posted' in self.mapped('line_ids.payment_id.state'):
+            raise ValidationError(_("You cannot modify a journal entry linked to a posted payment."))
+
+    @api.multi
+    def _check_lock_date(self):
+        for move in self:
+            lock_date = max(move.company_id.period_lock_date or date.min, move.company_id.fiscalyear_lock_date or date.min)
+            if self.user_has_groups('account.group_account_manager'):
+                lock_date = move.company_id.fiscalyear_lock_date
+            if move.date <= (lock_date or date.min):
+                if self.user_has_groups('account.group_account_manager'):
+                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s") % (lock_date)
+                else:
+                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s. Check the company settings or ask someone with the 'Adviser' role") % (lock_date)
+                raise UserError(message)
+        return True
+
+    @api.multi
+    def assert_balanced(self):
+        if not self.ids:
+            return True
+        prec = self.env.user.company_id.currency_id.decimal_places
+
+        self._cr.execute("""\
+            SELECT      move_id
+            FROM        account_move_line
+            WHERE       move_id in %s
+            GROUP BY    move_id
+            HAVING      abs(sum(debit) - sum(credit)) > %s
+            """, (tuple(self.ids), 10 ** (-max(5, prec))))
+        if len(self._cr.fetchall()) != 0:
+            raise UserError(_("Cannot create unbalanced journal entry."))
+        return True
+
+    # -------------------------------------------------------------------------
+    # LOW-LEVEL METHODS
+    # -------------------------------------------------------------------------
 
     @api.model
     def create(self, vals):
@@ -288,6 +349,38 @@ class AccountMove(models.Model):
         else:
             res = super(AccountMove, self).write(vals)
         return res
+
+    @api.multi
+    def unlink(self):
+        for move in self:
+            #check the lock date + check if some entries are reconciled
+            move.line_ids._update_check()
+            move.line_ids.unlink()
+        return super(AccountMove, self).unlink()
+
+    @api.multi
+    @api.depends('name', 'state')
+    def name_get(self):
+        result = []
+        for move in self:
+            if move.state == 'draft':
+                name = '* ' + str(move.id)
+            else:
+                name = move.name
+            result.append((move.id, name))
+        return result
+
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        res = super(AccountMove, self).fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if self._context.get('vat_domain'):
+            res['fields']['line_ids']['views']['tree']['fields']['tax_line_id']['domain'] = [('tag_ids', 'in', [self.env.ref(self._context.get('vat_domain')).id])]
+        return res
+
+    # -------------------------------------------------------------------------
+    # MISC
+    # -------------------------------------------------------------------------
 
     @api.multi
     def post(self):
@@ -342,14 +435,6 @@ class AccountMove(models.Model):
         return True
 
     @api.multi
-    def unlink(self):
-        for move in self:
-            #check the lock date + check if some entries are reconciled
-            move.line_ids._update_check()
-            move.line_ids.unlink()
-        return super(AccountMove, self).unlink()
-
-    @api.multi
     def _post_validate(self):
         for move in self:
             if move.line_ids:
@@ -357,37 +442,6 @@ class AccountMove(models.Model):
                     raise UserError(_("Cannot create moves for different companies."))
         self.assert_balanced()
         return self._check_lock_date()
-
-    @api.multi
-    def _check_lock_date(self):
-        for move in self:
-            lock_date = max(move.company_id.period_lock_date or date.min, move.company_id.fiscalyear_lock_date or date.min)
-            if self.user_has_groups('account.group_account_manager'):
-                lock_date = move.company_id.fiscalyear_lock_date
-            if move.date <= (lock_date or date.min):
-                if self.user_has_groups('account.group_account_manager'):
-                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s") % (lock_date)
-                else:
-                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s. Check the company settings or ask someone with the 'Adviser' role") % (lock_date)
-                raise UserError(message)
-        return True
-
-    @api.multi
-    def assert_balanced(self):
-        if not self.ids:
-            return True
-        prec = self.env.user.company_id.currency_id.decimal_places
-
-        self._cr.execute("""\
-            SELECT      move_id
-            FROM        account_move_line
-            WHERE       move_id in %s
-            GROUP BY    move_id
-            HAVING      abs(sum(debit) - sum(credit)) > %s
-            """, (tuple(self.ids), 10 ** (-max(5, prec))))
-        if len(self._cr.fetchall()) != 0:
-            raise UserError(_("Cannot create unbalanced journal entry."))
-        return True
 
     @api.multi
     def _reverse_move(self, date=None, journal_id=None, auto=False):
@@ -457,6 +511,7 @@ class AccountMove(models.Model):
         action['views'] = [(self.env.ref('account.view_move_form').id, 'form')]
         action['res_id'] = self.reverse_entry_id.id
         return action
+
 
 class AccountMoveLine(models.Model):
     _name = "account.move.line"
@@ -1295,7 +1350,7 @@ class AccountMoveLine(models.Model):
         context = dict(self._context or {})
         domain = domain or []
         if not isinstance(domain, (list, tuple)):
-            domain = safe_eval(domain)
+            domain = tools.safe_eval(domain)
 
         date_field = 'date'
         if context.get('aged_balance'):
