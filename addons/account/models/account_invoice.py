@@ -54,8 +54,6 @@ class AccountInvoice(models.Model):
         return self._context.get('type', 'out_invoice')
 
     # Not-relational fields.
-    description = fields.Char(string='Reference/Description', index=True,
-        readonly=True, states={'draft': [('readonly', False)]}, copy=False, help='The name that will be used on account move lines')
     origin = fields.Char(string='Source Document',
         help="Reference of the document that produced this invoice.",
         readonly=True, states={'draft': [('readonly', False)]})
@@ -67,11 +65,6 @@ class AccountInvoice(models.Model):
         ], readonly=True, states={'draft': [('readonly', False)]}, index=True, change_default=True,
         default=_default_type,
         tracking=True)
-    number = fields.Char(related='move_id.name', store=True, readonly=True, copy=False)
-    move_name = fields.Char(string='Journal Entry Name', readonly=False,
-        default=False, copy=False,
-        help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
-
     state = fields.Selection([
             ('draft','Draft'),
             ('open', 'Open'),
@@ -252,208 +245,6 @@ class AccountInvoice(models.Model):
 
         return res_partner_bank and res_partner_bank.id or None
 
-    @api.model
-    def _search_candidate_records(self, records, searched_values):
-        ''' Helper to find matching record based on some values.
-        This method takes care about relational/monetary/date/datetime fields.
-
-        :param records:         A records set.
-        :param searched_values: A dictionary of values to match.
-        :return:                A record in records or None.
-        '''
-        for record in records:
-            match = True
-            for field_name in searched_values.keys():
-                record_value = record[field_name]
-                search_value = searched_values[field_name]
-                field_type = record._fields[field_name].type
-                if field_type == 'monetary':
-                    # Compare monetary field.
-                    currency_field_name = record._fields[field_name].currency_field
-                    record_currency = record[currency_field_name]
-                    if record_currency:
-                        if record_currency.compare_amounts(search_value, record_value):
-                            match = False
-                            break
-                    elif search_value != record_value:
-                        match = False
-                        break
-                elif field_type in ('one2many', 'many2many'):
-                    # Compare x2many relational fields.
-                    # Empty comparison must be an empty list to be True.
-                    if set(record_value.ids) != set(search_value):
-                        match = False
-                        break
-                elif field_type == 'many2one':
-                    # Compare many2one relational fields.
-                    # Every falsy value is allowed to compare with an empty record.
-                    if (record_value or search_value) and record_value.id != search_value:
-                        match = False
-                        break
-                elif field_type == 'date':
-                    if fields.Date.from_string(record_value) != search_value:
-                        match = False
-                        break
-                elif field_type == 'datetime':
-                    if fields.Datetime.from_string(record_value) != search_value:
-                        match = False
-                        break
-                elif (search_value or record_value) and record_value != search_value:
-                    # Compare others fields if not both interpreted as falsy values.
-                    match = False
-                    break
-            if match:
-                return record
-        return None
-
-    @api.multi
-    def _compute_persistent_move_line_vals(self, amount):
-        self.ensure_one()
-
-        sign = 1 if self.type in ('out_invoice', 'in_refund') else -1
-        company_currency = self.company_currency_id
-        balance = sign * amount
-
-        persistent_vals = {
-            'partner_id': self.partner_id.commercial_partner_id.id,
-        }
-
-        # Multi-currency.
-        if self.currency_id != company_currency:
-            amount_currency = balance
-            balance = self.currency_id._convert(balance, company_currency, self.company_id, self.date)
-            persistent_vals.update({
-                'debit': balance > 0.0 and balance or 0.0,
-                'credit': balance < 0.0 and -balance or 0.0,
-                'currency_id': self.currency_id.id,
-                'amount_currency': amount_currency,
-            })
-        else:
-            # Single-currency.
-            persistent_vals.update({
-                'debit': balance > 0.0 and balance or 0.0,
-                'credit': balance < 0.0 and -balance or 0.0,
-                'currency_id': False,
-                'amount_currency': 0.0,
-            })
-        return persistent_vals
-
-    @api.multi
-    def _compute_diff_move_line_ids(self):
-        ''' Compute the diff between existing move_line_ids and the expected ones by the payment terms.
-
-        :return: A tuple (to_keep, to_create) where:
-            - to_keep is an account.move.line recordset.
-            - to_create is a list of dictionary to create new account.move.line records.
-        '''
-        self.ensure_one()
-
-        # Compute payment terms.
-        if self.payment_term_id:
-            to_compute = self.payment_term_id.compute(
-                self.amount_total, date_ref=self.date_invoice, currency=self.currency_id)
-        else:
-            to_compute = [(self.date_due, self.amount_total)]
-
-        # Compute move_line_ids diff.
-        candidates = self.move_line_ids
-        to_update = []
-        to_create = []
-
-        for date_maturity, amount in to_compute:
-            to_write = self._compute_persistent_move_line_vals(amount)
-
-            # Find an existing line matching the current payment term.
-            searched_values = {
-                'date_maturity': date_maturity,
-                'account_id': self.account_id.id,
-            }
-            candidate = self._search_candidate_records(candidates, searched_values)
-
-            if candidate:
-                to_update.append((candidate, to_write))
-            else:
-                to_write.update({
-                    'name': self.name,
-                    'account_id': self.account_id.id,
-                    'invoice_id': self.id,
-                    'move_id': self.move_id.id,
-                    'date_maturity': date_maturity,
-                    'invoice_payment_term_id': self.id,
-                })
-                to_create.append(to_write)
-        return to_update, to_create
-
-    @api.multi
-    def _compute_diff_tax_line_ids(self):
-        ''' Compute the diff between existing tax_line_ids and the expected ones by the taxes set on the invoice lines.
-
-        :return: A tuple (to_keep, to_create) where:
-            - to_keep is an account.invoice.tax recordset.
-            - to_create is a list of dictionary to create new account.invoice.tax records.
-        '''
-        self.ensure_one()
-
-        candidates = self.tax_line_ids
-        to_update_map = {}
-        to_create = []
-        invoice_line_ids = self.invoice_line_ids.filtered(lambda line: line.account_id)
-
-        for line in invoice_line_ids:
-            invoice = line.invoice_id
-            price_unit = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            taxes_results = line.invoice_line_tax_ids.compute_all(price_unit,
-                currency=invoice.currency_id, quantity=line.quantity, product=line.product_id, partner=invoice.partner_id)
-
-            for tax_results in taxes_results['taxes']:
-                tax = self.env['account.tax'].browse(tax_results['id'])
-
-                if self.type in ('out_invoice', 'in_invoice'):
-                    account = tax.account_id
-                else:
-                    account = tax.refund_account_id or tax.account_id
-
-                searched_values = {
-                    'tax_line_id': tax.id,
-                    'account_id': account.id,
-                    'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
-                    'analytic_tag_ids': tax.analytic and line.analytic_tag_ids.ids or [],
-                }
-
-                # Update existing account.invoice.tax.
-                candidate = self._search_candidate_records(candidates, searched_values)
-                if candidate:
-                    to_update_map[candidate] = {
-                        'name': tax_results['name'],
-                        'amount': tax_results['amount'],
-                        'manual': False,
-                    }
-                    candidates = candidates - candidate
-                    continue
-
-                # Update existing candidate in to_keep.
-                candidate = self._search_candidate_records(to_update_map.keys(), searched_values)
-                if candidate:
-                    to_update_map[candidate].update({
-                        'amount': candidate.amount + tax_results['amount'],
-                    })
-                    continue
-
-                # Create new account.invoice.tax.
-                to_create.append({
-                    'name': tax_results['name'],
-                    'amount': tax_results['amount'],
-                    'manual': False,
-                    'sequence': tax_results['sequence'],
-                    'invoice_id': self.id,
-                    'tax_line_id': tax.id,
-                    'account_id': account.id,
-                    'analytic_account_id': tax.analytic and line.account_analytic_id.id or False,
-                    'analytic_tag_ids': [(6, 0, tax.analytic and line.analytic_tag_ids.ids or [])],
-                })
-        to_update = list(to_update_map.items())
-        return to_update, to_create
-
     @api.multi
     def _get_computed_reference(self):
         self.ensure_one()
@@ -486,14 +277,6 @@ class AccountInvoice(models.Model):
     # -------------------------------------------------------------------------
     # INVOICE <-> MOVE SYNCHRONIZATION
     # -------------------------------------------------------------------------
-
-    @api.multi
-    def _get_amount_from_move_line(self, move_line):
-        self.ensure_one()
-
-        sign = 1 if self.type in ('out_invoice', 'in_refund') else -1
-        balance = move_line.currency_id and move_line.amount_currency or move_line.balance
-        return sign * balance
 
     @api.multi
     def _push_changes_to_move(self):
@@ -1891,7 +1674,6 @@ class AccountInvoiceLine(models.Model):
         help="Reference of the document that produced this invoice.")
     sequence = fields.Integer(default=10,
         help="Gives the sequence of this line when displaying the invoice.")
-    price_unit = fields.Float(string='Unit Price', required=True, digits=dp.get_precision('Product Price'))
     price_subtotal = fields.Monetary(string='Amount (without Taxes)',
         store=True, readonly=True, compute='_compute_price',
         help="Total amount without taxes")

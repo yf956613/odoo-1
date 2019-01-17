@@ -4,6 +4,8 @@ from odoo.exceptions import RedirectWarning, UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare, safe_eval
 from odoo.addons import decimal_precision as dp
 
+from datetime import date
+
 
 class AccountMove(models.Model):
     _name = "account.move"
@@ -11,75 +13,21 @@ class AccountMove(models.Model):
     _order = 'date desc, id desc'
 
     @api.multi
-    @api.depends('line_ids.debit', 'line_ids.credit')
-    def _amount_compute(self):
-        for move in self:
-            total = 0.0
-            for line in move.line_ids:
-                total += line.debit
-            move.amount = total
-
-    @api.depends('line_ids.debit', 'line_ids.credit', 'line_ids.matched_debit_ids.amount', 'line_ids.matched_credit_ids.amount', 'line_ids.account_id.user_type_id.type')
-    def _compute_matched_percentage(self):
-        """Compute the percentage to apply for cash basis method. This value is relevant only for moves that
-        involve journal items on receivable or payable accounts.
-        """
-        for move in self:
-            total_amount = 0.0
-            total_reconciled = 0.0
-            for line in move.line_ids:
-                if line.account_id.user_type_id.type in ('receivable', 'payable'):
-                    amount = abs(line.debit - line.credit)
-                    total_amount += amount
-                    for partial_line in (line.matched_debit_ids + line.matched_credit_ids):
-                        total_reconciled += partial_line.amount
-            precision_currency = move.currency_id or move.company_id.currency_id
-            if float_is_zero(total_amount, precision_rounding=precision_currency.rounding):
-                move.matched_percentage = 1.0
-            else:
-                move.matched_percentage = total_reconciled / total_amount
-
-    @api.multi
     def _get_default_journal(self):
-        if self.env.context.get('default_journal_type'):
-            return self.env['account.journal'].search([('company_id', '=', self.env.user.company_id.id), ('type', '=', self.env.context['default_journal_type'])], limit=1).id
+        if self._context.get('default_journal_id'):
+            return self._context['default_journal_id']
 
-    @api.multi
-    @api.depends('line_ids.partner_id')
-    def _compute_partner_id(self):
-        for move in self:
-            partner = move.line_ids.mapped('partner_id')
-            move.partner_id = partner.id if len(partner) == 1 else False
+        journal_type = self._context.get('default_journal_type', 'general')
+        return self.env['account.journal'].search([
+            ('company_id', '=', self.env.user.company_id.id), ('type', '=', journal_type)], limit=1).id
 
-    @api.onchange('date')
-    def _onchange_date(self):
-        '''On the form view, a change on the date will trigger onchange() on account.move
-        but not on account.move.line even the date field is related to account.move.
-        Then, trigger the _onchange_amount_currency manually.
-        '''
-        self.line_ids._onchange_amount_currency()
-
-    # Not-relational fields.
+    # ==== Not-relational fields ====
     name = fields.Char(string='Number', required=True, readonly=True, copy=False, default='/')
+    previous_name = fields.Char(string='Previous Number', required=True, readonly=True, copy=False,
+        help='Technical field holding the previous number given to the journal entry before its cancellation.')
     ref = fields.Char(string='Reference', copy=False)
     date = fields.Date(string='Date', required=True, index=True,
         states={'posted': [('readonly', True)]}, default=fields.Date.context_today)
-
-    # Relational fields.
-    journal_id = fields.Many2one('account.journal', string='Journal', required=True,
-        states={'posted': [('readonly', True)]}, default=_get_default_journal)
-
-    # Related fields.
-    company_id = fields.Many2one(string='Company', store=True, readonly=True,
-        related='journal_id.company_id')
-    currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=True,
-        states={'posted': [('readonly', True)]},
-        compute='_compute_currency_id',
-        inverse='_inverse_currency_id')
-
-
-    company_currency_id = fields.Many2one(related='company_id.currency_id',
-        string="Company Currency", readonly=True)
     state = fields.Selection([('draft', 'Unposted'), ('posted', 'Posted')], string='Status',
       required=True, readonly=True, copy=False, default='draft',
       help='All manually created new journal entries are usually in the status \'Unposted\', '
@@ -87,45 +35,45 @@ class AccountMove(models.Model):
            'In that case, they will behave as journal entries automatically created by the '
            'system on document validation (invoices, bank statements...) and will be created '
            'in \'Posted\' status.')
-    line_ids = fields.One2many('account.move.line', 'move_id', string='Journal Items',
-        states={'posted': [('readonly', True)]}, copy=True)
-    partner_id = fields.Many2one('res.partner', compute='_compute_partner_id', string="Partner", store=True, readonly=True)
-    invoice_id = fields.Many2one('account.invoice',
-        string='Invoice', ondelete='cascade', readonly=True)
-    commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity', compute_sudo=True,
-        related='partner_id.commercial_partner_id', store=True, readonly=True,
-        help="The commercial entity")
-    amount = fields.Monetary(compute='_amount_compute', store=True)
     narration = fields.Text(string='Internal Note')
-    matched_percentage = fields.Float('Percentage Matched', compute='_compute_matched_percentage', digits=0, store=True, readonly=True, help="Technical field used in cash basis method")
-    # Dummy Account field to search on account.move by account_id
-    dummy_account_id = fields.Many2one('account.account', related='line_ids.account_id', string='Account', store=False, readonly=True)
+    matched_percentage = fields.Float(string='Percentage Matched', store=True, readonly=True, digits=0,
+        compute='_compute_matched_percentage',
+        help="Technical field used in cash basis method")
+    tax_type_domain = fields.Char(store=False, help='Technical field used to have a dynamic taxes domain on the form view.')
+
+    # ==== Relational fields ====
+    journal_id = fields.Many2one('account.journal', string='Journal', required=True,
+        states={'posted': [('readonly', True)]}, default=_get_default_journal)
+    currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=True,
+        states={'posted': [('readonly', True)]},
+        compute='_compute_currency_id',
+        inverse='_inverse_currency_id')
+    partner_id = fields.Many2one('res.partner', string='Partner', store=True, readonly=True,
+        states={'posted': [('readonly', True)]})
+    commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity', store=True, readonly=True,
+        compute='_compute_commercial_partner_id',
+        inverse='_inverse_commercial_partner_id',
+        help="The commercial entity")
+    invoice_id = fields.Many2one('account.invoice', string='Invoice', ondelete='cascade', readonly=True)
+    line_ids = fields.One2many('account.move.line', 'move_id', string='Journal Items', copy=True,
+        states={'posted': [('readonly', True)]})
     tax_cash_basis_rec_id = fields.Many2one(
         'account.partial.reconcile',
         string='Tax Cash Basis Entry of',
         help="Technical field used to keep track of the tax cash basis reconciliation. "
-        "This is needed when cancelling the source: it will post the inverse journal entry to cancel that part too.")
-    auto_reverse = fields.Boolean(string='Reverse Automatically', default=False, help='If this checkbox is ticked, this entry will be automatically reversed at the reversal date you defined.')
+             "This is needed when cancelling the source: it will post the inverse journal entry to cancel that part too.")
+
+    # ==== Related fields ====
+    company_id = fields.Many2one(string='Company', store=True, readonly=True,
+        related='journal_id.company_id')
+    company_currency_id = fields.Many2one(string='Company Currency', readonly=True,
+        related='journal_id.company_id.currency_id')
+
+    # Is reverse_entry_id not enough????? TODO decide what to do with this
+    auto_reverse = fields.Boolean(string='Reverse Automatically', default=False,
+        help='If this checkbox is ticked, this entry will be automatically reversed at the reversal date you defined.')
     reverse_date = fields.Date(string='Reversal Date', help='Date of the reverse accounting entry.')
     reverse_entry_id = fields.Many2one('account.move', String="Reverse entry", store=True, readonly=True)
-    tax_type_domain = fields.Char(store=False, help='Technical field used to have a dynamic taxes domain on the form view.')
-
-    # -------------------------------------------------------------------------
-    # HELPERS
-    # -------------------------------------------------------------------------
-
-    @api.model
-    def _get_default_currency_id(self, values):
-        ''' Retrieve the default currency_id.
-        /!\ This default is done manually because it depends of others fields.
-        :param values:  Others computed default values in 'default_get'.
-        :return:        A res.currency record's id.
-        '''
-        if not values.get('journal_id'):
-            return None
-
-        journal = self.env['account.journal'].browse(values['journal_id'])
-        return journal.currency_id.id or journal.company_id.currency_id.id or self.env.user.company_id.currency_id.id
 
     # -------------------------------------------------------------------------
     # ONCHANGE METHODS
@@ -134,6 +82,14 @@ class AccountMove(models.Model):
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
         self.tax_type_domain = self.journal_id.type if self.journal_id.type in ('sale', 'purchase') else None
+
+    @api.onchange('date')
+    def _onchange_date(self):
+        '''On the form view, a change on the date will trigger onchange() on account.move
+        but not on account.move.line even the date field is related to account.move.
+        Then, trigger the _onchange_amount_currency manually.
+        '''
+        self.line_ids._onchange_amount_currency()
 
     @api.onchange('line_ids')
     def _onchange_line_ids(self):
@@ -277,10 +233,7 @@ class AccountMove(models.Model):
                 currencies = move.line_ids.mapped('currency_id')
             else:
                 currencies = move.journal_id.currency_id or move.journal_id.company_id.currency_id
-            if len(currencies) == 1:
-                move.currency_id = currencies
-            else:
-                move.currency_id = False
+            move.currency_id = currencies if len(currencies) == 1 else False
 
     @api.multi
     def _inverse_currency_id(self):
@@ -289,6 +242,40 @@ class AccountMove(models.Model):
             for line in move.line_ids:
                 line.currency_id = move.currency_id
                 line.amount_currency = company.currency_id._convert(line.balance, move.currency_id, company, move.date)
+
+    @api.depends('partner_id')
+    def _compute_commercial_partner_id(self):
+        for move in self:
+            move.commercial_partner_id = move.partner_id
+
+    @api.multi
+    def _inverse_commercial_partner_id(self):
+        for move in self.filtered(lambda move: move.commercial_partner_id):
+            for line in move.line_ids:
+                line.partner_id = move.commercial_partner_id
+
+    @api.depends(
+        'line_ids.debit', 'line_ids.credit',
+        'line_ids.matched_debit_ids.amount', 'line_ids.matched_credit_ids.amount',
+        'line_ids.account_id.user_type_id.type')
+    def _compute_matched_percentage(self):
+        """Compute the percentage to apply for cash basis method. This value is relevant only for moves that
+        involve journal items on receivable or payable accounts.
+        """
+        for move in self:
+            total_amount = 0.0
+            total_reconciled = 0.0
+            for line in move.line_ids:
+                if line.account_id.user_type_id.type in ('receivable', 'payable'):
+                    amount = abs(line.debit - line.credit)
+                    total_amount += amount
+                    for partial_line in (line.matched_debit_ids + line.matched_credit_ids):
+                        total_reconciled += partial_line.amount
+            precision_currency = move.currency_id or move.company_id.currency_id
+            if float_is_zero(total_amount, precision_rounding=precision_currency.rounding):
+                move.matched_percentage = 1.0
+            else:
+                move.matched_percentage = total_reconciled / total_amount
 
     # -------------------------------------------------------------------------
     # CONSTRAINS METHODS
@@ -518,131 +505,29 @@ class AccountMoveLine(models.Model):
     _description = "Journal Item"
     _order = "date desc, id desc"
 
-    @api.onchange('debit', 'credit', 'tax_ids', 'analytic_account_id', 'analytic_tag_ids')
-    def onchange_tax_ids_create_aml(self):
-        for line in self:
-            line.recompute_tax_line = True
-
-    @api.model_cr
-    def init(self):
-        """ change index on partner_id to a multi-column index on (partner_id, ref), the new index will behave in the
-            same way when we search on partner_id, with the addition of being optimal when having a query that will
-            search on partner_id and ref at the same time (which is the case when we open the bank reconciliation widget)
-        """
-        cr = self._cr
-        cr.execute('DROP INDEX IF EXISTS account_move_line_partner_id_index')
-        cr.execute('SELECT indexname FROM pg_indexes WHERE indexname = %s', ('account_move_line_partner_id_ref_idx',))
-        if not cr.fetchone():
-            cr.execute('CREATE INDEX account_move_line_partner_id_ref_idx ON account_move_line (partner_id, ref)')
-
-    @api.depends('debit', 'credit', 'amount_currency', 'currency_id', 'matched_debit_ids', 'matched_credit_ids', 'matched_debit_ids.amount', 'matched_credit_ids.amount', 'move_id.state')
-    def _amount_residual(self):
-        """ Computes the residual amount of a move line from a reconcilable account in the company currency and the line's currency.
-            This amount will be 0 for fully reconciled lines or lines from a non-reconcilable account, the original line amount
-            for unreconciled lines, and something in-between for partially reconciled lines.
-        """
-        for line in self:
-            if not line.account_id.reconcile and line.account_id.internal_type != 'liquidity':
-                line.reconciled = False
-                line.amount_residual = 0
-                line.amount_residual_currency = 0
-                continue
-            #amounts in the partial reconcile table aren't signed, so we need to use abs()
-            amount = abs(line.debit - line.credit)
-            amount_residual_currency = abs(line.amount_currency) or 0.0
-            sign = 1 if (line.debit - line.credit) > 0 else -1
-            if not line.debit and not line.credit and line.amount_currency and line.currency_id:
-                #residual for exchange rate entries
-                sign = 1 if float_compare(line.amount_currency, 0, precision_rounding=line.currency_id.rounding) == 1 else -1
-
-            for partial_line in (line.matched_debit_ids + line.matched_credit_ids):
-                # If line is a credit (sign = -1) we:
-                #  - subtract matched_debit_ids (partial_line.credit_move_id == line)
-                #  - add matched_credit_ids (partial_line.credit_move_id != line)
-                # If line is a debit (sign = 1), do the opposite.
-                sign_partial_line = sign if partial_line.credit_move_id == line else (-1 * sign)
-
-                amount += sign_partial_line * partial_line.amount
-                #getting the date of the matched item to compute the amount_residual in currency
-                if line.currency_id and line.amount_currency:
-                    if partial_line.currency_id and partial_line.currency_id == line.currency_id:
-                        amount_residual_currency += sign_partial_line * partial_line.amount_currency
-                    else:
-                        if line.balance and line.amount_currency:
-                            rate = line.amount_currency / line.balance
-                        else:
-                            date = partial_line.credit_move_id.date if partial_line.debit_move_id == line else partial_line.debit_move_id.date
-                            rate = line.currency_id.with_context(date=date).rate
-                        amount_residual_currency += sign_partial_line * line.currency_id.round(partial_line.amount * rate)
-
-            #computing the `reconciled` field.
-            reconciled = False
-            digits_rounding_precision = line.company_id.currency_id.rounding
-            if float_is_zero(amount, precision_rounding=digits_rounding_precision):
-                if line.currency_id and line.amount_currency:
-                    if float_is_zero(amount_residual_currency, precision_rounding=line.currency_id.rounding):
-                        reconciled = True
-                else:
-                    reconciled = True
-            line.reconciled = reconciled
-
-            line.amount_residual = line.company_id.currency_id.round(amount * sign)
-            line.amount_residual_currency = line.currency_id and line.currency_id.round(amount_residual_currency * sign) or 0.0
-
-    @api.depends('debit', 'credit')
-    def _store_balance(self):
-        for line in self:
-            line.balance = line.debit - line.credit
-
-    @api.model
-    def _get_currency(self):
-        currency = False
-        context = self._context or {}
-        if context.get('default_journal_id', False):
-            currency = self.env['account.journal'].browse(context['default_journal_id']).currency_id
-        return currency
-
-    @api.depends('debit', 'credit', 'move_id.matched_percentage', 'move_id.journal_id')
-    def _compute_cash_basis(self):
-        for move_line in self:
-            if move_line.journal_id.type in ('sale', 'purchase'):
-                move_line.debit_cash_basis = move_line.debit * move_line.move_id.matched_percentage
-                move_line.credit_cash_basis = move_line.credit * move_line.move_id.matched_percentage
-            else:
-                move_line.debit_cash_basis = move_line.debit
-                move_line.credit_cash_basis = move_line.credit
-            move_line.balance_cash_basis = move_line.debit_cash_basis - move_line.credit_cash_basis
-
-    @api.depends('move_id.line_ids', 'move_id.line_ids.tax_line_id', 'move_id.line_ids.debit', 'move_id.line_ids.credit')
-    def _compute_tax_base_amount(self):
-        for move_line in self:
-            if move_line.tax_line_id:
-                base_lines = move_line.move_id.line_ids.filtered(lambda line: move_line.tax_line_id in line.tax_ids)
-                move_line.tax_base_amount = abs(sum(base_lines.mapped('balance')))
-            else:
-                move_line.tax_base_amount = 0
-
-    @api.depends('move_id')
-    def _compute_parent_state(self):
-        for record in self.filtered('move_id'):
-            record.parent_state = record.move_id.state
-
-    @api.one
-    @api.depends('move_id.line_ids')
-    def _get_counterpart(self):
-        counterpart = set()
-        for line in self.move_id.line_ids:
-            if (line.account_id.code != self.account_id.code):
-                counterpart.add(line.account_id.code)
-        if len(counterpart) > 2:
-            counterpart = list(counterpart)[0:2] + ["..."]
-        self.counterpart = ",".join(counterpart)
-
-    name = fields.Char(string="Label")
+    # ==== Not-relational fields ====
+    name = fields.Char(string='Label')
     quantity = fields.Float(string='Quantity',
-        default=1.0,
-        digits=dp.get_precision('Product Unit of Measure'),
-        help="The optional quantity expressed by this line, eg: number of product sold. The quantity is not a legal requirement but is very useful for some reports.")
+        default=1.0, digits=dp.get_precision('Product Unit of Measure'),
+        help="The optional quantity expressed by this line, eg: number of product sold."
+             "The quantity is not a legal requirement but is very useful for some reports.")
+    price_unit = fields.Float(string='Unit Price', required=True, digits=dp.get_precision('Product Price'))
+
+    # ==== Relational fields ====
+
+    # ==== Related fields ====
+
+
+
+
+
+
+
+
+
+
+
+
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
     product_id = fields.Many2one('product.product', string='Product')
     debit = fields.Monetary(default=0.0, currency_field='company_currency_id')
@@ -711,6 +596,143 @@ class AccountMoveLine(models.Model):
         ('credit_debit1', 'CHECK (credit*debit=0)', 'Wrong credit or debit value in accounting entry !'),
         ('credit_debit2', 'CHECK (credit+debit>=0)', 'Wrong credit or debit value in accounting entry !'),
     ]
+
+    # -------------------------------------------------------------------------
+    # ONCHANGE METHODS
+    # -------------------------------------------------------------------------
+
+    @api.onchange('debit', 'credit', 'tax_ids', 'analytic_account_id', 'analytic_tag_ids')
+    def onchange_tax_ids_create_aml(self):
+        for line in self:
+            line.recompute_tax_line = True
+
+    @api.onchange('quantity', 'price_unit')
+    def _onchange_product_values(self):
+        for line in self:
+
+
+    # -------------------------------------------------------------------------
+    # COMPUTE METHODS
+    # -------------------------------------------------------------------------
+
+    @api.depends('debit', 'credit', 'amount_currency', 'currency_id', 'matched_debit_ids', 'matched_credit_ids', 'matched_debit_ids.amount', 'matched_credit_ids.amount', 'move_id.state')
+    def _amount_residual(self):
+        """ Computes the residual amount of a move line from a reconcilable account in the company currency and the line's currency.
+            This amount will be 0 for fully reconciled lines or lines from a non-reconcilable account, the original line amount
+            for unreconciled lines, and something in-between for partially reconciled lines.
+        """
+        for line in self:
+            if not line.account_id.reconcile and line.account_id.internal_type != 'liquidity':
+                line.reconciled = False
+                line.amount_residual = 0
+                line.amount_residual_currency = 0
+                continue
+            #amounts in the partial reconcile table aren't signed, so we need to use abs()
+            amount = abs(line.debit - line.credit)
+            amount_residual_currency = abs(line.amount_currency) or 0.0
+            sign = 1 if (line.debit - line.credit) > 0 else -1
+            if not line.debit and not line.credit and line.amount_currency and line.currency_id:
+                #residual for exchange rate entries
+                sign = 1 if float_compare(line.amount_currency, 0, precision_rounding=line.currency_id.rounding) == 1 else -1
+
+            for partial_line in (line.matched_debit_ids + line.matched_credit_ids):
+                # If line is a credit (sign = -1) we:
+                #  - subtract matched_debit_ids (partial_line.credit_move_id == line)
+                #  - add matched_credit_ids (partial_line.credit_move_id != line)
+                # If line is a debit (sign = 1), do the opposite.
+                sign_partial_line = sign if partial_line.credit_move_id == line else (-1 * sign)
+
+                amount += sign_partial_line * partial_line.amount
+                #getting the date of the matched item to compute the amount_residual in currency
+                if line.currency_id and line.amount_currency:
+                    if partial_line.currency_id and partial_line.currency_id == line.currency_id:
+                        amount_residual_currency += sign_partial_line * partial_line.amount_currency
+                    else:
+                        if line.balance and line.amount_currency:
+                            rate = line.amount_currency / line.balance
+                        else:
+                            date = partial_line.credit_move_id.date if partial_line.debit_move_id == line else partial_line.debit_move_id.date
+                            rate = line.currency_id.with_context(date=date).rate
+                        amount_residual_currency += sign_partial_line * line.currency_id.round(partial_line.amount * rate)
+
+            #computing the `reconciled` field.
+            reconciled = False
+            digits_rounding_precision = line.company_id.currency_id.rounding
+            if float_is_zero(amount, precision_rounding=digits_rounding_precision):
+                if line.currency_id and line.amount_currency:
+                    if float_is_zero(amount_residual_currency, precision_rounding=line.currency_id.rounding):
+                        reconciled = True
+                else:
+                    reconciled = True
+            line.reconciled = reconciled
+
+            line.amount_residual = line.company_id.currency_id.round(amount * sign)
+            line.amount_residual_currency = line.currency_id and line.currency_id.round(amount_residual_currency * sign) or 0.0
+
+    @api.depends('debit', 'credit')
+    def _store_balance(self):
+        for line in self:
+            line.balance = line.debit - line.credit
+
+    @api.depends('debit', 'credit', 'move_id.matched_percentage', 'move_id.journal_id')
+    def _compute_cash_basis(self):
+        for move_line in self:
+            if move_line.journal_id.type in ('sale', 'purchase'):
+                move_line.debit_cash_basis = move_line.debit * move_line.move_id.matched_percentage
+                move_line.credit_cash_basis = move_line.credit * move_line.move_id.matched_percentage
+            else:
+                move_line.debit_cash_basis = move_line.debit
+                move_line.credit_cash_basis = move_line.credit
+            move_line.balance_cash_basis = move_line.debit_cash_basis - move_line.credit_cash_basis
+
+    @api.depends('move_id.line_ids', 'move_id.line_ids.tax_line_id', 'move_id.line_ids.debit', 'move_id.line_ids.credit')
+    def _compute_tax_base_amount(self):
+        for move_line in self:
+            if move_line.tax_line_id:
+                base_lines = move_line.move_id.line_ids.filtered(lambda line: move_line.tax_line_id in line.tax_ids)
+                move_line.tax_base_amount = abs(sum(base_lines.mapped('balance')))
+            else:
+                move_line.tax_base_amount = 0
+
+    @api.depends('move_id')
+    def _compute_parent_state(self):
+        for record in self.filtered('move_id'):
+            record.parent_state = record.move_id.state
+
+    @api.one
+    @api.depends('move_id.line_ids')
+    def _get_counterpart(self):
+        counterpart = set()
+        for line in self.move_id.line_ids:
+            if (line.account_id.code != self.account_id.code):
+                counterpart.add(line.account_id.code)
+        if len(counterpart) > 2:
+            counterpart = list(counterpart)[0:2] + ["..."]
+        self.counterpart = ",".join(counterpart)
+
+    # -------------------------------------------------------------------------
+    # CONSTRAINS METHODS
+    # -------------------------------------------------------------------------
+
+    # -------------------------------------------------------------------------
+    # LOW-LEVEL METHODS
+    # -------------------------------------------------------------------------
+
+    @api.model_cr
+    def init(self):
+        """ change index on partner_id to a multi-column index on (partner_id, ref), the new index will behave in the
+            same way when we search on partner_id, with the addition of being optimal when having a query that will
+            search on partner_id and ref at the same time (which is the case when we open the bank reconciliation widget)
+        """
+        cr = self._cr
+        cr.execute('DROP INDEX IF EXISTS account_move_line_partner_id_index')
+        cr.execute('SELECT indexname FROM pg_indexes WHERE indexname = %s', ('account_move_line_partner_id_ref_idx',))
+        if not cr.fetchone():
+            cr.execute('CREATE INDEX account_move_line_partner_id_ref_idx ON account_move_line (partner_id, ref)')
+
+    # -------------------------------------------------------------------------
+    # MISC
+    # -------------------------------------------------------------------------
 
     @api.model
     def default_get(self, fields):
