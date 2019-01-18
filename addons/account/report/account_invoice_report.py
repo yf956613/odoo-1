@@ -74,14 +74,10 @@ class AccountInvoiceReport(models.Model):
 
     _depends = {
         'account.invoice': [
-            'account_id', 'amount_total_company_signed', 'commercial_partner_id', 'company_id',
-            'currency_id', 'date_due', 'date_invoice', 'fiscal_position_id',
-            'journal_id', 'number', 'partner_bank_id', 'partner_id', 'payment_term_id',
+            # 'account_id', 'amount_total_company_signed', 'commercial_partner_id', 'company_id',
+            # 'currency_id', 'date_due', 'date_invoice', 'fiscal_position_id',
+            # 'journal_id', 'number', 'partner_bank_id', 'partner_id', 'payment_term_id',
             'residual', 'state', 'type', 'user_id',
-        ],
-        'account.invoice.line': [
-            'account_id', 'invoice_id', 'price_subtotal', 'product_id',
-            'quantity', 'uom_id', 'account_analytic_id',
         ],
         'product.product': ['product_tmpl_id'],
         'product.template': ['categ_id'],

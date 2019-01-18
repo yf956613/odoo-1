@@ -6,7 +6,7 @@
                 <t t-else="">Invoices</t>
             </li>
             <li t-if="invoice" class="breadcrumb-item active">
-                <t t-esc="invoice.number" t-if="invoice.number"/>
+                <t t-esc="invoice.name" t-if="invoice.name"/>
                 <t t-else=""><em>Draft Invoice</em></t>
             </li>
         </xpath>
@@ -46,8 +46,8 @@
                 <t t-foreach="invoices" t-as="invoice">
                     <tr>
                         <td>
-                            <a t-att-href="invoice.get_portal_url()" t-att-title="invoice.number">
-                                <t t-esc="invoice.number" t-if="invoice.number"/>
+                            <a t-att-href="invoice.get_portal_url()" t-att-title="invoice.name">
+                                <t t-esc="invoice.name" t-if="invoice.name"/>
                                 <em t-else="">Draft Invoice</em>
                             </a>
                         </td>

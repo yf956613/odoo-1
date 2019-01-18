@@ -17,17 +17,17 @@ class AccountMove(models.Model):
         if self._context.get('default_journal_id'):
             return self._context['default_journal_id']
 
-        journal_type = self._context.get('default_journal_type', 'general')
+        journal_type = self._context.get('default_journal_type', self._context.get('journal_type', 'general'))
         return self.env['account.journal'].search([
             ('company_id', '=', self.env.user.company_id.id), ('type', '=', journal_type)], limit=1).id
 
     # ==== Not-relational fields ====
     name = fields.Char(string='Number', required=True, readonly=True, copy=False, default='/')
-    previous_name = fields.Char(string='Previous Number', required=True, readonly=True, copy=False,
+    previous_name = fields.Char(string='Previous Number', readonly=True, copy=False,
         help='Technical field holding the previous number given to the journal entry before its cancellation.')
     ref = fields.Char(string='Reference', copy=False)
-    date = fields.Date(string='Date', required=True, index=True,
-        states={'posted': [('readonly', True)]}, default=fields.Date.context_today)
+    date = fields.Date(string='Date', required=True, index=True, readonly=True,
+        states={'draft': [('readonly', False)]}, default=fields.Date.context_today)
     state = fields.Selection([('draft', 'Unposted'), ('posted', 'Posted')], string='Status',
       required=True, readonly=True, copy=False, default='draft',
       help='All manually created new journal entries are usually in the status \'Unposted\', '
@@ -40,28 +40,31 @@ class AccountMove(models.Model):
         compute='_compute_matched_percentage',
         help="Technical field used in cash basis method")
     tax_type_domain = fields.Char(store=False, help='Technical field used to have a dynamic taxes domain on the form view.')
+    amount = fields.Monetary(compute='_amount_compute', store=True)
 
     # ==== Relational fields ====
-    journal_id = fields.Many2one('account.journal', string='Journal', required=True,
-        states={'posted': [('readonly', True)]}, default=_get_default_journal)
+    journal_id = fields.Many2one('account.journal', string='Journal', required=True, readonly=True,
+        states={'draft': [('readonly', False)]}, default=_get_default_journal)
     currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=True,
-        states={'posted': [('readonly', True)]},
+        states={'draft': [('readonly', False)]},
         compute='_compute_currency_id',
         inverse='_inverse_currency_id')
     partner_id = fields.Many2one('res.partner', string='Partner', store=True, readonly=True,
-        states={'posted': [('readonly', True)]})
+        states={'draft': [('readonly', False)]})
     commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity', store=True, readonly=True,
         compute='_compute_commercial_partner_id',
         inverse='_inverse_commercial_partner_id',
         help="The commercial entity")
     invoice_id = fields.Many2one('account.invoice', string='Invoice', ondelete='cascade', readonly=True)
-    line_ids = fields.One2many('account.move.line', 'move_id', string='Journal Items', copy=True,
-        states={'posted': [('readonly', True)]})
+    line_ids = fields.One2many('account.move.line', 'move_id', string='Journal Items', copy=True, readonly=True,
+        states={'draft': [('readonly', False)]})
     tax_cash_basis_rec_id = fields.Many2one(
         'account.partial.reconcile',
         string='Tax Cash Basis Entry of',
         help="Technical field used to keep track of the tax cash basis reconciliation. "
              "This is needed when cancelling the source: it will post the inverse journal entry to cancel that part too.")
+    dummy_account_id = fields.Many2one('account.account', string='Dummy Account', store=False, readonly=True,
+        related='line_ids.account_id')
 
     # ==== Related fields ====
     company_id = fields.Many2one(string='Company', store=True, readonly=True,
@@ -253,6 +256,14 @@ class AccountMove(models.Model):
         for move in self.filtered(lambda move: move.commercial_partner_id):
             for line in move.line_ids:
                 line.partner_id = move.commercial_partner_id
+
+    @api.depends('line_ids.debit', 'line_ids.credit')
+    def _amount_compute(self):
+        for move in self:
+            total = 0.0
+            for line in move.line_ids:
+                total += line.debit
+            move.amount = total
 
     @api.depends(
         'line_ids.debit', 'line_ids.credit',
@@ -532,7 +543,8 @@ class AccountMoveLine(models.Model):
         help="Technical field holding the debit_cash_basis - credit_cash_basis in order to open meaningful graph views from reports")
     amount_currency = fields.Monetary(default=0.0,
         help="The amount expressed in an optional other currency if it is a multi-currency entry.")
-    company_currency_id = fields.Many2one(related='company_id.currency_id', readonly=True, store=True,
+    company_currency_id = fields.Many2one(related='company_id.currency_id', string='Company Currency',
+        readonly=True, store=True,
         help='Utility field to express amount currency')
     amount_residual = fields.Monetary(string='Residual Amount', store=True,
         currency_field='company_currency_id',
@@ -575,7 +587,7 @@ class AccountMoveLine(models.Model):
         help="The move of this entry line.")
     payment_id = fields.Many2one('account.payment', string="Originator Payment", copy=False,
         help="Payment that created this entry")
-    invoice_id = fields.Many2one(related='move_id.invoice_id', store=True, readonly=True)
+    invoice_id = fields.Many2one('account.invoice', store=True, readonly=True)
     statement_line_id = fields.Many2one('account.bank.statement.line',
         string='Bank statement line reconciled with this entry',
         index=True, copy=False, readonly=True)
@@ -592,8 +604,10 @@ class AccountMoveLine(models.Model):
 
     # ==== Related fields ====
     date = fields.Date(related='move_id.date', store=True, readonly=True, index=True, copy=False)
+    ref = fields.Char(related='move_id.ref', store=True, copy=False, index=True, readonly=False)
+    narration = fields.Text(related='move_id.narration', string='Narration', readonly=False)
     product_image = fields.Binary(string='Product Image', related="product_id.image", store=False, readonly=True)
-    parent_state = fields.Char(related='move_id.state', store=True, readonly=True)
+    parent_state = fields.Selection(related='move_id.state', store=True, readonly=True)
     journal_id = fields.Many2one(related='move_id.journal_id', store=True, readonly=False, index=True, copy=False)
     partner_id = fields.Many2one('res.partner', string='Partner', ondelete='restrict')
     company_id = fields.Many2one(related='move_id.company_id', store=True, readonly=True)
@@ -617,33 +631,34 @@ class AccountMoveLine(models.Model):
     @api.onchange('product_id')
     def _onchange_product_id(self):
         if not self.product_id:
-            product = None
-        elif self.partner_id.lang:
+            return
+
+        if self.partner_id.lang:
             product = self.product_id.with_context(lang=self.partner_id.lang)
         else:
             product = self.product_id
 
         # Set default values depending of the invoice.
-        if product and self.invoice_id:
+        if self.invoice_id:
             self.name = self.invoice_id._get_default_product_name(self)
             self.account_id = self.invoice_id._get_default_product_account(self)
             self.tax_ids = self.invoice_id._get_default_product_taxes(self)
             self.price_unit = self.invoice_id._get_default_product_price_unit(self)
 
         # Set uom_id.
-        if not self.uom_id or product.uom_id.category_id.id != self.uom_id.category_id.id:
-            self.uom_id = product.uom_id.id
-        if self.uom_id and self.uom_id.id != product.uom_id.id:
-            self.price_unit = product.uom_id._compute_price(self.price_unit, self.uom_id)
+        if not self.product_uom_id or product.uom_id.category_id.id != self.product_uom_id.category_id.id:
+            self.product_uom_id = product.uom_id.id
+        if self.product_uom_id and self.product_uom_id.id != product.uom_id.id:
+            self.price_unit = product.uom_id._compute_price(self.price_unit, self.product_uom_id)
 
         if self.currency_id:
             self.price_unit = self.company_currency_id._convert(self.price_unit, self.currency_id, self.company_id, self.date)
 
-        return {'domain': {'uom_id': [('category_id', '=', product.uom_id.category_id.id)]}}
+        return {'domain': {'product_uom_id': [('category_id', '=', product.uom_id.category_id.id)]}}
 
-    @api.onchange('uom_id')
+    @api.onchange('product_uom_id')
     def _onchange_uom_id(self):
-        if self.uom_id:
+        if self.product_uom_id:
             if self.invoice_id:
                 self.price_unit = self.invoice_id._get_default_product_price_unit(self)
         else:
@@ -674,7 +689,7 @@ class AccountMoveLine(models.Model):
             self.debit = price_total if price_total > 0.0 else 0.0
             self.credit = price_total if price_total < 0.0 else 0.0
 
-    @api.onchange('amount_currency', 'currency', 'debit', 'credit')
+    @api.onchange('amount_currency', 'currency_id', 'debit', 'credit')
     def _onchange_balance(self):
         if self.currency_id:
             # Multi-currency
