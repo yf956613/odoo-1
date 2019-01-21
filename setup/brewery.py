@@ -110,11 +110,13 @@ def deb_build(args):
     odock = DockerOdoo(os.path.join(os.path.dirname(__file__), 'package.dfbuild'))
     odock.volumes.append('%s:/data/build' % args.build_dir)
     odock.run(
-        'mkdir /data/build/deb_source/ ' 
-        '&& cd /data/build/odoo_src/ '
+        'cd /data/build/odoo_src/ '
         '&& python3 setup.py sdist --quiet --formats=xztar --dist-dir=/data/build/'
     )
-    
+    odock.run(
+        'cd /data/build/odoo_src '
+        '&& dpkg-buildpackage -rfakeroot -uc -us'
+    )
 
 def rpm_build(args):
     pass
