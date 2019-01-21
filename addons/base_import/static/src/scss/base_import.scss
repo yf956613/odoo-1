@@ -98,26 +98,50 @@
     }
 
     /* ------------- THE CSV TABLE ------------ */
+table tbody { display:block; max-height:450px; overflow-y:scroll; overflow-x: hidden; }
+table thead, table tbody tr { display:table; width:100%; }
+table thead, table tbody td { min-width: 384px; text-overflow: ellipsis; }
+
+.ellipsis_without_space{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 384px;
+    white-space: nowrap;
+    word-wrap: break-word;
+}
+.ellipsis_with_space{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-height: 1.2em;
+    max-width: 384px;
+    max-height: 3.6em;
+    word-wrap: break-word;
+}
+
     .oe_import_grid {
         tr {
             &.oe_import_grid-header:first-child {
                 line-height: 24px;
                 font-weight: normal;
+                position: relative;
+                overflow: auto;
             }
-            td {
+            td,th {
                 padding: 4px;
                 vertical-align: top;
+                }
             }
         }
-    }
 
     /* Default Color for placeholder on import fields*/
     .select2-default{
         color: #F00 !important;
     }
-
 }
-
 
 /* Field dropdown */
 .oe_import_selector {
