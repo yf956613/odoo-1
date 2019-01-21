@@ -156,17 +156,11 @@ class AccountInvoice(models.Model):
     account_id = fields.Many2one('account.account', string='Account', required=True,
         domain=[('deprecated', '=', False)],
         help="The partner account used for this invoice.")
-    invoice_line_ids = fields.One2many('account.move.line', string='Invoice Lines', readonly=True, copy=True,
-        compute='_compute_line_ids',
-        inverse='_inverse_line_ids',
+    invoice_line_ids = fields.One2many('account.move.line', 'invoice_id', string='Invoice Lines', readonly=True, copy=True,
         states={'draft': [('readonly', False)]})
-    tax_line_ids = fields.One2many('account.move.line', string='Tax Lines', readonly=True, copy=True,
-        compute='_compute_line_ids',
-        inverse='_inverse_line_ids',
+    tax_line_ids = fields.One2many('account.move.line', 'invoice_id', string='Tax Lines', readonly=True, copy=True,
         states={'draft': [('readonly', False)]})
-    pay_term_line_ids = fields.One2many('account.move.line', string='Payment Term Lines', readonly=True, copy=True,
-        compute='_compute_line_ids',
-        inverse='_inverse_line_ids')
+    pay_term_line_ids = fields.One2many('account.move.line', 'invoice_id', string='Payment Term Lines', readonly=True, copy=True)
     cash_rounding_line_id = fields.Many2one('account.move.line', string='Cash Rounding line', readonly=True, copy=True)
     refund_invoice_ids = fields.One2many('account.invoice', 'refund_invoice_id', string='Refund Invoices', readonly=True)
     move_id = fields.Many2one('account.move', string='Journal Entry',
@@ -218,10 +212,16 @@ class AccountInvoice(models.Model):
     def _get_default_product_name(self, move_line):
         self.ensure_one()
 
+        values = []
+        if move_line.product_id.partner_ref:
+            values.append(move_line.product_id.partner_ref)
         if self.type in ('out_invoice', 'out_refund'):
-            return '\n'.join([move_line.product_id.partner_ref, move_line.product_id.description_sale])
+            if move_line.product_id.description_sale:
+                values.append(move_line.product_id.description_sale)
         else:
-            return '\n'.join([move_line.product_id.partner_ref, move_line.product_id.description_purchase])
+            if move_line.product_id.description_purchase:
+                values.append(move_line.product_id.description_purchase)
+        return '\n'.join(values)
 
     @api.multi
     def _get_default_product_account(self, move_line):
@@ -251,10 +251,10 @@ class AccountInvoice(models.Model):
     def _get_default_product_price_unit(self, move_line):
         self.ensure_one()
 
-        if self.invoice_id.type in ('out_invoice', 'out_refund'):
-            return self.product_id.lst_price
+        if self.type in ('out_invoice', 'out_refund'):
+            return move_line.product_id.lst_price
         else:
-            return self.product_id.standard_price
+            return move_line.product_id.standard_price
 
     @api.multi
     def _get_computed_reference(self):
@@ -514,6 +514,18 @@ class AccountInvoice(models.Model):
     # ONCHANGE METHODS
     # -------------------------------------------------------------------------
 
+    @api.onchange('journal_id')
+    def _onchange_journal_id(self):
+        self.move_id._onchange_journal_id()
+
+    @api.onchange('date')
+    def _onchange_date(self):
+        self.move_id._onchange_date()
+
+    @api.onchange('invoice_line_ids', 'tax_line_ids', 'pay_term_line_ids')
+    def _onchange_line_ids(self):
+        self.move_id._onchange_line_ids()
+
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
         account_id = False
@@ -578,8 +590,6 @@ class AccountInvoice(models.Model):
     def _onchange_account_id(self):
         for move_line in self.pay_term_line_ids:
             move_line.account_id = self.account_id
-
-
 
     # @api.onchange('amount_total')
     # def _onchange_amount_total(self):
@@ -694,14 +704,6 @@ class AccountInvoice(models.Model):
     # -------------------------------------------------------------------------
     # LOW-LEVEL METHODS
     # -------------------------------------------------------------------------
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        # OVERRIDE
-        invoices = super(AccountInvoice, self.with_context(mail_create_nolog=True)).create(vals_list)
-        for inv in invoices:
-            inv.move_id.invoice_id = inv.id
-        return invoices
 
     # @api.multi
     # def _write(self, vals):

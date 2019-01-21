@@ -55,7 +55,10 @@ class AccountMove(models.Model):
         compute='_compute_commercial_partner_id',
         inverse='_inverse_commercial_partner_id',
         help="The commercial entity")
-    invoice_id = fields.Many2one('account.invoice', string='Invoice', ondelete='cascade', readonly=True)
+    invoice_id = fields.Many2one('account.invoice', string='Invoice', store=True, readonly=True,
+        compute='_compute_invoice_id',
+        inverse='_inverse_invoice_id',
+        help="The invoice represented by this journal entry.")
     line_ids = fields.One2many('account.move.line', 'move_id', string='Journal Items', copy=True, readonly=True,
         states={'draft': [('readonly', False)]})
     tax_cash_basis_rec_id = fields.Many2one(
@@ -92,7 +95,7 @@ class AccountMove(models.Model):
         but not on account.move.line even the date field is related to account.move.
         Then, trigger the _onchange_amount_currency manually.
         '''
-        self.line_ids._onchange_amount_currency()
+        self.line_ids._onchange_price_total()
 
     @api.onchange('line_ids')
     def _onchange_line_ids(self):
@@ -257,6 +260,17 @@ class AccountMove(models.Model):
             for line in move.line_ids:
                 line.partner_id = move.commercial_partner_id
 
+    @api.depends('line_ids.invoice_id')
+    def _compute_invoice_id(self):
+        for move in self:
+            move.invoice_id = move.line_ids.mapped('invoice_id')
+
+    @api.multi
+    def _inverse_invoice_id(self):
+        for move in self:
+            for line in move.line_ids:
+                line.invoice_id = move.invoice_id
+
     @api.depends('line_ids.debit', 'line_ids.credit')
     def _amount_compute(self):
         for move in self:
@@ -291,6 +305,12 @@ class AccountMove(models.Model):
     # -------------------------------------------------------------------------
     # CONSTRAINS METHODS
     # -------------------------------------------------------------------------
+
+    @api.constrains('invoice_id')
+    def _check_invoice_id(self):
+        for move in self:
+            if not move.invoice_id and any(line.invoice_id for line in move.line_ids):
+                raise UserError(_("blablabla invoice_id"))
 
     @api.constrains('line_ids', 'journal_id', 'auto_reverse', 'reverse_date')
     def _validate_move_modification(self):
@@ -587,7 +607,7 @@ class AccountMoveLine(models.Model):
         help="The move of this entry line.")
     payment_id = fields.Many2one('account.payment', string="Originator Payment", copy=False,
         help="Payment that created this entry")
-    invoice_id = fields.Many2one('account.invoice', store=True, readonly=True)
+    invoice_id = fields.Many2one('account.invoice', readonly=True)
     statement_line_id = fields.Many2one('account.bank.statement.line',
         string='Bank statement line reconciled with this entry',
         index=True, copy=False, readonly=True)
@@ -626,6 +646,9 @@ class AccountMoveLine(models.Model):
 
     @api.onchange('debit', 'credit', 'tax_ids', 'analytic_account_id', 'analytic_tag_ids')
     def onchange_tax_ids_create_aml(self):
+        ''' Recompute the dynamic onchange based on taxes.
+        See '_onchange_line_ids' in account.move for more details.
+        '''
         self.recompute_tax_line = True
 
     @api.onchange('product_id')
@@ -658,6 +681,7 @@ class AccountMoveLine(models.Model):
 
     @api.onchange('product_uom_id')
     def _onchange_uom_id(self):
+        ''' Recompute the 'price_unit' depending of the unit of measure. '''
         if self.product_uom_id:
             if self.invoice_id:
                 self.price_unit = self.invoice_id._get_default_product_price_unit(self)
@@ -666,6 +690,7 @@ class AccountMoveLine(models.Model):
 
     @api.onchange('account_id')
     def _onchange_account_id(self):
+        ''' Recompute 'tax_ids' based on 'account_id'. '''
         if not self.account_id:
             return
 
@@ -673,48 +698,79 @@ class AccountMoveLine(models.Model):
             self.tax_ids = self.invoice_id._get_default_product_taxes(self)
 
     @api.onchange('quantity', 'discount', 'price_unit')
-    def _onchange_price(self):
-        if self.invoice_id:
-            sign = 1 if self.invoice_id.type in ('out_refund', 'in_invoice') else -1
-        else:
-            sign = 1 if self.balance >= 0.0 else -1
-
-        price_total = sign * self.price_total
-
-        if self.currency_id:
-            # Multi-currency
-            self.amount_currency = price_total
-        else:
-            # Single-currency
-            self.debit = price_total if price_total > 0.0 else 0.0
-            self.credit = price_total if price_total < 0.0 else 0.0
-
-    @api.onchange('amount_currency', 'currency_id', 'debit', 'credit')
-    def _onchange_balance(self):
-        if self.currency_id:
-            # Multi-currency
-            self.price_total = abs(self.amount_currency)
-        else:
-            # Single-currency
-            self.price_total = abs(self.balance)
-        price_total_wo_discount = self.price_total / (1 - (self.discount / 100.0))
-        self.price_unit = price_total_wo_discount / self.quantity
-
-    @api.onchange('amount_currency', 'currency_id', 'account_id')
-    def _onchange_amount_currency(self):
-        '''Recompute the debit/credit based on amount_currency/currency_id and date.
-        However, date is a related field on account.move. Then, this onchange will not be triggered
-        by the form view by changing the date on the account.move.
-        To fix this problem, see _onchange_date method on account.move.
-        '''
+    def _onchange_price_total(self):
+        ''' Recompute 'amount_currency', 'debit', 'credit' based on a change of the line's 'price_total'. '''
         for line in self:
-            company_currency_id = line.account_id.company_id.currency_id
-            amount = line.amount_currency
-            if line.currency_id and company_currency_id and line.currency_id != company_currency_id:
-                amount = line.currency_id._convert(amount, company_currency_id, line.company_id,
-                                                   line.date or fields.Date.today())
-                line.debit = amount > 0 and amount or 0.0
-                line.credit = amount < 0 and -amount or 0.0
+            if line.invoice_id:
+                sign = 1 if line.invoice_id.type in ('out_refund', 'in_invoice') else -1
+            else:
+                sign = 1 if line.balance >= 0.0 else -1
+
+            price_total = sign * line.price_total
+
+            # Manage multi-currency
+            if line.currency_id:
+                line.amount_currency = price_total
+
+                price_total = line.currency_id._convert(
+                    price_total, line.company_id.currency_id, line.company_id, line.date)
+
+            line.debit = price_total > 0.0 and price_total or 0.0
+            line.credit = price_total < 0.0 and -price_total or 0.0
+
+    @api.onchange('debit', 'credit')
+    def _onchange_balance(self):
+        ''' Recompute 'price_total', 'price_unit' based on a change of the line's 'balance'. '''
+        for line in self.filtered(lambda line: line.currency_id):
+            if line.invoice_id:
+                sign = 1 if line.invoice_id.type in ('out_refund', 'in_invoice') else -1
+            else:
+                sign = 1 if line.balance >= 0.0 else -1
+
+            line.price_total = sign * line.balance
+            price_total_wo_discount = line.price_total / (1 - (line.discount / 100.0))
+            line.price_unit = price_total_wo_discount / line.quantity
+
+    @api.onchange('amount_currency')
+    def _onchange_amount_currency(self):
+        ''' Recompute 'price_total' based on a change of 'amount_currency'. '''
+        # Recompute 'price_total'.
+        for line in self.filtered(lambda line: line.currency_id):
+            if line.invoice_id:
+                sign = 1 if line.invoice_id.type in ('out_refund', 'in_invoice') else -1
+            else:
+                sign = 1 if line.balance >= 0.0 else -1
+
+            line.price_total = sign * line.amount_currency
+
+            price_total_wo_discount = line.price_total / (1 - (line.discount / 100.0))
+            line.price_unit = price_total_wo_discount / line.quantity
+
+            balance = line.currency_id._convert(
+                line.amount_currency, line.company_id.currency_id, line.company_id, line.date)
+
+            line.debit = balance > 0.0 and balance or 0.0
+            line.credit = balance < 0.0 and -balance or 0.0
+
+    @api.onchange('currency_id')
+    def _onchange_currency_id(self):
+        ''' Recompute 'amount_currency' based on a change of the 'currency_id'. '''
+        for line in self:
+            if line.invoice_id:
+                sign = 1 if line.invoice_id.type in ('out_refund', 'in_invoice') else -1
+            else:
+                sign = 1 if line.balance >= 0.0 else -1
+
+            if line.currency_id:
+                # Multi-currency
+                line.amount_currency = sign * line.price_total
+            else:
+                # Single-currency
+                line.amount_currency = 0.0
+
+                price_total = sign * line.price_total
+                line.debit = price_total > 0.0 and price_total or 0.0
+                line.credit = price_total < 0.0 and -price_total or 0.0
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
@@ -819,21 +875,6 @@ class AccountMoveLine(models.Model):
     # CONSTRAINS METHODS
     # -------------------------------------------------------------------------
 
-    @api.constrains('partner_id', 'account_id')
-    def _check_consistency_with_invoice(self):
-        for line in self.filtered(lambda line: line.invoice_id):
-            invoice_type = line.invoice_id.type
-
-            # Check partner_id.
-            if not line.partner_id:
-                raise UserError(_("The commercial partner must be set on the journal items linked to an invoice."))
-
-            # Check account_id.
-            if invoice_type in ('out_invoice', 'out_refund') and line.user_type_id.type == 'payable':
-                raise UserError(_("A payable can't be used inside a customer invoice."))
-            if invoice_type in ('in_invoice', 'in_refund') and line.user_type_id.type == 'receivable':
-                raise UserError(_("A receivable can't be used inside a vendor bill."))
-
     @api.constrains('currency_id', 'account_id')
     def _check_currency(self):
         for line in self:
@@ -859,6 +900,20 @@ class AccountMoveLine(models.Model):
                     raise ValidationError(_(
                         'The amount expressed in the secondary currency must be positive when account is debited and negative when account is credited.'))
 
+    @api.constrains('account_id')
+    def _check_constrains_account_id(self):
+        for line in self:
+            account = line.account_id
+            journal = line.journal_id
+
+            if account.deprecated:
+                raise UserError(_('The account %s (%s) is deprecated.') % (account.name, account.code))
+
+            control_type_failed = journal.type_control_ids and account.user_type_id not in journal.type_control_ids
+            control_account_failed = journal.account_control_ids and account not in journal.account_control_ids
+            if control_type_failed or control_account_failed:
+                raise UserError(_('You cannot use this general account in this journal, check the tab \'Entry Controls\' on the related journal.'))
+
     # -------------------------------------------------------------------------
     # LOW-LEVEL METHODS
     # -------------------------------------------------------------------------
@@ -875,27 +930,30 @@ class AccountMoveLine(models.Model):
         if not cr.fetchone():
             cr.execute('CREATE INDEX account_move_line_partner_id_ref_idx ON account_move_line (partner_id, ref)')
 
+    @api.model
+    def new(self, values={}, ref=None):
+        # OVERRIDE
+        # Hack to set 'move_id' explicitly based on invoice.
+        line = super(AccountMoveLine, self).new(values=values, ref=ref)
+        if not line.move_id and line.invoice_id:
+            line.move_id = line.invoice_id.move_id
+        return line
+
     @api.model_create_multi
     def create(self, vals_list):
         """ :context's key `check_move_validity`: check data consistency after move line creation. Eg. set to false to disable verification that the move
                 debit-credit == 0 while creating the move lines composing the move.
         """
         for vals in vals_list:
+            # TODO write a beautiful text explaining why this hack is needed for my amazing POC.
+            if not vals.get('move_id') and vals.get('invoice_id'):
+                invoice = self.env['account.invoice'].browse(vals['invoice_id'])
+                vals['move_id'] = invoice.move_id.id
+
             amount = vals.get('debit', 0.0) - vals.get('credit', 0.0)
             move = self.env['account.move'].browse(vals['move_id'])
             account = self.env['account.account'].browse(vals['account_id'])
-            if account.deprecated:
-                raise UserError(_('The account %s (%s) is deprecated.') %(account.name, account.code))
-            journal = vals.get('journal_id') and self.env['account.journal'].browse(vals['journal_id']) or move.journal_id
             vals['date_maturity'] = vals.get('date_maturity') or vals.get('date') or move.date
-
-            ok = (
-                (not journal.type_control_ids and not journal.account_control_ids)
-                or account.user_type_id in journal.type_control_ids
-                or account in journal.account_control_ids
-            )
-            if not ok:
-                raise UserError(_('You cannot use this general account in this journal, check the tab \'Entry Controls\' on the related journal.'))
 
             # Automatically convert in the account's secondary currency if there is one and
             # the provided values were not already multi-currency

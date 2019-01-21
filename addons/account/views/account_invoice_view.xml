@@ -318,7 +318,6 @@
                     You have <bold><a class="alert-link" href="#outstanding" role="button">outstanding payments</a></bold> for this customer. You can allocate them to mark this invoice as paid.
                 </div>
                 <field name="has_outstanding" invisible="1"/>
-                <field name="line_ids" invisible="1"/>
                 <field name="pay_term_line_ids" invisible="1"/>
                 <sheet string="Invoice">
                     <div class="oe_button_box" name="button_box">
@@ -362,8 +361,7 @@
                     <field name="sent" invisible="1"/>
                     <notebook colspan="4">
                         <page string="Invoice Lines">
-                            <field name="invoice_line_ids" nolabel="1" widget="one2many_list" mode="tree"
-                                   context="{'default_move_id': move_id, 'default_invoice_id': id}">
+                            <field name="invoice_line_ids" nolabel="1" widget="one2many_list" mode="tree">
                                 <tree string="Invoice Lines" editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="product_id" domain="[('sale_ok','=',True)]"/>
