@@ -210,3 +210,37 @@ return Promise.all([
 });
 
 });
+odoo.define('web.test_utils.leak', function (require) {
+var mixins = require('web.mixins');
+var oldInit = mixins.ParentedMixin.init;
+
+var ws;
+QUnit.testStart(function () {
+    ws = [];
+    mixins.ParentedMixin.init = function () {
+        oldInit.apply(this, arguments);
+        ws.push(this);
+    }
+});
+QUnit.testDone(function (details) {
+    mixins.ParentedMixin.init = oldInit;
+
+    if (!details.failed) {
+        // only check for zombie objects if the test suceeded otherwise we don't care
+        var zombies = _(ws).filter(function (w) { return !w.isDestroyed(); });
+        if (zombies.length) {
+            console.error("Found non-destroyed widgets in ", details.module, ":", details.name);
+            _(zombies).each(function (it) {
+                console.log(Object.entries(it).map(([k, v]) => {
+                    try {
+                        return `${k}=${v}`;
+                    } catch(_){
+                        return `${k}=<unconvertible>`;
+                    }
+                }).join('; '));
+            });
+        }
+    }
+    ws = [];
+});
+});
