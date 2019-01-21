@@ -427,7 +427,7 @@ class Web_Editor(http.Controller):
                 Returns whether the view arch has some html link tag linked to the url.
                 (note: searching for the URL string is not enough as it could appear in a comment or an xpath expression.)
                 """
-                return bool(etree.XML(view.arch).xpath("link[@href='{}']".format(url)))
+                return bool(etree.XML(view.arch).xpath("//link[@href='{}']".format(url)))
 
             view_to_xpath = IrUiView.get_related_views(bundle_xmlid, bundles=True).filtered(views_linking_url)
 
