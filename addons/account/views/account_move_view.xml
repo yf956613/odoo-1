@@ -30,7 +30,6 @@
                                     <group string="Accounting Documents">
                                         <field name="move_id" attrs="{'readonly':[('parent_state','=','posted')]}"/>
                                         <field name="statement_id" readonly="True" attrs="{'invisible': [('statement_id','=',False)]}"/>
-                                        <field name="invoice_id" attrs="{'invisible': [('invoice_id','=',False)]}"/>
                                     </group>
                                     <group string="Dates">
                                         <field name="date_maturity"/>
@@ -321,7 +320,6 @@
                             <field name="currency_id" invisible="1"/>
                             <field name="partner_id" invisible="1"/>
                             <field name="commercial_partner_id" invisible="1"/>
-                            <field name="invoice_id" invisible="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -330,8 +328,6 @@
                               context="{'line_ids': line_ids, 'journal_id': journal_id }">
                                 <tree editable="bottom" string="Journal Items">
                                     <field name="date" invisible="1"/>
-                                    <field name="product_uom_id" invisible="1"/>
-                                    <field name="product_id" invisible="1"/>
                                     <field name="tax_line_id" invisible="1"/>
                                     <field name="account_id" domain="[('company_id', '=', parent.company_id), ('deprecated', '=', False)]"/>
                                     <field name="partner_id"
@@ -342,6 +338,8 @@
                                     <field name="quantity" invisible="1"/>
                                     <field name="discount" invisible="1"/>
                                     <field name="product_id" invisible="1"/>
+                                    <field name="product_uom_id" invisible="1"/>
+                                    <field name="price_total" invisible="1"/>
                                     <field name="amount_currency" groups="base.group_multi_currency"/>
                                     <field name="company_currency_id" invisible="1"/>
                                     <field name="company_id" invisible="1"/>
