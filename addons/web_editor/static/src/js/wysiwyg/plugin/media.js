@@ -582,6 +582,7 @@ var AbstractMediaPlugin = AbstractPlugin.extend({
     },
     destroy: function () {
         this.$popover.remove();
+        this._super.apply(this, arguments);
     },
 
     //--------------------------------------------------------------------------

@@ -28,10 +28,13 @@ var plugins = _.mapObject(wysiwygOptions.modules, function (Module, pluginName) 
         }
     });
 
-    var Plugin = AbstractPlugin.extend(prototype).extend({
+    var Plugin = AbstractPlugin.extend(prototype, {
         destroy: function () {
             if (this.shouldInitialize()) {
                 this._super();
+            } else {
+                // WHEEEEE
+                AbstractPlugin.prototype.destroy.call(this);
             }
         },
     });
