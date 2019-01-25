@@ -116,9 +116,11 @@ class StockPicking(models.Model):
         res = super(StockPicking, self).action_done()
         for pick in self:
             if pick.carrier_id:
+                exact_price = None
                 if pick.carrier_id.integration_level == 'rate_and_ship':
-                    pick.send_to_shipper()
-                pick._add_delivery_cost_to_so()
+                    res = pick.send_to_shipper()
+                    exact_price = res['exact_price']
+                pick._add_delivery_cost_to_so(exact_price)
         return res
 
     @api.multi
@@ -180,9 +182,10 @@ class StockPicking(models.Model):
         order_currency = self.sale_id.currency_id or self.company_id.currency_id
         msg = _("Shipment sent to carrier %s for shipping with tracking number %s<br/>Cost: %.2f %s") % (self.carrier_id.name, self.carrier_tracking_ref, self.carrier_price, order_currency.name)
         self.message_post(body=msg)
+        return res
 
     @api.multi
-    def _add_delivery_cost_to_so(self):
+    def _add_delivery_cost_to_so(self, exact_price):
         self.ensure_one()
         sale_order = self.sale_id
         if sale_order.invoice_shipping_on_delivery:
@@ -192,14 +195,16 @@ class StockPicking(models.Model):
         else:
             delivery_line = sale_order.order_line.filtered(lambda line: line.is_delivery and line.price_unit == 0)
             if delivery_line:
-                res = self.carrier_id.rate_shipment(sale_order)
-                if res['success']:
-                    delivery_line.qty_delivered = 1  # to trigger the invoice status
-                    delivery_line.price_unit = res['price']
-                    # remove the estimated price from the description
-                    delivery_line.name = delivery_line.name.split('(Estimated')[0]
-                else:
-                    raise UserError(_("Unable to update the delivery price because of: " + res['error_message']))
+                if not exact_price:
+                    res = self.carrier_id.rate_shipment(sale_order)
+                    if res['success']:
+                        exact_price = res['price']
+                    else:
+                        raise UserError(_("Unable to update the delivery price because of: " + res['error_message']))
+                delivery_line.qty_delivered = 1  # to trigger the invoice status
+                delivery_line.price_unit += exact_price
+                # remove the estimated price from the description
+                delivery_line.name = delivery_line.name.split('(Estimated')[0]
 
     @api.multi
     def open_website_url(self):
