@@ -584,6 +584,12 @@ class Partner(models.Model):
     @api.multi
     def name_get(self):
         res = []
+        prefetch_fields = ['name', 'company_name', 'parent_id', 'type', 'is_company', 'commercial_company_name', 'country_id']
+        if self._context.get('show_address') or self._context.get('show_address_only'):
+            prefetch_fields += self._address_fields()
+        if self._context.get('show_email'):
+            prefetch_fields.append('email')
+        self.read(prefetch_fields, load=False)
         for partner in self:
             name = partner.name or ''
 
