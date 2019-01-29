@@ -2701,7 +2701,8 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                 res = 'pg_size_pretty(length(%s)::bigint)' % res
             return '%s as "%s"' % (res, col)
 
-        qual_names = [qualify(name) for name in [self._fields['id']] + fields_pre]
+        query_fields = [self._fields['id']] + fields_pre
+        qual_names = [qualify(name) for name in query_fields]
 
         # determine the actual query to execute
         from_clause, where_clause, params = query.get_sql()
@@ -2728,9 +2729,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                             vals[name] = translate(vals['id'], vals[name])
 
             # store result in cache
-            for vals in result:
-                record = self.browse(vals.pop('id'), self._prefetch)
-                record._cache.update(record._convert_to_cache(vals, validate=False))
+            for i, field in enumerate(query_fields):
+                values = {r['id']: r[field.name] for r in result}
+                values = self._convert_to_cache_prefetch(field.name, values)
+                self.env.cache.update(fetched, field, values)
 
             # determine the fields that must be processed now;
             # for the sake of simplicity, we ignore inherited fields
@@ -4459,6 +4461,15 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             name: fields[name].convert_to_cache(value, target, validate=validate)
             for name, value in values.items()
             if name in fields
+        }
+
+    def _convert_to_cache_prefetch(self, field, values):
+        target = self.browse([], self._prefetch)
+        if field not in self._fields:
+            return {}
+        return {
+            record_id: self._fields[field].convert_to_cache(value, target, validate=False)
+            for record_id, value in values.items()
         }
 
     def _convert_to_record(self, values):

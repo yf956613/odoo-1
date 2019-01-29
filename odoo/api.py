@@ -972,6 +972,10 @@ class Cache(object):
         key = record.env.cache_key(field)
         self._data[key][field][record.id] = value
 
+    def update(self, records, field, record_values):
+        key = records.env.cache_key(field)
+        self._data[key][field].update(record_values)
+
     def remove(self, record, field):
         """ Remove the value of ``field`` for ``record``. """
         key = record.env.cache_key(field)
