@@ -2594,7 +2594,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         # computes remaining fields
         self = self.with_prefetch(self._prefetch.copy())
         records = list(self)
-        data = {record: {'id': record.id} for record in records}
+        data = {record.id: {'id': record.id} for record in records}
         missing = set()
         use_name_get = (load == '_classic_read')
         for name in (stored + inherited + computed):
@@ -2604,10 +2604,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             self._prefetch[self._name] = set(self._ids)
             for record in records:
                 try:
-                    data[record][name] = convert(record[name], record, use_name_get)
+                    data[record.id][name] = convert(record[name], record, use_name_get)
                 except MissingError:
                     missing.add(record)
-        result = [data[record] for record in records if record not in missing]
+        result = [data[record.id] for record in records if record not in missing]
 
         return result
 
