@@ -155,7 +155,7 @@ class Lang(models.Model):
             tools.resetlocale()
 
     @api.model
-    def install_lang(self):
+    def _set_default_lang(self):
         """
 
         This method is called from odoo/addons/base/base_data.xml to load
