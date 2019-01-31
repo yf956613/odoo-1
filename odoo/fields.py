@@ -1978,7 +1978,7 @@ class Many2one(_Relational):
             return ()
 
     def convert_to_record(self, value, record):
-        return record.env[self.comodel_name]._browse(value, record.env, record._prefetch)
+        return record.env.registry[self.comodel_name]._browse(value, record.env, record._prefetch)
 
     def convert_to_read(self, value, record, use_name_get=True):
         if use_name_get and value:
@@ -2094,7 +2094,7 @@ class _RelationalMulti(_Relational):
         raise ValueError("Wrong value for %s: %s" % (self, value))
 
     def convert_to_record(self, value, record):
-        return record.env[self.comodel_name]._browse(value, record.env, record._prefetch)
+        return record.env.registry[self.comodel_name]._browse(value, record.env, record._prefetch)
 
     def convert_to_read(self, value, record, use_name_get=True):
         return value.ids
