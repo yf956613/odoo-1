@@ -2731,7 +2731,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
 
             # store result in cache
             for i, field in enumerate(query_fields):
-                values = {r['id']: r[field.name] for r in result}
+                values = [(r['id'], r[field.name]) for r in result]
                 values = self._convert_to_cache_prefetch(field.name, values)
                 self.env.cache.update(fetched, field, values)
 
@@ -4468,10 +4468,11 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         target = self.browse([], self._prefetch)
         if field not in self._fields:
             return {}
-        return {
-            record_id: self._fields[field].convert_to_cache(value, target, validate=False)
-            for record_id, value in values.items()
-        }
+        convert = self._fields[field].convert_to_cache
+        return [
+            (record_id, convert(value, target, validate=False))
+            for record_id, value in values
+        ]
 
     def _convert_to_record(self, values):
         """ Convert the ``values`` dictionary from the cache format to the
