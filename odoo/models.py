@@ -2701,8 +2701,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                 res = 'pg_size_pretty(length(%s)::bigint)' % res
             return '%s as "%s"' % (res, col)
 
-        query_fields = [self._fields['id']] + fields_pre
-        qual_names = [qualify(name) for name in query_fields]
+        qual_names = [qualify(name) for name in [self._fields['id']] + fields_pre]
 
         # determine the actual query to execute
         from_clause, where_clause, params = query.get_sql()
@@ -2713,25 +2712,26 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         for sub_ids in cr.split_for_in_conditions(self.ids):
             params[param_pos] = tuple(sub_ids)
             cr.execute(query_str, params)
-            result.extend(cr.dictfetchall())
+            result.extend(cr.fetchall())
 
-        ids = [vals['id'] for vals in result]
+        result = list(map(list, zip(*result)))
+        ids = result.pop(0) if result else []
         fetched = self.browse(ids)
 
         if ids:
             # translate the fields if necessary
             if context.get('lang'):
-                for field in fields_pre:
+                for index, field in enumerate(fields_pre):
                     if not field.inherited and callable(field.translate):
                         name = field.name
                         translate = field.get_trans_func(fetched)
-                        for vals in result:
-                            vals[name] = translate(vals['id'], vals[name])
+                        vals = result[index]
+                        for i, val in enumerate(vals):
+                            vals[i] = translate(ids[i], val)
 
             # store result in cache
-            for i, field in enumerate(query_fields):
-                values = [(r['id'], r[field.name]) for r in result]
-                values = self._convert_to_cache_prefetch(field.name, values)
+            for field, values in zip(fields_pre, result):
+                values = self._convert_to_cache_prefetch(field.name, zip(ids, values))
                 self.env.cache.update(fetched, field, values)
 
             # determine the fields that must be processed now;
@@ -4469,10 +4469,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         if field not in self._fields:
             return {}
         convert = self._fields[field].convert_to_cache
-        return [
+        return (
             (record_id, convert(value, target, validate=False))
             for record_id, value in values
-        ]
+        )
 
     def _convert_to_record(self, values):
         """ Convert the ``values`` dictionary from the cache format to the
