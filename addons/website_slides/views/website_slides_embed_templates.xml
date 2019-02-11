@@ -64,7 +64,7 @@
                                                 <h4><t t-esc="suggest_slide.name"/></h4>
                                             </div>
                                             <span class="oe-image-thumbnail">
-                                                <img class="img-fluid" t-attf-src="/web/image/slide.slide/#{suggest_slide.id}/image_thumb" alt="suggest_slide.name"/>
+                                                <img class="img-fluid" t-attf-src="/web/image/slide.slide/#{suggest_slide.id}/image_small" alt="suggest_slide.name"/>
                                             </span>
                                         </a>
 

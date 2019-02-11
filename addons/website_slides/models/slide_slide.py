@@ -10,9 +10,8 @@ import re
 
 from werkzeug import urls
 
-from odoo import api, fields, models, SUPERUSER_ID, _
+from odoo import api, fields, models, tools, _
 from odoo.addons.http_routing.models.ir_http import slug
-from odoo.tools import image
 from odoo.exceptions import Warning, UserError
 from odoo.http import request
 from odoo.addons.http_routing.models.ir_http import url_for
@@ -96,11 +95,6 @@ class Slide(models.Model):
         'latest': 'date_published desc',
     }
 
-    _PROMOTIONAL_FIELDS = [
-        '__last_update', 'name', 'image_thumb', 'image_medium', 'slide_type', 'total_views', 'category_id',
-        'channel_id', 'description', 'tag_ids', 'write_date', 'create_date',
-        'website_published', 'website_url', 'website_meta_title', 'website_meta_description', 'website_meta_keywords', 'website_meta_og_img']
-
     _sql_constraints = [
         ('exclusion_html_content_and_url', "CHECK(html_content IS NULL OR url IS NULL)", "A slide is either filled with a document url or HTML content. Not both.")
     ]
@@ -119,10 +113,9 @@ class Slide(models.Model):
         required=True, default='user')
     is_preview = fields.Boolean('Always visible', default=False)
     completion_time = fields.Float('# Hours', default=1, digits=(10, 4))
-    image = fields.Binary('Image', attachment=True)
-    # TODO DBE : review image medium and small - using standard image calls (see web/image/.. route)
-    image_medium = fields.Binary('Medium', compute="_get_image", store=True, attachment=True)
-    image_thumb = fields.Binary('Thumbnail', compute="_get_image", store=True, attachment=True)
+    image = fields.Binary("Image", attachment=True)
+    image_medium = fields.Binary("Medium image", attachment=True)
+    image_small = fields.Binary("Small image", attachment=True)
     # subscribers
     partner_ids = fields.Many2many('res.partner', 'slide_slide_partner', 'slide_id', 'partner_id',
                                    string='Subscribers', groups='base.group_website_publisher')
@@ -156,16 +149,6 @@ class Slide(models.Model):
     slide_views = fields.Integer('# of Website Views', store=True, compute="_compute_slide_views")
     public_views = fields.Integer('# of Public Views')
     total_views = fields.Integer("Total # Views", default="0", compute='_compute_total', store=True)
-
-    @api.depends('image')
-    def _get_image(self):
-        for record in self:
-            if record.image:
-                record.image_medium = image.crop_image(record.image, type='top', ratio=(4, 3), size=(500, 400))
-                record.image_thumb = image.crop_image(record.image, type='top', ratio=(4, 3), size=(200, 200))
-            else:
-                record.image_medium = False
-                record.image_thumb = False
 
     @api.depends('slide_views', 'public_views')
     def _compute_total(self):
@@ -269,6 +252,9 @@ class Slide(models.Model):
             for key, value in doc_data.items():
                 values.setdefault(key, value)
 
+        if 'image' in values:
+            tools.image_resize_images(values, sizes={'image_medium': (256, 256)})
+
         slide = super(Slide, self).create(values)
 
         if slide.website_published:
@@ -284,6 +270,9 @@ class Slide(models.Model):
             doc_data = self._parse_document_url(values['url']).get('values', dict())
             for key, value in doc_data.items():
                 values.setdefault(key, value)
+
+        if 'image' in values:
+            tools.image_resize_images(values, sizes={'image_medium': (256, 256)})
 
         res = super(Slide, self).write(values)
         if values.get('website_published'):
@@ -570,5 +559,5 @@ class Slide(models.Model):
         res = super(Slide, self)._default_website_meta()
         res['default_opengraph']['og:title'] = res['default_twitter']['twitter:title'] = self.name
         res['default_opengraph']['og:description'] = res['default_twitter']['twitter:description'] = self.description
-        res['default_opengraph']['og:image'] = res['default_twitter']['twitter:image'] = "/web/image/slide.slide/%s/image_thumb" % (self.id)
+        res['default_opengraph']['og:image'] = res['default_twitter']['twitter:image'] = "/web/image/slide.slide/%s/image_small" % (self.id)
         return res

@@ -77,15 +77,13 @@ class Channel(models.Model):
     image_small = fields.Binary("Small image", attachment=True)
     # slides: promote, statistics
     slide_ids = fields.One2many('slide.slide', 'channel_id', string="Slides")
+    slide_last_update = fields.Date('Last Update', compute='_compute_slide_last_update', store=True)
     slide_partner_ids = fields.One2many('slide.slide.partner', 'channel_id', string="Slide User Data", groups='website.group_website_publisher')
     promote_strategy = fields.Selection([
-        ('none', 'No Featured Presentation'),
         ('latest', 'Latest Published'),
         ('most_voted', 'Most Voted'),
-        ('most_viewed', 'Most Viewed'),
-        ('custom', 'Featured Presentation')],
-        string="Featuring Policy", default='most_voted', required=True)
-
+        ('most_viewed', 'Most Viewed')],
+        string="Featuring Policy", default='latest', required=True)
     access_token = fields.Char("Security Token", copy=False, default=_default_access_token)
     nbr_presentations = fields.Integer('Number of Presentations', compute='_compute_slides_statistics', store=True)
     nbr_documents = fields.Integer('Number of Documents', compute='_compute_slides_statistics', store=True)
@@ -126,6 +124,11 @@ class Channel(models.Model):
     completion = fields.Integer('Completion', compute='_compute_user_statistics')
     can_upload = fields.Boolean('Can Upload', compute='_compute_access')
     can_publish = fields.Boolean('Can Publish', compute='_compute_access')
+
+    @api.depends('slide_ids.is_published')
+    def _compute_slide_last_update(self):
+        for record in self:
+            record.slide_last_update = fields.Date.today()
 
     @api.depends('channel_partner_ids.channel_id')
     def _compute_members_count(self):
@@ -197,10 +200,6 @@ class Channel(models.Model):
         for channel in self:
             if channel.id:  # avoid to perform a slug on a not yet saved record in case of an onchange.
                 channel.website_url = '%s/slides/%s' % (base_url, slug(channel))
-
-    @api.onchange('visibility')
-    def change_visibility(self):
-        pass
 
     @api.multi
     def action_redirect_to_members(self):
