@@ -34,8 +34,6 @@ DATE_LENGTH = len(date.today().strftime(DATE_FORMAT))
 DATETIME_LENGTH = len(datetime.now().strftime(DATETIME_FORMAT))
 EMPTY_DICT = frozendict()
 
-RENAMED_ATTRS = [('select', 'index'), ('digits_compute', 'digits')]
-
 _logger = logging.getLogger(__name__)
 _schema = logging.getLogger(__name__[:-7] + '.schema')
 
@@ -448,11 +446,10 @@ class Field(MetaField('DummyField', (object,), {})):
         attrs = self._get_attrs(model, name)
         self.set_all_attrs(attrs)
 
-        # check for renamed attributes (conversion errors)
-        for key1, key2 in RENAMED_ATTRS:
-            if key1 in attrs:
-                _logger.warning("Field %s: parameter %r is no longer supported; use %r instead.",
-                                self, key1, key2)
+        # validate extra arguments
+        for key in self._attrs:
+            if not model._valid_field_parameter(self, key):
+                _logger.warning("Field %s: invalid parameter %r", self, key)
 
         # prefetch only stored, column, non-manual and non-deprecated fields
         if not (self.store and self.column_type) or self.manual or self.deprecated:
@@ -1909,6 +1906,13 @@ class Selection(Field):
         # selection must be computed on related field
         field = self.related_field
         self.selection = lambda model: field._description_selection(model.env)
+
+    def _get_attrs(self, model, name):
+        attrs = super(Selection, self)._get_attrs(model, name)
+        # arguments 'selection' and 'selection_add' are processed below
+        attrs.pop('selection', None)
+        attrs.pop('selection_add', None)
+        return attrs
 
     def _setup_attrs(self, model, name):
         super(Selection, self)._setup_attrs(model, name)

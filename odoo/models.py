@@ -282,6 +282,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         self.env['ir.model.constraint']._reflect_model(self)
         self.invalidate_cache()
 
+    def _valid_field_parameter(self, field, name):
+        """ Return whether the given parameter name is valid for the field. """
+        return name == 'oldname'
+
     @api.model
     def _add_field(self, name, field):
         """ Add the given ``field`` under the given ``name`` in the class """
