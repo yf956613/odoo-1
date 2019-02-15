@@ -114,6 +114,7 @@ class Slide(models.Model):
     is_preview = fields.Boolean('Always visible', default=False)
     completion_time = fields.Float('# Hours', default=1, digits=(10, 4))
     image = fields.Binary("Image", attachment=True)
+    image_large = fields.Binary("Large image", attachment=True)
     image_medium = fields.Binary("Medium image", attachment=True)
     image_small = fields.Binary("Small image", attachment=True)
     # subscribers
@@ -253,7 +254,7 @@ class Slide(models.Model):
                 values.setdefault(key, value)
 
         if 'image' in values:
-            tools.image_resize_images(values, sizes={'image_medium': (256, 256)})
+            tools.image_resize_images(values, return_large=True)
 
         slide = super(Slide, self).create(values)
 
@@ -272,7 +273,7 @@ class Slide(models.Model):
                 values.setdefault(key, value)
 
         if 'image' in values:
-            tools.image_resize_images(values, sizes={'image_medium': (256, 256)})
+            tools.image_resize_images(values, return_large=True)
 
         res = super(Slide, self).write(values)
         if values.get('website_published'):

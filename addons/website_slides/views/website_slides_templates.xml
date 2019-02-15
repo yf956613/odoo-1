@@ -320,7 +320,7 @@
             <div class="card o_wslides_lesson_card">
                 <img class="card-img-top img-fuild"
                     style="max-height: 160px;"
-                    t-att-src="'/web/image/slide.slide/%s/image_medium' % slide.id if slide.image else '/website_slides/static/src/img/channel-default.jpg'"
+                    t-att-src="'/web/image/slide.slide/%s/image_large' % slide.id if slide.image else '/website_slides/static/src/img/channel-default.jpg'"
                     t-att-alt="channel.name"/>
                 <div class="card-body">
                     <h5 class="card-title" t-att-title="slide.name">
