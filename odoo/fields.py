@@ -109,6 +109,8 @@ class Field(MetaField('DummyField', (object,), {})):
 
         :param help: the tooltip of the field seen by users (string)
 
+        :param invisible: whether the field is invisible (boolean, by default ``False``)
+
         :param readonly: whether the field is readonly (boolean, by default ``False``)
 
         :param required: whether the value of the field is required (boolean, by
@@ -304,6 +306,7 @@ class Field(MetaField('DummyField', (object,), {})):
 
         'string': None,                 # field label
         'help': None,                   # field tooltip
+        'invisible': False,             # whether the field is invisible
         'readonly': False,              # whether the field is readonly
         'required': False,              # whether the field is required
         'states': None,                 # set readonly and required depending on state
