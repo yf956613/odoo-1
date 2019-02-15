@@ -71,12 +71,11 @@ class FleetVehicle(models.Model):
     image_medium = fields.Binary(related='model_id.image_medium', string="Logo (medium)", readonly=False)
     image_small = fields.Binary(related='model_id.image_small', string="Logo (small)", readonly=False)
     contract_renewal_due_soon = fields.Boolean(compute='_compute_contract_reminder', search='_search_contract_renewal_due_soon',
-        string='Has Contracts to renew', multi='contract_info')
+        string='Has Contracts to renew')
     contract_renewal_overdue = fields.Boolean(compute='_compute_contract_reminder', search='_search_get_overdue_contract_reminder',
-        string='Has Contracts Overdue', multi='contract_info')
-    contract_renewal_name = fields.Text(compute='_compute_contract_reminder', string='Name of contract to renew soon', multi='contract_info')
-    contract_renewal_total = fields.Text(compute='_compute_contract_reminder', string='Total of contracts due or overdue minus one',
-        multi='contract_info')
+        string='Has Contracts Overdue')
+    contract_renewal_name = fields.Text(compute='_compute_contract_reminder', string='Name of contract to renew soon')
+    contract_renewal_total = fields.Text(compute='_compute_contract_reminder', string='Total of contracts due or overdue minus one')
     car_value = fields.Float(string="Catalog Value (VAT Incl.)", help='Value of the bought vehicle')
     residual_value = fields.Float()
 
