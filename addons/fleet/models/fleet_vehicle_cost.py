@@ -16,6 +16,7 @@ class FleetVehicleCost(models.Model):
     vehicle_id = fields.Many2one('fleet.vehicle', 'Vehicle', required=True, help='Vehicle concerned by this log')
     cost_subtype_id = fields.Many2one('fleet.service.type', 'Type', help='Cost type purchased with this cost')
     amount = fields.Float('Total Price')
+    blabla = fields.Boolean()
     cost_type = fields.Selection([
         ('contract', 'Contract'),
         ('services', 'Services'),
@@ -32,6 +33,7 @@ class FleetVehicleCost(models.Model):
     contract_id = fields.Many2one('fleet.vehicle.log.contract', 'Contract', help='Contract attached to this cost')
     auto_generated = fields.Boolean('Automatically Generated', readonly=True)
     description = fields.Char("Cost Description")
+    blablo = fields.Boolean()
 
     def _get_odometer(self):
         for record in self:
