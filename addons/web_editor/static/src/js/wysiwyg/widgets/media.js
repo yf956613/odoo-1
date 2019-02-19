@@ -5,12 +5,91 @@ var ajax = require('web.ajax');
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var fonts = require('wysiwyg.fonts');
+var utils = require('web.utils');
 var Widget = require('web.Widget');
 var concurrency = require('web.concurrency');
 
 var QWeb = core.qweb;
 
 var _t = core._t;
+
+var ImagePreviewDialog = Dialog.extend({
+    template: 'wysiwyg.widgets.image_preview',
+    xmlDependencies: ['/web_editor/static/src/xml/wysiwyg.xml'],
+
+    events: _.extend({}, Dialog.prototype.events, {
+        'change .js_quality_range': '_onChangeQuality',
+    }),
+    /**
+     * @constructor
+     */
+    init: function (parent, options, file, def) {
+        this._super(parent, _.extend({}, {
+            title: _t("Improve your Image"),
+            buttons: [
+                {text: _t("Save"), classes: 'btn-primary', close: true, click: this._onSave.bind(this)},
+                {text: _t("Cancel"), close: true, click: this._onCancel.bind(this)}
+            ],
+        }, options));
+
+        this.filename = file.name;
+        this.imageOriginal = file.data;
+        this.defaultQuality = 80;
+        this.def = def;
+    },
+    /**
+     * @constructor
+     */
+    start: function () {
+        var defParent = this._super.apply(this, arguments);
+        this.$previewImage = this.$('.js_preview_image');
+        this.$qualityRange = this.$('.js_quality_range');
+        this.$currentQuality = this.$('.js_current_quality');
+        this.$currentSize = this.$('.js_current_size');
+        this.$originalSize = this.$('.js_original_size');
+        var defPreview = this._updatePreview();
+        return $.when(defParent, defPreview);
+    },
+    /**
+     *
+     */
+    _updatePreview: function () {
+        var self = this;
+        var quality = this.$qualityRange.val();
+        var base64Original = this.imageOriginal.split(',')[1];
+        return this._rpc({
+            route: '/web_editor/image/preview',
+            params: {
+                'quality': quality,
+                'image_original': base64Original,
+            }
+        }).then(function (res) {
+            self.$currentQuality.text(quality);
+            self.$currentSize.text(utils.binaryToBinsize(res.image.split(',')[1]));
+            self.$originalSize.text(utils.binaryToBinsize(base64Original));
+            self.$previewImage.attr('src', res.image);
+        });
+    },
+    /**
+     *
+     */
+    _onChangeQuality: _.debounce(function (ev) {
+        return this._updatePreview();
+    }),
+    /**
+     *
+     */
+    _onSave: _.debounce(function () {
+        this.def.resolve(this.filename, this.$currentQuality.val(), this.imageOriginal);
+    }),
+    /**
+     *
+     */
+    _onCancel: _.debounce(function () {
+        this.def.reject();
+    }),
+
+});
 
 var MediaWidget = Widget.extend({
     xmlDependencies: ['/web_editor/static/src/xml/wysiwyg.xml'],
@@ -463,54 +542,98 @@ var ImageWidget = MediaWidget.extend({
      * @private
      */
     _uploadFile: function () {
-        return this._mutex.exec(this._uploadImageFile.bind(this));
+        return this._mutex.exec(this._previewImageFiles.bind(this));
     },
-    _uploadImageFile: function () {
+    /**
+     * Preview one uploaded image at a time.
+     *
+     * @private
+     */
+    _previewImageFiles: function () {
         var self = this;
-        var def = ajax.post('/web_editor/attachment/add', {}, this.$el[0]).then(function (res) {
-            var attachments = res.attachments;
-            var error = res.error;
-
-            self.$('.well > span').remove();
-            self.$('.well > div').show();
-            _.each(attachments, function (record) {
-                record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name)); // Name is added for SEO purposes
-                record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
+        var previewMutex = new concurrency.Mutex();
+        for (var file of this.$('.o_file_input')[0].files) {
+            previewMutex.exec(function () {
+                var defPreview = self._previewImageFile(file);
+                // start to upload the first attachment
+                defPreview.then(self._uploadImageFile.bind(self));
+                // open the next preview while it uploads
+                return defPreview;
             });
-            if (error || !attachments.length) {
-                _processFile(null, error || !attachments.length);
-            }
-            self.images = attachments;
-            for (var i = 0; i < attachments.length; i++) {
-                _processFile(attachments[i], error);
-            }
-
-            if (self.options.onUpload) {
-                self.options.onUpload(attachments);
-            }
-
-            function _processFile(attachment, error) {
-                var $button = self.$('.o_upload_image_button');
-                if (!error) {
-                    $button.addClass('btn-success');
-                    self._toggleImage(attachment, true);
-                } else {
-                    $button.addClass('btn-danger');
-                    self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
-                    self.$el.find('.form-text').text(error);
-                }
-
-                if (!self.multiImages) {
-                    self.trigger_up('save_request');
-                }
-            }
-        });
-
-        this.$('.o_file_input').val('');
-
+        }
+        self.$('.o_file_input').val('');
+        // TODO SEB need to wait for the last upload before resolving here.
+        return previewMutex.getUnlockedDef();
+    },
+    /**
+     * Open the image preview dialog for the given file.
+     *
+     * @private
+     */
+    _previewImageFile: function (file) {
+        var self = this;
+        var def = $.Deferred();
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+            new ImagePreviewDialog(self, {}, {
+                'name': file.name,
+                'data': ev.target.result,
+            }, def).open();
+        };
+        reader.readAsDataURL(file);
         return def;
     },
+    /**
+     * Create the attachment with the given parameters.
+     *
+     * @private
+     */
+    _uploadImageFile: function (filename, quality, data) {
+        var self = this;
+        data = data.split(',')[1];
+        // TODO SEB use json RPC here and get data from the form
+        return ajax.post('/web_editor/attachment/add', {}, this.$el[0])
+            .progress(function (ev) {
+                // TODO SEB make a nice progress bar?
+            }).then(function (res) {
+                var attachments = res.attachments;
+                var error = res.error;
 
+                self.$('.well > span').remove();
+                self.$('.well > div').show();
+                _.each(attachments, function (record) {
+                    record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name)); // Name is added for SEO purposes
+                    record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
+                });
+                if (error || !attachments.length) {
+                    _processFile(null, error || !attachments.length);
+                }
+                self.images = attachments;
+                for (var i = 0; i < attachments.length; i++) {
+                    _processFile(attachments[i], error);
+                }
+
+                if (self.options.onUpload) {
+                    self.options.onUpload(attachments);
+                }
+
+                function _processFile(attachment, error) {
+                    var $button = self.$('.o_upload_image_button');
+                    if (!error) {
+                        $button.addClass('btn-success');
+                        self._toggleImage(attachment, true);
+                    } else {
+                        $button.addClass('btn-danger');
+                        self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
+                        self.$el.find('.form-text').text(error);
+                    }
+
+                    if (!self.multiImages) {
+                        self.trigger_up('save_request');
+                    }
+                }
+            });
+    },
 
     //--------------------------------------------------------------------------
     // Handlers

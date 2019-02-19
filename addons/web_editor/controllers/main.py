@@ -191,6 +191,8 @@ class Web_Editor(http.Controller):
     #------------------------------------------------------
     @http.route('/web_editor/attachment/add', type='http', auth='user', methods=['POST'], website=True)
     def attach(self, upload=None, url=None, disable_optimization=None, filters=None, **kwargs):
+        # TODO SEB change this to use upload and get rid of multi (this is handled in the js)
+
         # the upload argument doesn't allow us to access the files if more than
         # one file is uploaded, as upload references the first file
         # therefore we have to recover the files from the request object
@@ -241,6 +243,21 @@ class Web_Editor(http.Controller):
         }), headers=[
             ('Content-Type', 'application/json'),
         ])
+
+    @http.route('/web_editor/image/preview', type='json', auth='user', methods=['POST'], website=True)
+    def preview_image(self, image_original, quality=80, **kwargs):
+        # the min quality possible for Pillow is 1
+        quality = int(quality) or 1
+        # TODO SEB this will crash with SVG
+        image = Image.open(io.BytesIO(base64.b64decode(image_original)))
+        w, h = image.size
+        if w * h > 42e6:  # Nokia Lumia 1020 photo resolution
+            raise ValueError(
+                u"Image size excessive, uploaded images must be smaller "
+                u"than 42 million pixel")
+        if image.format in ('PNG', 'JPEG'):
+            data = tools.image_save_for_web(image, quality=quality)
+        return {'image': tools.image_data_uri(base64.b64encode(data))}
 
     #------------------------------------------------------
     # remove attachment (images or link)

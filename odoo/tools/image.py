@@ -141,7 +141,7 @@ def image_resize_and_sharpen(image, size, preserve_aspect_ratio=False, factor=2.
     return image
 
 
-def image_save_for_web(image, fp=None, format=None):
+def image_save_for_web(image, fp=None, format=None, quality=80):
     """
         Save image optimized for web usage.
 
@@ -161,7 +161,7 @@ def image_save_for_web(image, fp=None, format=None):
         if alpha:
             image.putalpha(alpha)
     elif image.format == 'JPEG':
-        opt.update(optimize=True, quality=80)
+        opt.update(optimize=True, quality=quality)
     if fp:
         image.save(fp, **opt)
     else:

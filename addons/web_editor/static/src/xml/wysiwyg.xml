@@ -182,6 +182,29 @@
             </div>
         </div>
     </t>
+
+    <t t-name="wysiwyg.widgets.image_preview">
+        <form>
+            <div class="form-group">
+                <label for="filename">Filename</label>
+                <input type="text" class="form-control" id="filename" name="filename" aria-describedby="filenameHelp" t-att-value="widget.filename"/>
+                <small id="filenameHelp" class="form-text text-muted">Give a relevant name to your file to optimize search engine results.</small>
+            </div>
+
+            <label for="quality_range">Quality</label>
+            <input type="range" class="custom-range js_quality_range" id="quality_range" name="quality_range" aria-describedby="qualityHelp" t-att-value="widget.defaultQuality"/>
+            <small id="qualityHelp" class="form-text text-muted">Reduce the quality as much as possible to increase the speed and performance of your website.</small>
+
+            <h3>Preview of your image with the current settings</h3>
+            <p>
+                Current Quality: <span class="js_current_quality"></span>,
+                Current Size: <span class="js_current_size"></span>
+                Original Size: <span class="js_original_size"></span>
+            </p>
+            <img class="img img-fluid js_preview_image" src="" alt="Image Preview"/>
+        </form>
+    </t>
+
     <t t-name="wysiwyg.widgets.files.existing.content">
         <div class="existing-attachments">
             <div class="row mt16 ml-auto" t-as="row" t-foreach="rows">
