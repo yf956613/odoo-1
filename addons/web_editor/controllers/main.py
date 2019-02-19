@@ -235,10 +235,12 @@ class Web_Editor(http.Controller):
                 logger.exception("Failed to upload image to attachment")
                 message = str(e)
 
-        return """<script type='text/javascript'>
-            window.attachments = %s;
-            window.error = %s;
-        </script>""" % (json.dumps(uploads), json.dumps(message))
+        return request.make_response(json.dumps({
+            'attachments': uploads,
+            'error': message
+        }), headers=[
+            ('Content-Type', 'application/json'),
+        ])
 
     #------------------------------------------------------
     # remove attachment (images or link)

@@ -1,6 +1,7 @@
 odoo.define('wysiwyg.widgets.media', function (require) {
 'use strict';
 
+var ajax = require('web.ajax');
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var fonts = require('wysiwyg.fonts');
@@ -462,21 +463,13 @@ var ImageWidget = MediaWidget.extend({
      * @private
      */
     _uploadFile: function () {
-        return this._mutex.exec(this._uploadImageIframe.bind(this));
+        return this._mutex.exec(this._uploadImageFile.bind(this));
     },
-    _uploadImageIframe: function () {
+    _uploadImageFile: function () {
         var self = this;
-        var def = $.Deferred();
-        /**
-         * @todo file upload cannot be handled with _rpc smoothly. This uses the
-         * form posting in iframe trick to handle the upload.
-         */
-        var $iframe = this.$('iframe');
-        $iframe.on('load', function () {
-            var iWindow = $iframe[0].contentWindow;
-
-            var attachments = iWindow.attachments || [];
-            var error = iWindow.error;
+        var def = ajax.post('/web_editor/attachment/add', {}, this.$el[0]).then(function (res) {
+            var attachments = res.attachments;
+            var error = res.error;
 
             self.$('.well > span').remove();
             self.$('.well > div').show();
@@ -488,15 +481,13 @@ var ImageWidget = MediaWidget.extend({
                 _processFile(null, error || !attachments.length);
             }
             self.images = attachments;
-            for (var i = 0 ; i < attachments.length ; i++) {
+            for (var i = 0; i < attachments.length; i++) {
                 _processFile(attachments[i], error);
             }
 
             if (self.options.onUpload) {
                 self.options.onUpload(attachments);
             }
-
-            def.resolve();
 
             function _processFile(attachment, error) {
                 var $button = self.$('.o_upload_image_button');
@@ -514,7 +505,6 @@ var ImageWidget = MediaWidget.extend({
                 }
             }
         });
-        this.$el.submit();
 
         this.$('.o_file_input').val('');
 

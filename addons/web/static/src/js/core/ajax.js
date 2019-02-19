@@ -307,7 +307,7 @@ function get_file(options) {
     return true;
 }
 
-function post (controller_url, data) {
+function post (controller_url, data, form) {
 
     var progressHandler = function (deferred) {
         return function (state) {
@@ -324,7 +324,7 @@ function post (controller_url, data) {
     };
 
     var Def = $.Deferred();
-    var postData = new FormData();
+    var postData = new FormData(form);
 
     $.each(data, function(i,val) {
         postData.append(i, val);
