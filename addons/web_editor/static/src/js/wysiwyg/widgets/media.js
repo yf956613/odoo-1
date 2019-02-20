@@ -27,10 +27,11 @@ var ImagePreviewDialog = Dialog.extend({
         this._super(parent, _.extend({}, {
             title: _t("Improve your Image"),
             buttons: [
-                {text: _t("Save"), classes: 'btn-primary', close: true, click: this._onSave.bind(this)},
-                {text: _t("Cancel"), close: true, click: this._onCancel.bind(this)}
+                {text: _t("Optimize"), classes: 'btn-primary', close: true, click: this._onSave.bind(this)},
+                {text: _t("Keep Original"), close: true}
             ],
         }, options));
+        this.on('closed', this, this._onClose);
 
         this.filename = file.name;
         this.imageOriginal = file.data;
@@ -79,15 +80,17 @@ var ImagePreviewDialog = Dialog.extend({
     /**
      *
      */
-    _onSave: _.debounce(function () {
+    _onSave: function () {
         this.def.resolve(this.filename, this.$currentQuality.val(), this.imageOriginal);
-    }),
+    },
     /**
      *
      */
-    _onCancel: _.debounce(function () {
-        this.def.reject();
-    }),
+    _onClose: function () {
+        if (this.def.state() === 'pending') {
+            this.def.reject();
+        }
+    },
 
 });
 
@@ -161,7 +164,6 @@ var ImageWidget = MediaWidget.extend({
     template: 'wysiwyg.widgets.image',
     events: _.extend({}, MediaWidget.prototype.events || {}, {
         'click .o_upload_media_button': '_onUploadButtonClick',
-        'click .o_upload_media_button_no_optimization': '_onUploadButtonNoOptimizationClick',
         'change input[type=file]': '_onImageSelection',
         'click .o_upload_media_url_button': '_onUploadURLButtonClick',
         'input input[name="url"]': '_onURLInputChange',
@@ -210,6 +212,7 @@ var ImageWidget = MediaWidget.extend({
     start: function () {
         var def = this._super.apply(this, arguments);
         var self = this;
+        this.$urlInput = this.$('.o_we_url_input');
 
         this._renderImages(true);
 
@@ -226,6 +229,7 @@ var ImageWidget = MediaWidget.extend({
         if (o.url) {
             self._toggleImage(_.find(self.records, function (record) { return record.url === o.url;}) || o, true);
         }
+
 
         return def;
     },
@@ -246,7 +250,7 @@ var ImageWidget = MediaWidget.extend({
     search: function (needle, noRender) {
         var self = this;
         if (!noRender) {
-            this.$('input.o_we_url_input').val('').trigger('input').trigger('change');
+            this.$urlInput.val('').trigger('input').trigger('change');
         }
         return this._rpc({
             model: 'ir.attachment',
@@ -590,51 +594,61 @@ var ImageWidget = MediaWidget.extend({
      */
     _uploadImageFile: function (filename, quality, data) {
         var self = this;
-        data = data.split(',')[1];
-        // TODO SEB use json RPC here and get data from the form
-        return ajax.post('/web_editor/attachment/add', {}, this.$el[0])
-            .progress(function (ev) {
-                // TODO SEB make a nice progress bar?
-            }).then(function (res) {
-                var attachments = res.attachments;
-                var error = res.error;
-
-                self.$('.well > span').remove();
-                self.$('.well > div').show();
-                _.each(attachments, function (record) {
-                    record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name)); // Name is added for SEO purposes
-                    record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
-                });
-                if (error || !attachments.length) {
-                    _processFile(null, error || !attachments.length);
-                }
-                self.images = attachments;
-                for (var i = 0; i < attachments.length; i++) {
-                    _processFile(attachments[i], error);
-                }
-
-                if (self.options.onUpload) {
-                    self.options.onUpload(attachments);
-                }
-
-                function _processFile(attachment, error) {
-                    var $button = self.$('.o_upload_image_button');
-                    if (!error) {
-                        $button.addClass('btn-success');
-                        self._toggleImage(attachment, true);
-                    } else {
-                        $button.addClass('btn-danger');
-                        self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
-                        self.$el.find('.form-text').text(error);
-                    }
-
-                    if (!self.multiImages) {
-                        self.trigger_up('save_request');
-                    }
-                }
-            });
+        return this._rpc({
+            route: '/web_editor/attachment/add_image_base64',
+            params: {
+                'res_id': this.options.res_id,
+                'image_base64': data.split(',')[1],
+                'filename': filename,
+                'res_model': this.options.res_model,
+                'filters': this.firstFilters.join('_'),
+            },
+        }).progress(function (ev) {
+            // TODO SEB make a nice progress bar?
+        }).then(function (attachment) {
+            self._insertAttachment(attachment);
+        });
+        // TODO SEB handle error
     },
 
+    _insertAttachment: function (attachment) {
+        var attachments = res.attachments;
+        var error = res.error;
+
+        self.$('.well > span').remove();
+        self.$('.well > div').show();
+        _.each(attachments, function (record) {
+            record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name)); // Name is added for SEO purposes
+            record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
+        });
+        if (error || !attachments.length) {
+            _processFile(null, error || !attachments.length);
+        }
+        self.images = attachments;
+        for (var i = 0; i < attachments.length; i++) {
+            _processFile(attachments[i], error);
+        }
+
+        if (self.options.onUpload) {
+            self.options.onUpload(attachments);
+        }
+
+        function _processFile(attachment, error) {
+            var $button = self.$('.o_upload_image_button');
+            if (!error) {
+                $button.addClass('btn-success');
+                self._toggleImage(attachment, true);
+            } else {
+                $button.addClass('btn-danger');
+                self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
+                self.$el.find('.form-text').text(error);
+            }
+
+            if (!self.multiImages) {
+                self.trigger_up('save_request');
+            }
+        }
+    },
     //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
@@ -732,15 +746,21 @@ var ImageWidget = MediaWidget.extend({
     /**
      * @private
      */
-    _onUploadButtonNoOptimizationClick: function () {
-        this.$('input[name="disable_optimization"]').val('1');
-        this.$('.o_upload_media_button').click();
-    },
-    /**
-     * @private
-     */
     _onUploadURLButtonClick: function () {
-        this._uploadFile();
+        var self = this;
+        return this._rpc({
+            route: '/web_editor/attachment/add_url',
+            params: {
+                'res_id': this.options.res_id,
+                'url': this.$urlInput.val(),
+                'res_model': this.options.res_model,
+                'filters': this.firstFilters.join('_'),
+            },
+        }).then(function (attachment) {
+            self.$urlInput.val('');
+            self._insertAttachment(attachment);
+        });
+        // TODO SEB handle error
     },
     /**
      * @private

@@ -2,7 +2,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import base64
 import io
-import json
 import logging
 import re
 import time
@@ -11,7 +10,8 @@ from PIL import Image, ImageFont, ImageDraw
 from lxml import etree
 
 from odoo.http import request
-from odoo import http, tools
+from odoo import http, tools, _
+from odoo.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
@@ -153,96 +153,61 @@ class Web_Editor(http.Controller):
 
         return True
 
-    #------------------------------------------------------
-    # upload an image as base64
-    #------------------------------------------------------
-    @http.route('/web_editor/add_image_base64', type='json', auth='user', methods=['POST'], website=True)
-    def add_image_base64(self, res_model, res_id, image_base64, filename, disable_optimization=None, **kwargs):
-        data = base64.b64decode(image_base64)
-        attachment = self._image_to_attachment(res_model, res_id, data, filename, filename, disable_optimization=disable_optimization)
-        return attachment.read(['name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])[0]
-
-    def _image_to_attachment(self, res_model, res_id, data, name, datas_fname, disable_optimization=None):
-        Attachments = request.env['ir.attachment']
-        try:
-            image = Image.open(io.BytesIO(data))
-            w, h = image.size
-            if w*h > 42e6: # Nokia Lumia 1020 photo resolution
-                raise ValueError(
-                    u"Image size excessive, uploaded images must be smaller "
-                    u"than 42 million pixel")
-            if not disable_optimization and image.format in ('PNG', 'JPEG'):
-                data = tools.image_save_for_web(image)
-        except IOError:
-            pass
-        attachment = Attachments.create({
-            'name': name,
-            'datas_fname': datas_fname,
-            'datas': base64.b64encode(data),
-            'public': res_model == 'ir.ui.view',
-            'res_id': res_id,
-            'res_model': res_model,
-        })
-        attachment.generate_access_token()
-        return attachment
-
-    #------------------------------------------------------
-    # add attachment (images or link)
-    #------------------------------------------------------
-    @http.route('/web_editor/attachment/add', type='http', auth='user', methods=['POST'], website=True)
-    def attach(self, upload=None, url=None, disable_optimization=None, filters=None, **kwargs):
-        # TODO SEB change this to use upload and get rid of multi (this is handled in the js)
-
-        # the upload argument doesn't allow us to access the files if more than
-        # one file is uploaded, as upload references the first file
-        # therefore we have to recover the files from the request object
-        Attachments = request.env['ir.attachment']  # registry for the attachment table
-
-        res_model = kwargs.get('res_model', 'ir.ui.view')
-        if res_model != 'ir.ui.view' and kwargs.get('res_id'):
-            res_id = int(kwargs['res_id'])
+    def _create_attachment(self, res_id, res_model, image_data=None, filename=None, url=None, filters=None):
+        if res_model != 'ir.ui.view' and res_id:
+            res_id = int(res_id)
         else:
             res_id = None
 
-        uploads = []
-        message = None
-        if not upload: # no image provided, storing the link and the image name
-            name = url.split("/").pop()                       # recover filename
-            datas_fname = name
-            if filters:
-                datas_fname = filters + '_' + datas_fname
-            attachment = Attachments.create({
-                'name': name,
-                'datas_fname': datas_fname,
-                'type': 'url',
-                'url': url,
-                'public': res_model == 'ir.ui.view',
-                'res_id': res_id,
-                'res_model': res_model,
-            })
-            attachment.generate_access_token()
-            uploads += attachment.read(['name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])
-        else:                                                  # images provided
-            try:
-                attachments = request.env['ir.attachment']
-                for c_file in request.httprequest.files.getlist('upload'):
-                    data = c_file.read()
-                    name = c_file.filename
-                    datas_fname = name
-                    if filters:
-                        datas_fname = filters + '_' + datas_fname
-                    attachments += self._image_to_attachment(res_model, res_id, data, name, datas_fname, disable_optimization=disable_optimization)
-                uploads += attachments.read(['name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])
-            except Exception as e:
-                logger.exception("Failed to upload image to attachment")
-                message = str(e)
+        create_data = {
+            'public': res_model == 'ir.ui.view',
+            'res_id': res_id,
+            'res_model': res_model,
+        }
 
-        return request.make_response(json.dumps({
-            'attachments': uploads,
-            'error': message
-        }), headers=[
-            ('Content-Type', 'application/json'),
-        ])
+        if image_data and filename:
+            image = Image.open(io.BytesIO(image_data))
+            w, h = image.size
+            if w * h > 42e6:  # Nokia Lumia 1020 photo resolution
+                raise ValueError(
+                    u"Image size excessive, uploaded images must be smaller "
+                    u"than 42 million pixel")
+            if image.format in ('PNG', 'JPEG'):
+                image_data = tools.image_save_for_web(image)
+            create_data.update(
+                name=filename,
+                datas=base64.b64encode(image_data)
+            )
+        elif url:
+            create_data.update(
+                name=url.split("/").pop(),
+                type='url',
+                url=url,
+            )
+        else:
+            raise UserError(_("An attachment must contain a file or an URL."))
+
+        create_data['datas_fname'] = filters + '_' + create_data['name'] if filters else create_data['name']
+
+        attachment = request.env['ir.attachment'].create(create_data)
+        attachment.generate_access_token()
+        return attachment
+
+    def _get_attachment_data(self, attachment):
+        return attachment.read(['id', 'name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])
+
+    @http.route('/web_editor/attachment/add_url', type='json', auth='user', methods=['POST'], website=True)
+    def attach_url(self, res_id, url, res_model='ir.ui.view', filters=None, **kwargs):
+        """Create a new attachment of type url."""
+        attachment = self._create_attachment(res_id=res_id, url=url, res_model=res_model, filters=filters)
+        return self._get_attachment_data(attachment)
+
+    @http.route('/web_editor/attachment/add_image_base64', type='json', auth='user', methods=['POST'], website=True)
+    def attach_file(self, res_id, image_base64, filename, res_model='ir.ui.view', filters=None, **kwargs):
+        """Create a new attachment of type image."""
+        image_data = base64.b64decode(image_base64)
+        attachment = self._create_attachment(res_id=res_id, image_data=image_data, filename=filename, res_model=res_model, filters=filters)
+        return self._get_attachment_data(attachment)
 
     @http.route('/web_editor/image/preview', type='json', auth='user', methods=['POST'], website=True)
     def preview_image(self, image_original, quality=80, **kwargs):

@@ -122,7 +122,6 @@
     <t t-name="wysiwyg.widgets.files.submenu">
         <div class="form-inline align-items-center py-4">
             <input type="file" class="d-none o_file_input" name="upload" t-att-accept="accept" multiple="multiple"/>
-            <input type="hidden" name="disable_optimization" value=""/>
 
             <div class="btn-group">
                 <button type="button" class="btn btn-primary o_upload_media_button">
@@ -133,9 +132,6 @@
                     <button class="btn btn-primary dropdown-toggle dropdown-toggle-split o_media_optimization" data-toggle="dropdown" type="button">
                         <span class="sr-only">Alternate Upload</span>
                     </button>
-                    <div class="dropdown-menu" role="menu">
-                        <button type="button" role="menuitem" class="dropdown-item o_upload_media_button_no_optimization">Upload image without optimization</button>
-                    </div>
                 </t>
             </div>
 
