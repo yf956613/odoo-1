@@ -115,7 +115,7 @@ class ProductProduct(models.Model):
         'Barcode', copy=False, oldname='ean13',
         help="International Article Number used for product identification.")
     attribute_value_ids = fields.Many2many(
-        'product.attribute.value', string='Attribute Values', ondelete='restrict')
+        'product.attribute.value', string='Attribute Values')
     product_template_attribute_value_ids = fields.Many2many(
         'product.template.attribute.value', string='Template Attribute Values', compute="_compute_product_template_attribute_value_ids")
     is_product_variant = fields.Boolean(compute='_compute_is_product_variant')
