@@ -161,7 +161,7 @@ class Employee(models.Model):
         ('master', 'Master'),
         ('other', 'Other'),
     ], 'Certificate Level', default='master', groups="hr.group_hr_user", tracking=True)
-    study_field = fields.Char("Field of Study", placeholder='Computer Science', groups="hr.group_hr_user", tracking=True)
+    study_field = fields.Char("Field of Study", groups="hr.group_hr_user", tracking=True)
     study_school = fields.Char("School", groups="hr.group_hr_user", tracking=True)
     emergency_contact = fields.Char("Emergency Contact", groups="hr.group_hr_user", tracking=True)
     emergency_phone = fields.Char("Emergency Phone", groups="hr.group_hr_user", tracking=True)

@@ -140,8 +140,7 @@ class MailTemplate(models.Model):
                             "If not set, the english version will be used. "
                             "This should usually be a placeholder expression "
                             "that provides the appropriate language, e.g. "
-                            "${object.partner_id.lang}.",
-                       placeholder="${object.partner_id.lang}")
+                            "${object.partner_id.lang}.")
     user_signature = fields.Boolean('Add Signature',
                                     help="If checked, the user's signature will be appended to the text version "
                                          "of the message")
