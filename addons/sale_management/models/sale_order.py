@@ -154,7 +154,7 @@ class SaleOrderOption(models.Model):
     _order = 'sequence, id'
 
     order_id = fields.Many2one('sale.order', 'Sales Order Reference', ondelete='cascade', index=True)
-    line_id = fields.Many2one('sale.order.line', on_delete="set null")
+    line_id = fields.Many2one('sale.order.line')
     name = fields.Text('Description', required=True)
     product_id = fields.Many2one('product.product', 'Product', required=True, domain=[('sale_ok', '=', True)])
     price_unit = fields.Float('Unit Price', required=True, digits=dp.get_precision('Product Price'))
