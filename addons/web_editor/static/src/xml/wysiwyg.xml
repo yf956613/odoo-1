@@ -128,11 +128,6 @@
                     <t t-if="isDocument">Upload a document</t>
                     <t t-else="">Upload an image</t>
                 </button>
-                <t t-if="!isDocument">
-                    <button class="btn btn-primary dropdown-toggle dropdown-toggle-split o_media_optimization" data-toggle="dropdown" type="button">
-                        <span class="sr-only">Alternate Upload</span>
-                    </button>
-                </t>
             </div>
 
             <div class="input-group align-items-center ml-2">

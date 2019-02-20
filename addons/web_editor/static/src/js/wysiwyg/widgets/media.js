@@ -1,7 +1,6 @@
 odoo.define('wysiwyg.widgets.media', function (require) {
 'use strict';
 
-var ajax = require('web.ajax');
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var fonts = require('wysiwyg.fonts');
@@ -102,6 +101,9 @@ var MediaWidget = Widget.extend({
 
     /**
      * @constructor
+     * @param {Element} media: the target Element for which we select a media
+     * @param {Object} options: useful parameters such as res_id, res_model,
+     *  context, user_id, ...
      */
     init: function (parent, media, options) {
         this._super.apply(this, arguments);
@@ -124,12 +126,16 @@ var MediaWidget = Widget.extend({
         this._clear();
     },
     /**
+     * Finds and displays existing attachments related to the target media.
+     *
      * @abstract
-     * @param {string} needle
+     * @param {string} needle: only return attachments matching this parameter
      * @returns {Deferred}
      */
     search: function (needle) {},
     /**
+     * Saves the currently configured media on the target media.
+     *
      * @abstract
      * @returns {*}
      */
@@ -163,14 +169,14 @@ var MediaWidget = Widget.extend({
 var ImageWidget = MediaWidget.extend({
     template: 'wysiwyg.widgets.image',
     events: _.extend({}, MediaWidget.prototype.events || {}, {
-        'click .o_upload_media_button': '_onUploadButtonClick',
-        'change input[type=file]': '_onImageSelection',
-        'click .o_upload_media_url_button': '_onUploadURLButtonClick',
-        'input input[name="url"]': '_onURLInputChange',
+        'change .o_file_input': '_onChangeFileInput',
         'click .existing-attachments [data-src]': '_onImageClick',
-        'dblclick .existing-attachments [data-src]': '_onImageDblClick',
         'click .o_existing_attachment_remove': '_onRemoveClick',
         'click .o_load_more': '_onLoadMoreClick',
+        'click .o_upload_media_button': '_onUploadButtonClick',
+        'click .o_upload_media_url_button': '_onUploadURLButtonClick',
+        'dblclick .existing-attachments [data-src]': '_onImageDblClick',
+        'input .o_we_url_input': '_onInputUrl',
     }),
 
     IMAGES_PER_ROW: 6,
@@ -184,7 +190,6 @@ var ImageWidget = MediaWidget.extend({
         this._mutex = new concurrency.Mutex();
 
         this.imagesRows = this.IMAGES_ROWS;
-        this.IMAGES_DISPLAYED_TOTAL = this.IMAGES_PER_ROW * this.imagesRows;
 
         this.options = options;
         this.context = options.context;
@@ -195,9 +200,12 @@ var ImageWidget = MediaWidget.extend({
         this.firstFilters = options.firstFilters || [];
         this.lastFilters = options.lastFilters || [];
 
-        this.images = [];
+        this.records = [];
+        this.selectedImages = [];
     },
     /**
+     * Loads all the existing images related to the target media.
+     *
      * @override
      */
     willStart: function () {
@@ -213,9 +221,21 @@ var ImageWidget = MediaWidget.extend({
         var def = this._super.apply(this, arguments);
         var self = this;
         this.$urlInput = this.$('.o_we_url_input');
+        this.$form = this.$('form');
+        this.$fileInput = this.$('.o_file_input');
+        this.$uploadButton = this.$('.o_upload_media_button');
+        this.$addUrlButton = this.$('.o_upload_media_url_button');
+        this.$urlSuccess = this.$('.o_we_url_warning');
+        this.$urlWarning = this.$('.o_we_url_success');
+        this.$urlError = this.$('.o_we_url_error');
 
         this._renderImages(true);
 
+        // If there is already an image on the target, select by default that
+        // image if it is among the loaded images.
+        // TODO SEB improve this to also work for product image for example,
+        // or any image where the url is not the attachment url but a field
+        // for example based on res_id, checksum, etc.
         var o = {
             url: null,
             alt: null,
@@ -227,9 +247,10 @@ var ImageWidget = MediaWidget.extend({
             o.id = +o.url.match(/\/web\/content\/(\d+)/, '')[1];
         }
         if (o.url) {
-            self._toggleImage(_.find(self.records, function (record) { return record.url === o.url;}) || o, true);
+            self._toggleImage(_.find(self.records, function (record) {
+                return record.url === o.url;
+            }) || o, true);
         }
-
 
         return def;
     },
@@ -239,6 +260,9 @@ var ImageWidget = MediaWidget.extend({
     //--------------------------------------------------------------------------
 
     /**
+     * Saves the currently selected image on the target media.
+     * Prevent saving while an upload is in progress.
+     *
      * @override
      */
     save: function () {
@@ -246,12 +270,10 @@ var ImageWidget = MediaWidget.extend({
     },
     /**
      * @override
+     * @param {boolean} noRender: if true, do not render the found attachments
      */
     search: function (needle, noRender) {
         var self = this;
-        if (!noRender) {
-            this.$urlInput.val('').trigger('input').trigger('change');
-        }
         return this._rpc({
             model: 'ir.attachment',
             method: 'search_read',
@@ -265,12 +287,15 @@ var ImageWidget = MediaWidget.extend({
         }).then(function (records) {
             self.records = _.chain(records)
                 .filter(function (r) {
+                    // TODO SEB do this in the domain
                     return (r.type === "binary" || r.url && r.url.length > 0);
                 })
                 .uniq(function (r) {
+                    // TODO SEB try to do this in the domain
                     return (r.url || r.id);
                 })
                 .sortBy(function (r) {
+                    // TODO SEB maybe we should make a route that takes care of this
                     if (_.any(self.firstFilters, function (filter) {
                         var regex = new RegExp(filter, 'i');
                         return r.name.match(regex) || r.datas_fname && r.datas_fname.match(regex);
@@ -288,12 +313,11 @@ var ImageWidget = MediaWidget.extend({
                 .value();
 
             _.each(self.records, function (record) {
-                record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name));  // Name is added for SEO purposes
+                record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name)); // Name is added for SEO purposes
                 record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
             });
             if (!noRender) {
                 self._renderImages();
-                self._adaptLoadMore();
             }
         });
     },
@@ -302,14 +326,6 @@ var ImageWidget = MediaWidget.extend({
     // Private
     //--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    _adaptLoadMore: function () {
-        var noMoreImgToLoad = this.IMAGES_DISPLAYED_TOTAL >= this.records.length;
-        this.$('.o_load_more').toggleClass('d-none', noMoreImgToLoad);
-        this.$('.o_load_done_msg').toggleClass('d-none', !noMoreImgToLoad);
-    },
     /**
      * @override
      */
@@ -372,6 +388,16 @@ var ImageWidget = MediaWidget.extend({
         return domain;
     },
     /**
+     * Returns the total number of images that should be displayed, depending
+     * on the number of images per row and the current number of rows.
+     *
+     * @private
+     * @returns {integer} the number of images to display
+     */
+    _getNumberOfImagesToDisplay: function () {
+        return this.IMAGES_PER_ROW * this.imagesRows;
+    },
+    /**
      * @private
      */
     _highlightSelectedImages: function () {
@@ -379,7 +405,7 @@ var ImageWidget = MediaWidget.extend({
         this.$('.o_existing_attachment_cell.o_selected').removeClass("o_selected");
         var $select = this.$('.o_existing_attachment_cell [data-src]').filter(function () {
             var $img = $(this);
-            return !!_.find(self.images, function (v) {
+            return !!_.find(self.selectedImages, function (v) {
                 return (v.url === $img.data("src") || ($img.data("url") && v.url === $img.data("url")) || v.id === $img.data("id"));
             });
         });
@@ -391,10 +417,8 @@ var ImageWidget = MediaWidget.extend({
      */
     _loadMoreImages: function (forceSearch) {
         this.imagesRows += 2;
-        this.IMAGES_DISPLAYED_TOTAL = this.imagesRows * this.IMAGES_PER_ROW;
         if (!forceSearch) {
             this._renderImages();
-            this._adaptLoadMore();
         } else {
             this.search(this.$('.o_we_search').val() || '');
         }
@@ -405,14 +429,16 @@ var ImageWidget = MediaWidget.extend({
     _renderImages: function (withEffect) {
         var self = this;
         var rows = _(this.records).chain()
-            .slice(0, this.IMAGES_DISPLAYED_TOTAL)
-            .groupBy(function (a, index) { return Math.floor(index / self.IMAGES_PER_ROW); })
+            .slice(0, this._getNumberOfImagesToDisplay())
+            .groupBy(function (a, index) {
+                return Math.floor(index / self.IMAGES_PER_ROW);
+            })
             .values()
             .value();
 
         this.$('.form-text').empty();
 
-       // Render menu & content
+        // Render menu & content
         this.$('.existing-attachments').replaceWith(
             QWeb.render('wysiwyg.widgets.files.existing.content', {
                 rows: rows,
@@ -443,6 +469,11 @@ var ImageWidget = MediaWidget.extend({
             });
         }
         this._highlightSelectedImages();
+
+        // adapt load more
+        var noMoreImgToLoad = this._getNumberOfImagesToDisplay() >= this.records.length;
+        this.$('.o_load_more').toggleClass('d-none', noMoreImgToLoad);
+        this.$('.o_load_done_msg').toggleClass('d-none', !noMoreImgToLoad);
     },
     /**
      * @private
@@ -450,10 +481,10 @@ var ImageWidget = MediaWidget.extend({
     _save: function () {
         var self = this;
         if (this.multiImages) {
-            return this.images;
+            return this.selectedImages;
         }
 
-        var img = this.images[0];
+        var img = this.selectedImages[0];
         if (!img) {
             return this.media;
         }
@@ -504,11 +535,6 @@ var ImageWidget = MediaWidget.extend({
                 self.$media.css(style);
             }
 
-            if (self.options.onUpload) {
-                // We consider that when selecting an image it is as if we upload it in the html content.
-                self.options.onUpload([img]);
-            }
-
             // Remove crop related attributes
             if (self.$media.attr('data-aspect-ratio')) {
                 var attrs = ['aspect-ratio', 'x', 'y', 'width', 'height', 'rotate', 'scale-x', 'scale-y'];
@@ -525,28 +551,24 @@ var ImageWidget = MediaWidget.extend({
      */
     _toggleImage: function (attachment, clearSearch, forceSelect) {
         if (this.multiImages) {
-            var img = _.select(this.images, function (v) { return v.id === attachment.id; });
+            var img = _.select(this.selectedImages, function (v) {
+                return v.id === attachment.id;
+            });
             if (img.length) {
                 if (!forceSelect) {
-                    this.images.splice(this.images.indexOf(img[0]),1);
+                    this.selectedImages.splice(this.selectedImages.indexOf(img[0]),1);
                 }
             } else {
-                this.images.push(attachment);
+                this.selectedImages.push(attachment);
             }
         } else {
-            this.images = [attachment];
+            this.selectedImages = [attachment];
         }
         this._highlightSelectedImages();
 
         if (clearSearch) {
             this.search('');
         }
-    },
-    /**
-     * @private
-     */
-    _uploadFile: function () {
-        return this._mutex.exec(this._previewImageFiles.bind(this));
     },
     /**
      * Preview one uploaded image at a time.
@@ -556,7 +578,7 @@ var ImageWidget = MediaWidget.extend({
     _previewImageFiles: function () {
         var self = this;
         var previewMutex = new concurrency.Mutex();
-        for (var file of this.$('.o_file_input')[0].files) {
+        for (var file of this.$fileInput[0].files) {
             previewMutex.exec(function () {
                 var defPreview = self._previewImageFile(file);
                 // start to upload the first attachment
@@ -565,7 +587,16 @@ var ImageWidget = MediaWidget.extend({
                 return defPreview;
             });
         }
-        self.$('.o_file_input').val('');
+
+        // TODO SEB apparently the last image of a multi is uploaded in place of all the others
+
+        // TODO SEB when all done:
+        // if (!self.multiImages) {
+        //     self.trigger_up('save_request');
+        // }
+        // also : this.selectedImages = attachments;
+
+        self.$fileInput.val('');
         // TODO SEB need to wait for the last upload before resolving here.
         return previewMutex.getUnlockedDef();
     },
@@ -594,6 +625,7 @@ var ImageWidget = MediaWidget.extend({
      */
     _uploadImageFile: function (filename, quality, data) {
         var self = this;
+
         return this._rpc({
             route: '/web_editor/attachment/add_image_base64',
             params: {
@@ -606,48 +638,26 @@ var ImageWidget = MediaWidget.extend({
         }).progress(function (ev) {
             // TODO SEB make a nice progress bar?
         }).then(function (attachment) {
-            self._insertAttachment(attachment);
+            self.$uploadButton.addClass('btn-success');
+            self._handleNewAttachment(attachment);
+        }).fail(function () {
+            self.$uploadButton.addClass('btn-danger');
+            self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
+            self.$el.find('.form-text').text('TODO SEB error message upload');
         });
         // TODO SEB handle error
     },
 
-    _insertAttachment: function (attachment) {
-        var attachments = res.attachments;
-        var error = res.error;
+    _handleNewAttachment: function (attachment) {
+        // TODO SEB what is this?
+        this.$('.well > span').remove();
+        this.$('.well > div').show();
 
-        self.$('.well > span').remove();
-        self.$('.well > div').show();
-        _.each(attachments, function (record) {
-            record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name)); // Name is added for SEO purposes
-            record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
-        });
-        if (error || !attachments.length) {
-            _processFile(null, error || !attachments.length);
-        }
-        self.images = attachments;
-        for (var i = 0; i < attachments.length; i++) {
-            _processFile(attachments[i], error);
-        }
+        attachment.src = attachment.url || _.str.sprintf('/web/image/%s/%s', attachment.id, encodeURI(attachment.name)); // Name is added for SEO purposes
+        attachment.isDocument = !(/gif|jpe|jpg|png/.test(attachment.mimetype));
 
-        if (self.options.onUpload) {
-            self.options.onUpload(attachments);
-        }
-
-        function _processFile(attachment, error) {
-            var $button = self.$('.o_upload_image_button');
-            if (!error) {
-                $button.addClass('btn-success');
-                self._toggleImage(attachment, true);
-            } else {
-                $button.addClass('btn-danger');
-                self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
-                self.$el.find('.form-text').text(error);
-            }
-
-            if (!self.multiImages) {
-                self.trigger_up('save_request');
-            }
-        }
+        // TODO SEB I don't think this is working
+        this._toggleImage(attachment, true);
     },
     //--------------------------------------------------------------------------
     // Handlers
@@ -673,13 +683,12 @@ var ImageWidget = MediaWidget.extend({
     /**
      * @private
      */
-    _onImageSelection: function () {
-        var $form = this.$('form');
+    _onChangeFileInput: function () {
         this.$el.addClass('nosave');
-        $form.removeClass('o_has_error').find('.form-control, .custom-select').removeClass('is-invalid');
-        $form.find('.form-text').empty();
+        this.$form.removeClass('o_has_error').find('.form-control, .custom-select').removeClass('is-invalid');
+        this.$form.find('.form-text').empty();
         this.$('.o_upload_media_button').removeClass('btn-danger btn-success');
-        this._uploadFile();
+        return this._mutex.exec(this._previewImageFiles.bind(this));
     },
     /**
      * @private
@@ -713,14 +722,8 @@ var ImageWidget = MediaWidget.extend({
     /**
      * @private
      */
-    _onURLInputChange: function (ev) {
-        var $input = $(ev.currentTarget);
-        var $button = this.$('.o_upload_media_url_button');
-        var $success = this.$('.o_we_url_success');
-        var $warning = this.$('.o_we_url_warning');
-        var $error = this.$('.o_we_url_error');
-
-        var inputValue = $input.val();
+    _onInputUrl: function () {
+        var inputValue = this.$urlInput.val();
         var emptyValue = (inputValue === '');
 
         var isURL = /^.+\..+$/.test(inputValue); // TODO improve
@@ -728,14 +731,15 @@ var ImageWidget = MediaWidget.extend({
             return inputValue.endsWith(format);
         });
 
-        $button.toggleClass('btn-secondary', emptyValue).toggleClass('btn-primary', !emptyValue)
-               .prop('disabled', !isURL);
+        this.$addUrlButton.toggleClass('btn-secondary', emptyValue)
+            .toggleClass('btn-primary', !emptyValue)
+            .prop('disabled', !isURL);
         if (!this.options.document) {
-            $button.text((isURL && !isImage) ? _t("Add as document") : _t("Add image"));
+            this.$addUrlButton.text((isURL && !isImage) ? _t("Add as document") : _t("Add image"));
         }
-        $success.toggleClass('d-none', !isURL);
-        $warning.toggleClass('d-none', !isURL || this.options.document || isImage);
-        $error.toggleClass('d-none', emptyValue || isURL);
+        this.$urlSuccess.toggleClass('d-none', !isURL);
+        this.$urlWarning.toggleClass('d-none', !isURL || this.options.document || isImage);
+        this.$urlError.toggleClass('d-none', emptyValue || isURL);
     },
     /**
      * @private
@@ -758,7 +762,7 @@ var ImageWidget = MediaWidget.extend({
             },
         }).then(function (attachment) {
             self.$urlInput.val('');
-            self._insertAttachment(attachment);
+            self._handleNewAttachment(attachment);
         });
         // TODO SEB handle error
     },
@@ -773,7 +777,6 @@ var ImageWidget = MediaWidget.extend({
      */
     _onSearchInput: function () {
         this.imagesRows = this.IMAGES_ROWS;
-        this.IMAGES_DISPLAYED_TOTAL = this.IMAGES_PER_ROW * this.imagesRows;
         this._super.apply(this, arguments);
     },
 });
