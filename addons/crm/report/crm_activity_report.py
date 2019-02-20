@@ -28,9 +28,9 @@ class ActivityReport(models.Model):
     company_id = fields.Many2one('res.company', 'Company', readonly=True)
     stage_id = fields.Many2one('crm.stage', 'Stage', readonly=True)
     partner_id = fields.Many2one('res.partner', 'Customer', readonly=True)
-    lead_type = fields.Char(
-        string='Type',
+    lead_type = fields.Selection(
         selection=[('lead', 'Lead'), ('opportunity', 'Opportunity')],
+        string='Type',
         help="Type is used to separate Leads and Opportunities")
     active = fields.Boolean('Active', readonly=True)
 
