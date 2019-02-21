@@ -177,8 +177,8 @@
     <t t-name="wysiwyg.widgets.image_preview">
         <form>
             <div class="form-group">
-                <label for="filename">Filename</label>
-                <input type="text" class="form-control" id="filename" name="filename" aria-describedby="filenameHelp" t-att-value="widget.filename"/>
+                <label for="o_we_filename">Filename</label>
+                <input type="text" class="form-control" id="o_we_filename" name="filename" aria-describedby="filenameHelp" t-att-value="widget.attachment.name"/>
                 <small id="filenameHelp" class="form-text text-muted">Give a relevant name to your file to optimize search engine results.</small>
             </div>
 
@@ -192,7 +192,7 @@
                 Current Size: <span class="js_current_size"></span>
                 Original Size: <span class="js_original_size"></span>
             </p>
-            <img class="img img-fluid js_preview_image" src="" alt="Image Preview"/>
+            <img class="img img-fluid js_preview_image" t-att-src="widget.attachment.url" alt="Image Preview"/>
         </form>
     </t>
 

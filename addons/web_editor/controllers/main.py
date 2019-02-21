@@ -194,34 +194,47 @@ class Web_Editor(http.Controller):
         return attachment
 
     def _get_attachment_data(self, attachment):
-        return attachment.read(['id', 'name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])
+        attachment.ensure_one()
+        return attachment.read(['id', 'name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])[0]
 
     @http.route('/web_editor/attachment/add_url', type='json', auth='user', methods=['POST'], website=True)
-    def attach_url(self, res_id, url, res_model='ir.ui.view', filters=None, **kwargs):
+    def attachment_add_url(self, res_id, url, res_model='ir.ui.view', filters=None, **kwargs):
         """Create a new attachment of type url."""
         attachment = self._create_attachment(res_id=res_id, url=url, res_model=res_model, filters=filters)
         return self._get_attachment_data(attachment)
 
     @http.route('/web_editor/attachment/add_image_base64', type='json', auth='user', methods=['POST'], website=True)
-    def attach_file(self, res_id, image_base64, filename, res_model='ir.ui.view', filters=None, **kwargs):
+    def attachment_add_image_base64(self, res_id, image_base64, filename, res_model='ir.ui.view', filters=None, **kwargs):
         """Create a new attachment of type image."""
         image_data = base64.b64decode(image_base64)
         attachment = self._create_attachment(res_id=res_id, image_data=image_data, filename=filename, res_model=res_model, filters=filters)
         return self._get_attachment_data(attachment)
 
-    @http.route('/web_editor/image/preview', type='json', auth='user', methods=['POST'], website=True)
-    def preview_image(self, image_original, quality=80, **kwargs):
+    @http.route('/web_editor/attachment/<model("ir.attachment"):attachment>/update', type='json', auth='user', methods=['POST'], website=True)
+    def attachment_update(self, attachment, filename=None, quality=None):
+        if attachment.type == 'url':
+            raise UserError(_("You cannot change the quality or the filename of an URL attachment."))
+        data = {}
+        if filename:
+            data['filename'] = filename
+        if quality:
+            image_data = base64.b64decode(attachment.datas)
+            image = Image.open(io.BytesIO(image_data))
+            image_data = tools.image_save_for_web(image, quality=int(quality) or 1)
+            data['datas'] = base64.b64encode(image_data)
+        attachment.write(data)
+        return self._get_attachment_data(attachment)
+
+    @http.route('/web_editor/attachment/<model("ir.attachment"):attachment>/preview', type='json', auth='user', methods=['POST'], website=True)
+    def attachment_preview(self, attachment, quality=80, **kwargs):
+        if attachment.type == 'url':
+            raise UserError(_("You cannot preview an URL attachment."))
         # the min quality possible for Pillow is 1
         quality = int(quality) or 1
         # TODO SEB this will crash with SVG
-        image = Image.open(io.BytesIO(base64.b64decode(image_original)))
-        w, h = image.size
-        if w * h > 42e6:  # Nokia Lumia 1020 photo resolution
-            raise ValueError(
-                u"Image size excessive, uploaded images must be smaller "
-                u"than 42 million pixel")
-        if image.format in ('PNG', 'JPEG'):
-            data = tools.image_save_for_web(image, quality=quality)
+        image_data = base64.b64decode(attachment.datas)
+        image = Image.open(io.BytesIO(image_data))
+        data = tools.image_save_for_web(image, quality=quality)
         return {'image': tools.image_data_uri(base64.b64encode(data))}
 
     #------------------------------------------------------

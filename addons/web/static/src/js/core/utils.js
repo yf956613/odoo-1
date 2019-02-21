@@ -279,6 +279,25 @@ var utils = {
         return "";
     },
     /**
+     * Gets dataURL from file input. Wraps FileReader.readAsDataURL in Deferred.
+     *
+     * @param {Blob|File} file
+     * @returns {Deferred} resolved with the dataURL
+     */
+    getDataURLFromFile: function (file) {
+        var def = $.Deferred();
+        if (file) {
+            var reader = new FileReader();
+            reader.addEventListener("load", function () {
+                def.resolve(this.result);
+            }, false);
+            reader.readAsDataURL(file);
+        } else {
+            def.reject();
+        }
+        return def;
+    },
+    /**
      * Returns a human readable number (e.g. 34000 -> 34k).
      *
      * @param {number} number

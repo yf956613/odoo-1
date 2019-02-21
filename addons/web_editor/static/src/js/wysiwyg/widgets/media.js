@@ -22,7 +22,7 @@ var ImagePreviewDialog = Dialog.extend({
     /**
      * @constructor
      */
-    init: function (parent, options, file, def) {
+    init: function (parent, options, attachment, def) {
         this._super(parent, _.extend({}, {
             title: _t("Improve your Image"),
             buttons: [
@@ -32,13 +32,14 @@ var ImagePreviewDialog = Dialog.extend({
         }, options));
         this.on('closed', this, this._onClose);
 
-        this.filename = file.name;
-        this.imageOriginal = file.data;
+        this.attachment = attachment;
         this.defaultQuality = 80;
         this.def = def;
+
+        this._onChangeQuality = _.debounce(this._onChangeQuality.bind(this));
     },
     /**
-     * @constructor
+     * @override
      */
     start: function () {
         var defParent = this._super.apply(this, arguments);
@@ -47,43 +48,54 @@ var ImagePreviewDialog = Dialog.extend({
         this.$currentQuality = this.$('.js_current_quality');
         this.$currentSize = this.$('.js_current_size');
         this.$originalSize = this.$('.js_original_size');
+        this.$filename = this.$('.o_we_filename');
         var defPreview = this._updatePreview();
         return $.when(defParent, defPreview);
     },
     /**
+     * Requests a preview for the current settings and displays it.
      *
+     * @private
+     * @returns {Deferred}
      */
     _updatePreview: function () {
         var self = this;
         var quality = this.$qualityRange.val();
-        var base64Original = this.imageOriginal.split(',')[1];
+        // var base64Original = this.attachment..split(',')[1];
         return this._rpc({
-            route: '/web_editor/image/preview',
+            route: _.str.sprintf('/web_editor/attachment/%d/preview', this.attachment.id),
             params: {
                 'quality': quality,
-                'image_original': base64Original,
             }
         }).then(function (res) {
             self.$currentQuality.text(quality);
             self.$currentSize.text(utils.binaryToBinsize(res.image.split(',')[1]));
-            self.$originalSize.text(utils.binaryToBinsize(base64Original));
+            // self.$originalSize.text(utils.binaryToBinsize(base64Original));
+            // self.$previewImage.attr('src', self.attachment.url + '?quality=' + quality);
             self.$previewImage.attr('src', res.image);
         });
     },
     /**
+     * Handles change of the quality setting: updates the preview to show the
+     * result with the new quality.
      *
+     * @private
+     * @returns {Deferred}
      */
-    _onChangeQuality: _.debounce(function (ev) {
+    _onChangeQuality: function () {
         return this._updatePreview();
-    }),
-    /**
-     *
-     */
-    _onSave: function () {
-        this.def.resolve(this.filename, this.$currentQuality.val(), this.imageOriginal);
     },
     /**
-     *
+     * Handles clicking on the save button, which is resolving the deferred with
+     * the current settings.
+     * TODO SEB maybe just trigger up something instead.
+     */
+    _onSave: function () {
+        this.def.resolve(this.$filename.val(), this.$currentQuality.val(), this.imageOriginal);
+    },
+    /**
+     * Handles closing the modal. Does nothing if called after save, otherwise
+     * rejects the deferred.
      */
     _onClose: function () {
         if (this.def.state() === 'pending') {
@@ -228,6 +240,7 @@ var ImageWidget = MediaWidget.extend({
         this.$urlSuccess = this.$('.o_we_url_warning');
         this.$urlWarning = this.$('.o_we_url_success');
         this.$urlError = this.$('.o_we_url_error');
+        this.$formText = this.$('.form-text');
 
         this._renderImages(true);
 
@@ -260,8 +273,8 @@ var ImageWidget = MediaWidget.extend({
     //--------------------------------------------------------------------------
 
     /**
-     * Saves the currently selected image on the target media.
-     * Prevent saving while an upload is in progress.
+     * Saves the currently selected image on the target media. If new files are
+     * currently being added, delays the save until all files have been added.
      *
      * @override
      */
@@ -571,92 +584,96 @@ var ImageWidget = MediaWidget.extend({
         }
     },
     /**
-     * Preview one uploaded image at a time.
+     * Create an attachment for each new file, and then open the Preview dialog
+     * for one image at a time.
      *
      * @private
      */
-    _previewImageFiles: function () {
+    _uploadImageFiles: function () {
         var self = this;
+        var uploadMutex = new concurrency.Mutex();
         var previewMutex = new concurrency.Mutex();
-        for (var file of this.$fileInput[0].files) {
-            previewMutex.exec(function () {
-                var defPreview = self._previewImageFile(file);
-                // start to upload the first attachment
-                defPreview.then(self._uploadImageFile.bind(self));
-                // open the next preview while it uploads
-                return defPreview;
+        var defs = [];
+        // upload the smallest file first to block the user the least possible
+        var files = _.sortBy(this.$fileInput[0].files, 'size');
+        for (var file of files) {
+            // upload one file at a time
+            var defUpload = uploadMutex.exec(function () {
+                // TODO SEB apparently the last image of a multi is uploaded in place of all the others
+                return self._uploadImageFile(file).then(function (attachment) {
+                    // show only one preview at a time
+                    previewMutex.exec(function () {
+                        return self._previewAttachment(attachment);
+                    });
+                });
             });
+            defs.push(defUpload);
         }
 
-        // TODO SEB apparently the last image of a multi is uploaded in place of all the others
+        self.$fileInput.val('');
+
+        var defUploads = $.when.apply($, defs).then(function () {
+            // success for all uploads
+            self.$uploadButton.addClass('btn-success');
+        }).fail(function () {
+            // at least one upload failed
+            self.$uploadButton.addClass('btn-danger');
+            self.$el.find('.form-text').text(
+                _("At least one of the files you selected could not be saved.")
+            );
+        });
+
+        return $.when(defUploads, previewMutex.getUnlockedDef());
 
         // TODO SEB when all done:
         // if (!self.multiImages) {
         //     self.trigger_up('save_request');
         // }
         // also : this.selectedImages = attachments;
-
-        self.$fileInput.val('');
-        // TODO SEB need to wait for the last upload before resolving here.
-        return previewMutex.getUnlockedDef();
     },
     /**
-     * Open the image preview dialog for the given file.
+     * Open the image preview dialog for the given attachment.
      *
      * @private
      */
-    _previewImageFile: function (file) {
-        var self = this;
+    _previewAttachment: function (attachment) {
         var def = $.Deferred();
-        var reader = new FileReader();
-        reader.onload = function (ev) {
-            new ImagePreviewDialog(self, {}, {
-                'name': file.name,
-                'data': ev.target.result,
-            }, def).open();
-        };
-        reader.readAsDataURL(file);
+        new ImagePreviewDialog(this, {}, attachment, def).open();
         return def;
     },
     /**
-     * Create the attachment with the given parameters.
+     * Creates an attachment for the given file.
      *
      * @private
+     * @param {Blob|File} file
+     * @returns {Deferred} resolved with the attachment
      */
-    _uploadImageFile: function (filename, quality, data) {
+    _uploadImageFile: function (file) {
         var self = this;
 
-        return this._rpc({
-            route: '/web_editor/attachment/add_image_base64',
-            params: {
-                'res_id': this.options.res_id,
-                'image_base64': data.split(',')[1],
-                'filename': filename,
-                'res_model': this.options.res_model,
-                'filters': this.firstFilters.join('_'),
-            },
-        }).progress(function (ev) {
-            // TODO SEB make a nice progress bar?
-        }).then(function (attachment) {
-            self.$uploadButton.addClass('btn-success');
-            self._handleNewAttachment(attachment);
-        }).fail(function () {
-            self.$uploadButton.addClass('btn-danger');
-            self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
-            self.$el.find('.form-text').text('TODO SEB error message upload');
+        return utils.getDataURLFromFile(file).then(function (dataURL) {
+            return self._rpc({
+                route: '/web_editor/attachment/add_image_base64',
+                params: {
+                    'res_id': self.options.res_id,
+                    'image_base64': dataURL.split(',')[1],
+                    'filename': file.name,
+                    'res_model': self.options.res_model,
+                    'filters': self.firstFilters.join('_'),
+                },
+            }).progress(function (ev) {
+                // TODO SEB make a nice progress bar?
+            }).then(function (attachment) {
+                self._handleNewAttachment(attachment);
+                return attachment;
+            });
         });
         // TODO SEB handle error
     },
 
     _handleNewAttachment: function (attachment) {
-        // TODO SEB what is this?
-        this.$('.well > span').remove();
-        this.$('.well > div').show();
-
         attachment.src = attachment.url || _.str.sprintf('/web/image/%s/%s', attachment.id, encodeURI(attachment.name)); // Name is added for SEO purposes
         attachment.isDocument = !(/gif|jpe|jpg|png/.test(attachment.mimetype));
-
-        // TODO SEB I don't think this is working
         this._toggleImage(attachment, true);
     },
     //--------------------------------------------------------------------------
@@ -681,14 +698,17 @@ var ImageWidget = MediaWidget.extend({
         this.trigger_up('save_request');
     },
     /**
+     * Handles change of the file input: create attachments with the new files
+     * and open the Preview dialog for each of them. Locks the save button until
+     * all new files have been processed.
+     *
      * @private
      */
     _onChangeFileInput: function () {
-        this.$el.addClass('nosave');
         this.$form.removeClass('o_has_error').find('.form-control, .custom-select').removeClass('is-invalid');
-        this.$form.find('.form-text').empty();
+        this.$formText.empty();
         this.$('.o_upload_media_button').removeClass('btn-danger btn-success');
-        return this._mutex.exec(this._previewImageFiles.bind(this));
+        return this._mutex.exec(this._uploadImageFiles.bind(this));
     },
     /**
      * @private
@@ -697,7 +717,7 @@ var ImageWidget = MediaWidget.extend({
         var self = this;
         Dialog.confirm(this, _t("Are you sure you want to delete this file ?"), {
             confirm_callback: function () {
-                var $helpBlock = self.$('.form-text').empty();
+                self.$formText.empty();
                 var $a = $(ev.currentTarget);
                 var id = parseInt($a.data('id'), 10);
                 var attachment = _.findWhere(self.records, {id: id});
@@ -712,7 +732,7 @@ var ImageWidget = MediaWidget.extend({
                         self._renderImages();
                         return;
                     }
-                    $helpBlock.replaceWith(QWeb.render('wysiwyg.widgets.image.existing.error', {
+                    self.$formText.replaceWith(QWeb.render('wysiwyg.widgets.image.existing.error', {
                         views: prevented[id],
                     }));
                 });

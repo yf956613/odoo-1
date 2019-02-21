@@ -6,7 +6,11 @@ import io
 
 from PIL import Image
 from PIL import ImageEnhance
+# WebP is considered safe
+from PIL import WebPImagePlugin
+
 from random import randrange
+
 
 # Preload PIL with the minimal subset of image formats we need
 Image.preinit()
@@ -149,24 +153,28 @@ def image_save_for_web(image, fp=None, format=None, quality=80):
         :param fp: File name or file object. If not specified, a bytestring is returned.
         :param format: File format if could not be deduced from image.
     """
-    opt = dict(format=image.format or format)
-    if image.format == 'PNG':
-        opt.update(optimize=True)
-        alpha = False
-        if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
-            alpha = image.convert('RGBA').split()[-1]
-        if image.mode != 'P':
-            # Floyd Steinberg dithering by default
-            image = image.convert('RGBA').convert('P', palette=Image.WEB, colors=256)
-        if alpha:
-            image.putalpha(alpha)
-    elif image.format == 'JPEG':
-        opt.update(optimize=True, quality=quality)
+    # opt = dict(format=image.format or format)
+    # if image.format == 'PNG':
+    #     opt.update(optimize=True)
+    #     alpha = False
+    #     if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+    #         alpha = image.convert('RGBA').split()[-1]
+    #     if image.mode != 'P':
+    #         # Floyd Steinberg dithering by default
+    #         image = image.convert('RGBA').convert('P', palette=Image.WEB, colors=256)
+    #     if alpha:
+    #         image.putalpha(alpha)
+    # elif image.format == 'JPEG':
+    #     opt.update(optimize=True, quality=quality)
+    opt = {
+        'quality': quality,
+    }
+    # TODO SEB return webp only for http header: accepting webp
     if fp:
-        image.save(fp, **opt)
+        image.save(fp, 'WebP', **opt)
     else:
         img = io.BytesIO()
-        image.save(img, **opt)
+        image.save(img, 'WebP', **opt)
         return img.getvalue()
 
 
