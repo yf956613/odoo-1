@@ -290,4 +290,22 @@
     };
     $(log_when_loaded);
 
+    // function optimizeImages() {
+    //     $('img.o_we_custom_image[src*="img_optimize=1"]').each(function () {
+    //         var $img = $(this);
+    //         setTimeout(function () {
+    //             var url = $img.attr('src').replace('img_optimize=1', 'img_optimize=0');
+    //             var $downloadingImage = $("<img>");
+    //             $downloadingImage.load(function () {
+    //                 $img.attr('src', url);
+    //             });
+    //             $downloadingImage.attr("src", url);
+    //         }, 2000);
+    //     });
+    // }
+    // // TODO SEB this won't work for newly added elements...
+    // $(document).ready(function () {
+    //     optimizeImages();
+    // });
+
 })();

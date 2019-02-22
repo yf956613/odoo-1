@@ -1057,16 +1057,13 @@ class Binary(http.Controller):
                 if suffix in ('small', 'medium', 'large', 'big'):
                     content = getattr(odoo.tools, 'image_resize_image_%s' % suffix)(content)
 
+        # if int(kw.get('img_optimize', 0)):
+        #     width = 120
+        #     height = 0
         content = limited_image_resize(
             content, width=width, height=height, crop=crop, upper_limit=upper_limit, avoid_if_small=avoid_if_small)
 
         image_base64 = base64.b64decode(content)
-
-        quality = int(kw.get('quality', 80))
-
-        # if request and 'image/webp' in request.httprequest.headers.get('Accept'):
-        #     image_base64 = odoo.tools.image.image_save_for_web_webp(image_base64=image_base64, quality=quality)
-        #     headers = self.force_contenttype(headers, contenttype='image/webp')
 
         headers.append(('Content-Length', len(image_base64)))
         response = request.make_response(image_base64, headers)

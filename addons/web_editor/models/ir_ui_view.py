@@ -4,6 +4,7 @@
 import copy
 import logging
 from lxml import etree, html
+from werkzeug import urls
 
 from odoo.exceptions import AccessError
 from odoo import api, fields, models
@@ -171,6 +172,14 @@ class IrUiView(models.Model):
 
         arch_section = html.fromstring(
             value, parser=html.HTMLParser(encoding='utf-8'))
+
+        # for img in arch_section.xpath(".//img[hasclass('o_we_custom_image')]"):
+        #     url = img.get('src', '')
+        #     url = urls.url_parse(url)
+        #     url_params = url.decode_query()
+        #     url_params.update([("img_optimize", 1)])
+        #     url = url.replace(query=urls.url_encode(url_params)).to_url()
+        #     img.set('src', url)
 
         if xpath is None:
             # value is an embedded field on its own, not a view section
