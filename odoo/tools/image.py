@@ -6,8 +6,8 @@ import io
 
 from PIL import Image
 from PIL import ImageEnhance
-# WebP is considered safe
-from PIL import WebPImagePlugin
+# Ask the security team before importing Image Plugins.
+from PIL import WebPImagePlugin  # noqa: F401 # WebP is considered safe
 
 from random import randrange
 
@@ -153,29 +153,33 @@ def image_save_for_web(image, fp=None, format=None, quality=80):
         :param fp: File name or file object. If not specified, a bytestring is returned.
         :param format: File format if could not be deduced from image.
     """
-    # opt = dict(format=image.format or format)
-    # if image.format == 'PNG':
-    #     opt.update(optimize=True)
-    #     alpha = False
-    #     if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
-    #         alpha = image.convert('RGBA').split()[-1]
-    #     if image.mode != 'P':
-    #         # Floyd Steinberg dithering by default
-    #         image = image.convert('RGBA').convert('P', palette=Image.WEB, colors=256)
-    #     if alpha:
-    #         image.putalpha(alpha)
-    # elif image.format == 'JPEG':
-    #     opt.update(optimize=True, quality=quality)
-    opt = {
-        'quality': quality,
-    }
-    # TODO SEB return webp only for http header: accepting webp
+    opt = dict(format=image.format or format)
+    if image.format == 'PNG':
+        opt.update(optimize=True)
+        alpha = False
+        if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+            alpha = image.convert('RGBA').split()[-1]
+        if image.mode != 'P':
+            # Floyd Steinberg dithering by default
+            image = image.convert('RGBA').convert('P', palette=Image.WEB, colors=256)
+        if alpha:
+            image.putalpha(alpha)
+    elif image.format == 'JPEG':
+        opt.update(optimize=True, quality=quality)
     if fp:
-        image.save(fp, 'WebP', **opt)
+        image.save(fp, **opt)
     else:
         img = io.BytesIO()
-        image.save(img, 'WebP', **opt)
+        image.save(img, **opt)
         return img.getvalue()
+
+
+def image_save_for_web_webp(image_base64, quality):
+    # TODO SEB this will crash with SVG
+    image = Image.open(io.BytesIO(image_base64))
+    img = io.BytesIO()
+    image.save(img, format='WebP', quality=quality)
+    return img.getvalue()
 
 
 def image_resize_image_big(base64_source, encoding='base64', filetype=None, avoid_if_small=True, preserve_aspect_ratio=False, upper_limit=False):

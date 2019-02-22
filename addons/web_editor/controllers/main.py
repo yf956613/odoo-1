@@ -225,18 +225,6 @@ class Web_Editor(http.Controller):
         attachment.write(data)
         return self._get_attachment_data(attachment)
 
-    @http.route('/web_editor/attachment/<model("ir.attachment"):attachment>/preview', type='json', auth='user', methods=['POST'], website=True)
-    def attachment_preview(self, attachment, quality=80, **kwargs):
-        if attachment.type == 'url':
-            raise UserError(_("You cannot preview an URL attachment."))
-        # the min quality possible for Pillow is 1
-        quality = int(quality) or 1
-        # TODO SEB this will crash with SVG
-        image_data = base64.b64decode(attachment.datas)
-        image = Image.open(io.BytesIO(image_data))
-        data = tools.image_save_for_web(image, quality=quality)
-        return {'image': tools.image_data_uri(base64.b64encode(data))}
-
     #------------------------------------------------------
     # remove attachment (images or link)
     #------------------------------------------------------
