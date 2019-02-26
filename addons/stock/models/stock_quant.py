@@ -6,7 +6,7 @@ from psycopg2 import OperationalError, Error
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.osv import expression
-from odoo.tools.float_utils import float_compare, float_is_zero
+from odoo.tools.float_utils import float_compare, float_is_zero, float_round
 
 import logging
 
@@ -20,7 +20,7 @@ class StockQuant(models.Model):
 
     product_id = fields.Many2one(
         'product.product', 'Product',
-        ondelete='restrict', readonly=True, required=True)
+        ondelete='restrict', required=True)
     # so user can filter on template in webclient
     product_tmpl_id = fields.Many2one(
         'product.template', string='Product Template',
@@ -32,7 +32,7 @@ class StockQuant(models.Model):
         string='Company', store=True, readonly=True)
     location_id = fields.Many2one(
         'stock.location', 'Location',
-        auto_join=True, ondelete='restrict', readonly=True, required=True)
+        auto_join=True, ondelete='restrict', required=True)
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
         ondelete='restrict', readonly=True)
@@ -45,13 +45,19 @@ class StockQuant(models.Model):
     quantity = fields.Float(
         'Quantity',
         help='Quantity of products in this quant, in the default unit of measure of the product',
-        readonly=True, required=True, oldname='qty')
+        readonly=True, oldname='qty')
     reserved_quantity = fields.Float(
         'Reserved Quantity',
         default=0.0,
         help='Quantity of reserved products in this quant, in the default unit of measure of the product',
         readonly=True, required=True)
     in_date = fields.Datetime('Incoming Date', readonly=True)
+
+    # -------------------------------------------------------------------------
+    # look away
+    inventory_quantity = fields.Float('Inventoried Quantity')
+    inventory_date = fields.Datetime('Last Inventory Date', readonly=True)
+    # -------------------------------------------------------------------------
 
     def action_view_stock_moves(self):
         self.ensure_one()
@@ -340,6 +346,65 @@ class StockQuant(models.Model):
     def _quant_tasks(self):
         self._merge_quants()
         self._unlink_zero_quants()
+
+    # -------------------------------------------------------------------------
+    # look away
+    def _get_inventory_move_values(self, location_id, location_dest_id, quantity):
+        self.ensure_one()
+        # FIXME: handle package
+        return {
+            'name': 'ugly inventory move',
+            'product_id': self.product_id.id,
+            'product_uom': self.product_uom_id.id,
+            'product_uom_qty': quantity,
+            'company_id': self.company_id.id,
+            'state': 'confirmed',
+            'location_id': location_id.id,
+            'location_dest_id': location_dest_id.id,
+            'move_line_ids': [(0, 0, {
+                'product_id': self.product_id.id,
+                'product_uom_id': self.product_uom_id.id,
+                'qty_done': quantity,
+                'location_id': location_id.id,
+                'location_dest_id': location_dest_id.id,
+            })]
+        }
+
+    def write(self, vals):
+        if 'inventory_quantity' in vals:
+            for quant in self:
+                rounding = quant.product_id.uom_id.rounding
+                diff = float_round(vals['inventory_quantity'] - quant.quantity, precision_rounding=rounding)
+                diff_float_compared = float_compare(diff, 0, precision_rounding=rounding)
+                if diff_float_compared == 0:
+                    continue
+                elif diff_float_compared > 0:
+                    move = self.env['stock.move'].create(self._get_inventory_move_values(self.product_id.property_stock_inventory, self.location_id, diff))
+                    move._action_done()
+                else:
+                    move = self.env['stock.move'].create(self._get_inventory_move_values(self.location_id, self.product_id.property_stock_inventory, -1 * diff))
+                    move._action_done()
+            vals.pop('inventory_quantity')
+            vals['inventory_date'] = fields.Datetime.now()
+        return super(StockQuant, self).write(vals)
+
+    @api.model
+    def create(self, vals):
+        if 'inventory_quantity' in vals:
+            product = self.env['product.product'].browse(vals['product_id'])
+            location = self.env['stock.location'].browse(vals['location_id'])
+            similar = self._gather(product, location, strict=True)
+            if similar:
+                similar.write({'inventory_quantity': vals['inventory_quantity']})
+                return similar
+            else:
+                vals2 = dict(vals)
+                vals2.pop('inventory_quantity')
+                quant = super(StockQuant, self).create(vals2)
+                quant.write({'inventory_quantity': vals['inventory_quantity']})
+                return quant
+        return super(StockQuant, self).create(vals)
+    # -------------------------------------------------------------------------
 
 
 class QuantPackage(models.Model):
