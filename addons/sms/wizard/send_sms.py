@@ -28,33 +28,15 @@ class SendSMS(models.TransientModel):
 
     recipients = fields.Char('Recipients', required=True)
     message = fields.Text('Message', required=True)
-
-    def _phone_get_country(self, partner):
-        if 'country_id' in partner:
-            return partner.country_id
-        return self.env.user.company_id.country_id
-
-    def _sms_sanitization(self, partner, field_name):
-        number = partner[field_name]
-        if number and _sms_phonenumbers_lib_imported:
-            country = self._phone_get_country(partner)
-            country_code = country.code if country else None
-            try:
-                phone_nbr = phonenumbers.parse(number, region=country_code, keep_raw_input=True)
-            except phonenumbers.phonenumberutil.NumberParseException:
-                return number
-            if not phonenumbers.is_possible_number(phone_nbr) or not phonenumbers.is_valid_number(phone_nbr):
-                return number
-            phone_fmt = phonenumbers.PhoneNumberFormat.INTERNATIONAL
-            return phonenumbers.format_number(phone_nbr, phone_fmt).replace(' ', '')
-        else:
-            return number
+    sendto = fields.Text('Send to')
+    #template = fields.Many2one('mail.template', 'Template')
+    template = fields.Char(string='Template', default='Not implemented yet', readonly=True)
 
     def _get_records(self, model):
-        if self.env.context.get('active_domain'):
-            records = model.search(self.env.context.get('active_domain'))
-        elif self.env.context.get('active_ids'):
+        if self.env.context.get('active_ids'):
             records = model.browse(self.env.context.get('active_ids', []))
+        elif self.env.context.get('active_domain'):
+            records = model.search(self.env.context.get('active_domain'))
         else:
             records = model.browse(self.env.context.get('active_id', []))
         return records
@@ -63,24 +45,39 @@ class SendSMS(models.TransientModel):
     def default_get(self, fields):
         result = super(SendSMS, self).default_get(fields)
 
+        result['recipients'] = self.env.context.get('default_recipients')
+        result['message'] = self.env.context.get('default_message')
+        result['sendto'] = self.env.context.get('default_sendto')
+
+        if result['recipients'] and result['sendto']:
+            return result
+
         active_model = self.env.context.get('active_model')
         model = self.env[active_model]
-
         records = self._get_records(model)
-        if getattr(records, '_get_default_sms_recipients') and not self.env.context.get('default_recipients'):
+
+        if getattr(records, '_get_default_sms_recipients'):
             partners = records._get_default_sms_recipients()
+
             phone_numbers = []
             no_phone_partners = []
             for partner in partners:
-                number = self._sms_sanitization(partner, self.env.context.get('field_name') or 'mobile')
+                number = partner[self.env.context.get('field_name')] if self.env.context.get('field_name') else partner['mobile'] or partner['phone']
                 if number:
-                    phone_numbers.append(number)
+                    phone_numbers.append((partner.name, number))
                 else:
                     no_phone_partners.append(partner.name)
-            if len(partners) > 1:
-                if no_phone_partners:
-                    raise UserError(_('Missing mobile number for %s.') % ', '.join(no_phone_partners))
-            result['recipients'] = ', '.join(phone_numbers)
+
+            if len(partners) and no_phone_partners:
+                if len(partners) == 1:
+                    raise UserError(_('No number found on the contact.\n'
+                                      'Please set one on the contact and try again.'))
+                else:
+                    raise UserError(_('No number found for the following contacts:\n%s') % '\n'.join(sorted(no_phone_partners)))
+
+            result['sendto'] = '\n'.join(map(lambda x: '%s - %s' % x, sorted(phone_numbers)))
+            result['recipients'] = ', '.join(map(lambda x: x[1], phone_numbers))
+
         return result
 
     def action_send_sms(self):
@@ -89,8 +86,11 @@ class SendSMS(models.TransientModel):
         active_model = self.env.context.get('active_model')
         model = self.env[active_model]
         records = self._get_records(model)
+
+        partners = records._get_default_sms_recipients()
+
         if getattr(records, 'message_post_send_sms'):
-            records.message_post_send_sms(self.message, numbers=numbers)
+            records.message_post_send_sms(self.message, numbers, partners)
         else:
             self.env['sms.api']._send_sms(numbers, self.message)
         return True
