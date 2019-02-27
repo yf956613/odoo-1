@@ -220,9 +220,10 @@ class StockQuant(models.Model):
             try:
                 with self._cr.savepoint():
                     self._cr.execute("SELECT 1 FROM stock_quant WHERE id = %s FOR UPDATE NOWAIT", [quant.id], log_exceptions=False)
-                    quant.write({
+                    quant.with_context(dont_create_inventory_line=True).write({
                         'quantity': quant.quantity + quantity,
                         'in_date': in_date,
+                        'inventory_quantity': quant.quantity + quantity,
                     })
                     break
             except OperationalError as e:
@@ -231,10 +232,11 @@ class StockQuant(models.Model):
                 else:
                     raise
         else:
-            self.create({
+            self.with_context(dont_create_inventory_line=True).create({
                 'product_id': product_id.id,
                 'location_id': location_id.id,
                 'quantity': quantity,
+                'inventory_quantity': quantity,
                 'lot_id': lot_id and lot_id.id,
                 'package_id': package_id and package_id.id,
                 'owner_id': owner_id and owner_id.id,
@@ -371,7 +373,7 @@ class StockQuant(models.Model):
         }
 
     def write(self, vals):
-        if 'inventory_quantity' in vals:
+        if 'inventory_quantity' in vals and not self.env.context.get('dont_create_inventory_line'):
             for quant in self:
                 rounding = quant.product_id.uom_id.rounding
                 diff = float_round(vals['inventory_quantity'] - quant.quantity, precision_rounding=rounding)
@@ -390,7 +392,7 @@ class StockQuant(models.Model):
 
     @api.model
     def create(self, vals):
-        if 'inventory_quantity' in vals:
+        if 'inventory_quantity' in vals and not self.env.context.get('dont_create_inventory_line'):
             product = self.env['product.product'].browse(vals['product_id'])
             location = self.env['stock.location'].browse(vals['location_id'])
             similar = self._gather(product, location, strict=True)
