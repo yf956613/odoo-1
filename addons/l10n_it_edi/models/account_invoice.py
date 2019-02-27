@@ -47,6 +47,13 @@ class AccountInvoice(models.Model):
 
     l10n_it_einvoice_id = fields.Many2one('ir.attachment', string="Electronic invoice", copy=False)
 
+    @api.onchange('partner_id', 'company_id')
+    def _onchange_partner_id(self):
+        res = super()._onchange_partner_id()
+        if self.company_id.country_id.code != 'IT':
+            self.l10n_it_send_state = False
+        return res
+
     @api.multi
     def invoice_validate(self):
         # Clean context from default_type to avoid making attachment
