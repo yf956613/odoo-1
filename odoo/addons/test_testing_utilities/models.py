@@ -188,6 +188,14 @@ class O2MSub3(models.Model):
             r.name = str(r.v)
 
 
+class O2MSub4(models.Model):
+    _name = 'test_testing_utilities.sub4'
+    _description = 'Testing Utilities Subtraction 4'
+
+    one_to_many_id = fields.Many2one('test_testing_utilities.sub4', readonly=True)
+    many_to_one_ids = fields.One2many('test_testing_utilities.sub4', 'one_to_many_id', readonly=True)
+
+
 class O2MOnchangeParent(models.Model):
     _name = 'test_testing_utilities.onchange_parent'
     _description = 'Testing Utilities Onchange Parent'

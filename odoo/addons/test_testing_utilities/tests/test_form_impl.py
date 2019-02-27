@@ -432,6 +432,10 @@ class TestO2M(TransactionCase):
         with f.line_ids.edit(index=0) as new_line:
             self.assertTrue(new_line.flag)
 
+    def test_o2m_recursive_relation(self):
+        # Make sure there is no 'RecursionError'.
+        f = Form(self.env['test_testing_utilities.sub4'], view='test_testing_utilities.o2m_recursive_relation_view')
+
 
 class TestEdition(TransactionCase):
     """ These use the context manager form as we don't need the record
