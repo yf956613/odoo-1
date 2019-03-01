@@ -148,7 +148,7 @@ class SaleOrder(models.Model):
     partner_invoice_id = fields.Many2one('res.partner', string='Invoice Address', readonly=True, required=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)], 'sale': [('readonly', False)]}, help="Invoice address for current sales order.")
     partner_shipping_id = fields.Many2one('res.partner', string='Delivery Address', readonly=True, required=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)], 'sale': [('readonly', False)]}, help="Delivery address for current sales order.")
 
-    pricelist_id = fields.Many2one('product.pricelist', string='Pricelist', required=True, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Pricelist for current order. If you change the pricelist, only new lines will consider this pricelist.")
+    pricelist_id = fields.Many2one('product.pricelist', string='Pricelist', required=True, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, tracking=1, help="Pricelist for current order. If you change the pricelist, only new lines will consider this pricelist.")
     currency_id = fields.Many2one("res.currency", related='pricelist_id.currency_id', string="Currency", readonly=True, required=True)
     analytic_account_id = fields.Many2one('account.analytic.account', 'Analytic Account', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="The analytic account related to a sales order.", copy=False)
 
@@ -195,6 +195,7 @@ class SaleOrder(models.Model):
                                        string='Transactions', copy=False, readonly=True)
     authorized_transaction_ids = fields.Many2many('payment.transaction', compute='_compute_authorized_transaction_ids',
                                                   string='Authorized Transactions', copy=False, readonly=True)
+    is_change_pricelist = fields.Boolean(string='Is Pricelist Changed', help="To show and hide update price list info")
 
     _sql_constraints = [
         ('confirmation_date_conditional_required', "CHECK( (state IN ('sale', 'done') AND confirmation_date IS NOT NULL) OR state NOT IN ('sale', 'done') )", "A confirmed sales order requires a confirmation date."),
@@ -369,6 +370,28 @@ class SaleOrder(models.Model):
                                  "You may be unable to honor the commitment date.")
                 }
             }
+
+    @api.onchange('pricelist_id', 'order_line')
+    def _onchange_pricelist_id(self):
+        if self.order_line and self._origin.pricelist_id and self._origin.pricelist_id != self.pricelist_id:
+            self.is_change_pricelist = True
+        else:
+            self.is_change_pricelist = False
+
+    def update_pricelist(self):
+        self.ensure_one()
+        for line in self.order_line:
+            product = line.product_id.with_context(
+                partner=self.partner_id,
+                quantity=line.product_uom_qty,
+                date=self.date_order,
+                pricelist=self.pricelist_id.id,
+                uom=line.product_uom.id
+            )
+            line.price_unit = self.env['account.tax']._fix_tax_included_price_company(
+                line._get_display_price(product), line.product_id.taxes_id, line.tax_id, line.company_id)
+        self.is_change_pricelist = False
+        self.message_post(body=_("Updated product price according to pricelist <b>%s<b> ") % self.pricelist_id.display_name)
 
     @api.model
     def create(self, vals):
