@@ -2,14 +2,17 @@
 <odoo>
     <!-- account chart  -->
     <record id="l10n_kzc_temp_chart" model="account.chart.template">
-        <field name="property_account_receivable_id" ref="pcg_3488"/>
-        <field name="property_account_payable_id" ref="pcg_4488"/>
+        <field name="property_account_receivable_id" ref="pcg_34211"/>
+        <field name="property_account_payable_id" ref="pcg_4411"/>
         <field name="property_account_income_categ_id" ref="pcg_7111"/>
         <field name="property_account_expense_categ_id" ref="pcg_1486"/>
         <field name="income_currency_exchange_account_id" ref="pcg_733"/>
         <field name="expense_currency_exchange_account_id" ref="pcg_633"/>
     </record>
-
+    <!-- Currency -->
+    <record id="base.MAD" model="res.currency">
+        <field name="symbol">MAD</field>
+    </record>
     <!-- Account Tags -->
     <record id="tax_tag_01" model="account.account.tag">
         <field name="name">TVA 20% VENTES</field>
@@ -58,7 +61,6 @@
     <field name="amount">0</field>
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
-    <field name="tax_group_id" ref="tax_group_tva_0"/>
   </record>
   <record model="account.tax.template" id="tva_exo1">
     <field name="name">Exonere de TVA ACHATS</field>
@@ -69,11 +71,10 @@
     <field name="amount">0</field>
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
-    <field name="tax_group_id" ref="tax_group_tva_0"/>
   </record>
   <record model="account.tax.template" id="tva_vt20">
     <field name="name">TVA 20% VENTES</field>
-    <field name="description">TVA 20% VENTES</field>
+    <field name="description">20%</field>
     <field name="type_tax_use">sale</field>
     <field name="refund_account_id" ref="pcg_445520"/>
     <field name="account_id" ref="pcg_445520"/>
@@ -81,11 +82,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_01')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_20"/>
   </record>
   <record model="account.tax.template" id="tva_vt14">
     <field name="name">TVA 14% VENTES</field>
-    <field name="description">TVA 14% VENTES</field>
+    <field name="description">14%</field>
     <field name="type_tax_use">sale</field>
     <field name="refund_account_id" ref="pcg_445514"/>
     <field name="account_id" ref="pcg_445514"/>
@@ -93,11 +93,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_02')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_14"/>
   </record>
   <record model="account.tax.template" id="tva_vt10">
     <field name="name">TVA 10% VENTES</field>
-    <field name="description">TVA 10% VENTES</field>
+    <field name="description">10%</field>
     <field name="type_tax_use">sale</field>
     <field name="refund_account_id" ref="pcg_445510"/>
     <field name="account_id" ref="pcg_445510"/>
@@ -105,11 +104,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_03')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_10"/>
   </record>
   <record model="account.tax.template" id="tva_vt07">
     <field name="name">TVA 7% VENTES</field>
-    <field name="description">TVA 7% VENTES</field>
+    <field name="description">7%</field>
     <field name="type_tax_use">sale</field>
     <field name="refund_account_id" ref="pcg_445507"/>
     <field name="account_id" ref="pcg_445507"/>
@@ -117,11 +115,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_04')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_7"/>
   </record>
   <record model="account.tax.template" id="tva_ac20">
     <field name="name">TVA 20% ACHATS</field>
-    <field name="description">TVA 20% ACHATS</field>
+    <field name="description">20%</field>
     <field name="type_tax_use">purchase</field>
     <field name="refund_account_id" ref="pcg_3455220"/>
     <field name="account_id" ref="pcg_3455220"/>
@@ -129,11 +126,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_06')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_20"/>
   </record>
   <record model="account.tax.template" id="tva_acim">
     <field name="name">TVA 20% ACHATS (immobilisation)</field>
-    <field name="description">TVA 20% ACHATS (immobilisation)</field>
+    <field name="description">20%</field>
     <field name="type_tax_use">purchase</field>
     <field name="refund_account_id" ref="pcg_34551"/>
     <field name="account_id" ref="pcg_34551"/>
@@ -141,11 +137,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_09')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_20"/>
   </record>
   <record model="account.tax.template" id="tva_ac14">
     <field name="name">TVA 14% ACHATS</field>
-    <field name="description">TVA 14% ACHATS</field>
+    <field name="description">14%</field>
     <field name="type_tax_use">purchase</field>
     <field name="refund_account_id" ref="pcg_3455214"/>
     <field name="account_id" ref="pcg_3455214"/>
@@ -153,11 +148,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_07')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_14"/>
   </record>
   <record model="account.tax.template" id="tva_ac10">
     <field name="name">TVA 10% ACHATS</field>
-    <field name="description">TVA 10% ACHATS</field>
+    <field name="description">10%</field>
     <field name="type_tax_use">purchase</field>
     <field name="refund_account_id" ref="pcg_3455210"/>
     <field name="account_id" ref="pcg_3455210"/>
@@ -165,11 +159,10 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_05')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_10"/>
   </record>
   <record model="account.tax.template" id="tva_ac07">
     <field name="name">TVA 7% ACHATS</field>
-    <field name="description">TVA 7% ACHATS</field>
+    <field name="description">7%</field>
     <field name="type_tax_use">purchase</field>
     <field name="refund_account_id" ref="pcg_3455207"/>
     <field name="account_id" ref="pcg_3455207"/>
@@ -177,6 +170,5 @@
     <field name="amount_type">percent</field>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
     <field name="tag_ids" eval="[(6,0,[ref('tax_tag_08')])]"/>
-    <field name="tax_group_id" ref="tax_group_tva_7"/>
   </record>
 </odoo>
