@@ -33,8 +33,7 @@ class TestIrAttachment(TransactionCase):
         a1 = self.Attachment.create({'name': 'a1', 'datas': self.blob1_b64})
         self.assertEqual(a1.datas, self.blob1_b64)
 
-        a1_db_datas = a1.db_datas
-        self.assertEqual(a1_db_datas, self.blob1_b64)
+        self.assertEqual(a1.db_datas, self.blob1)
 
     def test_02_store_on_disk(self):
         a2 = self.Attachment.create({'name': 'a2', 'datas': self.blob1_b64})

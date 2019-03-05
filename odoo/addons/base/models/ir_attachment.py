@@ -92,21 +92,17 @@ class IrAttachment(models.Model):
         return fname, full_path
 
     @api.model
-    def _file_read(self, fname, bin_size=False):
+    def _file_read(self, fname):
         full_path = self._full_path(fname)
-        r = ''
         try:
-            if bin_size:
-                r = human_size(os.path.getsize(full_path))
-            else:
-                r = base64.b64encode(open(full_path,'rb').read())
+            with open(full_path, 'rb') as f:
+                return f.read()
         except (IOError, OSError):
             _logger.info("_read_file reading %s", full_path, exc_info=True)
-        return r
+        return ''
 
     @api.model
-    def _file_write(self, value, checksum):
-        bin_value = base64.b64decode(value)
+    def _file_write(self, bin_value, checksum):
         fname, full_path = self._get_path(bin_value, checksum)
         if not os.path.exists(full_path):
             try:
@@ -183,31 +179,32 @@ class IrAttachment(models.Model):
         cr.commit()
         _logger.info("filestore gc %d checked, %d removed", len(checklist), removed)
 
-    @api.depends('store_fname', 'db_datas')
+    @api.depends('store_fname', 'db_datas', 'file_size')
     def _compute_datas(self):
-        bin_size = self._context.get('bin_size')
+        if self._context.get('bin_size'):
+            for attach in self:
+                attach.datas = human_size(attach.file_size)
+            return
+
         for attach in self:
-            if attach.store_fname:
-                attach.datas = self._file_read(attach.store_fname, bin_size)
-            else:
-                attach.datas = attach.db_datas
+            raw_data = self._file_read(attach.store_fname) if attach.store_fname else attach.db_datas
+            attach.datas = base64.b64encode(raw_data)
 
     def _inverse_datas(self):
         location = self._storage()
         for attach in self:
             # compute the fields that depend on datas
-            value = attach.datas
-            bin_data = base64.b64decode(value) if value else b''
+            bin_data = base64.b64decode(attach.datas) if attach.datas else b''
             vals = {
                 'file_size': len(bin_data),
                 'checksum': self._compute_checksum(bin_data),
                 'index_content': self._index(bin_data, attach.datas_fname, attach.mimetype),
                 'store_fname': False,
-                'db_datas': value,
+                'db_datas': bin_data,
             }
-            if value and location != 'db':
+            if bin_data and location != 'db':
                 # save it to the filestore
-                vals['store_fname'] = self._file_write(value, vals['checksum'])
+                vals['store_fname'] = self._file_write(bin_data, vals['checksum'])
                 vals['db_datas'] = False
 
             # take current location in filestore to possibly garbage-collect it
