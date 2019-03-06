@@ -950,12 +950,14 @@ class Field(MetaField('DummyField', (object,), {})):
 
     ############################################################################
     #
-    # Read from/write to database
+    # Alternatively stored fields: if fields don't have a `column_type` (not
+    # stored as regular db columns) they go through a read/create/write
+    # protocol instead
     #
 
     def read(self, records):
         """ Read the value of ``self`` on ``records``, and store it in cache. """
-        return NotImplementedError("Method read() undefined on %s" % self)
+        raise NotImplementedError("Method read() undefined on %s" % self)
 
     def create(self, record_values):
         """ Write the value of ``self`` on the given records, which have just
@@ -972,7 +974,7 @@ class Field(MetaField('DummyField', (object,), {})):
 
         :param value: a value in the format of method :meth:`BaseModel.write`
         """
-        return NotImplementedError("Method write() undefined on %s" % self)
+        raise NotImplementedError("Method write() undefined on %s" % self)
 
     ############################################################################
     #
@@ -1818,8 +1820,11 @@ class Binary(Field):
             ('res_id', 'in', records.ids),
         ]
         # Note: the 'bin_size' flag is handled by the field 'datas' itself
-        data = {att.res_id: att.datas
-                for att in records.env['ir.attachment'].sudo().search(domain)}
+        fname = 'data' if records._context.get('bin_size') else 'raw'
+        data = {
+            att.res_id: att[fname]
+            for att in records.env['ir.attachment'].sudo().search(domain)
+        }
         cache = records.env.cache
         for record in records:
             cache.set(record, self, data.get(record.id, False))
@@ -1839,7 +1844,7 @@ class Binary(Field):
                     'res_field': self.name,
                     'res_id': record.id,
                     'type': 'binary',
-                    'datas': value,
+                    'raw': value,
                 }
                 for record, value in record_values
                 if value
@@ -1856,7 +1861,7 @@ class Binary(Field):
         with records.env.norecompute():
             if value:
                 # update the existing attachments
-                atts.write({'datas': value})
+                atts.write({'raw': value})
                 atts_records = records.browse(atts.mapped('res_id'))
                 # create the missing attachments
                 if len(atts_records) < len(records):
@@ -1866,7 +1871,7 @@ class Binary(Field):
                             'res_field': self.name,
                             'res_id': record.id,
                             'type': 'binary',
-                            'datas': value,
+                            'raw': value,
                         }
                         for record in (records - atts_records)
                     ])

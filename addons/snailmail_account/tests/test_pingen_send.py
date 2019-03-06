@@ -77,7 +77,7 @@ class TestPingenSend(AccountingTestCase):
         attachment_id = self.letter.with_context(force_report_rendering=True)._fetch_attachment()
 
         files = {
-            'file': ('pingen_test_%s.pdf' % report_name, base64.b64decode(attachment_id.datas), 'application/pdf'),
+            'file': ('pingen_test_%s.pdf' % report_name, attachment_id.raw, 'application/pdf'),
         }
 
         response = requests.post(self.pingen_url, data=self.data, files=files)

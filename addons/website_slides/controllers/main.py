@@ -429,7 +429,7 @@ class WebsiteSlides(WebsiteProfile):
                 type='http', auth="public", website=True, sitemap=False)
     def slide_get_pdf_content(self, slide):
         response = werkzeug.wrappers.Response()
-        response.data = slide.datas and base64.b64decode(slide.datas) or b''
+        response.data = slide.raw or b''
         response.mimetype = 'application/pdf'
         return response
 

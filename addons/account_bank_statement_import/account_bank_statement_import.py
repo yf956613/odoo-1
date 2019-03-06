@@ -34,7 +34,7 @@ class AccountBankStatementImport(models.TransientModel):
         self.ensure_one()
         # Let the appropriate implementation module parse the file and return the required data
         # The active_id is passed in context in case an implementation module requires information about the wizard state (see QIF)
-        currency_code, account_number, stmts_vals = self.with_context(active_id=self.ids[0])._parse_file(base64.b64decode(self.data_file))
+        currency_code, account_number, stmts_vals = self.with_context(active_id=self.ids[0])._parse_file(self.data_file)
         # Check raw data
         self._check_parsed_data(stmts_vals)
         # Try to find the currency and journal in odoo

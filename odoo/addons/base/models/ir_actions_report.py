@@ -174,7 +174,7 @@ class IrActionsReport(models.Model):
             return None
         attachment_vals = {
             'name': attachment_name,
-            'datas': base64.encodestring(buffer.getvalue()),
+            'raw': buffer.getvalue(),
             'datas_fname': attachment_name,
             'res_model': self.model,
             'res_id': record.id,

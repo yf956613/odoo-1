@@ -36,7 +36,7 @@ class HrFleet(Controller):
         for document in doc_list:
             car_line_doc = request.env['fleet.vehicle.assignation.log'].browse(document.res_id)
             try:
-                reader = PdfFileReader(io.BytesIO(base64.b64decode(document.datas)), strict=False, overwriteWarnings=False)
+                reader = PdfFileReader(io.BytesIO(document.raw), strict=False, overwriteWarnings=False)
             except Exception:
                 continue
 

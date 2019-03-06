@@ -63,7 +63,7 @@ class Assets(models.AbstractModel):
                 attachment = self._get_custom_attachment(url)
             else:
                 attachment = custom_attachments.filtered(lambda r: r.url == url)
-            return attachment and base64.b64decode(attachment.datas) or False
+            return attachment and attachment.raw or False
 
         # If the file is not yet customized, the content is found by reading
         # the local scss file
@@ -161,14 +161,14 @@ class Assets(models.AbstractModel):
                 either 'scss' or 'js' according to the file being customized
         """
         custom_url = self.make_custom_asset_file_url(url, bundle_xmlid)
-        datas = base64.b64encode((content or "\n").encode("utf-8"))
+        datas = (content or "\n").encode("utf-8")
 
         # Check if the file to save had already been modified
         custom_attachment = self._get_custom_attachment(custom_url)
         if custom_attachment:
             # If it was already modified, simply override the corresponding
             # attachment content
-            custom_attachment.write({"datas": datas})
+            custom_attachment.write({"raw": datas})
         else:
             # If not, create a new attachment to copy the original scss/js file
             # content, with its modifications
@@ -176,7 +176,7 @@ class Assets(models.AbstractModel):
                 'name': custom_url,
                 'type': "binary",
                 'mimetype': (file_type == 'js' and 'text/javascript' or 'text/scss'),
-                'datas': datas,
+                'raw': datas,
                 'datas_fname': url.split("/")[-1],
                 'url': custom_url,
             }

@@ -178,7 +178,7 @@ class Web_Editor(http.Controller):
         attachment = Attachments.create({
             'name': name,
             'datas_fname': datas_fname,
-            'datas': base64.b64encode(data),
+            'raw': data,
             'public': res_model == 'ir.ui.view',
             'res_id': res_id,
             'res_model': res_model,

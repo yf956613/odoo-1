@@ -64,7 +64,7 @@ class IrAttachment(models.Model):
         }[self._storage()]
 
         for attach in self.search(domain):
-            attach.write({'datas': attach.datas})
+            attach.write({'raw': attach.raw})
         return True
 
     @api.model
@@ -187,14 +187,24 @@ class IrAttachment(models.Model):
             return
 
         for attach in self:
-            raw_data = self._file_read(attach.store_fname) if attach.store_fname else attach.db_datas
-            attach.datas = base64.b64encode(raw_data)
+            attach.datas = base64.b64encode(attach.raw)
+
+    @api.depends('store_fname', 'db_datas')
+    def _compute_raw(self):
+        for attach in self:
+            attach.raw = self._file_read(attach.store_fname) if attach.store_fname else attach.db_datas
+
+    def _inverse_raw(self):
+        self._set_data(lambda a: a.raw)
 
     def _inverse_datas(self):
+        self._set_data(lambda attach: base64.b64decode(attach.datas) if attach.datas else b'')
+
+    def _set_data(self, asbytes):
         location = self._storage()
         for attach in self:
             # compute the fields that depend on datas
-            bin_data = base64.b64decode(attach.datas) if attach.datas else b''
+            bin_data = asbytes(attach)
             vals = {
                 'file_size': len(bin_data),
                 'checksum': self._compute_checksum(bin_data),
@@ -233,8 +243,14 @@ class IrAttachment(models.Model):
             mimetype = mimetypes.guess_type(values['datas_fname'])[0]
         if not mimetype and values.get('url'):
             mimetype = mimetypes.guess_type(values['url'])[0]
-        if values.get('datas') and (not mimetype or mimetype == 'application/octet-stream'):
-            mimetype = guess_mimetype(base64.b64decode(values['datas']))
+        if not mimetype or mimetype == 'application/octet-stream':
+            raw = None
+            if values.get('raw'):
+                raw = values['raw']
+            elif values.get('datas'):
+                raw = base64.b64decode(values['datas'])
+            if raw:
+                mimetype = guess_mimetype(raw)
         return mimetype or 'application/octet-stream'
 
     def _check_contents(self, values):
@@ -290,7 +306,8 @@ class IrAttachment(models.Model):
     access_token = fields.Char('Access Token', groups="base.group_user")
 
     # the field 'datas' is computed and may use the other fields below
-    datas = fields.Binary(string='File Content', compute='_compute_datas', inverse='_inverse_datas')
+    raw = fields.Binary(string="File Content (raw)", compute='_compute_raw', inverse='_inverse_raw', context_dependent=False)
+    datas = fields.Binary(string='File Content (base64)', compute='_compute_datas', inverse='_inverse_datas')
     db_datas = fields.Binary('Database Data', attachment=False)
     store_fname = fields.Char('Stored Filename')
     file_size = fields.Integer('File Size', readonly=True)
@@ -471,7 +488,7 @@ class IrAttachment(models.Model):
             for field in ('file_size', 'checksum'):
                 values.pop(field, False)
             values = self._check_contents(values)
-            self.browse().check('write', values=values)
+            self.check('write', values=values)
         return super(IrAttachment, self).create(vals_list)
 
     @api.one

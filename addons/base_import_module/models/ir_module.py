@@ -86,7 +86,7 @@ class IrModule(models.Model):
                 for static_file in files:
                     full_path = opj(root, static_file)
                     with open(full_path, 'rb') as fp:
-                        data = base64.b64encode(fp.read())
+                        data = fp.read()
                     url_path = '/{}{}'.format(module, full_path.split(path)[1].replace(os.path.sep, '/'))
                     if not isinstance(url_path, str):
                         url_path = url_path.decode(sys.getfilesystemencoding())
@@ -97,7 +97,7 @@ class IrModule(models.Model):
                         url=url_path,
                         res_model='ir.ui.view',
                         type='binary',
-                        datas=data,
+                        raw=data,
                     )
                     attachment = IrAttachment.search([('url', '=', url_path), ('type', '=', 'binary'), ('res_model', '=', 'ir.ui.view')])
                     if attachment:

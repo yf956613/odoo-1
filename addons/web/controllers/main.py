@@ -1113,7 +1113,7 @@ class Binary(http.Controller):
             try:
                 attachment = Model.create({
                     'name': filename,
-                    'datas': base64.encodestring(ufile.read()),
+                    'raw': ufile.read(),
                     'datas_fname': filename,
                     'res_model': model,
                     'res_id': int(id)
@@ -1196,24 +1196,13 @@ class Binary(http.Controller):
         :rtype: list
         """
 
-
         fonts = []
-        if fontname:
-            font_path = get_resource_path('web', 'static/src/fonts/sign', fontname)
-            if not font_path:
-                return []
-            font_file = open(font_path, 'rb')
-            font = base64.b64encode(font_file.read())
-            fonts.append(font)
-        else:
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            fonts_directory = os.path.join(current_dir, '..', 'static', 'src', 'fonts', 'sign')
-            font_filenames = sorted(os.listdir(fonts_directory))
+        fonts_dir = get_resource_path('web', 'static/src/fonts/sign')
+        font_names = [fontname] if fontname else sorted(os.listdir(fonts_dir))
+        for font_name in font_names:
+            with open(os.path.join(fonts_dir, font_name), 'rb') as f:
+                fonts.append(base64.b64encode(f.read()))
 
-            for filename in font_filenames:
-                font_file = open(os.path.join(fonts_directory, filename), 'rb')
-                font = base64.b64encode(font_file.read())
-                fonts.append(font)
         return fonts
 
 class Action(http.Controller):

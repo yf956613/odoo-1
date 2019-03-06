@@ -219,7 +219,7 @@ class AccountInvoice(models.Model):
 
         def _get_attachment_content(attachment):
             # Handle both _Attachment namedtuple in mail.thread or ir.attachment.
-            return hasattr(attachment, 'content') and getattr(attachment, 'content') or base64.b64decode(attachment.datas)
+            return hasattr(attachment, 'content') and getattr(attachment, 'content') or attachment.raw
 
         if 'default_res_id' not in self._context and len(self) == 1 and self.state == 'draft' and self.type in ('in_invoice', 'in_refund'):
             # Get attachments.

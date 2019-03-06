@@ -135,7 +135,7 @@ class Website(Home):
 
         def create_sitemap(url, content):
             return Attachment.create({
-                'datas': base64.b64encode(content),
+                'raw': content,
                 'mimetype': mimetype,
                 'type': 'binary',
                 'name': url,
@@ -148,7 +148,7 @@ class Website(Home):
             create_date = fields.Datetime.from_string(sitemap.create_date)
             delta = datetime.datetime.now() - create_date
             if delta < SITEMAP_CACHE_TIME:
-                content = base64.b64decode(sitemap.datas)
+                content = sitemap.raw
 
         if not content:
             # Remove all sitemaps in ir.attachments as we're going to regenerated them

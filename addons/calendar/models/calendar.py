@@ -204,7 +204,7 @@ class Attendee(models.Model):
                     vals['attachment_ids'] = [(0, 0, {'name': 'invitation.ics',
                                                       'mimetype': 'text/calendar',
                                                       'datas_fname': 'invitation.ics',
-                                                      'datas': base64.b64encode(ics_file)})]
+                                                      'raw': ics_file})]
                 vals['model'] = None  # We don't want to have the mail in the tchatter while in queue!
                 vals['res_id'] = False
                 current_mail = self.env['mail.mail'].browse(mail_id)

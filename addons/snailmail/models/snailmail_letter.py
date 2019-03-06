@@ -124,7 +124,7 @@ class SnailmailLetter(models.Model):
             pdf_bin, _ = report.with_context(snailmail_layout=not self.cover).render_qweb_pdf(self.res_id)
             attachment = self.env['ir.attachment'].create({
                 'name': filename,
-                'datas': base64.b64encode(pdf_bin),
+                'raw': pdf_bin,
                 'datas_fname': filename,
                 'res_model': 'snailmail.letter',
                 'res_id': self.id,
@@ -227,7 +227,7 @@ class SnailmailLetter(models.Model):
                 if attachment:
                     document.update({
                         'pdf_bin': route == 'print' and attachment.datas.decode('utf-8'),
-                        'pages': route == 'estimate' and self._count_pages_pdf(base64.b64decode(attachment.datas)),
+                        'pages': route == 'estimate' and self._count_pages_pdf(attachment.raw),
                     })
                 else:
                     letter.write({

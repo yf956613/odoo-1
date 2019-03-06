@@ -103,8 +103,8 @@ class WebsiteSaleDigital(CustomerPortal):
                 return redirect(attachment["url"])
             else:
                 return request.not_found()
-        elif attachment["datas"]:
-            data = io.BytesIO(base64.standard_b64decode(attachment["datas"]))
+        elif attachment.raw:
+            data = io.BytesIO(attachment.raw)
             return http.send_file(data, filename=attachment['name'], as_attachment=True)
         else:
             return request.not_found()

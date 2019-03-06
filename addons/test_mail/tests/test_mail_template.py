@@ -22,13 +22,13 @@ class TestMailTemplate(BaseFunctionalTest, MockEmails, TestRecipients):
         self._attachments = [{
             'name': '_Test_First',
             'datas_fname': 'first.txt',
-            'datas': base64.b64encode(b'My first attachment'),
+            'raw': b'My first attachment',
             'res_model': 'res.partner',
             'res_id': self.user_admin.partner_id.id
         }, {
             'name': '_Test_Second',
             'datas_fname': 'second.txt',
-            'datas': base64.b64encode(b'My second attachment'),
+            'raw': b'My second attachment',
             'res_model': 'res.partner',
             'res_id': self.user_admin.partner_id.id
         }]

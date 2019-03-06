@@ -114,7 +114,7 @@ class Web_Unsplash(http.Controller):
                 'url': '/' + '/'.join(url_frags),
                 'datas_fname': '_'.join(url_frags),
                 'mimetype': mimetype,
-                'datas': base64.b64encode(datas),
+                'raw': datas,
                 'public': res_model == 'ir.ui.view',
                 'res_id': res_id,
                 'res_model': res_model,
