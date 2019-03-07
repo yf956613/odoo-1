@@ -62,20 +62,23 @@ var DebugManager = Widget.extend({
         this._has_features = false;
         // whether the current user is an administrator
         this._is_admin = session.is_system;
-        return Promise.resolve(
+        return Promise.all([
             this._rpc({
                     model: 'res.users',
                     method: 'check_access_rights',
                     kwargs: {operation: 'write', raise_exception: false},
-                }),
+            }),
             session.user_has_group('base.group_no_one'),
             this._rpc({
                     model: 'ir.model.data',
                     method: 'xmlid_to_res_id',
                     kwargs: {xmlid: 'base.group_no_one'},
-                }),
+            }),
             this._super()
-        ).then(function (can_write_user, has_group_no_one, group_no_one_id) {
+        ]).then(function (results) {
+            var can_write_user = results[0];
+            var has_group_no_one = results[1];
+            var group_no_one_id = results[2];
             this._features_group = can_write_user && group_no_one_id;
             this._has_features = has_group_no_one;
             return this.update();
