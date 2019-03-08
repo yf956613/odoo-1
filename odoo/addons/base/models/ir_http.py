@@ -316,10 +316,10 @@ class IrHttp(models.AbstractModel):
 
         field_def = record._fields[field]
         if field_def.type == 'binary' and field_def.attachment:
-            field_attachment = self.env['ir.attachment'].search_read(domain=[('res_model', '=', model), ('res_id', '=', record.id), ('res_field', '=', field)], fields=['raw', 'mimetype', 'checksum'], limit=1)
+            field_attachment = self.env['ir.attachment'].search_read(domain=[('res_model', '=', model), ('res_id', '=', record.id), ('res_field', '=', field)], fields=['datas', 'mimetype', 'checksum'], limit=1)
             if field_attachment:
                 mimetype = field_attachment[0]['mimetype']
-                content = field_attachment[0]['raw']
+                content = field_attachment[0]['datas']
                 filehash = field_attachment[0]['checksum']
 
         if not content:
@@ -332,7 +332,7 @@ class IrHttp(models.AbstractModel):
             else:
                 filename = "%s-%s-%s" % (record._name, record.id, field)
 
-        if not mimetype or mimetype == 'application/octet-stream':
+        if not mimetype:
             mimetype = guess_mimetype(base64.b64decode(content), default=default_mimetype)
 
         if not filehash:

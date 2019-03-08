@@ -1820,9 +1820,8 @@ class Binary(Field):
             ('res_id', 'in', records.ids),
         ]
         # Note: the 'bin_size' flag is handled by the field 'datas' itself
-        fname = 'data' if records._context.get('bin_size') else 'raw'
         data = {
-            att.res_id: att[fname]
+            att.res_id: att.datas
             for att in records.env['ir.attachment'].sudo().search(domain)
         }
         cache = records.env.cache
@@ -1844,7 +1843,7 @@ class Binary(Field):
                     'res_field': self.name,
                     'res_id': record.id,
                     'type': 'binary',
-                    'raw': value,
+                    'datas': value,
                 }
                 for record, value in record_values
                 if value
@@ -1861,7 +1860,7 @@ class Binary(Field):
         with records.env.norecompute():
             if value:
                 # update the existing attachments
-                atts.write({'raw': value})
+                atts.write({'datas': value})
                 atts_records = records.browse(atts.mapped('res_id'))
                 # create the missing attachments
                 if len(atts_records) < len(records):
@@ -1871,7 +1870,7 @@ class Binary(Field):
                             'res_field': self.name,
                             'res_id': record.id,
                             'type': 'binary',
-                            'raw': value,
+                            'datas': value,
                         }
                         for record in (records - atts_records)
                     ])
