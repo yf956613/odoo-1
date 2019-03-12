@@ -45,8 +45,7 @@
 
         <record id="stock_inventory_icecream" model="stock.inventory">
             <field name="name">Inventory for Cable Management Box</field>
-            <field name="filter">product</field>
-            <field name="product_id" ref="stock.product_cable_management_box"/>
+            <field name="product_ids" eval="[(4, ref('stock.product_cable_management_box'))]"/>
         </record>
 
         <record id="stock_inventory_line_icecream_lot0" model="stock.inventory.line">
