@@ -10,6 +10,7 @@ odoo.define('mail.Manager.Notification', function (require) {
 var MailManager = require('mail.Manager');
 var MailFailure = require('mail.model.MailFailure');
 
+var config = require('web.config');
 var core = require('web.core');
 var session = require('web.session');
 
@@ -232,12 +233,14 @@ MailManager.include({
                     _t("You have been invited to: ") + channelData.name);
             }
         }
-        var channel = this.getChannel(channelData.id);
-        if (channel && channelData.info !== 'join') {
-            channel.updateWindowState({
-                folded: channelData.state === 'folded' ? true : false,
-                detached: channelData.is_minimized,
-            });
+        if (!config.device.isMobile) {
+            var channel = this.getChannel(channelData.id);
+            if (channel && channelData.info !== 'join') {
+                channel.updateWindowState({
+                    folded: channelData.state === 'folded' ? true : false,
+                    detached: channelData.is_minimized,
+                });
+            }
         }
     },
     /**
