@@ -175,7 +175,7 @@ class StockPackageLevel(models.Model):
     def _compute_location_id(self):
         for pl in self:
             if pl.state == 'new' or pl.is_fresh_package:
-                pl.location = False
+                pl.location_id = False
             elif pl.state == 'confirmed' and pl.move_ids:
                 pl.location_id = pl.move_ids[0].location_id
             elif pl.state in ('assigned', 'done') and pl.move_line_ids:
