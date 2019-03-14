@@ -308,14 +308,21 @@ class InventoryLine(models.Model):
             return self._context.get('active_id', None)
 
     def _domain_location_id(self):
-        # self.ensure_one()
-        print('-- Define Domain Location for %s (%s)' % (self.id, self.inventory_id.name))
-        # import pdb
-        # pdb.set_trace()
-        # if self.inventory_id:
-        #     if self.inventory_id.location_id:
-        #         return [('id', 'child_of', self.inventory_id.location_id)]
+        if self._context.get('active_model') == 'stock.inventory':
+            inventory = self.env['stock.inventory'].browse(self._context.get('active_id'))
+            if inventory.exists():
+                if len(inventory.location_ids) >= 1:
+                    return [('id', 'child_of', inventory.location_ids.ids)]
         return []
+
+    def _domain_product_id(self):
+        domain = [('type', '=', 'product')]
+        if self._context.get('active_id'):
+            inventory = self.env['stock.inventory'].browse(self._context.get('active_id'))
+            if inventory.exists():
+                if len(inventory.product_ids) >= 1:
+                    domain = ['&'] + domain + [('id', 'in', inventory.product_ids.ids)]
+        return domain
 
     inventory_id = fields.Many2one(
         'stock.inventory', 'Inventory',
@@ -323,7 +330,7 @@ class InventoryLine(models.Model):
     partner_id = fields.Many2one('res.partner', 'Owner')
     product_id = fields.Many2one(
         'product.product', 'Product',
-        domain=[('type', '=', 'product')],
+        domain=_domain_product_id,
         index=True, required=True)
     product_uom_id = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',
