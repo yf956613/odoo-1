@@ -5433,29 +5433,51 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             # attach ``self`` with a different context (for cache consistency)
             record._origin = self.with_context(__onchange=True)
 
-        # make a snapshot based on the initial values of record
-        with env.do_in_onchange():
-            snapshot0 = snapshot1 = Snapshot(record, nametree)
-
         # determine which field(s) should be triggered an onchange
         todo = list(names or nametree)
         done = set()
 
+        modified = {}
+
         def compute_todo(record):
-            todo = []
-            todo.extend(env.invalidated[record._name][record.id])
-            one2many_fields = [([name], field, record) for name, field in record._fields.items() if field.type == 'one2many']
+            todo = set()
+            modifieds = dict(env.invalidated[record._name][record])
+            for field, old_val in modifieds.items():
+                if field not in nametree:
+                    continue
+                todo.add(field)
+                new_val = record._fields[field].convert_to_cache(record[field], record)
+                if old_val != new_val:
+                    modified[field] = new_val
+            one2many_fields = [([name], [field], record, nametree) for name, field in record._fields.items() if field.type == 'one2many' and field.name in nametree]
             done = []
             while one2many_fields:
-                path, one2many_field, records = one2many_fields.pop()
+                path, one2many_field_chain, records, tree = one2many_fields.pop()
+                one2many_field = one2many_field_chain[-1]
                 done.append(one2many_field)
                 records = records.mapped(one2many_field.name)
-                for record_id in env.invalidated[one2many_field.comodel_name]:
-                    if record_id in records._ids:
-                        todo.append(path[0])
-                        break
-                else:
-                    one2many_fields.extend((path + [name], field, records) for name, field in env.registry[one2many_field.comodel_name]._fields.items() if field.type == 'one2many' and field not in done)
+                if not records:
+                    continue
+                modifieds = set(env.invalidated[one2many_field.comodel_name]) & set(records)
+                if modifieds:
+                    todo.add(path[0])
+                for modified_record in modifieds:
+                    modified_fields = dict(env.invalidated[one2many_field.comodel_name][modified_record])
+                    for field, old_val in modified_fields.items():
+                        chain = list(one2many_field_chain)
+                        modified_chain = []
+                        record = modified_record
+                        new_val = record._fields[field].convert_to_cache(record[field], record)
+                        if old_val != new_val:
+                            while(chain):
+                                c = chain.pop()
+                                modified_chain.append(modified_record)
+                                modified_chain.append(c)
+                                record = modified_record[c.inverse_name]
+                            reversed_chain = list(reversed(modified_chain))
+                            r = reversed_chain.pop()
+                            modified.setdefault(tuple(reversed_chain), {}).setdefault(r, {})[field] = new_val
+                one2many_fields.extend((path + [name], one2many_field_chain + [field], records, tree.get(field.name)) for name, field in env.registry[one2many_field.comodel_name]._fields.items() if field.type == 'one2many' and field.name in tree and field not in done)
             return todo
 
         # dummy assignment: trigger invalidations on the record
@@ -5481,17 +5503,48 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             done.add(name)
             with env.do_in_onchange():
                 # apply field-specific onchange methods
+                snapshot1 = Snapshot(record, nametree)
                 if field_onchange.get(name):
                     record._onchange_eval(name, field_onchange[name], result)
 
                 todo.extend(compute_todo(record))
 
-        with env.do_in_onchange():
-            snapshot1 = Snapshot(record, nametree)
+        # determine values that have changed
+        value = {}
+        for field, val in modified.items():
+            if isinstance(field, tuple):
+                field, = field
+                value[field.name] = []
+                xmany_values = [(field, record, value[field.name], nametree.get(field.name))]
+                while xmany_values:
+                    field, record, commands, tree = xmany_values.pop()
+                    commands.append((5,))
+                    for rec in record[field.name]:
+                        if rec.id:
+                            id = rec.id
+                            if rec in val and val[rec].keys() & tree:
+                                magic_number = 1
+                            else:
+                                magic_number = 4
+                        else:
+                            magic_number, id = 0, (rec.id.ref or 0)
+                        vals = {}
+                        if magic_number in [0, 1]:
+                            for name, subnames in tree.items():
+                                if name == 'id':
+                                    continue
+                                if rec._fields[name].type.endswith('2many'):
+                                    vals[name] = []
+                                    xmany_values.append((rec._fields[name], rec, vals[name], subnames))
+                                else:
+                                    vals[name] = val[name] if name in val else rec._fields[name].convert_to_onchange(rec[name], rec, {})
+                            commands.append((magic_number, id, vals))
+                        else:
+                            commands.append((4, id))
 
-        # determine values that have changed by comparing snapshots
-        self.invalidate_cache()
-        result['value'] = snapshot1.diff(snapshot0)
+            else:
+                value[field] = record._fields[field].convert_to_onchange(record._fields[field].convert_to_record(val, record,), record, {})
+        result['value'] = value
 
         # format warnings
         warnings = result.pop('warnings')

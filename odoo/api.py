@@ -804,7 +804,7 @@ class Environment(Mapping):
         self._cache_key = (cr, uid)
         self._protected = StackMap()                # {field: ids, ...}
         self.dirty = defaultdict(set)               # {record: set(field_name), ...}
-        self.invalidated = defaultdict(lambda: defaultdict(set))               # {model: {id: set(field_name)}, ...}
+        self.invalidated = defaultdict(lambda: defaultdict(dict))               # {model: {id: {field_name: value}}, ...}
         self.all = envs
         envs.add(self)
         return self
