@@ -5441,6 +5441,23 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         todo = list(names or nametree)
         done = set()
 
+        def compute_todo(record):
+            todo = []
+            todo.extend(env.invalidated[record._name][record.id])
+            one2many_fields = [([name], field, record) for name, field in record._fields.items() if field.type == 'one2many']
+            done = []
+            while one2many_fields:
+                path, one2many_field, records = one2many_fields.pop()
+                done.append(one2many_field)
+                records = records.mapped(one2many_field.name)
+                for record_id in env.invalidated[one2many_field.comodel_name]:
+                    if record_id in records._ids:
+                        todo.append(path[0])
+                        break
+                else:
+                    one2many_fields.extend((path + [name], field, records) for name, field in env.registry[one2many_field.comodel_name]._fields.items() if field.type == 'one2many' and field not in done)
+            return todo
+
         # dummy assignment: trigger invalidations on the record
         with env.do_in_onchange():
             for name in todo:
@@ -5452,6 +5469,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                     # do not nullify all fields of parent record for new records
                     continue
                 record[name] = value
+            todo.extend(compute_todo(record))
 
         result = {'warnings': OrderedSet()}
 
@@ -5461,19 +5479,15 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             if name in done:
                 continue
             done.add(name)
-
             with env.do_in_onchange():
                 # apply field-specific onchange methods
                 if field_onchange.get(name):
                     record._onchange_eval(name, field_onchange[name], result)
 
-                # make a snapshot (this forces evaluation of computed fields)
-                snapshot1 = Snapshot(record, nametree)
+                todo.extend(compute_todo(record))
 
-                # determine which fields have been modified
-                for name in nametree:
-                    if snapshot1[name] != snapshot0[name]:
-                        todo.append(name)
+        with env.do_in_onchange():
+            snapshot1 = Snapshot(record, nametree)
 
         # determine values that have changed by comparing snapshots
         self.invalidate_cache()

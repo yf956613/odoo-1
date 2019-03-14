@@ -1007,11 +1007,16 @@ class Field(MetaField('DummyField', (object,), {})):
                 for invf in record._field_inverses[self]:
                     invf._update(record[self.name], record)
                 env.dirty[record].add(self.name)
+                env.invalidated[self.model_name][record.id].add(self.name)
 
             # determine more dependent fields, and invalidate them
             if self.relational:
                 spec += self.modified_draft(record)
             env.cache.invalidate(spec)
+            if spec and env.in_onchange:
+                for field, ids in spec:
+                    for rec_id in ids:
+                        env.invalidated[field.model_name][rec_id].add(field.name)
 
         else:
             # Write to database

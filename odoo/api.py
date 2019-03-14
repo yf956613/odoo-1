@@ -804,6 +804,7 @@ class Environment(Mapping):
         self._cache_key = (cr, uid)
         self._protected = StackMap()                # {field: ids, ...}
         self.dirty = defaultdict(set)               # {record: set(field_name), ...}
+        self.invalidated = defaultdict(lambda: defaultdict(set))               # {model: {id: set(field_name)}, ...}
         self.all = envs
         envs.add(self)
         return self
@@ -874,6 +875,7 @@ class Environment(Mapping):
             finally:
                 self.all.mode = False
                 self.dirty.clear()
+                self.invalidated.clear()
 
     def do_in_draft(self):
         """ Context-switch to draft mode, where all field updates are done in
