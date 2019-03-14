@@ -97,6 +97,15 @@ class SeoMetadata(models.AbstractModel):
         }
 
 
+class Base(models.AbstractModel):
+    _inherit = 'base'
+
+    def get_website_meta(self):
+        # dummy version of 'get_website_meta' above; this is a graceful fallback
+        # for models that don't inherit from 'website.seo.metadata'
+        return {}
+
+
 class WebsiteMultiMixin(models.AbstractModel):
 
     _name = 'website.multi.mixin'
