@@ -38,7 +38,7 @@ class TestBankStatementReconciliation(AccountingTestCase):
         the provided 'post at bank reconciliation' value for the bank journal
         where to generate the statement.
         """
-        self.bs_model.with_context(journal_type='bank')._default_journal().post_at_bank_reconciliation = post_at_bank_rec
+        self.bs_model.with_context(journal_type='bank')._default_journal().post_at_bank_rec = post_at_bank_rec
         rcv_mv_line = self.create_invoice(100)
         st_line = self.create_statement_line(100)
         # reconcile
