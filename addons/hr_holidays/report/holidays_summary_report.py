@@ -47,7 +47,7 @@ class HrHolidaySummaryReport(models.AbstractModel):
             start_date += relativedelta(day=1, months=+1)
         return res
 
-    def _get_leaves_summary(self, start_date, empid, holiday_type):
+    def _get_leaves_summary(self, employee, start_date, holiday_type):
         res = []
         count = 0
         start_date = fields.Date.from_string(start_date)
@@ -60,7 +60,7 @@ class HrHolidaySummaryReport(models.AbstractModel):
         # count and get leave summary details.
         holiday_type = ['confirm','validate'] if holiday_type == 'both' else ['confirm'] if holiday_type == 'Confirmed' else ['validate']
         holidays = self.env['hr.leave'].search([
-            ('employee_id', '=', empid), ('state', 'in', holiday_type),
+            ('employee_id', '=', employee.id), ('state', 'in', holiday_type),
             ('date_from', '<=', str(end_date)),
             ('date_to', '>=', str(start_date))
         ])
@@ -76,29 +76,26 @@ class HrHolidaySummaryReport(models.AbstractModel):
                     res[(date_from-start_date).days]['color'] = holiday.holiday_status_id.color_name
                 date_from += timedelta(1)
             count += holiday.number_of_days
-        self.sum = count
-        return res
+        return {'emp': employee.name, 'display': res, 'sum': count}
 
     def _get_data_from_report(self, data):
         res = []
         Employee = self.env['hr.employee']
         if 'depts' in data:
             for department in self.env['hr.department'].browse(data['depts']):
-                res.append({'dept' : department.name, 'data': [], 'color': self._get_day(data['date_from'])})
-                for emp in Employee.search([('department_id', '=', department.id)]):
-                    res[len(res)-1]['data'].append({
-                        'emp': emp.name,
-                        'display': self._get_leaves_summary(data['date_from'], emp.id, data['holiday_type']),
-                        'sum': self.sum
-                    })
-        elif 'emp' in data:
-            res.append({'data':[]})
-            for emp in Employee.browse(data['emp']):
-                res[0]['data'].append({
-                    'emp': emp.name,
-                    'display': self._get_leaves_summary(data['date_from'], emp.id, data['holiday_type']),
-                    'sum': self.sum
+                res.append({
+                    'dept': department.name,
+                    'data': [
+                        self._get_leaves_summary(emp, data['date_from'], data['holiday_type'])
+                        for emp in Employee.search([('department_id', '=', department.id)])
+                    ],
+                    'color': self._get_day(data['date_from']),
                 })
+        elif 'emp' in data:
+            res.append({'data': [
+                self._get_leaves_summary(emp, data['date_from'], data['holiday_type'])
+                for emp in Employee.browse(data['emp'])
+            ]})
         return res
 
     def _get_holidays_status(self):
