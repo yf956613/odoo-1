@@ -156,12 +156,56 @@ class Inventory(models.Model):
         })
 
     def action_start(self):
-        for inventory in self.filtered(lambda x: x.state not in ('done','cancel')):
-            vals = {'state': 'confirm', 'date': fields.Datetime.now()}
-            # if (inventory.filter != 'partial') and not inventory.line_ids:
-            #     vals.update({'line_ids': [(0, 0, line_values) for line_values in inventory._get_inventory_lines_values()]})
-            inventory.write(vals)
-        return True
+        for inventory in self:
+            # Confirms the inventory adjustment and generates its lines if inventory
+            # state is draft
+            if inventory.state == 'draft':
+                vals = {
+                    'state': 'confirm',
+                    'date': fields.Datetime.now(),
+                    'line_ids': [(0, 0, line_values) for line_values in inventory._get_inventory_lines_values()]
+                }
+                inventory.write(vals)
+            return inventory.action_open_inventory()
+
+    def action_open_inventory(self):
+        self.ensure_one()
+        action = {
+            'type': 'ir.actions.act_window',
+            'views': [(self.env.ref('stock.stock_inventory_line_tree2').id, 'tree')],
+            'view_mode': 'tree',
+            'name': _('Inventory Lines'),
+            'res_model': 'stock.inventory.line',
+        }
+        context = {
+            'active_id': self.id,
+        }
+
+        # Define domains
+        domain = [('id', 'in', self.line_ids.ids)]
+        product_and_location_domain = []
+        if self.location_ids:
+            if len(self.location_ids) == 1:
+                product_and_location_domain += [('location_id', 'child_of', self.location_ids[0].id)]
+                context['default_location_id'] = self.location_ids[0].id
+            else:
+                product_and_location_domain += [('location_id', 'in', self.location_ids.ids)]
+
+        if self.product_ids:
+            if len(self.product_ids) == 1:
+                product_and_location_domain += [('product_id', '=', self.product_ids[0].id)]
+                context['default_product_id'] = self.product_ids[0].id
+            else:
+                product_and_location_domain += [('product_id', 'in', self.product_ids.ids)]
+            if len(product_and_location_domain) > 1:
+                product_and_location_domain = ['&'] + product_and_location_domain
+
+        if product_and_location_domain:
+            domain = ['&'] + product_and_location_domain + domain
+
+        action['context'] = context
+        action['domain'] = domain
+        return action
 
     def action_inventory_line_tree(self):
         action = self.env.ref('stock.action_inventory_line_tree').read()[0]
@@ -261,7 +305,7 @@ class Inventory(models.Model):
             vals.append({
                 'inventory_id': self.id,
                 'product_id': product.id,
-                'location_id': self.location_id[0].id or None,
+                'location_id': self.location_ids[0].id or None,
             })
         return vals
 
@@ -271,7 +315,10 @@ class InventoryLine(models.Model):
     _description = "Inventory Line"
     _order = "product_id, inventory_id, location_id, prod_lot_id"
 
-    @api.one
+    def _default_inventory_id(self):
+        if self._context.get('active_model') == 'stock.inventory':
+            return self._context.get('active_id', None)
+
     def _domain_location_id(self):
         # self.ensure_one()
         print('-- Define Domain Location for %s (%s)' % (self.id, self.inventory_id.name))
@@ -284,7 +331,7 @@ class InventoryLine(models.Model):
 
     inventory_id = fields.Many2one(
         'stock.inventory', 'Inventory',
-        index=True, ondelete='cascade')
+        index=True, ondelete='cascade', default=_default_inventory_id)
     partner_id = fields.Many2one('res.partner', 'Owner')
     product_id = fields.Many2one(
         'product.product', 'Product',
@@ -317,8 +364,8 @@ class InventoryLine(models.Model):
     difference_qty = fields.Float('Difference', compute='_compute_difference',
         help="Indicates the gap between the product's theoretical quantity and its newest quantity.",
         readonly=True)
-    inventory_location_id = fields.Many2one(
-        'stock.location', 'Inventory Location', related='inventory_id.location_id', related_sudo=False, readonly=False)
+    inventory_location_ids = fields.Many2many(
+        'stock.location', 'Inventory Location', related='inventory_id.location_ids', related_sudo=False, readonly=False)
     product_tracking = fields.Selection('Tracking', related='product_id.tracking', readonly=True)
 
     @api.depends('product_qty', 'theoretical_qty')
