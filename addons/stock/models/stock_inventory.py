@@ -81,13 +81,6 @@ class Inventory(models.Model):
         copy=False, readonly=True,
         states={'draft': [('readonly', False)]},
         help="Specify Lot/Serial Number to focus your inventory on a particular Lot/Serial Number.")
-    filter = fields.Selection(
-        string='Inventory of', selection='_selection_filter',
-        required=True,
-        default='none',
-        help="If you do an entire inventory, you can choose 'All Products' and it will prefill the inventory with the current stock.  If you only do some products  "
-             "(e.g. Cycle Counting) you can choose 'Manual Selection of Products' and the system won't propose anything.  You can also let the "
-             "system propose for a single product / lot /... ")
     total_qty = fields.Float('Total Quantity', compute='_compute_total_qty')
     category_id = fields.Many2one(
         'product.category', 'Product Category',
@@ -110,41 +103,6 @@ class Inventory(models.Model):
             if inventory.state == 'done':
                 raise UserError(_('You cannot delete a validated inventory adjustement.'))
         return super(Inventory, self).unlink()
-
-    @api.model
-    def _selection_filter(self):
-        """ Get the list of filter allowed according to the options checked
-        in 'Settings\Warehouse'. """
-        res_filter = [
-            ('none', _('All products')),
-            ('category', _('One product category')),
-            ('product', _('One product only')),
-            ('partial', _('Select products manually'))]
-
-        if self.user_has_groups('stock.group_tracking_owner'):
-            res_filter += [('owner', _('One owner only')), ('product_owner', _('One product for a specific owner'))]
-        if self.user_has_groups('stock.group_production_lot'):
-            res_filter.append(('lot', _('One Lot/Serial Number')))
-        if self.user_has_groups('stock.group_tracking_lot'):
-            res_filter.append(('pack', _('A Pack')))
-        return res_filter
-
-    @api.onchange('filter')
-    def _onchange_filter(self):
-        if self.filter not in ('product', 'product_owner'):
-            self.product_id = False
-        if self.filter != 'lot':
-            self.lot_id = False
-        if self.filter not in ('owner', 'product_owner'):
-            self.partner_id = False
-        if self.filter != 'pack':
-            self.package_id = False
-        if self.filter != 'category':
-            self.category_id = False
-        if self.filter == 'product':
-            self.exhausted = True
-            if self.product_id:
-                return {'domain': {'product_id': [('product_tmpl_id', '=', self.product_id.product_tmpl_id.id)]}}
 
     def action_reset_product_qty(self):
         self.mapped('line_ids').write({'product_qty': 0})
@@ -200,8 +158,8 @@ class Inventory(models.Model):
     def action_start(self):
         for inventory in self.filtered(lambda x: x.state not in ('done','cancel')):
             vals = {'state': 'confirm', 'date': fields.Datetime.now()}
-            if (inventory.filter != 'partial') and not inventory.line_ids:
-                vals.update({'line_ids': [(0, 0, line_values) for line_values in inventory._get_inventory_lines_values()]})
+            # if (inventory.filter != 'partial') and not inventory.line_ids:
+            #     vals.update({'line_ids': [(0, 0, line_values) for line_values in inventory._get_inventory_lines_values()]})
             inventory.write(vals)
         return True
 
@@ -406,13 +364,13 @@ class InventoryLine(models.Model):
             if 'product_id' in values and 'product_uom_id' not in values:
                 values['product_uom_id'] = self.env['product.product'].browse(values['product_id']).uom_id.id
         res = super(InventoryLine, self).create(vals_list)
-        res._check_no_duplicate_line()
+        # res._check_no_duplicate_line()
         return res
 
     @api.multi
     def write(self,vals):
         res = super(InventoryLine, self).write(vals)
-        self._check_no_duplicate_line()
+        # self._check_no_duplicate_line()
         return res
 
     def _check_no_duplicate_line(self):
