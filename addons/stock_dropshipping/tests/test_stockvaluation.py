@@ -144,7 +144,7 @@ class TestStockValuation(AccountingTestCase):
 
     def test_dropship_fifo_perpetual_continental_ordered(self):
         self.env.user.company_id.anglo_saxon_accounting = False
-        self.product1.product_tmpl_id.categ_id.proprty_cost_method = 'fifo'
+        self.product1.product_tmpl_id.categ_id.property_cost_method = 'fifo'
         self.product1.product_tmpl_id.standard_price = 10
         self.product1.product_tmpl_id.categ_id.property_valuation = 'real_time'
         self.product1.product_tmpl_id.invoice_policy = 'order'
