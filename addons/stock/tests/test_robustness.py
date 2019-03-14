@@ -135,7 +135,9 @@ class TestRobustness(TransactionCase):
         move1._action_confirm()
         move1._action_assign()
 
-        move1.result_package_id = False
+        # move1.result_package_id = False
+        for line in move1.move_line_ids:
+            line.result_package_id = False
 
         package.unpack()
 
