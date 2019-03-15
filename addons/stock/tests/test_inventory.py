@@ -36,9 +36,8 @@ class TestInventory(TransactionCase):
         # remove them with an inventory adjustment
         inventory = self.env['stock.inventory'].create({
             'name': 'remove product1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product1.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product1.id)],
         })
         inventory.action_start()
         self.assertEqual(len(inventory.line_ids), 1)
@@ -55,9 +54,8 @@ class TestInventory(TransactionCase):
         """
         inventory = self.env['stock.inventory'].create({
             'name': 'remove product1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product2.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product2.id)],
             'exhausted': True,  # should be set by an onchange
         })
         inventory.action_start()
@@ -85,9 +83,8 @@ class TestInventory(TransactionCase):
         """
         inventory = self.env['stock.inventory'].create({
             'name': 'remove product1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product2.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product2.id)],
             'exhausted': True,  # should be set by an onchange
         })
         inventory.action_start()
@@ -111,9 +108,8 @@ class TestInventory(TransactionCase):
         """
         inventory = self.env['stock.inventory'].create({
             'name': 'remove product1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product2.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product2.id)],
             'exhausted': True,  # should be set by an onchange
         })
         inventory.action_start()
@@ -154,9 +150,8 @@ class TestInventory(TransactionCase):
 
         inventory = self.env['stock.inventory'].create({
             'name': 'remove product1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product1.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product1.id)],
             'exhausted': True,
         })
         inventory.action_start()
@@ -179,9 +174,8 @@ class TestInventory(TransactionCase):
         # add 10 products in stock
         inventory = self.env['stock.inventory'].create({
             'name': 'add 10 products 1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product1.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product1.id)],
             'exhausted': True,  # should be set by an onchange
         })
         inventory.action_start()
@@ -223,9 +217,8 @@ class TestInventory(TransactionCase):
         # free the reservation of the second move.
         inventory = self.env['stock.inventory'].create({
             'name': 'remove 2 products 1',
-            'filter': 'product',
-            'location_id': self.pack_location.id,
-            'product_id': self.product1.id,
+            'location_ids': [(4, self.pack_location.id)],
+            'product_ids': [(4, self.product1.id)],
         })
         inventory.action_start()
         inventory.line_ids.product_qty = 8
@@ -244,9 +237,8 @@ class TestInventory(TransactionCase):
         # Make a new inventory adjustment and bring two now products.
         inventory = self.env['stock.inventory'].create({
             'name': 'remove 2 products 1',
-            'filter': 'product',
-            'location_id': self.pack_location.id,
-            'product_id': self.product1.id,
+            'location_ids': [(4, self.pack_location.id)],
+            'product_ids': [(4, self.product1.id)],
         })
         inventory.action_start()
         inventory.line_ids.product_qty = 10
@@ -286,14 +278,12 @@ class TestInventory(TransactionCase):
         self.env['stock.quant'].create(vals)
         self.assertEqual(len(self.env['stock.quant']._gather(self.product1, self.stock_location)), 2.0)
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product1, self.stock_location), 2.0)
-        
+
         inventory = self.env['stock.inventory'].create({
             'name': 'product1',
-            'filter': 'product',
-            'location_id': self.stock_location.id,
-            'product_id': self.product1.id,
+            'location_ids': [(4, self.stock_location.id)],
+            'product_ids': [(4, self.product1.id)],
         })
         inventory.action_start()
         self.assertEqual(len(inventory.line_ids), 1)
         self.assertEqual(inventory.line_ids.theoretical_qty, 2)
-

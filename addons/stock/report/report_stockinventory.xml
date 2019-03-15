@@ -57,14 +57,14 @@
                                 </tbody>
                             </table>
 
-                            <t t-if="o.filter == 'product' and o.product_id">
+                            <t t-if="len(o.product_ids) == 1">
                               <div class="row justify-content-end">
                                 <div class="col-4">
                                      <table class="table table-sm">
                                         <tr class="border-black">
                                             <td><strong>Total Quantity</strong></td>
                                             <td class="text-right">
-                                                <span t-field="o.total_qty"/> <span t-field="o.product_id.uom_id"/>
+                                                <span t-field="o.total_qty"/> <span t-field="o.product_ids[0].uom_id"/>
                                             </td>
                                         </tr>
                                     </table>
