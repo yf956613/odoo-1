@@ -207,6 +207,19 @@ class Inventory(models.Model):
         action['domain'] = domain
         return action
 
+    def action_view_related_move_lines(self):
+        self.ensure_one()
+        domain = [('move_id', 'in', self.move_ids.ids)]
+        action = {
+            'name': _('Move Lines'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.move.line',
+            'view_type': 'list',
+            'view_mode': 'list',
+            'domain': domain,
+        }
+        return action
+
     def _get_inventory_lines_values(self):
         # TDE CLEANME: is sql really necessary ? I don't think so
         locations = self.env['stock.location']
