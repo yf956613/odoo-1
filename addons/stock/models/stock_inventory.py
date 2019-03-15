@@ -207,18 +207,6 @@ class Inventory(models.Model):
         action['domain'] = domain
         return action
 
-    def action_inventory_line_tree(self):
-        action = self.env.ref('stock.action_inventory_line_tree').read()[0]
-        action['context'] = {
-            'default_location_id': self.location_ids[0].id or None,
-            'default_product_id': self.product_ids[0].id or None,
-            'default_prod_lot_id': self.lot_id.id,
-            'default_package_id': self.package_id.id,
-            'default_partner_id': self.partner_id.id,
-            'default_inventory_id': self.id,
-        }
-        return action
-
     def _get_inventory_lines_values(self):
         # TDE CLEANME: is sql really necessary ? I don't think so
         locations = self.env['stock.location']
