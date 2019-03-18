@@ -387,7 +387,7 @@
                 </div>
                 <div class="col-8">
                     <h3 class="w-100" t-att-title="slide_promoted.name">
-                        <t t-if="slide_promoted_access['can_access']">
+                        <t t-if="slide_promoted_access and slide_promoted_access['can_access']">
                             <a t-attf-href="/slides/slide/#{slug(slide_promoted)}" class="font-weight-bold text-muted" t-field="slide_promoted.name"/>
                         </t>
                         <t t-else="">

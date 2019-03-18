@@ -401,8 +401,8 @@ class WebsiteSlides(WebsiteProfile):
             force_void=True,
             limit=self._slides_per_category if channel.channel_type == 'documentation' else False,
             offset=pager['offset'])
-
-        values['slide_promoted_access'] = values['slide_promoted'].sudo(request.env.user)._get_slide_action_access()[values['slide_promoted'].id]
+        if values['slide_promoted']:
+            values['slide_promoted_access'] = values['slide_promoted'].sudo(request.env.user)._get_slide_action_access()[values['slide_promoted'].id]
         values['channel_progress'] = self._get_channel_progress(channel, include_quiz=True)
 
         values = self._prepare_additional_channel_values(values, **kw)
