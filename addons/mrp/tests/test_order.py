@@ -40,7 +40,6 @@ class TestMrpOrder(TestMrpCommon):
         self.product_2.type = 'product'
         inventory = self.env['stock.inventory'].create({
             'name': 'Initial inventory',
-            'filter': 'partial',
             'line_ids': [(0, 0, {
                 'product_id': self.product_1.id,
                 'product_uom_id': self.product_1.uom_id.id,
@@ -217,7 +216,6 @@ class TestMrpOrder(TestMrpCommon):
         # refuel stock
         inventory = self.env['stock.inventory'].create({
             'name': 'Inventory For Product C',
-            'filter': 'partial',
             'line_ids': [(0, 0, {
                 'product_id': self.product_2.id,
                 'product_uom_id': self.product_2.uom_id.id,
@@ -385,7 +383,6 @@ class TestMrpOrder(TestMrpCommon):
         source_location_id = self.ref('stock.stock_location_14')
         inventory = self.env['stock.inventory'].create({
             'name': 'Inventory Product Table',
-            'filter': 'partial',
             'line_ids': [(0, 0, {
                 'product_id': product_charger.id,
                 'product_uom_id': product_charger.uom_id.id,
