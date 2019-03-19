@@ -9,6 +9,7 @@
 
     <record id="tax_report_line_line1" model="account.tax.report.line">
         <field name="name">Base Imponible - Ventas</field>
+        <field name="tag_name">Base Imponible - Ventas</field>
         <field name="parent_line_id" ref='tax_report_line_line0'/>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.ar"/>
@@ -16,6 +17,7 @@
 
     <record id="tax_report_line_line2" model="account.tax.report.line">
         <field name="name">Ventas Gravadas con IVA</field>
+        <field name="tag_name">Ventas Gravadas con IVA</field>
         <field name="parent_line_id" ref='tax_report_line_line1'/>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.ar"/>
@@ -23,6 +25,7 @@
 
     <record id="tax_report_line_line3" model="account.tax.report.line">
         <field name="name">Ventas NO Gravadas (Exoneradas)</field>
+        <field name="tag_name">Ventas NO Gravadas (Exoneradas)</field>
         <field name="parent_line_id" ref='tax_report_line_line1'/>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.ar"/>
@@ -30,6 +33,7 @@
 
     <record id="tax_report_line_line4" model="account.tax.report.line">
         <field name="name">Ventas Gravadas Fuera de Ámbito</field>
+        <field name="tag_name">Ventas Gravadas Fuera de Ámbito</field>
         <field name="parent_line_id" ref='tax_report_line_line1'/>
         <field name="sequence" eval="3"/>
         <field name="country_id" ref="base.ar"/>
@@ -37,6 +41,7 @@
 
     <record id="tax_report_line_line5" model="account.tax.report.line">
         <field name="name">Base Imponible - Compras</field>
+        <field name="tag_name">Base Imponible - Compras</field>
         <field name="parent_line_id" ref='tax_report_line_line0'/>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.ar"/>
@@ -44,6 +49,7 @@
 
     <record id="tax_report_line_line6" model="account.tax.report.line">
         <field name="name">Compras Gravadas con IVA</field>
+        <field name="tag_name">Compras Gravadas con IVA</field>
         <field name="parent_line_id" ref='tax_report_line_line5'/>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.ar"/>
@@ -51,6 +57,7 @@
 
     <record id="tax_report_line_line7" model="account.tax.report.line">
         <field name="name">Compras NO Gravadas (Exoneradas)</field>
+        <field name="tag_name">Compras NO Gravadas (Exoneradas)</field>
         <field name="parent_line_id" ref='tax_report_line_line5'/>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.ar"/>
@@ -58,6 +65,7 @@
 
     <record id="tax_report_line_line8" model="account.tax.report.line">
         <field name="name">Compras Gravadas Fuera de Ámbito</field>
+        <field name="tag_name">Compras Gravadas Fuera de Ámbito</field>
         <field name="parent_line_id" ref='tax_report_line_line5'/>
         <field name="sequence" eval="3"/>
         <field name="country_id" ref="base.ar"/>
@@ -71,6 +79,7 @@
 
     <record id="tax_report_line_line10" model="account.tax.report.line">
         <field name="name">Impuesto Pagado</field>
+        <field name="tag_name">Impuesto Pagado</field>
         <field name="parent_line_id" ref="tax_report_line_line9"/>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.ar"/>
@@ -78,6 +87,7 @@
 
     <record id="tax_report_line_line11" model="account.tax.report.line">
         <field name="name">Impuesto Pagado IVA</field>
+        <field name="tag_name">Impuesto Pagado IVA</field>
         <field name="parent_line_id" ref="tax_report_line_line10"/>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.ar"/>
@@ -85,6 +95,7 @@
 
     <record id="tax_report_line_line12" model="account.tax.report.line">
         <field name="name">Impuesto Pagado de Exonerados al IVA</field>
+        <field name="tag_name">Impuesto Pagado de Exonerados al IVA</field>
         <field name="parent_line_id" ref="tax_report_line_line10"/>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.ar"/>
@@ -92,6 +103,7 @@
 
     <record id="tax_report_line_line13" model="account.tax.report.line">
         <field name="name">Impuesto Pagado Fuera de Ámbito</field>
+        <field name="tag_name">Impuesto Pagado Fuera de Ámbito</field>
         <field name="parent_line_id" ref="tax_report_line_line10"/>
         <field name="sequence" eval="3"/>
         <field name="country_id" ref="base.ar"/>
@@ -99,12 +111,14 @@
 
     <record id="tax_report_line_line14" model="account.tax.report.line">
         <field name="name">Impuesto Cobrado</field>
+        <field name="tag_name">Impuesto Cobrado</field>
         <field name="parent_line_id" ref="tax_report_line_line9"/>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.ar"/>
     </record>
     <record id="tax_report_line_line15" model="account.tax.report.line">
         <field name="name">Impuesto Cobrado IVA</field>
+        <field name="tag_name">Impuesto Cobrado IVA</field>
         <field name="parent_line_id" ref="tax_report_line_line14"/>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.ar"/>
@@ -112,6 +126,7 @@
 
     <record id="tax_report_line_line16" model="account.tax.report.line">
         <field name="name">Impuesto Cobrado de Exonerados al IVA</field>
+        <field name="tag_name">Impuesto Cobrado de Exonerados al IVA</field>
         <field name="parent_line_id" ref="tax_report_line_line14"/>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.ar"/>
@@ -119,6 +134,7 @@
 
     <record id="tax_report_line_line17" model="account.tax.report.line">
         <field name="name">Impuesto Cobrado Fuera de Ámbito</field>
+        <field name="tag_name">Impuesto Cobrado Fuera de Ámbito</field>
         <field name="parent_line_id" ref="tax_report_line_line14"/>
         <field name="sequence" eval="3"/>
         <field name="country_id" ref="base.ar"/>
@@ -132,6 +148,7 @@
 
     <record id="tax_report_line_line19" model="account.tax.report.line">
         <field name="name">Impuesto a las Ganancias a Pagar</field>
+        <field name="tag_name">Impuesto a las Ganancias a Pagar</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line18"/>
         <field name="country_id" ref="base.ar"/>
@@ -139,6 +156,7 @@
 
     <record id="tax_report_line_line20" model="account.tax.report.line">
         <field name="name">Impuesto a los Bienes Personales a Pagar</field>
+        <field name="tag_name">Impuesto a los Bienes Personales a Pagar</field>
         <field name="sequence" eval="2"/>
         <field name="parent_line_id" ref="tax_report_line_line18"/>
         <field name="country_id" ref="base.ar"/>
@@ -146,6 +164,7 @@
 
     <record id="tax_report_line_line21" model="account.tax.report.line">
         <field name="name">Impuesto a la Ganancia Mínima Presunta a Pagar</field>
+        <field name="tag_name">Impuesto a la Ganancia Mínima Presunta a Pagar</field>
         <field name="sequence" eval="3"/>
         <field name="parent_line_id" ref="tax_report_line_line18"/>
         <field name="country_id" ref="base.ar"/>
@@ -153,6 +172,7 @@
 
     <record id="tax_report_line_line22" model="account.tax.report.line">
         <field name="name">Monotributo a Pagar</field>
+        <field name="tag_name">Monotributo a Pagar</field>
         <field name="sequence" eval="4"/>
         <field name="parent_line_id" ref="tax_report_line_line18"/>
         <field name="country_id" ref="base.ar"/>
