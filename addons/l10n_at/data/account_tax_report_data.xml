@@ -3,14 +3,12 @@
 
     <record id="tax_report_line_line1" model="account.tax.report.line">
         <field name="name">UST Vorauszahlung / Überschuss - bitte dem Betrag ein Minuszeichen voranstellen</field>
-        <field name="tag_name">UST Vorauszahlung / Überschuss - bitte dem Betrag ein Minuszeichen voranstellen</field>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.at"/>
     </record>
 
     <record id="tax_report_line_line2" model="account.tax.report.line">
         <field name="name">Steuern</field>
-        <field name="tag_name">Steuern</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line1"/>
         <field name="country_id" ref="base.at"/>
@@ -26,7 +24,6 @@
 
     <record id="tax_report_line_line4" model="account.tax.report.line">
         <field name="name">Innergemeinschaftliche Erwerbe</field>
-        <field name="tag_name">Innergemeinschaftliche Erwerbe</field>
         <field name="sequence" eval="2"/>
         <field name="parent_line_id" ref="tax_report_line_line2"/>
         <field name="country_id" ref="base.at"/>
@@ -34,7 +31,6 @@
 
     <record id="tax_report_line_line5" model="account.tax.report.line">
         <field name="name">Steuerpflichtige Umsätze (Lieferungen, sonstige Leistungen und Eigenverbrauch)</field>
-        <field name="tag_name">Steuerpflichtige Umsätze (Lieferungen, sonstige Leistungen und Eigenverbrauch)</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line4"/>
         <field name="country_id" ref="base.at"/>
@@ -82,7 +78,6 @@
 
     <record id="tax_report_line_line9" model="account.tax.report.line">
         <field name="name">Steuerpflichtige Umsätze (Lieferungen, sonstige Leistungen und Eigenverbrauch)</field>
-        <field name="tag_name">Steuerpflichtige Umsätze (Lieferungen, sonstige Leistungen und Eigenverbrauch)</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line8"/>
         <field name="country_id" ref="base.at"/>
@@ -106,14 +101,12 @@
 
     <record id="tax_report_line_line12" model="account.tax.report.line">
         <field name="name">Bemessungsgrundlage</field>
-        <field name="tag_name">Bemessungsgrundlage</field>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.at"/>
     </record>
 
     <record id="tax_report_line_line13" model="account.tax.report.line">
         <field name="name">Steuern</field>
-        <field name="tag_name"></field>
         <field name="sequence" eval="2"/>
         <field name="parent_line_id" ref="tax_report_line_line12"/>
         <field name="country_id" ref="base.at"/>
@@ -121,7 +114,7 @@
 
     <record id="tax_report_line_line14" model="account.tax.report.line">
         <field name="name">Lieferungen und sonstige Leistungen (einschließlich unentgeltlicher Wertabgaben)</field>
-        <field name="tag_name">Steuern</field>
+        <field name="tag_name">Lieferungen und sonstige Leistungen (einschließlich unentgeltlicher Wertabgaben)</field>
         <field name="sequence" eval="3"/>
         <field name="parent_line_id" ref="tax_report_line_line13"/>
         <field name="country_id" ref="base.at"/>
@@ -129,7 +122,6 @@
 
     <record id="tax_report_line_line15" model="account.tax.report.line">
         <field name="name">Steuerfreie Umsätze mit Vorsteuerabzug</field>
-        <field name="tag_name">Steuerfreie Umsätze mit Vorsteuerabzug</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line14"/>
         <field name="country_id" ref="base.at"/>
@@ -153,7 +145,6 @@
 
     <record id="tax_report_line_line20" model="account.tax.report.line">
         <field name="name">Innergemeinschaftliche Erwerbe</field>
-        <field name="tag_name">Innergemeinschaftliche Erwerbe</field>
         <field name="sequence" eval="2"/>
         <field name="parent_line_id" ref="tax_report_line_line14"/>
         <field name="country_id" ref="base.at"/>
@@ -161,7 +152,6 @@
 
     <record id="tax_report_line_line21" model="account.tax.report.line">
         <field name="name">Vorsteuer (dient lediglich der Verprobung)</field>
-        <field name="tag_name">Vorsteuer (dient lediglich der Verprobung)</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line12"/>
         <field name="country_id" ref="base.at"/>
@@ -169,7 +159,6 @@
 
     <record id="tax_report_line_line22" model="account.tax.report.line">
         <field name="name">Einfuhren</field>
-        <field name="tag_name">Einfuhren</field>
         <field name="sequence" eval="1"/>
         <field name="parent_line_id" ref="tax_report_line_line21"/>
         <field name="country_id" ref="base.at"/>
@@ -193,7 +182,6 @@
 
     <record id="tax_report_line_line25" model="account.tax.report.line">
         <field name="name">Rechnungen von anderen Unternehmern und innergemeinschaftliche Dreiecksgeschäfte</field>
-        <field name="tag_name">Rechnungen von anderen Unternehmern und innergemeinschaftliche Dreiecksgeschäfte</field>
         <field name="sequence" eval="2"/>
         <field name="parent_line_id" ref="tax_report_line_line21"/>
         <field name="country_id" ref="base.at"/>
