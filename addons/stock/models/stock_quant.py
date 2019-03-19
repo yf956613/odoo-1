@@ -186,6 +186,22 @@ class StockQuant(models.Model):
             else:
                 return sum([available_quantity for available_quantity in availaible_quantities.values() if float_compare(available_quantity, 0, precision_rounding=rounding) > 0])
 
+    @api.onchange('location_id', 'product_id')
+    def _onchange_location_or_product_id(self):
+        for quant in self:
+            if quant.location_id and quant.product_id:
+                already_existing_quant = self.env['stock.quant'].search([
+                    '&',
+                    ('location_id', '=', quant.location_id.id),
+                    ('product_id', '=', quant.product_id.id),
+                ])
+                if already_existing_quant.exists():
+                    quant.update({
+                        'quantity': already_existing_quant.quantity,
+                        'reserved_quantity': already_existing_quant.reserved_quantity})
+                elif quant.quantity or quant.reserved_quantity:
+                    quant.update({'quantity': 0, 'reserved_quantity': 0})
+
     @api.model
     def _update_available_quantity(self, product_id, location_id, quantity, lot_id=None, package_id=None, owner_id=None, in_date=None):
         """ Increase or decrease `reserved_quantity` of a set of quants for a given set of
