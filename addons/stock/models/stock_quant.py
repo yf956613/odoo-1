@@ -56,7 +56,6 @@ class StockQuant(models.Model):
     # -------------------------------------------------------------------------
     # look away
     inventory_quantity = fields.Float('Inventoried Quantity')
-    inventory_date = fields.Datetime('Last Inventory Date', readonly=True)
     # -------------------------------------------------------------------------
 
     def action_view_stock_moves(self):
@@ -404,7 +403,6 @@ class StockQuant(models.Model):
                     move = self.env['stock.move'].create(self._get_inventory_move_values(self.location_id, self.product_id.property_stock_inventory, -1 * diff))
                     move._action_done()
             vals.pop('inventory_quantity')
-            vals['inventory_date'] = fields.Datetime.now()
         return super(StockQuant, self).write(vals)
 
     @api.model
