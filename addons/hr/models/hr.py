@@ -118,6 +118,15 @@ class Employee(models.Model):
     address_home_id = fields.Many2one(
         'res.partner', 'Private Address', help='Enter here the private address of the employee, not the one linked to your company.',
         groups="hr.group_hr_user", tracking=True)
+    private_address_street = fields.Char(related="address_home_id.street", related_sudo=False, readonly=False, groups="base.group_private_addresses")
+    private_address_street2 = fields.Char(related="address_home_id.street2", related_sudo=False, readonly=False, groups="base.group_private_addresses")
+    private_address_city = fields.Char(related="address_home_id.city", related_sudo=False, readonly=False, groups="base.group_private_addresses")
+    private_address_state_id = fields.Many2one(related="address_home_id.state_id", related_sudo=False, readonly=False, groups="base.group_private_addresses")
+    private_address_zip = fields.Char(related="address_home_id.zip", related_sudo=False, readonly=False, groups="base.group_private_addresses")
+    private_address_country_id = fields.Many2one(related="address_home_id.country_id", related_sudo=False, readonly=False, groups="base.group_private_addresses")
+    private_address_phone = fields.Char(related="address_home_id.phone", related_sudo=False, readonly=False, string="Private Phone", groups="base.group_private_addresses")
+    private_address_mobile = fields.Char(related="address_home_id.mobile", related_sudo=False, readonly=False, string="Private Mobile", groups="base.group_private_addresses")
+    private_address_email = fields.Char(related="address_home_id.email", related_sudo=False, readonly=False, string="Private Email", groups="base.group_private_addresses")
     is_address_home_a_company = fields.Boolean(
         'The employee adress has a company linked',
         compute='_compute_is_address_home_a_company',
@@ -188,7 +197,6 @@ class Employee(models.Model):
         'res.partner', 'Work Address')
     work_phone = fields.Char('Work Phone')
     mobile_phone = fields.Char('Work Mobile')
-    phone = fields.Char(related='address_home_id.phone', related_sudo=False, string="Private Phone", groups="hr.group_hr_user")
     work_email = fields.Char('Work Email')
     work_location = fields.Char('Work Location')
     # employee in company
@@ -274,6 +282,11 @@ class Employee(models.Model):
     def create(self, vals):
         if vals.get('user_id'):
             vals.update(self._sync_user(self.env['res.users'].browse(vals['user_id'])))
+        if not vals.get('address_home_id', False):
+            vals['address_home_id'] = self.env['res.partner'].create({
+                'name': vals.get('name'),
+                'type': 'private',
+            }).id
         tools.image_resize_images(vals)
         employee = super(Employee, self).create(vals)
         url = '/web#%s' % url_encode({'action': 'hr.plan_wizard_action', 'active_id': employee.id, 'active_model': 'hr.employee'})

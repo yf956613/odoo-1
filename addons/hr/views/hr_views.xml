@@ -204,10 +204,18 @@
                                     <group string="Contact Information">
                                         <field name="address_home_id"
                                             context="{
-                                                'show_address': 1,
                                                 'default_type': 'private',
                                                 'form_view_ref': 'base.res_partner_view_form_private'}"
-                                            options='{"always_reload": True, "highlight_first_line": True}'/>
+                                            attrs="{'invisible': [('is_address_home_a_company','=', False)]}"/>
+                                        <label for="street" string="Private Address" attrs="{'invisible': [('is_address_home_a_company','=', True)]}"/>
+                                        <div class="o_address_format" attrs="{'invisible': [('is_address_home_a_company','=', True)]}">
+                                            <field name="private_address_street" placeholder="Street..." class="o_address_street"/>
+                                            <field name="private_address_street2" placeholder="Street 2..." class="o_address_street"/>
+                                            <field name="private_address_city" placeholder="City" class="o_address_city"/>
+                                            <field name="private_address_state_id" class="o_address_state" placeholder="State" options="{'no_open': True}"/>
+                                            <field name="private_address_zip" placeholder="ZIP" class="o_address_zip"/>
+                                            <field name="private_address_country_id" placeholder="Country" class="o_address_country" options="{'no_open': True, 'no_create': True}"/>
+                                        </div>
                                         <field name="is_address_home_a_company" invisible="1"/>
                                         <div class="text-warning" groups="hr.group_hr_user"
                                              attrs="{'invisible': [('is_address_home_a_company','=', False)]}">
@@ -215,8 +223,10 @@
                                             This private address is used in the expense report reimbursement document.
                                             It should be different from the work address.
                                         </div>
+                                        <field name="private_address_email"/>
+                                        <field name="private_address_phone"/>
+                                        <field name="private_address_mobile"/>
                                         <field name="km_home_work" groups="hr.group_hr_user"/>
-                                        <field name="phone" groups="hr.group_hr_user"/>
                                         <field name="bank_account_id" context="{'default_partner_id': address_home_id}"/>
                                     </group>
                                     <group string="Citizenship">
