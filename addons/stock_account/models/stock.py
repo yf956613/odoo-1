@@ -22,12 +22,10 @@ class StockInventory(models.Model):
 
     @api.multi
     def post_inventory(self):
-        acc_inventories = self.filtered(lambda inventory: inventory.accounting_date)
-        for inventory in acc_inventories:
+        for inventory in self:
+            if not inventory.accounting_date:
+                inventory.accounting_date = fields.Date.today()
             res = super(StockInventory, inventory.with_context(force_period_date=inventory.accounting_date)).post_inventory()
-        other_inventories = self - acc_inventories
-        if other_inventories:
-            res = super(StockInventory, other_inventories).post_inventory()
         return res
 
 
