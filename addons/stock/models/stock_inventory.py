@@ -28,7 +28,7 @@ class Inventory(models.Model):
                 ('usage', 'not in', ['supplier', 'production'])]
 
     name = fields.Char(
-        'Inventory Reference',
+        'Inventory Reference', default="Inventory",
         readonly=True, required=True,
         states={'draft': [('readonly', False)]})
     date = fields.Datetime(
@@ -182,7 +182,9 @@ class Inventory(models.Model):
         }
 
         # Define domains
-        domain = [('id', 'in', self.line_ids.ids)]
+        domain = ['&',
+            ('id', 'in', self.line_ids.ids),
+            ('location_id.usage', 'in', ['internal', 'transit'])]
         product_and_location_domain = []
         if self.location_ids:
             if len(self.location_ids) == 1:
@@ -321,12 +323,13 @@ class InventoryLine(models.Model):
             return self._context.get('active_id', None)
 
     def _domain_location_id(self):
+        domain = [('usage', 'in', ['internal', 'transit'])]
         if self._context.get('active_model') == 'stock.inventory':
             inventory = self.env['stock.inventory'].browse(self._context.get('active_id'))
             if inventory.exists():
                 if len(inventory.location_ids) >= 1:
-                    return [('id', 'child_of', inventory.location_ids.ids)]
-        return []
+                    domain = ['&', ('id', 'child_of', inventory.location_ids.ids)] + domain
+        return domain
 
     def _domain_product_id(self):
         domain = [('type', '=', 'product')]
@@ -379,8 +382,7 @@ class InventoryLine(models.Model):
     @api.depends('product_qty', 'theoretical_qty')
     def _compute_difference(self):
         for line in self:
-            if line.product_qty and line.theoretical_qty:
-                line.difference_qty = line.product_qty - line.theoretical_qty
+            line.difference_qty = line.product_qty - line.theoretical_qty
 
     @api.one
     @api.depends('location_id', 'product_id', 'package_id', 'product_uom_id', 'company_id', 'prod_lot_id', 'partner_id')
