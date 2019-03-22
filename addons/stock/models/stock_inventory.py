@@ -189,7 +189,8 @@ class Inventory(models.Model):
         if self.location_ids:
             if len(self.location_ids) == 1:
                 product_and_location_domain += [('location_id', 'child_of', self.location_ids[0].id)]
-                context['default_location_id'] = self.location_ids[0].id
+                if not self.location_ids[0].child_ids:
+                    context['default_location_id'] = self.location_ids[0].id
             else:
                 product_and_location_domain += [('location_id', 'in', self.location_ids.ids)]
 
@@ -318,6 +319,12 @@ class InventoryLine(models.Model):
     _description = "Inventory Line"
     _order = "product_id, inventory_id, location_id, prod_lot_id"
 
+    def _default_editable(self):
+        active_model = self._context.get('active_model', False)
+        if active_model == 'stock.inventory':
+            return True
+        return False
+
     def _default_inventory_id(self):
         if self._context.get('active_model') == 'stock.inventory':
             return self._context.get('active_id', None)
@@ -340,6 +347,7 @@ class InventoryLine(models.Model):
                     domain = ['&'] + domain + [('id', 'in', inventory.product_ids.ids)]
         return domain
 
+    editable = fields.Boolean(default=_default_editable)
     inventory_id = fields.Many2one(
         'stock.inventory', 'Inventory',
         index=True, ondelete='cascade', default=_default_inventory_id)

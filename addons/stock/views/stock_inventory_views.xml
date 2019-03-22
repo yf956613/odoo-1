@@ -19,13 +19,22 @@
         <field name="model">stock.inventory.line</field>
         <field name="arch" type="xml">
             <tree editable="top" string="Inventory Details" js_class="inventory_validate_button"
-                  decoration-info="product_qty != theoretical_qty" decoration-danger="theoretical_qty &lt; 0">
+                  decoration-info="product_qty != theoretical_qty" decoration-danger="theoretical_qty &lt; 0"
+                  decoration-bf="editable">
                 <field name="product_tracking" invisible="1"/>
-                <field name="product_id" readonly="context.get('default_product_id', False)"/>
+                <field name="editable" invisible="1"/>
+                <field name="product_id" readonly="context.get('default_product_id', False)"
+                       attrs="{'readonly': [('editable', '=', False)]}"/>
                 <field name="product_uom_id" string="UoM" groups="uom.group_uom"/>
-                <field name="location_id" groups="stock.group_stock_multi_locations"/>
-                <field name="prod_lot_id" domain="[('product_id', '=', product_id)]" attrs="{'readonly': [('product_tracking', '=', 'none')]}" context="{'default_product_id': product_id}"  groups="stock.group_production_lot"/>
-                <field name="package_id" domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]" groups="stock.group_tracking_lot"/>
+                <field name="location_id" groups="stock.group_stock_multi_locations"
+                       readonly="context.get('default_location_id', False)"
+                       attrs="{'readonly': [('editable', '=', False)]}"/>
+                <field name="prod_lot_id" groups="stock.group_production_lot"
+                       attrs="{'readonly': ['|', ('product_tracking', '=', 'none'), ('editable', '=', False)]}"
+                       context="{'default_product_id': product_id}"
+                       domain="[('product_id', '=', product_id)]"/>
+                <field name="package_id" groups="stock.group_tracking_lot"
+                       domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]"/>
                 <field name="partner_id" groups="stock.group_tracking_owner"/>
                 <field name="theoretical_qty" readonly="1"/>
                 <field name="product_qty" string="Counted"/>
