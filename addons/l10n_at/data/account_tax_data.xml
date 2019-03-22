@@ -10,34 +10,34 @@
             <field name="amount_type">percent</field>
             <field name="type_tax_use">sale</field>
             <field name="tax_group_id" ref="tax_group_20"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line27')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3500'),
-                    'plus_tag_ids': [ref('tax_report_line_line10')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_20')],
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line27')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3500'),
-                    'minus_tag_ids': [ref('tax_report_line_line10')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_20')],
                 }),
             ]"/>
         </record>
-    
+
         <record id="tax_at_mwst_10" model="account.tax.template">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Mehrwertsteuer 10%</field>
@@ -46,34 +46,34 @@
             <field name="amount_type">percent</field>
             <field name="type_tax_use">sale</field>
             <field name="tax_group_id" ref="tax_group_10"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line26')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3500'),
-                    'plus_tag_ids': [ref('tax_report_line_line11')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_10')],
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line26')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3500'),
-                    'minus_tag_ids': [ref('tax_report_line_line11')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_10')],
                 }),
             ]"/>
         </record>
-        
+
         <record id="tax_at_vst_20" model="account.tax.template">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Vorsteuer 20%</field>
@@ -82,38 +82,38 @@
             <field name="amount_type">percent</field>
             <field name="type_tax_use">purchase</field>
             <field name="tax_group_id" ref="tax_group_20"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line6_')],
-                    'minus_tag_ids': [ref('tax_report_line_line27')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_20')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart2500'),
-                    'plus_tag_ids': [ref('tax_report_line_line3')],
-                    'minus_tag_ids': [ref('tax_report_line_line3')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_20')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line6_')],
-                    'plus_tag_ids': [ref('tax_report_line_line27')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_20')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart2500'),
-                    'minus_tag_ids': [ref('tax_report_line_line3')],
-                    'plus_tag_ids': [ref('tax_report_line_line3')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_20')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
             ]"/>
         </record>
-        
+
         <record id="tax_at_vst_10" model="account.tax.template">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Vorsteuer 10%</field>
@@ -122,36 +122,36 @@
             <field name="amount_type">percent</field>
             <field name="type_tax_use">purchase</field>
             <field name="tax_group_id" ref="tax_group_10"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line7_1')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart2500'),
-                    'plus_tag_ids': [ref('tax_report_line_line3')],
-                    'minus_tag_ids': [ref('tax_report_line_line7')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_10')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line7_1')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart2500'),
-                    'minus_tag_ids': [ref('tax_report_line_line3')],
-                    'plus_tag_ids': [ref('tax_report_line_line7')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_10')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
             ]"/>
         </record>
-        
+
         <record model="account.tax.template" id="tax_import_20">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">20% Einfuhrumsatzsteuer</field>
@@ -160,11 +160,11 @@
             <field name="amount">20.00</field>
             <field name="type_tax_use">purchase</field>
             <field name="tax_group_id" ref="tax_group_20"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line24')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_einfuhren_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -172,11 +172,11 @@
                     'account_id': ref('chart2510'),
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line24')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_einfuhren_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -185,7 +185,7 @@
                 }),
             ]"/>
         </record>
-        
+
         <record model="account.tax.template" id="tax_import_10">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">10% Einfuhrumsatzsteuer</field>
@@ -194,11 +194,11 @@
             <field name="amount">10</field>
             <field name="type_tax_use">purchase</field>
              <field name="tax_group_id" ref="tax_group_10"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line23')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_einfuhren_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -206,11 +206,11 @@
                     'account_id': ref('chart2510'),
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line23')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_einfuhren_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -219,7 +219,7 @@
                 }),
             ]"/>
         </record>
-        
+
         <record model="account.tax.template" id="tax_eu_20_purchase">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Innergem. Erwerb 20%USt/20%VSt</field>
@@ -229,19 +229,19 @@
             <field name="type_tax_use">purchase</field>
             <field name="amount_type">percent</field>
             <field name="tax_group_id" ref="tax_group_0"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line6_')],
-                    'minus_tag_ids': [ref('tax_report_line_line27')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_20')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'account_id': ref('chart2500'),
-                    'plus_tag_ids': [ref('tax_report_line_line3')],
-                    'minus_tag_ids': [ref('tax_report_line_line3')],
+                    'account_id': ref('chart2501'),
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_20')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
                 (0,0, {
                     'factor_percent': -100,
@@ -249,19 +249,19 @@
                     'account_id': ref('chart3501'),
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line6_')],
-                    'plus_tag_ids': [ref('tax_report_line_line27')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_20')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'account_id': ref('chart2500'),
-                    'minus_tag_ids': [ref('tax_report_line_line3')],
-                    'plus_tag_ids': [ref('tax_report_line_line3')],
+                    'account_id': ref('chart2501'),
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_20')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
                 (0,0, {
                     'factor_percent': -100,
@@ -279,18 +279,18 @@
             <field name="amount_type">percent</field>
             <field name="type_tax_use">purchase</field>
             <field name="tax_group_id" ref="tax_group_0"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line7_1')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart2503'),
-                    'plus_tag_ids': [ref('tax_report_line_line3')],
-                    'minus_tag_ids': [ref('tax_report_line_line7')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_10')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
                 (0,0, {
                     'factor_percent': -100,
@@ -298,18 +298,18 @@
                     'account_id': ref('chart3503'),
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line7_1')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_bmg_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart2503'),
-                    'minus_tag_ids': [ref('tax_report_line_line3')],
-                    'plus_tag_ids': [ref('tax_report_line_line7')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_steu_10')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_innergemeinschaft_vorsteuer')],
                 }),
                 (0,0, {
                     'factor_percent': -100,
@@ -318,7 +318,7 @@
                 }),
             ]"/>
         </record>
-        
+
         <record model="account.tax.template" id="tax_at_mwst_20_eu">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">20% Umsatzsteuer EU Lieferung</field>
@@ -327,30 +327,30 @@
             <field name="amount">20.0</field>
             <field name="type_tax_use">sale</field>
             <field name="tax_group_id" ref="tax_group_20"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line27')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3510'),
-                    'plus_tag_ids': [ref('tax_report_line_line10')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_20')],
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line27')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_20')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3510'),
-                    'minus_tag_ids': [ref('tax_report_line_line10')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_20')],
                 }),
             ]"/>
         </record>
@@ -363,34 +363,34 @@
             <field name="amount">10.0</field>
             <field name="type_tax_use">sale</field>
             <field name="tax_group_id" ref="tax_group_10"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line26')],
+                    'minus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3511'),
-                    'plus_tag_ids': [ref('tax_report_line_line11')],
+                    'plus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_10')],
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line26')],
+                    'plus_tag_ids': [ref('tax_report_bemess_vorst_rechnungen_10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('chart3511'),
-                    'minus_tag_ids': [ref('tax_report_line_line11')],
+                    'minus_tag_ids': [ref('tax_report_ust_steuern_lief_steu_10')],
                 }),
             ]"/>
         </record>
-        
+
         <record model="account.tax.template" id="tax_eu_sale_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Steuerfreie innergem. Lieferung</field>
@@ -399,11 +399,11 @@
             <field name="amount">0</field>
             <field name="type_tax_use">sale</field>
             <field name="tax_group_id" ref="tax_group_0"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line35')],
+                    'plus_tag_ids': [ref('tax_report_bemess_steuern_lief_steuerfreie_inn')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -411,11 +411,11 @@
                     'account_id': ref('chart3500'),
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line35')],
+                    'minus_tag_ids': [ref('tax_report_bemess_steuern_lief_steuerfreie_inn')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -433,11 +433,11 @@
             <field name="amount">0</field>
             <field name="type_tax_use">sale</field>
             <field name="tax_group_id" ref="tax_group_0"/>
-            <field name="invoice_repartition_line_ids" eval="[
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('tax_report_line_line34')],
+                    'plus_tag_ids': [ref('tax_report_bemess_steuern_lief_steuerfreie_ausf')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -445,11 +445,11 @@
                     'account_id': ref('chart3500'),
                 }),
             ]"/>
-            <field name="refund_repartition_line_ids" eval="[
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('tax_report_line_line34')],
+                    'minus_tag_ids': [ref('tax_report_bemess_steuern_lief_steuerfreie_ausf')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -458,15 +458,15 @@
                 }),
             ]"/>
         </record>
-        
-        
-<!-- LIEFERANT EU UNTERNEHMEN OHNE UID -->        
+
+
+<!-- LIEFERANT EU UNTERNEHMEN OHNE UID -->
         <!-- Fiscal Position Templates -->
         <record model="account.fiscal.position.template" id="fiscal_position_eu_no_id_purchase_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Lieferant EU (ohne Ust-ID)</field>
         </record>
-        <!-- Fiscal Position Tax Templates -->    
+        <!-- Fiscal Position Tax Templates -->
         <record id="account_fiscal_position_tax_eu_no_id_purchase_20" model="account.fiscal.position.tax.template">
             <field name="position_id" ref="fiscal_position_eu_no_id_purchase_at"/>
             <field name="tax_dest_id" ref="tax_import_20"/>
@@ -487,18 +487,18 @@
             <field name="position_id" ref="fiscal_position_eu_no_id_purchase_at"/>
             <field name="account_src_id" ref="chart5001" />
             <field name="account_dest_id" ref="chart5020" />
-        </record>                
-<!-- LIEFERANT EU UNTERNEHMEN OHNE UID -->    
+        </record>
+<!-- LIEFERANT EU UNTERNEHMEN OHNE UID -->
 
 
-        
+
 <!-- LIEFERANT EU UNTERNEHMEN MIT UID -->
-        <!-- Fiscal Position Templates -->            
+        <!-- Fiscal Position Templates -->
         <record model="account.fiscal.position.template" id="fiscal_position_eu_vat_id_purchase_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Lieferant EU Unternehmen (mit USt-ID)</field>
         </record>
-        <!-- Fiscal Position Tax Templates -->        
+        <!-- Fiscal Position Tax Templates -->
         <record id="account_fiscal_position_tax_eu_vat_id_purchase_20" model="account.fiscal.position.tax.template">
             <field name="position_id" ref="fiscal_position_eu_vat_id_purchase_at"/>
             <field name="tax_dest_id" ref="tax_eu_20_purchase"/>
@@ -520,11 +520,11 @@
             <field name="account_src_id" ref="chart5001" />
             <field name="account_dest_id" ref="chart5010" />
         </record>
-<!-- LIEFERANT EU UNTERNEHMEN MIT UID -->    
+<!-- LIEFERANT EU UNTERNEHMEN MIT UID -->
 
 
 <!-- LIEFERANT AUSLAND -->
-        <!-- Fiscal Position Templates -->        
+        <!-- Fiscal Position Templates -->
         <record model="account.fiscal.position.template" id="fiscal_position_non_eu_purchase_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Lieferant Ausland</field>
@@ -551,13 +551,13 @@
             <field name="account_src_id" ref="chart5001" />
             <field name="account_dest_id" ref="chart5020" />
         </record>
-<!-- LIEFERANT AUSLAND -->    
+<!-- LIEFERANT AUSLAND -->
 
 
 
 
-<!-- KUNDE EU UNTERNEHMEN OHNE UID -->        
-        <!-- Fiscal Position Templates -->        
+<!-- KUNDE EU UNTERNEHMEN OHNE UID -->
+        <!-- Fiscal Position Templates -->
         <record model="account.fiscal.position.template" id="fiscal_position_eu_no_id_sale_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Kunde EU (ohne USt-ID)</field>
@@ -584,11 +584,11 @@
             <field name="account_src_id" ref="chart4010" />
             <field name="account_dest_id" ref="chart4020" />
         </record>
-<!-- KUNDE EU UNTERNEHMEN OHNE UID -->        
+<!-- KUNDE EU UNTERNEHMEN OHNE UID -->
 
 
-        
-<!-- KUNDE EU UNTERNEHMEN MIT UID -->        
+
+<!-- KUNDE EU UNTERNEHMEN MIT UID -->
         <!-- Fiscal Position Templates -->
         <record model="account.fiscal.position.template" id="fiscal_position_eu_vat_id_sale_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
@@ -620,7 +620,7 @@
 
 
 
-<!-- KUNDE AUSLAND -->        
+<!-- KUNDE AUSLAND -->
         <record model="account.fiscal.position.template" id="fiscal_position_non_eu_sale_at">
             <field name="chart_template_id" ref="austria_chart_template"/>
             <field name="name">Kunde Ausland</field>
@@ -646,6 +646,6 @@
             <field name="position_id" ref="fiscal_position_non_eu_sale_at"/>
             <field name="account_src_id" ref="chart4010" />
             <field name="account_dest_id" ref="chart4050" />
-        </record>        
-<!-- KUNDE AUSLAND -->            
+        </record>
+<!-- KUNDE AUSLAND -->
 </odoo>
