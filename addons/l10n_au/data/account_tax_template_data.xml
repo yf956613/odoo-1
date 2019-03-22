@@ -231,26 +231,26 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
             ]"/>
     </record>
@@ -268,26 +268,26 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
                 }),
             ]"/>
     </record>
@@ -305,26 +305,26 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
                 }),
             ]"/>
     </record>
@@ -342,24 +342,24 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
             ]"/>
     </record>
@@ -377,24 +377,24 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g14')],
                 }),
             ]"/>
     </record>
@@ -412,24 +412,24 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g13')],
                 }),
             ]"/>
     </record>
@@ -447,24 +447,24 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_g15')],
                 }),
             ]"/>
     </record>
@@ -487,7 +487,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_gstonly')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_gstonly')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -499,7 +499,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_gstonly')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_gstonly')],
                 }),
             ]"/>
     </record>
@@ -517,26 +517,26 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
                 }),
             ]"/>
     </record>
