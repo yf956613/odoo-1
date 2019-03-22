@@ -494,3 +494,11 @@ class InventoryLine(models.Model):
                 vals = line._get_move_values(abs(diff), line.location_id.id, line.product_id.property_stock_inventory.id, True)
             vals_list.append(vals)
         return self.env['stock.move'].create(vals_list)
+
+    @api.model
+    def action_validate_inventory(self, inventory_id):
+        inventory = self.env['stock.inventory'].browse(inventory_id)
+        if inventory.exists():
+            inventory.action_validate()
+            return {'state': 'ok'}
+        return {'state': 'error'}
