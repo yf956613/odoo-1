@@ -36,8 +36,8 @@
                 <field name="package_id" groups="stock.group_tracking_lot"
                        domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]"/>
                 <field name="partner_id" groups="stock.group_tracking_owner"/>
-                <field name="theoretical_qty" readonly="1"/>
-                <field name="product_qty" string="Counted"/>
+                <field name="theoretical_qty" string="On Hand Quantity" readonly="1"/>
+                <field name="product_qty" string="Counted Quantity"/>
                 <field name="difference_qty"/>
                 <field name="state" invisible="1"/>
                 <field name="inventory_id" invisible="1"/>
