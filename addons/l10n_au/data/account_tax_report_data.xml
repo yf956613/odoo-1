@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="account_tax_report_gstrpt_s_ttl" model="account.tax.report.line">
+    <record id="account_tax_report_gstrpt_sale_total" model="account.tax.report.line">
         <field name="name">GST amounts you owe the Tax Office from sales</field>
         <field name="sequence" eval="1"/>
         <field name="country_id" ref="base.au"/>
@@ -13,7 +13,7 @@
         <field name="code">G1</field>
         <field name="sequence" eval="2"/>
         <field name="country_id" ref="base.au"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_s_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_sale_total"/>
     </record>
 
     <record id="account_tax_report_gstrpt_g2" model="account.tax.report.line">
@@ -48,14 +48,14 @@
         <field name="formula">G2+G3+G4</field>
         <field name="sequence" eval="6"/>
         <field name="country_id" ref="base.au"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_s_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_sale_total"/>
     </record>
 
     <record id="account_tax_report_gstrpt_g6" model="account.tax.report.line">
         <field name="name">G6: Total sales subject to GST (G1 minus G5)</field>
         <field name="sequence" eval="7"/>
         <field name="formula">G1-(G2+G3+G4)</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_s_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_sale_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -72,7 +72,7 @@
         <field name="name">G8: Total sales subject to GST after adjustments (G6 + G7)</field>
         <field name="sequence" eval="9"/>
         <field name="formula">(G1-(G2+G3+G4))+G7</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_s_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_sale_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -80,12 +80,12 @@
         <field name="name">G9: GST on sales (G8 divided by eleven)</field>
         <field name="sequence" eval="10"/>
         <field name="formula">((G1-(G2+G3+G4))+G7)/11</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_s_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_sale_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
     <!-- Purchase Report -->
-    <record id="account_tax_report_gstrpt_p_ttl" model="account.tax.report.line">
+    <record id="account_tax_report_gstrpt_purchase_total" model="account.tax.report.line">
         <field name="name">GST amounts the Tax Office owes you from purchases</field>
         <field name="sequence" eval="101"/>
         <field name="country_id" ref="base.au"/>
@@ -96,7 +96,7 @@
         <field name="tag_name">G10</field>
         <field name="code">G10</field>
         <field name="sequence" eval="102"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -105,7 +105,7 @@
         <field name="tag_name">G11</field>
         <field name="code">G11</field>
         <field name="sequence" eval="103"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -113,7 +113,7 @@
         <field name="name">G12: G10 + G11</field>
         <field name="sequence" eval="104"/>
         <field name="formula">G10+G11</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -148,7 +148,7 @@
         <field name="name">G16: G13 + G14 + G15</field>
         <field name="sequence" eval="108"/>
         <field name="formula">G13+G14+G15</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -156,7 +156,7 @@
         <field name="name">G17: Total purchases subject to GST (G12 minus G16) </field>
         <field name="sequence" eval="109"/>
         <field name="formula">(G10+G11)-(G13+G14+G15)</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -173,7 +173,7 @@
         <field name="name">G19: Total purchases subject to GST after adjustments (G17 + G18) </field>
         <field name="sequence" eval="111"/>
         <field name="formula">(G10+G11)-(G13+G14+G15)+G18</field>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -181,7 +181,7 @@
         <field name="name">GST on purchases (G19 divided by eleven)</field>
         <field name="formula">((G10+G11)-(G13+G14+G15)+G18)/11</field>
         <field name="sequence" eval="112"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_p_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_purchase_total"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
@@ -202,25 +202,26 @@
     </record>
 
     <!-- Comparison -->
-    <record id="account_tax_report_gstrpt_c_ttl" model="account.tax.report.line">
+    <record id="account_tax_report_gstrpt_comparison" model="account.tax.report.line">
         <field name="name">Comparison</field>
+        <field name="tag_name">Comparison</field>
         <field name="sequence" eval="201"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
-    <record id="account_tax_report_gstrpt_c_ws" model="account.tax.report.line">
+    <record id="account_tax_report_gstrpt_comparison_worksheet" model="account.tax.report.line">
         <field name="name">GST from worksheet (G20-G9)</field>
         <field name="formula">((((G10+G11)-(G13+G14+G15)+G18)/11)+ONLY)-(((G1-(G2+G3+G4))+G7)/11)</field>
         <field name="sequence" eval="202"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_c_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_comparison"/>
         <field name="country_id" ref="base.au"/>
     </record>
 
-    <record id="account_tax_report_gstrpt_c_gl" model="account.tax.report.line">
+    <record id="account_tax_report_gstrpt_comparison_gl" model="account.tax.report.line">
         <field name="name">GST from General Ledger</field>
-        <field name="formula"></field>
+        <field name="tag_name">GST from General Ledger</field>
         <field name="sequence" eval="203"/>
-        <field name="parent_line_id" ref="account_tax_report_gstrpt_c_ttl"/>
+        <field name="parent_line_id" ref="account_tax_report_gstrpt_comparison"/>
 <!--         <field name="domain" eval="[
         ('account_id.in_tax_ids', '!=', False)
         ]" /> -->

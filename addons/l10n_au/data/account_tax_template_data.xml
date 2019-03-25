@@ -22,6 +22,7 @@
                     'repartition_type': 'tax',
                     'account_id': ref('au_21310'),
                     'plus_tag_ids': [ref('account_tax_report_gstrpt_g1')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -35,6 +36,7 @@
                     'repartition_type': 'tax',
                     'account_id': ref('au_21310'),
                     'minus_tag_ids': [ref('account_tax_report_gstrpt_g1')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -59,6 +61,7 @@
                     'repartition_type': 'tax',
                     'account_id': ref('au_21310'),
                     'plus_tag_ids': [ref('account_tax_report_gstrpt_g1')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -72,6 +75,7 @@
                     'repartition_type': 'tax',
                     'account_id': ref('au_21310'),
                     'minus_tag_ids': [ref('account_tax_report_gstrpt_g1')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -201,6 +205,7 @@
                     'repartition_type': 'tax',
                     'account_id': ref('au_21310'),
                     'plus_tag_ids': [ref('account_tax_report_gstrpt_g7')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -214,6 +219,7 @@
                     'repartition_type': 'tax',
                     'account_id': ref('au_21310'),
                     'minus_tag_ids': [ref('account_tax_report_gstrpt_g7')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -237,7 +243,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -250,7 +256,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -274,7 +280,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -287,7 +293,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g11'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -311,7 +317,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g10'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -324,7 +330,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g10')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g10'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -487,7 +493,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_gstonly')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_gstonly'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -499,7 +505,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_gstonly')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_gstonly'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
@@ -523,7 +529,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
+                    'plus_tag_ids': [ref('account_tax_report_gstrpt_g18'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
         <field name="refund_repartition_line_ids" eval="[
@@ -536,7 +542,7 @@
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('au_21330'),
-                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g18')],
+                    'minus_tag_ids': [ref('account_tax_report_gstrpt_g18'), ref('account_tax_report_gstrpt_comparison_gl')],
                 }),
             ]"/>
     </record>
