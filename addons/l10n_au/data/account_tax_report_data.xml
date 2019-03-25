@@ -222,10 +222,6 @@
         <field name="tag_name">GST from General Ledger</field>
         <field name="sequence" eval="203"/>
         <field name="parent_line_id" ref="account_tax_report_gstrpt_comparison"/>
-<!--         <field name="domain" eval="[
-        ('account_id.in_tax_ids', '!=', False)
-        ]" /> -->
-        <!-- <field name="groupby">account_id</field> -->
         <field name="country_id" ref="base.au"/>
     </record>
 
