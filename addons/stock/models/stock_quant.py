@@ -391,6 +391,7 @@ class StockQuant(models.Model):
     def write(self, vals):
         if 'inventory_quantity' in vals and not self.env.context.get('dont_create_inventory_line'):
             for quant in self:
+                quant.update_inventory_lines(vals, 'update')
                 rounding = quant.product_id.uom_id.rounding
                 diff = float_round(vals['inventory_quantity'] - quant.quantity, precision_rounding=rounding)
                 diff_float_compared = float_compare(diff, 0, precision_rounding=rounding)
@@ -403,24 +404,48 @@ class StockQuant(models.Model):
                     move = self.env['stock.move'].create(self._get_inventory_move_values(self.location_id, self.product_id.property_stock_inventory, -1 * diff))
                     move._action_done()
             vals.pop('inventory_quantity')
+        else:
+            for quant in self:
+                quant.update_inventory_lines(vals, 'update')
         return super(StockQuant, self).write(vals)
 
     @api.model
     def create(self, vals):
+        res = None
         if 'inventory_quantity' in vals and not self.env.context.get('dont_create_inventory_line'):
             product = self.env['product.product'].browse(vals['product_id'])
             location = self.env['stock.location'].browse(vals['location_id'])
             similar = self._gather(product, location, strict=True)
             if similar:
                 similar.write({'inventory_quantity': vals['inventory_quantity']})
-                return similar
+                res = similar
             else:
                 vals2 = dict(vals)
                 vals2.pop('inventory_quantity')
                 quant = super(StockQuant, self).create(vals2)
                 quant.write({'inventory_quantity': vals['inventory_quantity']})
-                return quant
-        return super(StockQuant, self).create(vals)
+                res = quant
+        else:
+            res = super(StockQuant, self).create(vals)
+        res.update_inventory_lines(vals, 'create')
+        return res
+
+    def update_inventory_lines(self, vals, operation):
+        product = self.env['product.product'].browse(self.product_id.id)
+        location = self.env['stock.location'].browse(self.location_id.id)
+        inventory_lines = self.env['stock.inventory.line'].search([
+            ('product_id', '=', product.id),
+            ('location_id', '=', location.id),
+            ('state', '=', 'confirm')
+        ])
+        for line in inventory_lines:
+            old_difference_qty = line.difference_qty
+            if operation == 'create':
+                line.theoretical_qty = line.theoretical_qty + vals['quantity']
+            elif operation == 'update':
+                line.theoretical_qty = vals['inventory_quantity']
+            line.product_qty = line.theoretical_qty + old_difference_qty
+
     # -------------------------------------------------------------------------
 
 
