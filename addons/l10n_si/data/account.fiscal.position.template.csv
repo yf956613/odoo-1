@@ -1,5 +1,5 @@
-"id","chart_template_id/id","name"
-"gd_fp_do","gd_chart","Domači partner"
-"gd_fp_eu","gd_chart","Partner EU"
-"gd_fp_ne","gd_chart","Partner izven EU / EU brez DŠ"
+"id","chart_template_id/id","name","sequence","auto_apply","country_id:id","country_group_id:id"
+"gd_fp_do","gd_chart","Domači partner",1,1,base.si,
+"gd_fp_eu","gd_chart","Partner EU",2,1,,base.europe
+"gd_fp_ne","gd_chart","Partner izven EU / EU brez DŠ",3,1,,
 
