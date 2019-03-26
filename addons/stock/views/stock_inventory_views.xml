@@ -28,7 +28,7 @@
                        attrs="{'readonly': [('editable', '=', False)]}"/>
                 <field name="product_uom_id" string="UoM" groups="uom.group_uom"/>
                 <field name="location_id" groups="stock.group_stock_multi_locations"
-                       readonly="context.get('default_location_id', False)"
+                       readonly="context.get('readonly_location_id', False)"
                        attrs="{'readonly': [('editable', '=', False)]}"/>
                 <field name="prod_lot_id" groups="stock.group_production_lot"
                        attrs="{'readonly': ['|', ('product_tracking', '=', 'none'), ('editable', '=', False)]}"

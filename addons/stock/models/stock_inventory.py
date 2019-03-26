@@ -14,12 +14,14 @@ class Inventory(models.Model):
 
     @api.model
     def _default_location_ids(self):
-        company_user = self.env.user.company_id
-        warehouse = self.env['stock.warehouse'].search([('company_id', '=', company_user.id)], limit=1)
-        if warehouse:
-            return [(4, warehouse.lot_stock_id.id, None)]
-        else:
-            raise UserError(_('You must define a warehouse for the company: %s.') % (company_user.name,))
+        # No default location if multilocations setting is active
+        if not self.env['res.users'].has_group('stock.group_stock_multi_locations'):
+            company_user = self.env.user.company_id
+            warehouse = self.env['stock.warehouse'].search([('company_id', '=', company_user.id)], limit=1)
+            if warehouse:
+                return [(4, warehouse.lot_stock_id.id, None)]
+            else:
+                raise UserError(_('You must define a warehouse for the company: %s.') % (company_user.name,))
 
     def _domain_location_id(self):
         company_user = self.env.user.company_id.id
@@ -187,10 +189,11 @@ class Inventory(models.Model):
             ('location_id.usage', 'in', ['internal', 'transit'])]
         product_and_location_domain = []
         if self.location_ids:
+            context['default_location_id'] = self.location_ids[0].id
             if len(self.location_ids) == 1:
                 product_and_location_domain += [('location_id', 'child_of', self.location_ids[0].id)]
                 if not self.location_ids[0].child_ids:
-                    context['default_location_id'] = self.location_ids[0].id
+                    context['readonly_location_id'] = True
             else:
                 product_and_location_domain += [('location_id', 'in', self.location_ids.ids)]
 
