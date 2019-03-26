@@ -388,6 +388,18 @@ class StockQuant(models.Model):
             })]
         }
 
+    def _check_outdated_inventory_lines(self):
+        for quant in self:
+            if self.location_id.usage in ['internal', 'transit']:
+                inventory_lines = self.env['stock.inventory.line'].search([
+                    ('product_id', '=', quant.product_id.id),
+                    ('location_id', '=', quant.location_id.id),
+                    ('state', '=', 'confirm'),
+                    ('outdated', '=', False)
+                ])
+                for line in inventory_lines:
+                    line.outdated = True
+
     def write(self, vals):
         if 'inventory_quantity' in vals and not self.env.context.get('dont_create_inventory_line'):
             for quant in self:
@@ -403,6 +415,7 @@ class StockQuant(models.Model):
                     move = self.env['stock.move'].create(self._get_inventory_move_values(self.location_id, self.product_id.property_stock_inventory, -1 * diff))
                     move._action_done()
             vals.pop('inventory_quantity')
+        self._check_outdated_inventory_lines()
         return super(StockQuant, self).write(vals)
 
     @api.model
@@ -413,14 +426,17 @@ class StockQuant(models.Model):
             similar = self._gather(product, location, strict=True)
             if similar:
                 similar.write({'inventory_quantity': vals['inventory_quantity']})
-                return similar
+                res = similar
             else:
                 vals2 = dict(vals)
                 vals2.pop('inventory_quantity')
                 quant = super(StockQuant, self).create(vals2)
                 quant.write({'inventory_quantity': vals['inventory_quantity']})
-                return quant
-        return super(StockQuant, self).create(vals)
+                res = quant
+        else:
+            res = super(StockQuant, self).create(vals)
+        res._check_outdated_inventory_lines()
+        return res
     # -------------------------------------------------------------------------
 
 

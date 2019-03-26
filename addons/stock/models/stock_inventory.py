@@ -383,8 +383,12 @@ class InventoryLine(models.Model):
     difference_qty = fields.Float('Difference', compute='_compute_difference',
         help="Indicates the gap between the product's theoretical quantity and its newest quantity.",
         readonly=True)
+    inventory_date = fields.Datetime('Inventory Date', readonly=True,
+        default=fields.Datetime.now(),
+        help="Last date at which the On Hand Quantity has been computed.")
     inventory_location_ids = fields.Many2many(
         'stock.location', 'Inventory Location', related='inventory_id.location_ids', related_sudo=False, readonly=False)
+    outdated = fields.Boolean(String='Quantity oudated', default=False)
     product_tracking = fields.Selection('Tracking', related='product_id.tracking', readonly=True)
 
     @api.depends('product_qty', 'theoretical_qty')
@@ -502,6 +506,18 @@ class InventoryLine(models.Model):
                 vals = line._get_move_values(abs(diff), line.location_id.id, line.product_id.property_stock_inventory.id, True)
             vals_list.append(vals)
         return self.env['stock.move'].create(vals_list)
+
+    def action_refresh_quantity(self):
+        for line in self:
+            if line.outdated:
+                quant = self.env['stock.quant'].search([
+                    ('product_id', '=', line.product_id.id),
+                    ('location_id', '=', line.location_id.id),
+                ], limit=1)
+                if quant.exists() and not line.theoretical_qty == quant.quantity:
+                    line.theoretical_qty = quant.quantity
+                line.inventory_date = fields.Datetime.now()
+                line.outdated = False
 
     @api.model
     def action_validate_inventory(self, inventory_id):
