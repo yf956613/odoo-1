@@ -5446,12 +5446,13 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             for name in todo:
                 if name == 'id':
                     continue
-                value = record[name]
                 field = self._fields[name]
-                if field.type == 'many2one' and field.delegate and not value:
-                    # do not nullify all fields of parent record for new records
+                if field.type == 'many2one' and field.delegate and not record[name]:
                     continue
-                record[name] = value
+                spec = field.modified_draft(record)
+                if field.type == 'one2many':
+                    spec = [(f, ids) for f, ids in spec if dict(record._field_triggers[field])[f] != field.inverse_name]
+                env.cache.invalidate(spec)
 
         result = {'warnings': OrderedSet()}
 
