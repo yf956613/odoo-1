@@ -522,6 +522,9 @@ class InventoryLine(models.Model):
                 line.inventory_date = fields.Datetime.now()
                 line.outdated = False
 
+    def action_reset_product_qty(self):
+        self.update({'product_qty': 0})
+
     @api.model
     def action_validate_inventory(self, inventory_id):
         inventory = self.env['stock.inventory'].browse(inventory_id)

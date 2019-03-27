@@ -194,6 +194,16 @@
         <field name="domain">[('inventory_id', '=', active_id)]</field>
     </record>
 
+    <record id="model_stock_inventory_line_action_reset_product_qty" model="ir.actions.server">
+        <field name="name">Set quantities to 0</field>
+        <field name="model_id" ref="model_stock_inventory_line"/>
+        <field name="binding_model_id" ref="model_stock_inventory_line"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_reset_product_qty()</field>
+    </record>
+
     <record id="model_stock_inventory_line_action_recompute_quantity" model="ir.actions.server">
         <field name="name">Recompute On Hand Quantity</field>
         <field name="model_id" ref="model_stock_inventory_line"/>
