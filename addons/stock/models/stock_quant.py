@@ -77,6 +77,7 @@ class StockQuant(models.Model):
         help='Quantity of reserved products in this quant, in the default unit of measure of the product',
         readonly=True, required=True)
     in_date = fields.Datetime('Incoming Date', readonly=True)
+    tracking = fields.Selection(related='product_id.tracking', readonly=True)
 
     # -------------------------------------------------------------------------
     # look away
@@ -225,6 +226,12 @@ class StockQuant(models.Model):
                         'reserved_quantity': already_existing_quant.reserved_quantity})
                 elif quant.quantity or quant.reserved_quantity:
                     quant.update({'quantity': 0, 'reserved_quantity': 0})
+
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        for quant in self:
+            if quant.lot_id and quant.tracking == 'none':
+                quant.lot_id = None
 
     @api.model
     def _update_available_quantity(self, product_id, location_id, quantity, lot_id=None, package_id=None, owner_id=None, in_date=None):
@@ -393,7 +400,16 @@ class StockQuant(models.Model):
     # look away
     def _get_inventory_move_values(self, location_id, location_dest_id, quantity):
         self.ensure_one()
-        # FIXME: handle package
+        move_line_vals = {
+            'product_id': self.product_id.id,
+            'product_uom_id': self.product_uom_id.id,
+            'qty_done': quantity,
+            'location_id': location_id.id,
+            'location_dest_id': location_dest_id.id,
+            'company_id': self.company_id.id
+        }
+        if self.tracking != 'none':
+            move_line_vals['lot_id'] = self.lot_id.id
         return {
             'name': _('Product Quantity Updated'),
             'product_id': self.product_id.id,
@@ -403,14 +419,7 @@ class StockQuant(models.Model):
             'state': 'confirmed',
             'location_id': location_id.id,
             'location_dest_id': location_dest_id.id,
-            'move_line_ids': [(0, 0, {
-                'product_id': self.product_id.id,
-                'product_uom_id': self.product_uom_id.id,
-                'qty_done': quantity,
-                'location_id': location_id.id,
-                'location_dest_id': location_dest_id.id,
-                'company_id': self.company_id.id
-            })]
+            'move_line_ids': [(0, 0, move_line_vals)]
         }
 
     def _check_outdated_inventory_lines(self):
