@@ -77,8 +77,9 @@
             <tree string="Inventory Valuation" editable="top" decoration-danger="quantity &lt; 0">
                 <field name="id" invisible="1"/>
                 <field name="product_id" attrs="{'readonly': [('id', '!=', False)]}"
-                       domain="[('type', '=', 'product')]"/>
+                       readonly="context.get('single_product', False)"/>
                 <field name="location_id" attrs="{'readonly': [('id', '!=', False)]}"
+                       groups="stock.group_stock_multi_locations"
                        domain="[('usage', 'in', ['internal', 'inventory', 'production', 'transit'])]"/>
                 <field name="lot_id" groups="stock.group_production_lot"/>
                 <field name="package_id" groups="stock.group_tracking_lot"/>

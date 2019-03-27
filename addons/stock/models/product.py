@@ -390,8 +390,12 @@ class Product(models.Model):
         self.ensure_one()
         self.env['stock.quant']._quant_tasks()
         action = self.env.ref('stock.product_open_quants').read()[0]
-        action['domain'] = [('product_id', '=', self.id)]
-        action['context'] = {'search_default_internal_loc': 1}
+        action['domain'] = [
+            '&',
+            ('product_id', '=', self.id),
+            ('location_id.usage', 'in', ['internal', 'transit'])
+        ]
+        action['context'] = {}
         return action
 
     @api.model
@@ -592,8 +596,12 @@ class ProductTemplate(models.Model):
         self.env['stock.quant']._quant_tasks()
         products = self.mapped('product_variant_ids')
         action = self.env.ref('stock.product_open_quants').read()[0]
-        action['domain'] = [('product_id', 'in', products.ids)]
-        action['context'] = {'search_default_internal_loc': 1}
+        action['domain'] = [
+            '&',
+            ('product_id', 'in', products.ids),
+            ('location_id.usage', 'in', ['internal', 'transit'])
+        ]
+        action['context'] = {}
         return action
 
     def action_view_related_putaway_rules(self):

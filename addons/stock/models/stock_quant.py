@@ -18,8 +18,33 @@ class StockQuant(models.Model):
     _description = 'Quants'
     _rec_name = 'product_id'
 
+    def _default_location_id(self):
+        if self.env.context.get('active_model') == 'product.template' or self.env.context.get('active_model') == 'product.product':
+            if not self.env['res.users'].has_group('stock.group_stock_multi_locations'):
+                company_user = self.env.user.company_id
+                warehouse = self.env['stock.warehouse'].search([('company_id', '=', company_user.id)], limit=1)
+                if warehouse:
+                    return warehouse.lot_stock_id.id
+                else:
+                    raise UserError(_('You must define a warehouse for the company: %s.') % (company_user.name,))
+
+    def _default_product_id(self):
+        if self.env.context.get('active_model') == 'product.template':
+            product_template = self.env['product.template'].browse(self.env.context.get('active_id'))
+            if product_template.exists() and product_template.product_variant_count == 1:
+                return product_template.product_variant_id
+        elif self.env.context.get('active_model') == 'product.product':
+            return self.env.context.get('active_id')
+
+    def _domain_product_id(self):
+        domain = [('type', '=', 'product')]
+        if self.env.context.get('active_model') == 'product.template':
+            domain = ['&', ('product_tmpl_id', '=', self.env.context.get('active_id'))] + domain
+        return domain
+
     product_id = fields.Many2one(
         'product.product', 'Product',
+        default=_default_product_id, domain=_domain_product_id,
         ondelete='restrict', required=True)
     # so user can filter on template in webclient
     product_tmpl_id = fields.Many2one(
@@ -31,7 +56,7 @@ class StockQuant(models.Model):
     company_id = fields.Many2one(related='location_id.company_id',
         string='Company', store=True, readonly=True)
     location_id = fields.Many2one(
-        'stock.location', 'Location',
+        'stock.location', 'Location', default=_default_location_id,
         auto_join=True, ondelete='restrict', required=True)
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
@@ -421,7 +446,10 @@ class StockQuant(models.Model):
     @api.model
     def create(self, vals):
         if 'inventory_quantity' in vals and not self.env.context.get('dont_create_inventory_line'):
-            product = self.env['product.product'].browse(vals['product_id'])
+            if 'product_id' in vals:
+                product = self.env['product.product'].browse(vals['product_id'])
+            else:
+                product = self._default_product_id()
             location = self.env['stock.location'].browse(vals['location_id'])
             similar = self._gather(product, location, strict=True)
             if similar:

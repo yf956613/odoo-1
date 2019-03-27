@@ -206,8 +206,7 @@
                         <button class="oe_stat_button"
                                name="action_open_quants"
                                icon="fa-building-o"
-                               type="object" attrs="{'invisible':[('type', '!=', 'product')]}"
-                               context="{'default_product_id': id}">
+                               type="object" attrs="{'invisible':[('type', '!=', 'product')]}">
                                <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value">
                                         <field name="qty_available" widget="statinfo" nolabel="1" class="mr4"/>
@@ -294,7 +293,7 @@
                             name="action_open_quants"
                             attrs="{'invisible':[('type', '!=', 'product')]}"
                             class="oe_stat_button" icon="fa-building-o"
-                            context="{'default_product_id': product_variant_id}">
+                            context="{'single_product': product_variant_count == 1}">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value" widget="statinfo">
                                     <field name="qty_available" widget="statinfo" nolabel="1" class="mr4"/>
