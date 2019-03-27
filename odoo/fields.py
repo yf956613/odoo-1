@@ -1000,15 +1000,17 @@ class Field(MetaField('DummyField', (object,), {})):
         if env.in_draft or not record.id:
             # determine dependent fields
             spec = self.modified_draft(record)
-            # determine more dependent fields, and invalidate them
-            if self.relational:
-                spec += self.modified_draft(record)
 
-            if env.in_onchange:
-                env.invalidated[self.model_name][record].setdefault(self.name, env.cache.get_value(record, self))
+            if env.in_onchange and not self.related:
+                env.invalidated[record].setdefault(self, record[self.name])
                 for field, ids in spec:
                     for rec in env[field.model_name].browse(ids):
-                        env.invalidated[field.model_name][rec].setdefault(field.name, env.cache.get_value(rec, field))
+                        try:
+                            v = rec[field.name]
+                        except Exception:
+                            v = field.convert_to_cache(False, self, validate=False)
+                            v = field.convert_to_record(v, rec)
+                        env.invalidated[rec].setdefault(field, v)
 
             # set value in cache, inverse field, and mark record as dirty
             record.env.cache.set(record, self, value)
@@ -1016,7 +1018,9 @@ class Field(MetaField('DummyField', (object,), {})):
                 for invf in record._field_inverses[self]:
                     invf._update(record[self.name], record)
                 env.dirty[record].add(self.name)
-
+            # determine more dependent fields, and invalidate them
+            if self.relational:
+                spec += self.modified_draft(record)
             env.cache.invalidate(spec)
 
         else:

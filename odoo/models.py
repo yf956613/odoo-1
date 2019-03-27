@@ -5364,54 +5364,6 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                         subtree.pop(field.inverse_name, None)
             return tree
 
-        class Snapshot(dict):
-            """ A dict with the values of a record, following a prefix tree. """
-            __slots__ = ()
-
-            def __init__(self, record, tree):
-                # put record in dict to include it when comparing snapshots
-                super(Snapshot, self).__init__({'<record>': record, '<tree>': tree})
-                for name, subnames in tree.items():
-                    # x2many fields are serialized as a list of line snapshots
-                    self[name] = (
-                        [Snapshot(line, subnames) for line in record[name]]
-                        if subnames else record[name]
-                    )
-
-            def diff(self, other):
-                """ Return the values in ``self`` that differ from ``other``.
-                    Requires record cache invalidation for correct output!
-                """
-                record = self['<record>']
-                result = {}
-                for name, subnames in self['<tree>'].items():
-                    if (name == 'id') or (other.get(name) == self[name]):
-                        continue
-                    if not subnames:
-                        field = record._fields[name]
-                        result[name] = field.convert_to_onchange(self[name], record, {})
-                    else:
-                        # x2many fields: serialize value as commands
-                        result[name] = commands = [(5,)]
-                        for line_snapshot in self[name]:
-                            line = line_snapshot['<record>']
-                            if not line.id:
-                                # new line: send diff from scratch
-                                line_diff = line_snapshot.diff({})
-                                commands.append((0, line.id.ref or 0, line_diff))
-                            else:
-                                # existing line: check diff from database
-                                # (requires a clean record cache!)
-                                line_diff = line_snapshot.diff(Snapshot(line, subnames))
-                                if line_diff:
-                                    # send all fields because the web client
-                                    # might need them to evaluate modifiers
-                                    line_diff = line_snapshot.diff({})
-                                    commands.append((1, line.id, line_diff))
-                                else:
-                                    commands.append((4, line.id))
-                return result
-
         nametree = PrefixTree(self.browse(), field_onchange)
 
         # prefetch x2many lines without data (for the initial snapshot)
@@ -5441,12 +5393,12 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
 
         def compute_todo(record):
             todo = set()
-            modifieds = dict(env.invalidated[record._name][record])
+            modifieds = dict(env.invalidated[record])
             for field, old_val in modifieds.items():
-                if field not in nametree:
+                if field.name not in nametree:
                     continue
-                todo.add(field)
-                new_val = record._fields[field].convert_to_cache(record[field], record)
+                todo.add(field.name)
+                new_val = record[field.name]
                 if old_val != new_val:
                     modified[field] = new_val
             one2many_fields = [([name], [field], record, nametree) for name, field in record._fields.items() if field.type == 'one2many' and field.name in nametree]
@@ -5458,16 +5410,24 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                 records = records.mapped(one2many_field.name)
                 if not records:
                     continue
-                modifieds = set(env.invalidated[one2many_field.comodel_name]) & set(records)
+                modifieds = {k: env.invalidated[k] for k in env.invalidated.keys() & records}
+                relateds = [f for f in env.registry[one2many_field.comodel_name]._fields.values() if f.related]
+                if relateds:
+                    for record in records:
+                        for related in relateds:
+                            related_record = record.mapped('.'.join(related.related[:-1]))
+                            related_field = related_record._fields[related.related[-1]]
+                            if related_field in env.invalidated[related_record]:
+                                modifieds.setdefault(record, {})[related] = env.invalidated[related_record][related_field]
+                                related._compute_related(record)
                 if modifieds:
                     todo.add(path[0])
-                for modified_record in modifieds:
-                    modified_fields = dict(env.invalidated[one2many_field.comodel_name][modified_record])
+                for modified_record, modified_fields in modifieds.items():
                     for field, old_val in modified_fields.items():
                         chain = list(one2many_field_chain)
                         modified_chain = []
                         record = modified_record
-                        new_val = record._fields[field].convert_to_cache(record[field], record)
+                        new_val = record[field.name]
                         if old_val != new_val:
                             while(chain):
                                 c = chain.pop()
@@ -5476,7 +5436,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                                 record = modified_record[c.inverse_name]
                             reversed_chain = list(reversed(modified_chain))
                             r = reversed_chain.pop()
-                            modified.setdefault(tuple(reversed_chain), {}).setdefault(r, {})[field] = new_val
+                            modified.setdefault(tuple(reversed_chain), {}).setdefault(r, {})[field.name] = new_val
                 one2many_fields.extend((path + [name], one2many_field_chain + [field], records, tree.get(field.name)) for name, field in env.registry[one2many_field.comodel_name]._fields.items() if field.type == 'one2many' and field.name in tree and field not in done)
             return todo
 
@@ -5503,7 +5463,6 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             done.add(name)
             with env.do_in_onchange():
                 # apply field-specific onchange methods
-                snapshot1 = Snapshot(record, nametree)
                 if field_onchange.get(name):
                     record._onchange_eval(name, field_onchange[name], result)
 
@@ -5543,7 +5502,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
                             commands.append((4, id))
 
             else:
-                value[field] = record._fields[field].convert_to_onchange(record._fields[field].convert_to_record(val, record,), record, {})
+                value[field.name] = field.convert_to_onchange(val, record, {})
         result['value'] = value
 
         # format warnings
