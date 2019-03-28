@@ -164,6 +164,14 @@
                         <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                     </group>
                 </group>
+                <p></p>
+                <h3 class="oe_grey">Notes</h3>
+                <span class="oe_grey">Inventory Adjustment Lines are displayed:</span>
+                <ul class="oe_grey">
+                    <li>In black if there is no difference between the quantity on hand and the counted quantity.</li>
+                    <li>In <span class="text-info">blue</span> if there is a difference between the quantity on hand and the counted quantity.</li>
+                    <li>In <span class="text-danger">red</span> if the quantity on hand has changed, it can be recomputed via the action menu at the top.</li>
+                </ul>
             </sheet>
             </form>
         </field>
