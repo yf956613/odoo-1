@@ -37,8 +37,11 @@
                        context="{'default_product_id': product_id}"
                        domain="[('product_id', '=', product_id)]"/>
                 <field name="package_id" groups="stock.group_tracking_lot"
+                       attrs="{'readonly': [('editable', '=', False)]}"
+                       string="Package"
                        domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]"/>
-                <field name="partner_id" groups="stock.group_tracking_owner"/>
+                <field name="partner_id" groups="stock.group_tracking_owner"
+                       attrs="{'readonly': [('editable', '=', False)]}"/>
                 <field name="theoretical_qty" string="On Hand Quantity" readonly="1"/>
                 <field name="product_qty" string="Counted Quantity"/>
                 <field name="difference_qty"/>
@@ -205,7 +208,7 @@
     </record>
 
     <record id="model_stock_inventory_line_action_reset_product_qty" model="ir.actions.server">
-        <field name="name">Set quantities to 0</field>
+        <field name="name">Set counted quantities to 0</field>
         <field name="model_id" ref="model_stock_inventory_line"/>
         <field name="binding_model_id" ref="model_stock_inventory_line"/>
         <field name="state">code</field>

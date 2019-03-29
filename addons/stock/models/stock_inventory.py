@@ -221,7 +221,7 @@ class Inventory(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'stock.move.line',
             'view_type': 'list',
-            'view_mode': 'list',
+            'view_mode': 'list,form',
             'domain': domain,
         }
         return action
@@ -436,29 +436,38 @@ class InventoryLine(models.Model):
             if 'product_id' in values and 'product_uom_id' not in values:
                 values['product_uom_id'] = self.env['product.product'].browse(values['product_id']).uom_id.id
         res = super(InventoryLine, self).create(vals_list)
-        # res._check_no_duplicate_line()
+        res._check_no_duplicate_line(False)
         return res
 
     @api.multi
     def write(self,vals):
         res = super(InventoryLine, self).write(vals)
-        # self._check_no_duplicate_line()
+        self._check_no_duplicate_line(False)
         return res
 
-    def _check_no_duplicate_line(self):
+    def _check_no_duplicate_line(self, cross_inventory=True):
         for line in self:
-            existings = self.search([
+            domain = [
                 ('id', '!=', line.id),
                 ('product_id', '=', line.product_id.id),
-                ('inventory_id.state', '=', 'confirm'),
                 ('location_id', '=', line.location_id.id),
                 ('partner_id', '=', line.partner_id.id),
                 ('package_id', '=', line.package_id.id),
-                ('prod_lot_id', '=', line.prod_lot_id.id)])
+                ('prod_lot_id', '=', line.prod_lot_id.id)]
+
+            if cross_inventory:
+                domain += [('inventory_id.state', '=', 'confirm')]
+                error_msg = _("You cannot have two inventory adjustments in state 'In Progress' with the same product (%s),"
+                            " same location, same package, same owner and same lot. Please first validate"
+                            " the first inventory adjustment before creating another one.") % (line.product_id.display_name)
+            else:
+                domain += [('inventory_id', '=', line.inventory_id.id)]
+                error_msg = _("There is already one inventory adjustment line for this product,"
+                              " you should rather modify this one instead of creating a new one.")
+
+            existings = self.search(domain)
             if existings:
-                raise UserError(_("You cannot have two inventory adjustments in state 'In Progress' with the same product (%s),"
-                                   " same location, same package, same owner and same lot. Please first validate"
-                                   " the first inventory adjustment before creating another one.") % (line.product_id.display_name))
+                raise UserError(error_msg)
 
     @api.constrains('product_id')
     def _check_product_id(self):
