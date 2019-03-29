@@ -35,4 +35,12 @@ class StockQuantityHistory(models.TransientModel):
         else:
             self.env['stock.quant']._merge_quants()
             self.env['stock.quant']._unlink_zero_quants()
-            return self.env.ref('stock.quantsact').read()[0]
+            action = self.env.ref('stock.quantsact').read()[0]
+            context = {'search_default_internal_loc': 1}
+            if self.user_has_groups('stock.group_production_lot,stock.group_stock_multi_locations'):
+                context.update({
+                    'search_default_productgroup': 1,
+                    'search_default_locationgroup': 1
+                    })
+            action['context'] = context
+            return action
