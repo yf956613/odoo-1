@@ -438,9 +438,9 @@ class MassMailing(models.Model):
         self.write({'state': 'draft', 'schedule_date': False})
 
     def retry_failed_mail(self):
-        failed_mails = self.env['mail.mail'].search([('mailing_id', 'in', self.ids), ('state', '=', 'exception')])
+        failed_mails = self.env['mail.mail'].sudo().search([('mailing_id', 'in', self.ids), ('state', '=', 'exception')])
         failed_mails.mapped('mailing_trace_ids').unlink()
-        failed_mails.sudo().unlink()
+        failed_mails.unlink()
         res_ids = self._get_recipients()
         except_mailed = self.env['mailing.trace'].search([
             ('model', '=', self.mailing_model_real),

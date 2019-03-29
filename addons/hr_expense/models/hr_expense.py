@@ -562,7 +562,7 @@ class HrExpense(models.Model):
                 email_layout_xmlid='mail.mail_notification_light',
             )
         else:
-            self.env['mail.mail'].create({
+            self.env['mail.mail'].sudo().create({
                 'email_from': self.env.user.email_formatted,
                 'author_id': self.env.user.partner_id.id,
                 'body_html': body,

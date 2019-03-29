@@ -207,6 +207,11 @@ class MailComposer(models.TransientModel):
         self.send_mail()
         return {'type': 'ir.actions.act_window_close', 'infos': 'mail_sent'}
 
+    def _send_check_access(self, res_ids):
+        records = self.env[self.model].browse(res_ids)
+        records.check_access_rights('read')
+        records.check_access_rule('read')
+
     def send_mail(self, auto_commit=False):
         """ Process the wizard content and proceed with sending the related
             email(s), rendering any template patterns on the fly if needed. """
@@ -235,7 +240,6 @@ class MailComposer(models.TransientModel):
             # Mass Mailing
             mass_mode = wizard.composition_mode in ('mass_mail', 'mass_post')
 
-            Mail = self.env['mail.mail']
             ActiveModel = self.env[wizard.model] if wizard.model and hasattr(self.env[wizard.model], 'message_post') else self.env['mail.thread']
             if wizard.composition_mode == 'mass_post':
                 # do not send emails directly but use the queue instead
@@ -260,11 +264,14 @@ class MailComposer(models.TransientModel):
                 subtype_id = self.env['ir.model.data'].xmlid_to_res_id('mail.mt_comment')
 
             for res_ids in sliced_res_ids:
-                batch_mails = Mail
+                # TDE TMP
+                if wizard.composition_mode == 'mass_mail':
+                    self._send_check_access(res_ids)
+                batch_mails_sudo = self.env['mail.mail'].sudo()
                 all_mail_values = wizard.get_mail_values(res_ids)
                 for res_id, mail_values in all_mail_values.items():
                     if wizard.composition_mode == 'mass_mail':
-                        batch_mails |= Mail.create(mail_values)
+                        batch_mails_sudo |= self.env['mail.mail'].sudo().create(mail_values)
                     else:
                         post_params = dict(
                             message_type=wizard.message_type,
@@ -283,7 +290,7 @@ class MailComposer(models.TransientModel):
                             ActiveModel.browse(res_id).message_post(**post_params)
 
                 if wizard.composition_mode == 'mass_mail':
-                    batch_mails.send(auto_commit=auto_commit)
+                    batch_mails_sudo.send(auto_commit=auto_commit)
 
     def get_mail_values(self, res_ids):
         """Generate the values that will be used by send_mail to create mail_messages

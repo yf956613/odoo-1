@@ -284,7 +284,7 @@ class MailThread(models.AbstractModel):
             for thread in threads:
                 subtype = thread._creation_subtype()
                 body = _('%s created') % doc_name
-                if subtype:  # if we have a sybtype, post message to notify users from _message_auto_subscribe
+                if subtype:  # if we have a subtype, post message to notify users from _message_auto_subscribe
                     thread.sudo().message_post(body=body, subtype_id=subtype.id, author_id=self.env.user.partner_id.id)
                 else:
                     thread._message_log(body=body)
@@ -670,7 +670,7 @@ class MailThread(models.AbstractModel):
         if bounce_from:
             bounce_mail_values['email_from'] = 'MAILER-DAEMON <%s>' % bounce_from
         bounce_mail_values.update(mail_values)
-        self.env['mail.mail'].create(bounce_mail_values).send()
+        self.env['mail.mail'].sudo().create(bounce_mail_values).send()
 
     @api.model
     def message_route_verify(self, message, message_dict, route,
@@ -1708,7 +1708,7 @@ class MailThread(models.AbstractModel):
             raise ValueError('message_post partner_ids and channel_ids must be integer list, not commands')
 
         # 0: Find the message's author, because we need it for private discussion
-        author_id, email_from = self.env['mail.message']._determine_author_id_and_email_from(kwargs.get('author_id'), kwargs.get('email_from'))
+        author_id, email_from = self.env['mail.message']._determine_author_id_and_email_from(author_id, email_from)
 
         if not subtype_id:
             subtype = subtype or 'mt_note'

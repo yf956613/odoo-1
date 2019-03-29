@@ -274,7 +274,7 @@ class AccountMove(models.Model):
             'attachment_ids': [(6, 0, self.l10n_it_einvoice_id.ids)],
         })
 
-        mail_fattura = self.env['mail.mail'].create({
+        mail_fattura = self.env['mail.mail'].sudo().create({
             'mail_message_id': message.id,
             'email_to': self.env.company.l10n_it_address_recipient_fatturapa,
         })

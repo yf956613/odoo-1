@@ -360,8 +360,8 @@ class TestHeavyMailPerformance(BaseMailPerformance):
             'recipient_ids': [(4, pid) for pid in self.partners.ids],
         })
         mail_ids = mail.ids
-        with self.assertQueryCount(__system__=16, emp=21):  # test_mail only: 16 - 21
-            self.env['mail.mail'].browse(mail_ids).send()
+        with self.assertQueryCount(__system__=16, emp=16):  # test_mail only: 16 - 16
+            self.env['mail.mail'].browse(mail_ids).sudo().send()
 
         self.assertEqual(mail.body_html, '<p>Test</p>')
         self.assertEqual(mail.reply_to, formataddr(('%s %s' % (self.env.company.name, self.umbrella.name), 'test-alias@example.com')))
@@ -574,7 +574,7 @@ class TestHeavyMailPerformance(BaseMailPerformance):
         })
         self.assertEqual(rec.message_partner_ids, self.partners | self.env.user.partner_id | self.user_portal.partner_id)
 
-        with self.assertQueryCount(__system__=50, emp=63):  # test_mail only: 50 - 63
+        with self.assertQueryCount(__system__=50, emp=55):  # test_mail only: 50 - 55
             rec.write({
                 'name': 'Test2',
                 'customer_id': customer_id,
