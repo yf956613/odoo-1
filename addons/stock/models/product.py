@@ -602,6 +602,8 @@ class ProductTemplate(models.Model):
             ('location_id.usage', 'in', ['internal', 'transit'])
         ]
         action['context'] = {}
+        if not self.user_has_groups('stock.group_stock_multi_locations'):
+            action['context'] = {'hide_location': True}
         return action
 
     def action_view_related_putaway_rules(self):

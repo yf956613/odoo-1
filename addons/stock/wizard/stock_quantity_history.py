@@ -42,5 +42,10 @@ class StockQuantityHistory(models.TransientModel):
                     'search_default_productgroup': 1,
                     'search_default_locationgroup': 1
                     })
+            if not self.user_has_groups('stock.group_stock_multi_locations'):
+                company_user = self.env.user.company_id
+                warehouse = self.env['stock.warehouse'].search([('company_id', '=', company_user.id)], limit=1)
+                if warehouse:
+                    context.update({'default_location_id': warehouse.lot_stock_id.id})
             action['context'] = context
             return action

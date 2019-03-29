@@ -85,7 +85,7 @@
                 <field name="product_id" attrs="{'readonly': [('id', '!=', False)]}"
                        readonly="context.get('single_product', False)"/>
                 <field name="location_id" attrs="{'readonly': [('id', '!=', False)]}"
-                       groups="stock.group_stock_multi_locations"
+                       invisible="context.get('hide_location', False)"
                        domain="[('usage', 'in', ['internal', 'inventory', 'production', 'transit'])]"/>
                 <field name="lot_id" groups="stock.group_production_lot"
                        attrs="{'readonly': ['|', ('id', '!=', False), ('tracking', 'not in', ['serial', 'lot'])]}"
