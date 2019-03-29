@@ -36,6 +36,12 @@ class StockQuant(models.Model):
         elif self.env.context.get('active_model') == 'product.product':
             return self.env.context.get('active_id')
 
+    def _domain_location_id(self):
+        company_user = self.env.user.company_id.id
+        return ['&',
+                ('company_id', '=', company_user),
+                ('usage', 'in', ['internal', 'inventory', 'production', 'transit'])]
+
     def _domain_product_id(self):
         domain = [('type', '=', 'product')]
         if self.env.context.get('active_model') == 'product.template':
@@ -55,8 +61,8 @@ class StockQuant(models.Model):
         readonly=True, related='product_id.uom_id')
     company_id = fields.Many2one(related='location_id.company_id',
         string='Company', store=True, readonly=True)
-    location_id = fields.Many2one(
-        'stock.location', 'Location', default=_default_location_id,
+    location_id = fields.Many2one('stock.location', 'Location',
+        default=_default_location_id, domain=_domain_location_id,
         auto_join=True, ondelete='restrict', required=True)
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
@@ -211,19 +217,25 @@ class StockQuant(models.Model):
             else:
                 return sum([available_quantity for available_quantity in availaible_quantities.values() if float_compare(available_quantity, 0, precision_rounding=rounding) > 0])
 
-    @api.onchange('location_id', 'product_id')
+    @api.onchange('location_id', 'product_id', 'lot_id')
     def _onchange_location_or_product_id(self):
         for quant in self:
-            if quant.location_id and quant.product_id:
-                already_existing_quant = self.env['stock.quant'].search([
+            if quant.product_id and quant.location_id and (quant.tracking == 'none' or quant.lot_id):
+                domain = [
                     '&',
                     ('location_id', '=', quant.location_id.id),
                     ('product_id', '=', quant.product_id.id),
-                ])
+                ]
+                if quant.tracking != 'none':
+                    domain = ['&'] + domain + [('lot_id', '=', quant.lot_id.id)]
+                already_existing_quant = self.env['stock.quant'].search(domain)
                 if already_existing_quant.exists():
-                    quant.update({
-                        'quantity': already_existing_quant.quantity,
-                        'reserved_quantity': already_existing_quant.reserved_quantity})
+                    if self.tracking != 'none':
+                        raise UserError(_("A quant for this product with this Serial/Lot number and at this location already exists. You must modify the already existing quant instead of creating a new one."))
+                    else:
+                        quant.update({
+                            'quantity': already_existing_quant.quantity,
+                            'reserved_quantity': already_existing_quant.reserved_quantity})
                 elif quant.quantity or quant.reserved_quantity:
                     quant.update({'quantity': 0, 'reserved_quantity': 0})
 

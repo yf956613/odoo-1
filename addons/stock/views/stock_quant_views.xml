@@ -85,14 +85,18 @@
                 <field name="product_id" attrs="{'readonly': [('id', '!=', False)]}"
                        readonly="context.get('single_product', False)"/>
                 <field name="location_id" attrs="{'readonly': [('id', '!=', False)]}"
-                       invisible="context.get('hide_location', False)"
-                       domain="[('usage', 'in', ['internal', 'inventory', 'production', 'transit'])]"/>
+                       invisible="context.get('hide_location', False)"/>
                 <field name="lot_id" groups="stock.group_production_lot"
-                       attrs="{'readonly': ['|', ('id', '!=', False), ('tracking', 'not in', ['serial', 'lot'])]}"
+                       attrs="{
+                            'readonly': ['|', ('id', '!=', False), ('tracking', 'not in', ['serial', 'lot'])],
+                            'required': [('tracking', '!=', 'none')]
+                       }"
                        context="{'default_product_id': product_id}"
                        domain="[('product_id', '=', product_id)]"/>
-                <field name="package_id" groups="stock.group_tracking_lot"/>
-                <field name="owner_id" groups="stock.group_tracking_owner"/>
+                <field name="package_id" groups="stock.group_tracking_lot"
+                        attrs="{'readonly': [('id', '!=', False)]}"/>
+                <field name="owner_id" groups="stock.group_tracking_owner"
+                        attrs="{'readonly': [('id', '!=', False)]}"/>
                 <field name="reserved_quantity"/>
                 <field name="quantity" string="On Hand Quantity"/>
                 <field name="product_uom_id" groups="uom.group_uom"/>
