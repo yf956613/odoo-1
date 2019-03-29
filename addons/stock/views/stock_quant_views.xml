@@ -51,14 +51,19 @@
                             <field name="owner_id" groups="stock.group_tracking_owner"/>
                         </group>
                         <group>
-                            <label for="quantity" string="Quantity On Hand"/>
+                            <label for="reserved_quantity" string="Reserved Quantity"/>
+                            <div class="o_row">
+                                <field name="reserved_quantity"/>
+                                <field name="product_uom_id" groups="uom.group_uom"/>
+                            </div>
+                            <label for="quantity" string="On Hand Quantity"/>
                             <div class="o_row">
                                 <field name="quantity"/>
                                 <field name="product_uom_id" groups="uom.group_uom"/>
                             </div>
-                            <label for="reserved_quantity" string="Quantity Reserved"/>
+                            <label for="inventory_quantity" string="Counted Quantity"/>
                             <div class="o_row">
-                                <field name="reserved_quantity"/>
+                                <field name="inventory_quantity"/>
                                 <field name="product_uom_id" groups="uom.group_uom"/>
                             </div>
                             <field name="in_date" attrs="{'invisible': [('lot_id', '=', False)]}" groups="stock.group_production_lot"/>
