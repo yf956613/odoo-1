@@ -21,6 +21,7 @@
         'views/website_slides_templates_homepage.xml',
         'views/survey_templates.xml',
         'views/website_profile.xml',
+        'views/gamification_badge_views.xml',
         'data/mail_template_data.xml',
         'data/gamification_data.xml',
     ],

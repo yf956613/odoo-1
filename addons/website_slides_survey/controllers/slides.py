@@ -8,6 +8,7 @@ import werkzeug.exceptions
 from odoo import _
 from odoo import http
 from odoo.http import request
+from odoo.osv import expression
 
 from odoo.addons.website_slides.controllers.main import WebsiteSlides
 from collections import defaultdict
@@ -74,3 +75,23 @@ class WebsiteSlides(WebsiteSlides):
             ] for user in users
         }
         return users_certificates
+
+    # Badges & Ranks Page
+    # ---------------------------------------------------
+    def _prepare_ranks_badges_values(self, **kwargs):
+        values = super(WebsiteSlides, self)._prepare_ranks_badges_values(**kwargs)
+
+        certification_badges = request.env['gamification.badge'].sudo().search([('survey_id', '!=', False)], order='stat_count_distinct desc')
+        certification_slides = request.env['slide.slide'].sudo().search([('survey_id', 'in', certification_badges.mapped('survey_id').ids)])
+        badge_urls = {slide.survey_id.certification_badge_id.id: '/slides/' + str(slide.channel_id.id) for slide in certification_slides}
+
+        badges = [badge for badge in values['badges'] if badge not in certification_badges]
+        # Show only real available certification badges (that can be received with in progress survey)
+        certification_badges = certification_badges.filtered(lambda b: b.survey_id and b.survey_id.state == 'open')
+
+        values.update({
+            'badges': badges,
+            'certification_badges': certification_badges,
+            'badge_urls': badge_urls
+        })
+        return values
