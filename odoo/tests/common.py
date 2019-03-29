@@ -711,7 +711,7 @@ class ChromeBrowser():
                     last_bad_res = res
                     ready_id = self._websocket_send('Runtime.evaluate', params={'expression': ready_code})
             tdiff = time.time() - start_time
-            if tdiff >= 2 and not has_exceeded:
+            if tdiff >= 10 and not has_exceeded:
                 has_exceeded = True
                 self._logger.warning('The ready code takes too much time : %s', tdiff)
 
