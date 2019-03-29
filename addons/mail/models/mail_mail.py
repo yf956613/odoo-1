@@ -60,15 +60,23 @@ class MailMail(models.Model):
     scheduled_date = fields.Char('Scheduled Send Date',
         help="If set, the queue manager will send the email after the date. If not set, the email will be send as soon as possible.")
 
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, values_list):
         # notification field: if not set, set if mail comes from an existing mail.message
-        if 'notification' not in values and values.get('mail_message_id'):
-            values['notification'] = True
-        new_mail = super(MailMail, self).create(values)
-        if values.get('attachment_ids'):
-            new_mail.attachment_ids.check(mode='read')
-        return new_mail
+        for values in values_list:
+            if 'notification' not in values and values.get('mail_message_id'):
+                values['notification'] = True
+
+        new_mails = super(MailMail, self).create(values_list)
+
+        done_w_attachmnets = self
+        for mail_index, values in enumerate(values_list):
+            if values.get('attachment_ids'):
+                done_w_attachmnets += new_mails[mail_index]
+        if done_w_attachmnets:
+            done_w_attachmnets.mapped('attachment_ids').check(mode='read')
+
+        return new_mails
 
     def write(self, vals):
         res = super(MailMail, self).write(vals)
