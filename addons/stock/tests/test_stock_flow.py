@@ -1141,94 +1141,94 @@ class TestStockFlow(TestStockCommon):
         productKG._compute_quantities()
         self.assertEqual(productKG.qty_available, 4000, 'Expecting 4000 kg , got %.4f of quantity available!' % (productKG.qty_available))
 
-        # --------------------------------------------------------
-        # TEST PARTIAL INVENTORY WITH PACKS and LOTS
-        # ---------------------------------------------------------
+        # # --------------------------------------------------------
+        # # TEST PARTIAL INVENTORY WITH PACKS and LOTS
+        # # ---------------------------------------------------------
 
-        packproduct = self.ProductObj.create({'name': 'Pack Product', 'uom_id': self.uom_unit.id, 'uom_po_id': self.uom_unit.id, 'type': 'product'})
-        lotproduct = self.ProductObj.create({'name': 'Lot Product', 'uom_id': self.uom_unit.id, 'uom_po_id': self.uom_unit.id, 'type': 'product'})
-        inventory = self.InvObj.create({'name': 'Test Partial and Pack',
-                                        'location_ids': [(4, self.stock_location)]})
-        inventory.action_start()
-        pack_obj = self.env['stock.quant.package']
-        lot_obj = self.env['stock.production.lot']
-        pack1 = pack_obj.create({'name': 'PACK00TEST1'})
-        pack_obj.create({'name': 'PACK00TEST2'})
-        lot1 = lot_obj.create({'name': 'Lot001', 'product_id': lotproduct.id})
-        move = self.MoveObj.search([('product_id', '=', productKG.id), ('inventory_id', '=', inventory.id)], limit=1)
-        self.assertEqual(len(move), 0, "Partial filter should not create a lines upon prepare")
+        # packproduct = self.ProductObj.create({'name': 'Pack Product', 'uom_id': self.uom_unit.id, 'uom_po_id': self.uom_unit.id, 'type': 'product'})
+        # lotproduct = self.ProductObj.create({'name': 'Lot Product', 'uom_id': self.uom_unit.id, 'uom_po_id': self.uom_unit.id, 'type': 'product'})
+        # inventory = self.InvObj.create({'name': 'Test Partial and Pack',
+        #                                 'location_ids': [(4, self.stock_location)]})
+        # inventory.action_start()
+        # pack_obj = self.env['stock.quant.package']
+        # lot_obj = self.env['stock.production.lot']
+        # pack1 = pack_obj.create({'name': 'PACK00TEST1'})
+        # pack_obj.create({'name': 'PACK00TEST2'})
+        # lot1 = lot_obj.create({'name': 'Lot001', 'product_id': lotproduct.id})
+        # move = self.MoveObj.search([('product_id', '=', productKG.id), ('inventory_id', '=', inventory.id)], limit=1)
+        # self.assertEqual(len(move), 0, "Partial filter should not create a lines upon prepare")
 
-        line_vals = []
-        line_vals += [{'location_id': self.stock_location, 'product_id': packproduct.id, 'product_qty': 10, 'product_uom_id': packproduct.uom_id.id}]
-        line_vals += [{'location_id': self.stock_location, 'product_id': packproduct.id, 'product_qty': 20, 'product_uom_id': packproduct.uom_id.id, 'package_id': pack1.id}]
-        line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 30, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': lot1.id}]
-        line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 25, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': False}]
-        inventory.write({'line_ids': [(0, 0, x) for x in line_vals]})
-        inventory.action_validate()
-        self.assertEqual(packproduct.qty_available, 30, "Wrong qty available for packproduct")
-        self.assertEqual(lotproduct.qty_available, 55, "Wrong qty available for lotproduct")
-        quants = self.StockQuantObj.search([('product_id', '=', packproduct.id), ('location_id', '=', self.stock_location), ('package_id', '=', pack1.id)])
-        total_qty = sum([quant.quantity for quant in quants])
-        self.assertEqual(total_qty, 20, 'Expecting 20 units on package 1 of packproduct, but we got %.4f on location stock!' % (total_qty))
+        # line_vals = []
+        # line_vals += [{'location_id': self.stock_location, 'product_id': packproduct.id, 'product_qty': 10, 'product_uom_id': packproduct.uom_id.id}]
+        # line_vals += [{'location_id': self.stock_location, 'product_id': packproduct.id, 'product_qty': 20, 'product_uom_id': packproduct.uom_id.id, 'package_id': pack1.id}]
+        # line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 30, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': lot1.id}]
+        # line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 25, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': False}]
+        # inventory.write({'line_ids': [(0, 0, x) for x in line_vals]})
+        # inventory.action_validate()
+        # self.assertEqual(packproduct.qty_available, 30, "Wrong qty available for packproduct")
+        # self.assertEqual(lotproduct.qty_available, 55, "Wrong qty available for lotproduct")
+        # quants = self.StockQuantObj.search([('product_id', '=', packproduct.id), ('location_id', '=', self.stock_location), ('package_id', '=', pack1.id)])
+        # total_qty = sum([quant.quantity for quant in quants])
+        # self.assertEqual(total_qty, 20, 'Expecting 20 units on package 1 of packproduct, but we got %.4f on location stock!' % (total_qty))
 
-        # Create an inventory that will put the lots without lot to 0 and check that taking without pack will not take it from the pack
-        inventory2 = self.InvObj.create({'name': 'Test Partial Lot and Pack2',
-                                         'location_ids': [(4, self.stock_location)]})
-        inventory2.action_start()
-        line_vals = []
-        line_vals += [{'location_id': self.stock_location, 'product_id': packproduct.id, 'product_qty': 20, 'product_uom_id': packproduct.uom_id.id}]
-        line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 0, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': False}]
-        line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 10, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': lot1.id}]
-        inventory2.write({'line_ids': [(0, 0, x) for x in line_vals]})
-        inventory2.action_validate()
-        self.assertEqual(packproduct.qty_available, 40, "Wrong qty available for packproduct")
-        self.assertEqual(lotproduct.qty_available, 10, "Wrong qty available for lotproduct")
-        quants = self.StockQuantObj.search([('product_id', '=', lotproduct.id), ('location_id', '=', self.stock_location), ('lot_id', '=', lot1.id)])
-        total_qty = sum([quant.quantity for quant in quants])
-        self.assertEqual(total_qty, 10, 'Expecting 0 units lot of lotproduct, but we got %.4f on location stock!' % (total_qty))
-        quants = self.StockQuantObj.search([('product_id', '=', lotproduct.id), ('location_id', '=', self.stock_location), ('lot_id', '=', False)])
-        total_qty = sum([quant.quantity for quant in quants])
-        self.assertEqual(total_qty, 0, 'Expecting 0 units lot of lotproduct, but we got %.4f on location stock!' % (total_qty))
+        # # Create an inventory that will put the lots without lot to 0 and check that taking without pack will not take it from the pack
+        # inventory2 = self.InvObj.create({'name': 'Test Partial Lot and Pack2',
+        #                                  'location_ids': [(4, self.stock_location)]})
+        # inventory2.action_start()
+        # line_vals = []
+        # line_vals += [{'location_id': self.stock_location, 'product_id': packproduct.id, 'product_qty': 20, 'product_uom_id': packproduct.uom_id.id}]
+        # line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 0, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': False}]
+        # line_vals += [{'location_id': self.stock_location, 'product_id': lotproduct.id, 'product_qty': 10, 'product_uom_id': lotproduct.uom_id.id, 'prod_lot_id': lot1.id}]
+        # inventory2.write({'line_ids': [(0, 0, x) for x in line_vals]})
+        # inventory2.action_validate()
+        # self.assertEqual(packproduct.qty_available, 40, "Wrong qty available for packproduct")
+        # self.assertEqual(lotproduct.qty_available, 10, "Wrong qty available for lotproduct")
+        # quants = self.StockQuantObj.search([('product_id', '=', lotproduct.id), ('location_id', '=', self.stock_location), ('lot_id', '=', lot1.id)])
+        # total_qty = sum([quant.quantity for quant in quants])
+        # self.assertEqual(total_qty, 10, 'Expecting 0 units lot of lotproduct, but we got %.4f on location stock!' % (total_qty))
+        # quants = self.StockQuantObj.search([('product_id', '=', lotproduct.id), ('location_id', '=', self.stock_location), ('lot_id', '=', False)])
+        # total_qty = sum([quant.quantity for quant in quants])
+        # self.assertEqual(total_qty, 0, 'Expecting 0 units lot of lotproduct, but we got %.4f on location stock!' % (total_qty))
 
-        # check product available of saleable category in stock location
-        category_id = self.ref('product.product_category_5')
-        inventory3 = self.InvObj.create({
-                                    'name': 'Test Category',
-                                    'location_ids': [(4, self.stock_location)],
-                                    'category_id': category_id
-                                })
-        # Start Inventory
-        inventory3.action_start()
-        # check all products have given category id
-        products_category = inventory3.line_ids.mapped('product_id.categ_id')
-        self.assertEqual(len(products_category), 1, "Inventory line should have only one category")
-        inventory3.action_validate()
-        # check category with exhausted in stock location
-        inventory4 = self.InvObj.create({
-                                    'name': 'Test Exhausted Product',
-                                    'location_ids': [(4, self.stock_location)],
-                                    'category_id': category_id,
-                                    'exhausted': True,
-                                })
-        inventory4.action_start()
-        inventory4._get_inventory_lines_values()
-        inventory4_lines_count = len(inventory4.line_ids)
-        inventory4.action_validate()
-        # Add one product in this product category
-        product = self.ProductObj.create({'name': 'Product A', 'type': 'product', 'categ_id': category_id})
-        # Check that this exhausted product is in the product category inventory adjustment
-        inventory5 = self.InvObj.create({
-                                    'name': 'Test Exhausted Product',
-                                    'location_ids': [(4, self.stock_location)],
-                                    'category_id': category_id,
-                                    'exhausted': True,
-                                })
-        inventory5.action_start()
-        inventory5._get_inventory_lines_values()
-        inventory5_lines_count = len(inventory5.line_ids)
-        inventory5.action_validate()
-        self.assertEqual(inventory5_lines_count, inventory4_lines_count + 1, "The new product is not taken into account in the inventory valuation.")
-        self.assertTrue(product.id in inventory5.line_ids.mapped('product_id').ids, "The new product is not take into account in the inventory valuation.")
+        # # check product available of saleable category in stock location
+        # category_id = self.ref('product.product_category_5')
+        # inventory3 = self.InvObj.create({
+        #                             'name': 'Test Category',
+        #                             'location_ids': [(4, self.stock_location)],
+        #                             'category_id': category_id
+        #                         })
+        # # Start Inventory
+        # inventory3.action_start()
+        # # check all products have given category id
+        # products_category = inventory3.line_ids.mapped('product_id.categ_id')
+        # self.assertEqual(len(products_category), 1, "Inventory line should have only one category")
+        # inventory3.action_validate()
+        # # check category with exhausted in stock location
+        # inventory4 = self.InvObj.create({
+        #                             'name': 'Test Exhausted Product',
+        #                             'location_ids': [(4, self.stock_location)],
+        #                             'category_id': category_id,
+        #                             'exhausted': True,
+        #                         })
+        # inventory4.action_start()
+        # inventory4._get_inventory_lines_values()
+        # inventory4_lines_count = len(inventory4.line_ids)
+        # inventory4.action_validate()
+        # # Add one product in this product category
+        # product = self.ProductObj.create({'name': 'Product A', 'type': 'product', 'categ_id': category_id})
+        # # Check that this exhausted product is in the product category inventory adjustment
+        # inventory5 = self.InvObj.create({
+        #                             'name': 'Test Exhausted Product',
+        #                             'location_ids': [(4, self.stock_location)],
+        #                             'category_id': category_id,
+        #                             'exhausted': True,
+        #                         })
+        # inventory5.action_start()
+        # inventory5._get_inventory_lines_values()
+        # inventory5_lines_count = len(inventory5.line_ids)
+        # inventory5.action_validate()
+        # self.assertEqual(inventory5_lines_count, inventory4_lines_count + 1, "The new product is not taken into account in the inventory valuation.")
+        # self.assertTrue(product.id in inventory5.line_ids.mapped('product_id').ids, "The new product is not take into account in the inventory valuation.")
 
     def test_30_check_with_no_incoming_lot(self):
         """ Picking in without lots and picking out with"""
