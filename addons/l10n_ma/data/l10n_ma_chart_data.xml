@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
         <!--     
         Plan comptable général pour le Maroc.
@@ -1167,28 +1167,24 @@
     <field name="name">Fournisseurs - avances et acomptes versés sur commandes d'exploitation</field>
     <field name="code">3411</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3413" model="account.account.template">
     <field name="name">Fournisseurs - créances pour emballages et matériel à  rendre</field>
     <field name="code">3413</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3417" model="account.account.template">
     <field name="name">Rabais, remises et ristournes à  obtenir - avoirs non encore reçus</field>
     <field name="code">3417</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3418" model="account.account.template">
     <field name="name">Autres fournisseurs débiteurs</field>
     <field name="code">3418</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34211" model="account.account.template">
@@ -1209,196 +1205,168 @@
     <field name="name">Clients - retenues de garantie</field>
     <field name="code">3423</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3424" model="account.account.template">
     <field name="name">Clients douteux ou litigieux</field>
     <field name="code">3424</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3425" model="account.account.template">
     <field name="name">Clients - effets à  recevoir</field>
     <field name="code">3425</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34271" model="account.account.template">
     <field name="name">Clients - factures à  établir</field>
     <field name="code">34271</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34272" model="account.account.template">
     <field name="name">Créances sur travaux non encore facturés</field>
     <field name="code">34272</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3428" model="account.account.template">
     <field name="name">Autres clients et comptes rattachés</field>
     <field name="code">3428</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3431" model="account.account.template">
     <field name="name">Avances et acomptes au personnel</field>
     <field name="code">3431</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3438" model="account.account.template">
     <field name="name">Personnel - autres débiteurs</field>
     <field name="code">3438</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34511" model="account.account.template">
     <field name="name">Subventions d'investissement à  recevoir</field>
     <field name="code">34511</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34512" model="account.account.template">
     <field name="name">Subventions d'exploitation à  recevoir</field>
     <field name="code">34512</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34513" model="account.account.template">
     <field name="name">Subventions d'équilibre à  recevoir</field>
     <field name="code">34513</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3453" model="account.account.template">
     <field name="name">Acomptes sur impôts sur les résultats</field>
     <field name="code">3453</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_34551" model="account.account.template">
     <field name="name">Etat - TVA récupérable sur immobilisations</field>
     <field name="code">34551</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3455207" model="account.account.template">
     <field name="name">Etat - TVA récupérable sur charges 7%</field>
     <field name="code">3455207</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3455210" model="account.account.template">
     <field name="name">Etat - TVA récupérable sur charges 10%</field>
     <field name="code">3455210</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3455214" model="account.account.template">
     <field name="name">Etat - TVA récupérable sur charges 14%</field>
     <field name="code">3455214</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3455220" model="account.account.template">
     <field name="name">Etat - TVA récupérable sur charges 20%</field>
     <field name="code">3455220</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3456" model="account.account.template">
     <field name="name">Etat - crédit de TVA (suivant déclaration)</field>
     <field name="code">3456</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3458" model="account.account.template">
     <field name="name">Etat - autres comptes débiteurs</field>
     <field name="code">3458</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3461" model="account.account.template">
     <field name="name">Associés - comptes d'apport en société</field>
     <field name="code">3461</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3462" model="account.account.template">
     <field name="name">Actionnaires - capital souscrit et appelé non versé</field>
     <field name="code">3462</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3463" model="account.account.template">
     <field name="name">Comptes courants des associés débiteurs</field>
     <field name="code">3463</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3464" model="account.account.template">
     <field name="name">Associés - opérations faites en commun</field>
     <field name="code">3464</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3467" model="account.account.template">
     <field name="name">Créances rattachées aux comptes d'associés</field>
     <field name="code">3467</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3468" model="account.account.template">
     <field name="name">Autres comptes d'associés débiteurs</field>
     <field name="code">3468</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3481" model="account.account.template">
     <field name="name">Créances sur cessions d'immobilisations</field>
     <field name="code">3481</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3482" model="account.account.template">
     <field name="name">Créances sur cessions d'éléments d'actif circulant</field>
     <field name="code">3482</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3487" model="account.account.template">
     <field name="name">Créances rattachées aux autres débiteurs</field>
     <field name="code">3487</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3488" model="account.account.template">
@@ -1412,28 +1380,24 @@
     <field name="name">Charges constatées d'avance</field>
     <field name="code">3491</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3493" model="account.account.template">
     <field name="name">Intérêts courus et non échus à  percevoir</field>
     <field name="code">3493</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3495" model="account.account.template">
     <field name="name">Comptes de répartition périodique des charges</field>
     <field name="code">3495</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3497" model="account.account.template">
     <field name="name">Comptes transitoires ou d'attente - débiteurs</field>
     <field name="code">3497</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_3501" model="account.account.template">
@@ -1561,280 +1525,240 @@
     <field name="name">Fournisseurs - retenues de garantie</field>
     <field name="code">4413</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4415" model="account.account.template">
     <field name="name">Fournisseurs - effets à  payer</field>
     <field name="code">4415</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4417" model="account.account.template">
     <field name="name">Fournisseurs - factures non parvenues</field>
     <field name="code">4417</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4418" model="account.account.template">
     <field name="name">Autres fournisseurs et comptes rattachés</field>
     <field name="code">4418</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4421" model="account.account.template">
     <field name="name">Clients - avances et acomptes reçus sur commandes en cours</field>
     <field name="code">4421</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4425" model="account.account.template">
     <field name="name">Clients - dettes pour emballages et matériel consignés</field>
     <field name="code">4425</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4427" model="account.account.template">
     <field name="name">Rabais, remises et ristournes à  accorder - avoirs à  établir</field>
     <field name="code">4427</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4428" model="account.account.template">
     <field name="name">Autres clients créditeurs</field>
     <field name="code">4428</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4432" model="account.account.template">
     <field name="name">Rémunérations dues au personnel</field>
     <field name="code">4432</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4433" model="account.account.template">
     <field name="name">Dépôts du personnel créditeurs</field>
     <field name="code">4433</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4434" model="account.account.template">
     <field name="name">Oppositions sur salaires</field>
     <field name="code">4434</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4437" model="account.account.template">
     <field name="name">Charges du personnel à  payer</field>
     <field name="code">4437</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4438" model="account.account.template">
     <field name="name">Personnel - autres créditeurs</field>
     <field name="code">4438</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4442" model="account.account.template">
     <field name="name">ALLOCATION FAMILIALES</field>
     <field name="code">4442</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4443" model="account.account.template">
     <field name="name">Caisses de retraite</field>
     <field name="code">4443</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4445" model="account.account.template">
     <field name="name">Mutuelles</field>
     <field name="code">4445</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4447" model="account.account.template">
     <field name="name">Charges sociales à  payer</field>
     <field name="code">4447</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4448" model="account.account.template">
     <field name="name">Autres organismes sociaux</field>
     <field name="code">4448</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_44521" model="account.account.template">
     <field name="name">Etat, taxe urbaine et taxe d'édilité</field>
     <field name="code">44521</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_44522" model="account.account.template">
     <field name="name">Etat, Taxe professionnelle (ex patente)</field>
     <field name="code">44522</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_44525" model="account.account.template">
     <field name="name">Etat, IR</field>
     <field name="code">44525</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4453" model="account.account.template">
     <field name="name">Etat, impôts sur les résultats</field>
     <field name="code">4453</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_445507" model="account.account.template">
     <field name="name">Etat, TVA facturée 7%</field>
     <field name="code">445507</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_445510" model="account.account.template">
     <field name="name">Etat, TVA facturée 10%</field>
     <field name="code">445510</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_445514" model="account.account.template">
     <field name="name">Etat, TVA facturée 14%</field>
     <field name="code">445514</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_445520" model="account.account.template">
     <field name="name">Etat, TVA facturée 20%</field>
     <field name="code">445520</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4456" model="account.account.template">
     <field name="name">Etat, TVA due (suivant déclarations)</field>
     <field name="code">4456</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4457" model="account.account.template">
     <field name="name">Etat, impôts et taxes à  payer</field>
     <field name="code">4457</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4458" model="account.account.template">
     <field name="name">Etat - autres comptes créditeurs</field>
     <field name="code">4458</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4461" model="account.account.template">
     <field name="name">Associés - capital à  rembourser</field>
     <field name="code">4461</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4462" model="account.account.template">
     <field name="name">Associés - versements reçus sur augmentation de capital</field>
     <field name="code">4462</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4463" model="account.account.template">
     <field name="name">Comptes courants des associés créditeurs</field>
     <field name="code">4463</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4464" model="account.account.template">
     <field name="name">Associés - opérations faites en commun</field>
     <field name="code">4464</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4465" model="account.account.template">
     <field name="name">Associés - dividendes à  payer</field>
     <field name="code">4465</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4468" model="account.account.template">
     <field name="name">Autres comptes d'associés - créditeurs</field>
     <field name="code">4468</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4481" model="account.account.template">
     <field name="name">Dettes sur acquisitions d'immobilisations</field>
     <field name="code">4481</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4483" model="account.account.template">
     <field name="name">Dettes sur acquisitions de titres et valeurs de placement</field>
     <field name="code">4483</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4484" model="account.account.template">
     <field name="name">Obligations échues à  rembourser</field>
     <field name="code">4484</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4485" model="account.account.template">
     <field name="name">Obligations, coupons à  payer</field>
     <field name="code">4485</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4487" model="account.account.template">
     <field name="name">Dettes rattachées aux autres créanciers</field>
     <field name="code">4487</field>
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4488" model="account.account.template">
@@ -1843,34 +1767,29 @@
     <field name="user_type_id" ref="account.data_account_type_current_liabilities"/>
     <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
-    <field name="reconcile" eval='True'/>
   </record>
   <record id="pcg_4491" model="account.account.template">
     <field name="name">Produits constatés d'avance</field>
     <field name="code">4491</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4493" model="account.account.template">
     <field name="name">Intérêts courus et non échus à payer</field>
     <field name="code">4493</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4495" model="account.account.template">
     <field name="name">Comptes de répartition périodique des produits</field>
     <field name="code">4495</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4497" model="account.account.template">
     <field name="name">Comptes transitoires ou d'attente - créditeurs</field>
     <field name="code">4497</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets"/>
-    <field name="reconcile" eval='True'/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
   </record>
   <record id="pcg_4501" model="account.account.template">
@@ -2148,6 +2067,12 @@
     <field name="code">61262</field>
     <field name="user_type_id" ref="account.data_account_type_expenses"/>
     <field name="chart_template_id" ref="l10n_kzc_temp_chart"/>
+  </record>
+  <record id="pcg_61263" model="account.account.template">
+    <field name="name">Achats des prestations de service</field>
+    <field name="code">61263</field>
+    <field name="user_type_id" ref="account.data_account_type_expenses"/>
+    <field name="chart_template_id" ref="l10n_kzm_temp_chart"/>
   </record>
   <record id="pcg_6128" model="account.account.template">
     <field name="name">Achats de matières et de fournitures des exercices antérieurs</field>
