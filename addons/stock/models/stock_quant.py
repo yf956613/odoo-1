@@ -81,7 +81,7 @@ class StockQuant(models.Model):
         'Reserved Quantity',
         default=0.0,
         help='Quantity of reserved products in this quant, in the default unit of measure of the product',
-        readonly=True, required=True)
+        readonly=True)
     in_date = fields.Datetime('Incoming Date', readonly=True)
     tracking = fields.Selection(related='product_id.tracking', readonly=True)
 
@@ -217,21 +217,24 @@ class StockQuant(models.Model):
             else:
                 return sum([available_quantity for available_quantity in availaible_quantities.values() if float_compare(available_quantity, 0, precision_rounding=rounding) > 0])
 
-    @api.onchange('location_id', 'product_id', 'lot_id')
+    @api.onchange('location_id', 'product_id', 'lot_id', 'package_id', 'owner_id')
     def _onchange_location_or_product_id(self):
         for quant in self:
             if quant.product_id and quant.location_id and (quant.tracking == 'none' or quant.lot_id):
                 domain = [
-                    '&',
                     ('location_id', '=', quant.location_id.id),
                     ('product_id', '=', quant.product_id.id),
+                    ('lot_id', '=', quant.lot_id.id),
+                    ('package_id', '=', quant.package_id.id),
+                    ('owner_id', '=', quant.owner_id.id),
                 ]
-                if quant.tracking != 'none':
-                    domain = ['&'] + domain + [('lot_id', '=', quant.lot_id.id)]
                 already_existing_quant = self.env['stock.quant'].search(domain)
                 if already_existing_quant.exists():
                     if self.tracking != 'none':
-                        raise UserError(_("A quant for this product with this Serial/Lot number and at this location already exists. You must modify the already existing quant instead of creating a new one."))
+                        raise UserError(_("A quant for this product with this "
+                        "Serial/Lot number and at this location already exists."
+                        " You must modify the already existing quant instead of"
+                        " creating a new one."))
                     else:
                         quant.update({
                             'quantity': already_existing_quant.quantity,

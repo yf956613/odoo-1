@@ -37,18 +37,28 @@
         <field name="model">stock.quant</field>
         <field eval="10" name="priority"/>
         <field name="arch" type="xml">
-            <form string="Inventory Valuation" create="false" edit="false" delete="false">
+            <form string="Inventory Valuation" create="false" delete="false">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" icon="fa-arrows-v" type="object" name="action_view_stock_moves" string="Picking Moves"/>
                     </div>
                     <group>
                         <group>
-                            <field name="product_id"/>
-                            <field name="location_id"/>
-                            <field name="lot_id" groups="stock.group_production_lot"/>
-                            <field name="package_id" groups="stock.group_tracking_lot"/>
-                            <field name="owner_id" groups="stock.group_tracking_owner"/>
+                            <field name="id" invisible="1"/>
+                            <field name="tracking" invisible="1"/>
+                            <field name="product_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            <field name="location_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            <field name="lot_id" groups="stock.group_production_lot"
+                                   attrs="{
+                                        'readonly': ['|', ('id', '!=', False), ('tracking', 'not in', ['serial', 'lot'])],
+                                        'required': [('tracking', '!=', 'none')]
+                                   }"
+                                   context="{'default_product_id': product_id}"
+                                   domain="[('product_id', '=', product_id)]"/>
+                            <field name="package_id" groups="stock.group_tracking_lot"
+                                   attrs="{'readonly': [('id', '!=', False)]}"/>
+                            <field name="owner_id" groups="stock.group_tracking_owner"
+                                   attrs="{'readonly': [('id', '!=', False)]}"/>
                         </group>
                         <group>
                             <label for="reserved_quantity" string="Reserved Quantity"/>
@@ -58,7 +68,7 @@
                             </div>
                             <label for="quantity" string="On Hand Quantity"/>
                             <div class="o_row">
-                                <field name="quantity"/>
+                                <field name="quantity" attrs="{'readonly': [('id', '!=', False)]}"/>
                                 <field name="product_uom_id" groups="uom.group_uom"/>
                             </div>
                             <label for="inventory_quantity" string="Counted Quantity"/>
