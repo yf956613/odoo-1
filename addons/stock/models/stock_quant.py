@@ -475,7 +475,10 @@ class StockQuant(models.Model):
             else:
                 product = self._default_product_id()
             location = self.env['stock.location'].browse(vals['location_id'])
-            similar = self._gather(product, location, strict=True)
+            lot_id = self.env['stock.production.lot'].browse(vals.get('lot_id'))
+            package_id = self.env['stock.quant.package'].browse(vals.get('package_id'))
+            owner_id = self.env['res.partner'].browse(vals.get('owner_id'))
+            similar = self._gather(product, location, lot_id=lot_id, package_id=package_id, owner_id=owner_id, strict=True)
             if similar:
                 similar.write({'inventory_quantity': vals['inventory_quantity']})
                 res = similar
