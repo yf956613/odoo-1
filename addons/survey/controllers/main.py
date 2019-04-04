@@ -115,6 +115,24 @@ class Survey(http.Controller):
             'validity_code': validity_code,
         }
 
+    def _get_survey_questions(self, survey, answer, **post):
+        questions, page_or_question_id = None, None
+        if survey.questions_layout == 'page_per_section':
+            page_id = int(post['page_id'])
+            questions = request.env['survey.question'].sudo().search([('survey_id', '=', survey.id), ('page_id', '=', page_id)])
+            # we need the intersection of the questions of this page AND the questions prepared for that user_input
+            # (because randomized surveys do not use all the questions of every page)
+            questions = questions & answer.question_ids
+            page_or_question_id = page_id
+        elif survey.questions_layout == 'page_per_question':
+            question_id = int(post['question_id'])
+            questions = request.env['survey.question'].sudo().browse(question_id)
+            page_or_question_id = question_id
+        else:
+            questions = survey.question_ids
+            questions = questions & answer.question_ids
+        return questions, page_or_question_id
+
     def _redirect_with_error(self, access_data, error_key):
         survey_sudo = access_data['survey_sudo']
         answer_sudo = access_data['answer_sudo']
@@ -286,58 +304,6 @@ class Survey(http.Controller):
         else:
             return request.render("survey.403", {'survey': survey_sudo})
 
-    @http.route('/survey/prefill/<string:survey_token>/<string:answer_token>', type='http', auth='public', website=True)
-    def survey_get_answers(self, survey_token, answer_token, page_or_question_id=None, **post):
-        """ TDE NOTE: original comment: # AJAX prefilling of a survey -> AJAX / http ?? """
-        access_data = self._get_access_data(survey_token, answer_token, ensure_token=True)
-        if access_data['validity_code'] is not True and access_data['validity_code'] != 'answer_done':
-            return {}
-
-        survey_sudo, answer_sudo = access_data['survey_sudo'], access_data['answer_sudo']
-        try:
-            page_or_question_id = int(page_or_question_id)
-        except:
-            page_or_question_id = None
-
-        # Fetch previous answers
-        if survey_sudo.questions_layout == 'one_page' or not page_or_question_id:
-            previous_answers = answer_sudo.user_input_line_ids
-        elif survey_sudo.questions_layout == 'page_per_section':
-            previous_answers = answer_sudo.user_input_line_ids.filtered(lambda line: line.page_id.id == page_or_question_id)
-        else:
-            previous_answers = answer_sudo.user_input_line_ids.filtered(lambda line: line.question_id.id == page_or_question_id)
-
-        # Return non empty answers in a JSON compatible format
-        ret = {}
-        for answer in previous_answers:
-            if not answer.skipped:
-                answer_tag = '%s_%s' % (answer.survey_id.id, answer.question_id.id)
-                answer_value = None
-                if answer.answer_type == 'free_text':
-                    answer_value = answer.value_free_text
-                elif answer.answer_type == 'text' and answer.question_id.question_type == 'textbox':
-                    answer_value = answer.value_text
-                elif answer.answer_type == 'text' and answer.question_id.question_type != 'textbox':
-                    # here come comment answers for matrices, simple choice and multiple choice
-                    answer_tag = "%s_%s" % (answer_tag, 'comment')
-                    answer_value = answer.value_text
-                elif answer.answer_type == 'number':
-                    answer_value = str(answer.value_number)
-                elif answer.answer_type == 'date':
-                    answer_value = fields.Datetime.to_string(answer.value_date)
-                elif answer.answer_type == 'datetime':
-                    answer_value = fields.Datetime.to_string(answer.value_datetime)
-                elif answer.answer_type == 'suggestion' and not answer.value_suggested_row:
-                    answer_value = answer.value_suggested.id
-                elif answer.answer_type == 'suggestion' and answer.value_suggested_row:
-                    answer_tag = "%s_%s" % (answer_tag, answer.value_suggested_row.id)
-                    answer_value = answer.value_suggested.id
-                if answer_value:
-                    ret.setdefault(answer_tag, []).append(answer_value)
-                else:
-                    _logger.warning("[survey] No answer has been found for question %s marked as non skipped" % answer_tag)
-        return json.dumps(ret, default=str)
-
     @http.route('/survey/scores/<string:survey_token>/<string:answer_token>', type='http', auth='public', website=True)
     def survey_get_scores(self, survey_id, answer_token, page_id=None, **post):
         """ TDE NOTE: original comment: # AJAX scores loading for quiz correction mode -> AJAX / http ?? """
@@ -354,74 +320,64 @@ class Survey(http.Controller):
             ret.update({answer.question_id.id: tmp_score + answer.answer_score})
         return json.dumps(ret)
 
-    @http.route('/survey/submit/<string:survey_token>/<string:answer_token>', type='http', methods=['POST'], auth='public', website=True)
+    @http.route('/survey/submit/<string:survey_token>/<string:answer_token>', type='json', auth='public', website=True)
     def survey_submit(self, survey_token, answer_token, **post):
         """ Submit a page from the survey.
         This will take into account the validation errors and store the answers to the questions.
-        If the time limit is reached, errors will be skipped, answers wil be ignored and
+        If the time limit is reached, errors will be skipped, answers will be ignored and
         survey state will be forced to 'done'
 
         TDE NOTE: original comment: # AJAX submission of a page -> AJAX / http ?? """
+        # Validation
         access_data = self._get_access_data(survey_token, answer_token, ensure_token=True)
         if access_data['validity_code'] is not True:
-            return {}
-
+            return {
+                'error': access_data['validity_code'],
+            }
         survey_sudo, answer_sudo = access_data['survey_sudo'], access_data['answer_sudo']
+
+        questions, page_or_question_id = self._get_survey_questions(survey_sudo, answer_sudo, **post)
+
+        errors = {}
+        for question in questions:
+            answer_tag = "%s_%s" % (survey_sudo.id, question.id)
+            errors.update(question.validate_question(post, answer_tag))
+
+        if errors:
+            return {
+                'error': 'validation',
+                'fields': errors,
+            }
+
         if not answer_sudo.test_entry and not survey_sudo._has_attempts_left(answer_sudo.partner_id, answer_sudo.email, answer_sudo.invite_token):
             # prevent cheating with users creating multiple 'user_input' before their last attempt
             return {}
 
-        if survey_sudo.questions_layout == 'page_per_section':
-            page_id = int(post['page_id'])
-            questions = request.env['survey.question'].sudo().search([('survey_id', '=', survey_sudo.id), ('page_id', '=', page_id)])
-            # we need the intersection of the questions of this page AND the questions prepared for that user_input
-            # (because randomized surveys do not use all the questions of every page)
-            questions = questions & answer_sudo.question_ids
-            page_or_question_id = page_id
-        elif survey_sudo.questions_layout == 'page_per_question':
-            question_id = int(post['question_id'])
-            questions = request.env['survey.question'].sudo().browse(question_id)
-            page_or_question_id = question_id
-        else:
-            questions = survey_sudo.question_ids
-            questions = questions & answer_sudo.question_ids
-
-        errors = {}
-        # Answer validation
+        # Submitting survey
         if not answer_sudo.is_time_limit_reached:
             for question in questions:
                 answer_tag = "%s_%s" % (survey_sudo.id, question.id)
-                errors.update(question.validate_question(post, answer_tag))
+                request.env['survey.user_input_line'].sudo().save_lines(answer_sudo.id, question, post, answer_tag)
 
-        ret = {}
-        if len(errors):
-            # Return errors messages to webpage
-            ret['errors'] = errors
+        if answer_sudo.is_time_limit_reached or survey_sudo.questions_layout == 'one_page':
+            go_back = False
+            answer_sudo._mark_done()
         else:
-            if not answer_sudo.is_time_limit_reached:
-                for question in questions:
-                    answer_tag = "%s_%s" % (survey_sudo.id, question.id)
-                    request.env['survey.user_input_line'].sudo().save_lines(answer_sudo.id, question, post, answer_tag)
+            go_back = post['button_submit'] == 'previous'
+            next_page, last = request.env['survey.survey'].next_page_or_question(answer_sudo, page_or_question_id, go_back=go_back)
+            vals = {'last_displayed_page_id': page_or_question_id}
 
-            if answer_sudo.is_time_limit_reached or survey_sudo.questions_layout == 'one_page':
-                go_back = False
+            if next_page is None and not go_back:
                 answer_sudo._mark_done()
             else:
-                go_back = post['button_submit'] == 'previous'
-                next_page, last = request.env['survey.survey'].next_page_or_question(answer_sudo, page_or_question_id, go_back=go_back)
-                vals = {'last_displayed_page_id': page_or_question_id}
+                vals.update({'state': 'skip'})
+            answer_sudo.write(vals)
 
-                if next_page is None and not go_back:
-                    answer_sudo._mark_done()
-                else:
-                    vals.update({'state': 'skip'})
-                answer_sudo.write(vals)
+        url = '/survey/fill/%s/%s' % (survey_sudo.access_token, answer_token)
+        if go_back:
+            url += '?prev=prev'
 
-            ret['redirect'] = '/survey/fill/%s/%s' % (survey_sudo.access_token, answer_token)
-            if go_back:
-                ret['redirect'] += '?prev=prev'
-
-        return json.dumps(ret)
+        return url
 
     @http.route('/survey/print/<string:survey_token>', type='http', auth='public', website=True)
     def survey_print(self, survey_token, review=False, answer_token=None, **post):
@@ -442,8 +398,7 @@ class Survey(http.Controller):
             'review': review,
             'survey': survey_sudo,
             'answer': answer_sudo,
-            'page_nr': 0,
-            'quizz_correction': survey_sudo.scoring_type != 'scoring_without_answers' and answer_sudo})
+        })
 
     @http.route('/survey/results/<model("survey.survey"):survey>', type='http', auth='user', website=True)
     def survey_report(self, survey, answer_token=None, **post):
