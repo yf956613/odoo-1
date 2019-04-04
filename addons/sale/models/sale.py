@@ -355,6 +355,21 @@ class SaleOrder(models.Model):
                 }
             }
 
+    @api.onchange('pricelist_id')
+    def _onchange_pricelist_id(self):
+        for oder_line in self.order_line:
+            if self.pricelist_id and self.partner_id:
+                product = oder_line.product_id.with_context(
+                    lang=self.partner_id.lang,
+                    partner=self.partner_id,
+                    quantity=oder_line.product_uom_qty,
+                    date=self.date_order,
+                    pricelist=self.pricelist_id.id,
+                    uom=oder_line.product_uom.id,
+                    fiscal_position=oder_line.env.context.get('fiscal_position')
+                )
+                oder_line.price_unit = self.env['account.tax']._fix_tax_included_price_company(oder_line._get_display_price(product), product.taxes_id, oder_line.tax_id, oder_line.company_id)
+
     @api.model
     def create(self, vals):
         if vals.get('name', _('New')) == _('New'):
