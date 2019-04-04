@@ -312,7 +312,7 @@
                     </div>
 
                     <!-- main content -->
-                    <div t-attf-class="card #{'pb-5' if report_type == 'html' else ''}">
+                    <div t-attf-class="card #{'pb-5' if report_type == 'html' else ''}" id="portal_sale_content">
                         <div t-call="sale.sale_order_portal_content"/>
                     </div>
 

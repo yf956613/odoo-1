@@ -65,8 +65,9 @@
                                         </strong>
                                     </td>
                                     <td class="text-center" t-if="sale_order.state in ['draft', 'sent'] and report_type == 'html'">
-                                        <a t-att-href="sale_order.get_portal_url(suffix='/add_option/%s' % option.id)" class="mb8 d-print-none" aria-label="Add to cart" title="Add to cart">
-                                            <span class="fa fa-lg fa-shopping-cart"/>
+
+                                        <a t-att-href="sale_order.get_portal_url(suffix='/add_option/%s' % option.id)" class="mb8 js_add_optional_products d-print-none" aria-label="Add to cart" title="Add to cart">
+                                            <span class="fa fa-shopping-cart"/>
                                         </a>
                                     </td>
                                 </t>
