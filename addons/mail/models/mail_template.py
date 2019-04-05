@@ -197,14 +197,6 @@ class MailTemplate(models.Model):
     null_value = fields.Char('Default Value', help="Optional value to use if the target field is empty")
     copyvalue = fields.Char('Placeholder Expression', help="Final placeholder expression, to be copy-pasted in the desired template field.")
 
-    @api.onchange('model_id')
-    def onchange_model_id(self):
-        # TDE CLEANME: should'nt it be a stored related ?
-        if self.model_id:
-            self.model = self.model_id.model
-        else:
-            self.model = False
-
     def build_expression(self, field_name, sub_field_name, null_value):
         """Returns a placeholder expression for use in a template field,
         based on the values provided in the placeholder assistant.
