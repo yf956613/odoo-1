@@ -303,7 +303,8 @@ Tip.getConsumeEventType = function ($element) {
     })) {
         return "input";
     }
-    return "click";
+    // In order to catch both click and drag events, here we need to use 'mousedown' event here.
+    return "mousedown";
 };
 
 return Tip;

@@ -47,9 +47,9 @@ var RainbowMan = Widget.extend({
         // this is done in a setTimeout to prevent the click that triggered the
         // rainbow man to close it directly
         setTimeout(function () {
-            core.bus.on('click', self, function (ev) {
+            self.$el.parent().on('mousedown', function (ev) {
                 if (ev.originalEvent && ev.target.className.indexOf('o_reward') === -1) {
-                    this.destroy();
+                    self.destroy();
                 }
             });
         });
