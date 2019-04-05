@@ -238,13 +238,16 @@ class MailTemplate(models.Model):
     # ----------------------------------------
 
     @api.model
-    def render_post_process(self, html):
+    def _postprocess_html(self, html):
+        """ Oldie to check: render_post_process """
         html = self.env['mail.thread']._replace_local_links(html)
         return html
 
     @api.model
     def _render_template(self, template_txt, model, res_ids, post_process=False):
-        """ Render the given template text, replace mako expressions ``${expr}``
+        """ UPDATE ME
+
+        Render the given template text, replace mako expressions ``${expr}``
         with the result of evaluating these expressions with an evaluation
         context containing:
 
@@ -256,11 +259,22 @@ class MailTemplate(models.Model):
         :param str model: model name of the document record this mail is related to.
         :param int res_ids: list of ids of document records those mails are related to.
         """
-        multi_mode = True
-        if isinstance(res_ids, int):
-            multi_mode = False
-            res_ids = [res_ids]
+        if not isinstance(res_ids, (list, tuple)):
+            raise ValueError(_('Template rendering should be called only using on a list of IDS.'))
 
+        return self._render_template_mako(template_txt, model, res_ids)
+
+    def _render_context(self):
+        render_context = {
+            'format_date': lambda date, date_format=False, lang_code=False: format_date(self.env, date, date_format, lang_code),
+            'format_datetime': lambda dt, tz=False, dt_format=False, lang_code=False: format_datetime(self.env, dt, tz, dt_format, lang_code),
+            'format_amount': lambda amount, currency, lang_code=False: tools.format_amount(self.env, amount, currency, lang_code),
+            'user': self.env.user,
+            'ctx': self._context,  # context kw would clash with mako internals
+        }
+        return render_context
+
+    def _render_template_mako(self, template_txt, model, res_ids):
         results = dict.fromkeys(res_ids, u"")
 
         # try to load the template
@@ -269,21 +283,18 @@ class MailTemplate(models.Model):
             template = mako_env.from_string(tools.ustr(template_txt))
         except Exception:
             _logger.info("Failed to load template %r", template_txt, exc_info=True)
-            return multi_mode and results or results[res_ids[0]]
+            return results
 
         # prepare template variables
-        records = self.env[model].browse(it for it in res_ids if it)  # filter to avoid browsing [None]
-        res_to_rec = dict.fromkeys(res_ids, None)
-        for record in records:
-            res_to_rec[record.id] = record
-        variables = {
-            'format_date': lambda date, date_format=False, lang_code=False: format_date(self.env, date, date_format, lang_code),
-            'format_datetime': lambda dt, tz=False, dt_format=False, lang_code=False: format_datetime(self.env, dt, tz, dt_format, lang_code),
-            'format_amount': lambda amount, currency, lang_code=False: tools.format_amount(self.env, amount, currency, lang_code),
-            'user': self.env.user,
-            'ctx': self._context,  # context kw would clash with mako internals
-        }
-        for res_id, record in res_to_rec.items():
+        variables = self._render_context()
+        if 'object' in template_txt:
+            # TDE CHECKME: records = self.env[model].browse(it for it in res_ids if it)  # filter to avoid browsing [None]
+            records = self.env[model].browse(res_ids)
+            resid_to_rec = dict((record.id, record) for record in records)
+        else:
+            resid_to_rec = {}
+
+        for res_id, record in resid_to_rec.items():
             variables['object'] = record
             try:
                 render_result = template.render(variables)
@@ -294,11 +305,7 @@ class MailTemplate(models.Model):
                 render_result = u""
             results[res_id] = render_result
 
-        if post_process:
-            for res_id, result in results.items():
-                results[res_id] = self.render_post_process(result)
-
-        return multi_mode and results or results[res_ids[0]]
+        return results
 
     # ----------------------------------------
     # MESSAGE/EMAIL VALUES GENERATION
@@ -307,9 +314,9 @@ class MailTemplate(models.Model):
     @api.multi
     def _set_lang_context(self, res_ids):
         """ TOCHECK: old name: get_email_template """
-        self.ensure_one()
         if not isinstance(res_ids, (list, tuple)):
-            raise ValueError('Caca')
+            raise ValueError(_('Template rendering should be called only using on a list of IDS.'))
+        self.ensure_one()
 
         templates = dict.fromkeys(res_ids, False)
 
@@ -320,41 +327,58 @@ class MailTemplate(models.Model):
         return templates
 
     @api.multi
-    def generate_recipients(self, results, res_ids):
-        """Generates the recipients of the template. Default values can ben generated
-        instead of the template values if requested by template or context.
-        Emails (email_to, email_cc) can be transformed into partners if requested
-        in the context. """
+    def _generate_recipients(self, results, res_ids):
+        # TDE NOTE: at this point context (lang) should be ok
+
+        # TDE TODO: handle tpl_partners_only in caller
+        # TDE NOTE: removed tpl_force_default_to context key, unused
         self.ensure_one()
 
-        if self.use_default_to or self._context.get('tpl_force_default_to'):
-            default_recipients = self.env['mail.thread'].message_get_default_recipients(res_model=self.model, res_ids=res_ids)
-            for res_id, recipients in default_recipients.items():
-                results[res_id].pop('partner_to', None)
-                results[res_id].update(recipients)
+        if self.use_default_to:
+            # just use default recipients (generally for business oriented templates used to contact customers)
+            recipients = self.env['mail.thread'].message_get_default_recipients(res_model=self.model, res_ids=res_ids)
+        else:
+            # generate based on fields
+            recipients = dict.fromkeys(res_ids, dict())
+            for fname in ('email_to', 'partner_to', 'email_cc'):
+                rendered = self._render_template(self[fname], self.model, res_ids)
+                for res_id, values in rendered.items():
+                    recipients[res_id][fname] = values
 
+        # clean partner_to into partner_ids
+        for res_id in recipients.keys():
+            if 'partner_to' in recipients[res_id]:
+                recipients[res_id]['partner_ids'] = recipients[res_id].get('partner_ids', list()) + [int(pid) for pid in recipients[res_id]['partner_to'].split(',') if pid]
+
+        return recipients
+
+    @api.multi
+    def _set_recipients_to_partners(self, recipients_values):
+        # TDE: whole method tmp, to check
+        self.ensure_one()
+
+        # fetch company_id if necessary to create a partner
         records_company = None
-        if self._context.get('tpl_partners_only') and self.model and results and 'company_id' in self.env[self.model]._fields:
-            records = self.env[self.model].browse(results.keys()).read(['company_id'])
+        if self.model and recipients_values.keys() and 'company_id' in self.env[self.model]._fields:
+            records = self.env[self.model].browse(recipients_values.keys()).read(['company_id'])
             records_company = {rec['id']: (rec['company_id'][0] if rec['company_id'] else None) for rec in records}
 
-        for res_id, values in results.items():
-            partner_ids = values.get('partner_ids', list())
-            if self._context.get('tpl_partners_only'):
-                mails = tools.email_split(values.pop('email_to', '')) + tools.email_split(values.pop('email_cc', ''))
-                Partner = self.env['res.partner']
-                if records_company:
-                    Partner = Partner.with_context(default_company_id=records_company[res_id])
+        for res_id, values in recipients_values.items():
+            partner_ids = values.pop('partner_ids', [])
+
+            mails = tools.email_split(values.pop('email_to', '')) + tools.email_split(values.pop('email_cc', ''))
+            if mails:
+                cid = records_company[res_id] if records_company else False
+                if cid:
+                    Partner = self.env['res.partner'].with_context(default_company_id=records_company[res_id])
+                else:
+                    Partner = self.env['res.partner']
                 for mail in mails:
                     partner_id = Partner.find_or_create(mail)
                     partner_ids.append(partner_id)
-            partner_to = values.pop('partner_to', '')
-            if partner_to:
-                # placeholders could generate '', 3, 2 due to some empty field values
-                tpl_partner_ids = [int(pid) for pid in partner_to.split(',') if pid]
-                partner_ids += self.env['res.partner'].sudo().browse(tpl_partner_ids).exists().ids
-            results[res_id]['partner_ids'] = partner_ids
-        return results
+
+            recipients_values[res_id]['partner_ids'] = partner_ids
+        return recipients_values
 
     @api.multi
     def generate_email(self, res_ids, fields=None):
