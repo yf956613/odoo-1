@@ -218,7 +218,7 @@ class Goal(models.Model):
 
         # generate a reminder report
         template = self.env.ref('gamification.email_template_goal_reminder')\
-                           .get_email_template(self.id)
+                           ._set_lang_context([self.id])[self.id]
         body_html = self.env['mail.template'].with_context(template._context)\
             ._render_template(template.body_html, 'gamification.goal', self.id)
         self.env['mail.thread'].message_post(

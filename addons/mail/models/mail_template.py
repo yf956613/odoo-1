@@ -305,29 +305,19 @@ class MailTemplate(models.Model):
     # ----------------------------------------
 
     @api.multi
-    def get_email_template(self, res_ids):
-        multi_mode = True
-        if isinstance(res_ids, int):
-            res_ids = [res_ids]
-            multi_mode = False
-
-        if res_ids is None:
-            res_ids = [None]
-        results = dict.fromkeys(res_ids, False)
-
-        if not self.ids:
-            return results
+    def _set_lang_context(self, res_ids):
+        """ TOCHECK: old name: get_email_template """
         self.ensure_one()
+        if not isinstance(res_ids, (list, tuple)):
+            raise ValueError('Caca')
+
+        templates = dict.fromkeys(res_ids, False)
 
         langs = self._render_template(self.lang, self.model, res_ids)
         for res_id, lang in langs.items():
-            if lang:
-                template = self.with_context(lang=lang)
-            else:
-                template = self
-            results[res_id] = template
+            templates[res_id] = self.with_context(lang=lang) if lang else self
 
-        return multi_mode and results or results[res_ids[0]]
+        return templates
 
     @api.multi
     def generate_recipients(self, results, res_ids):
@@ -385,11 +375,11 @@ class MailTemplate(models.Model):
         if fields is None:
             fields = ['subject', 'body_html', 'email_from', 'email_to', 'partner_to', 'email_cc', 'reply_to', 'scheduled_date']
 
-        res_ids_to_templates = self.get_email_template(res_ids)
+        templates = self._set_lang_context(res_ids)
 
         # templates: res_id -> template; template -> res_ids
         templates_to_res_ids = {}
-        for res_id, template in res_ids_to_templates.items():
+        for res_id, template in templates.items():
             templates_to_res_ids.setdefault(template, []).append(res_id)
 
         results = dict()

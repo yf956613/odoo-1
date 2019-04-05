@@ -24,7 +24,7 @@ class MailTemplate(models.Model):
             res_ids = [res_ids]
             multi_mode = False
 
-        res_ids_to_templates = self.get_email_template(res_ids)
+        res_ids_to_templates = self._set_lang_context(res_ids)
         for res_id in res_ids:
             related_model = self.env[self.model_id.model].browse(res_id)
 
