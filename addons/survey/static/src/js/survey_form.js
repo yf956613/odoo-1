@@ -135,7 +135,8 @@ publicWidget.registry.SurveyFormWidget = publicWidget.Widget.extend({
     _updateDateForDisplay: function ($dateGroup) {
         this._formatDateValue($dateGroup);
         // if review mode, avoid to use the datetimepicker
-        if ($dateGroup.closest('fieldset')[0].disabled) {
+        var review_fieldset = $dateGroup.closest('fieldset');
+        if (review_fieldset.lenght === 1 && review_fieldset[0].disabled) {
             $dateGroup.find('.input-group-append').hide();
         } else {
             this._initDateTimePicker($dateGroup);
@@ -164,18 +165,18 @@ publicWidget.registry.SurveyFormWidget = publicWidget.Widget.extend({
     _updateMultipleChoiceForDisplay: function ($checkGroup) {
         var $other = $checkGroup.find('.o_survey_form_checkbox_other');
         var $commentInput = $checkGroup.find('textarea[type="text"]');
-        if ($other.prop('checked')) {
-            $commentInput.enable();
-            $commentInput.focus();
-        } else {
+        if (!$other.prop('checked') && !$commentInput.hasClass('o_survey_comment')) {
             $commentInput.enable(false);
             $commentInput.val('');
+        } else {
+            $commentInput.enable();
+            $commentInput.focus();
         }
     },
 
     /*
-    * Checks, for review mode, if the 'other' choice is checked.
-    * Clear the comment input if not checked (just in case) or focus on it.
+    * Checks, for review mode or already answered page, if the 'other' choice is checked.
+    * Clear the comment textarea if not checked (just in case) or focus on it.
     */
     _updateSimpleRadioForDisplay: function ($radioGroup) {
         var $other = $radioGroup.find('.o_survey_form_radio_other');
@@ -189,8 +190,8 @@ publicWidget.registry.SurveyFormWidget = publicWidget.Widget.extend({
     },
 
     /*
-    * Checks, for review mode, if the 'other' choice is checked.
-    * Clear and hide the comment input if not checked (just in case) or display it.
+    * Checks, for review mode or already answered page, if the 'other' choice is checked.
+    * Clear and hide the comment textarea if not checked (just in case) or display it.
     */
     _updateSimpleSelectForDisplay: function ($selectGroup) {
         var $select = $selectGroup.find('select');
