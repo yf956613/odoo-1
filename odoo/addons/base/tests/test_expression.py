@@ -596,6 +596,7 @@ class TestExpression(TransactionCase):
         vals = {
             'name': 'OpenERP Test',
             'active': False,
+            'country_id': self.ref("base.be"),
             'category_id': [(6, 0, [self.ref("base.res_partner_category_0")])],
             'child_ids': [(0, 0, {'name': 'address of OpenERP Test', 'country_id': self.ref("base.be")})],
         }

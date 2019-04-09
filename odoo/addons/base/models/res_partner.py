@@ -192,7 +192,7 @@ class Partner(models.Model):
     zip = fields.Char(change_default=True)
     city = fields.Char()
     state_id = fields.Many2one("res.country.state", string='State', ondelete='restrict', domain="[('country_id', '=?', country_id)]")
-    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict')
+    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=lambda self: self._default_company().country_id)
     email = fields.Char()
     email_formatted = fields.Char(
         'Formatted Email', compute='_compute_email_formatted',
