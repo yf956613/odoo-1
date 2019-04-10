@@ -562,6 +562,7 @@ class Partner(models.Model):
         if self.env.context.get('import_file'):
             self._check_import_consistency(vals_list)
         for vals in vals_list:
+            print(vals.get('name'), vals.get('email'))
             if vals.get('website'):
                 vals['website'] = self._clean_website(vals['website'])
             if vals.get('parent_id'):
@@ -757,6 +758,7 @@ class Partner(models.Model):
         emails = tools.email_split(email)
         if emails:
             email = emails[0]
+        print('searching, for', email, 'from', self.env.user.name)
         partners = self.search([('email', '=ilike', email)], limit=1)
         return partners.id or self.name_create(email)[0]
 

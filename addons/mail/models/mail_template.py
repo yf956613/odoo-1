@@ -81,7 +81,16 @@ try:
     # This is done on purpose: it prevents incidental or malicious execution of
     # Python code that may break the security of the server.
     from jinja2.sandbox import SandboxedEnvironment
-    mako_template_env = SandboxedEnvironment(
+
+    class SandboxedEnvironment2(SandboxedEnvironment):
+
+        def is_safe_attribute(self, obj, attr, value):
+            if isinstance(value, models.BaseModel):
+                print(obj, attr, value)
+
+            return super(SandboxedEnvironment2, self).is_safe_attribute(obj, attr, value)
+
+    mako_template_env = SandboxedEnvironment2(
         block_start_string="<%",
         block_end_string="%>",
         variable_start_string="${",
