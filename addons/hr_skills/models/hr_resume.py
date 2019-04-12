@@ -35,6 +35,7 @@ class ResumeLine(models.Model):
     name = fields.Char(required=True)
     date_start = fields.Date(required=True)
     date_end = fields.Date()
+    position = fields.Char()
     description = fields.Text(string="Description")
     line_type_id = fields.Many2one('hr.resume.line.type', string="Type")
     sequence = fields.Integer(default=100)
