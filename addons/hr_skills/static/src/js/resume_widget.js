@@ -65,10 +65,11 @@ var AbstractGroupedOne2ManyRenderer = ListRenderer.extend({
         return data;
     },
 
-    _renderRow: function (record) {
+    _renderRow: function (record, is_last) {
         return $(qweb.render(this.dataRowTemplate, {
             id: record.id,
             data: this._formatData(record.data),
+            isLast: is_last,
         }));
     },
 
@@ -111,8 +112,9 @@ var AbstractGroupedOne2ManyRenderer = ListRenderer.extend({
             $body.append($title_row);
 
             // Render each rows
-            group.forEach(function (record) {
-                var $row = self._renderRow(record);
+            group.forEach(function (record, index) {
+                var is_last = (index + 1 == group.length);
+                var $row = self._renderRow(record, is_last);
                 if (self.addTrashIcon) $row.append(self._renderTrashIcon());
                 $body.append($row);
             });
@@ -160,9 +162,14 @@ var ResumeLineRenderer = AbstractGroupedOne2ManyRenderer.extend({
                 items: '.o_data_row',
                 helper: 'clone',
                 handle: '.o_row_handle',
+                tolerance: "pointer",
+                scroll: false,
                 stop: self._resequence.bind(self),
+                start: function (event, ui) {
+                    ui.helper.find('p').remove();
+                },
             });
-            self.$el.find('table').removeClass('table table-striped o_list_view_ungrouped');
+            self.$el.find('table').removeClass('table table-striped o_list_view_ungrouped').addClass('w-100');
         });
     },
 });
@@ -176,7 +183,7 @@ var SkillsRenderer = AbstractGroupedOne2ManyRenderer.extend({
     _renderRow: function (record) {
         var $row = this._super(record);
         // Add progress bar widget at the end of rows
-        var $td = $('<td/>', {class: 'o_data_cell'});
+        var $td = $('<td/>', {class: 'o_data_cell o_skill_progress'});
         var progress = new FieldProgressBar(this, 'level_progress', record, {
             current_value: record.data.level_progress,
             attrs: this.arch.attrs,
