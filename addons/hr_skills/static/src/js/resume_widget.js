@@ -130,6 +130,10 @@ var AbstractGroupedOne2ManyRenderer = ListRenderer.extend({
         return $body;
     },
 
+    _onRowClicked: function (ev) {
+        if (!this.addCreateLine) { return; }
+        return this._super(ev);
+    },
 });
 
 var ResumeLineRenderer = AbstractGroupedOne2ManyRenderer.extend({
@@ -169,7 +173,7 @@ var ResumeLineRenderer = AbstractGroupedOne2ManyRenderer.extend({
                     ui.helper.find('p').remove();
                 },
             });
-            self.$el.find('table').removeClass('table table-striped o_list_view_ungrouped').addClass('w-100');
+            self.$el.find('table').removeClass('table table-striped o_list_view_ungrouped').addClass('w-100').toggleClass('table-hover', self.addCreateLine);
         });
     },
 });
@@ -190,6 +194,13 @@ var SkillsRenderer = AbstractGroupedOne2ManyRenderer.extend({
         });
         progress.appendTo($td);
         return $row.append($td);
+    },
+
+    _render: function () {
+        var self = this;
+        return this._super().then(function () {
+            self.$el.find('table').toggleClass('table-hover', self.addCreateLine);
+        });
     },
 
     _getCreateLineContext: function (group) {

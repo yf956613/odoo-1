@@ -60,8 +60,14 @@
     }
 
     // =========  Read-mode only ===========
-    .o_form_view.o_form_readonly & .o_data_cell.o_list_number.o_handle_cell {
-        display: none;
+    .o_form_view.o_form_readonly & {
+        .o_group_resume .o_list_view, .o_group_skills .o_list_view{
+            cursor: auto;
+        }
+
+        .o_data_cell.o_list_number.o_handle_cell {
+            display: none;
+        }
     }
 
     // =========  Edit-mode only ===========
