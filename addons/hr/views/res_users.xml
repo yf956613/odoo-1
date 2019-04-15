@@ -29,6 +29,14 @@
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                         </div>
+                        <field name="is_address_home_a_company" invisible="1"/>
+                        <div class="alert alert-warning py-4 mb-5" groups="hr.group_hr_user"
+                             attrs="{'invisible': [('is_address_home_a_company','=', False)]}">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">&#215;</button>
+                            <h4 class="alert-heading"><b>Private and work address are equal.</b></h4>
+                            <p>Private address should be <b>different</b> to be used in the expense reimbursement documents.</p>
+                            <a href="#" class="alert-link"><t class="fa fa-pencil mr-1"/>Edit private address</a>
+                        </div>
                         <field name="image" widget='image' class="oe_avatar" options='{"preview_image":"image_medium"}'/>
                         <div class="oe_title">
                             <label for="name" class="oe_edit_only"/>
@@ -79,12 +87,9 @@
                                                 'default_type': 'private',
                                                 'form_view_ref': 'base.res_partner_view_form_private'}"
                                             options='{"always_reload": True, "highlight_first_line": True}'/>
-                                        <field name="is_address_home_a_company" invisible="1"/>
-                                        <div class="text-warning"
-                                            attrs="{'invisible': [('is_address_home_a_company','=', False)]}">
-                                            Use here the home address of the employee.
-                                            This private address is used in the expense report reimbursement document.
-                                            It should be different from the work address.
+                                        <div class="text-muted mt-3 mb-5" groups="hr.group_hr_user" attrs="{'invisible': [('is_address_home_a_company','=', False)]}" colspan="2">
+                                            <i class="fa fa-exclamation-triangle text-warning"/> Shouldn't match the work address
+                                            <hr/>
                                         </div>
                                         <field name="km_home_work"/>
                                         <field name="phone"/>
