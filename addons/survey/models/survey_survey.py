@@ -93,6 +93,7 @@ class Survey(models.Model):
         'mail.template', 'Email Template',
         domain="[('model', '=', 'survey.user_input')]",
         help="Automated email sent to the user when he succeeds the certification, containing his certification document.")
+    certification_report_template_id = fields.Many2one('survey.certification.report.template', string="Certification template", default=lambda self: self.env.ref('survey.certification_report_view_modern_purple'), required=True)
 
     _sql_constraints = [
         ('access_token_unique', 'unique(access_token)', 'Access token should be unique'),

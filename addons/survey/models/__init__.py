@@ -5,3 +5,4 @@ from . import ir_autovacuum
 from . import survey_survey
 from . import survey_question
 from . import survey_user
+from . import survey_certification_report_template
