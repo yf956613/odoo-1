@@ -512,7 +512,7 @@
       <field name="refund_account_id" ref="pcg_445712"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_445712" />
+      <field name="cash_basis_account_id" ref="pcg_445712" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">sale</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_05'),ref('l10n_fr.tag_fr_14')])]"/>
@@ -650,7 +650,7 @@
       <field name="refund_account_id" ref="pcg_445712"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_445712" />
+      <field name="cash_basis_account_id" ref="pcg_445712" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">sale</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_05'),ref('l10n_fr.tag_fr_14')])]"/>
@@ -792,7 +792,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_20'),ref('l10n_fr.tag_fr_30')])]"/>
@@ -808,7 +808,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_24'),ref('l10n_fr.tag_fr_33')])]"/>
@@ -866,7 +866,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_27'),ref('l10n_fr.tag_fr_36')])]"/>
@@ -896,7 +896,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_28'),ref('l10n_fr.tag_fr_37')])]"/>
@@ -930,7 +930,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_20'),ref('l10n_fr.tag_fr_30')])]"/>
@@ -962,7 +962,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_24'),ref('l10n_fr.tag_fr_33')])]"/>
@@ -1009,7 +1009,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_08'),ref('l10n_fr.tag_fr_17')])]"/>
@@ -1041,7 +1041,7 @@
       <field name="refund_account_id" ref="pcg_44566"/>
       <field name="account_id" ref="pcg_445800"/>
       <field name="tax_exigibility">on_payment</field>
-      <field name="cash_basis_account" ref="pcg_44566" />
+      <field name="cash_basis_account_id" ref="pcg_44566" />
       <field name="sequence" eval="10"/>
       <field name="type_tax_use">purchase</field>
       <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_28'),ref('l10n_fr.tag_fr_37')])]"/>
