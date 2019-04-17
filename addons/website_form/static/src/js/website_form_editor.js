@@ -56,6 +56,12 @@ odoo.define('website_form_editor', function (require) {
                 }
             });
 
+            // Focus the first 'o_website_form_input' (or footer button in case there's no
+            // form input) to be able to navigate using keyboard
+            self.$modal.on('shown.bs.modal', function () {
+                $(this).find('.modal-body .o_website_form_input, .modal-footer .btn').first().focus();
+            });
+
             // Destroy the modal when it is closed, as we will use many of them
             self.$modal.on('hidden.bs.modal', function (e) {
               self.$modal.remove();
