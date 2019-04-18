@@ -6,14 +6,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">1</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group1"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag5')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line5')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line5')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat1" model="account.tax.template">
@@ -21,14 +44,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">1</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag36'),ref('vat_report_tag33')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line36'),ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line36'),ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat2" model="account.tax.template">
@@ -36,14 +82,35 @@
         <field name="amount">0.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">10</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">0%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat2" model="account.tax.template">
@@ -51,14 +118,35 @@
         <field name="amount">0.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">10</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">0%</field>
         <field name="tax_group_id" ref="account_tax_group6"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag2')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line2')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line2')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat3" model="account.tax.template">
@@ -66,14 +154,35 @@
         <field name="amount">0.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">10</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">0%</field>
         <field name="tax_group_id" ref="account_tax_group6"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag2')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line2')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line2')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat4" model="account.tax.template">
@@ -81,14 +190,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group1"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag6')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat5" model="account.tax.template">
@@ -96,14 +228,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group1"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag7')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat6" model="account.tax.template">
@@ -111,14 +266,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group1"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag8')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line8')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line8')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat7" model="account.tax.template">
@@ -126,14 +304,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group1"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag9')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line9')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line9')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat8" model="account.tax.template">
@@ -141,14 +342,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag11')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line11')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line11')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat9" model="account.tax.template">
@@ -156,14 +380,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag12')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line12')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line12')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat10" model="account.tax.template">
@@ -171,14 +418,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag13')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line13')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line13')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat11" model="account.tax.template">
@@ -186,14 +456,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag14')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line14')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line14')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat12" model="account.tax.template">
@@ -201,14 +494,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag15')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line15')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line15')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat13" model="account.tax.template">
@@ -216,14 +532,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag16')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line16')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line16')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat14" model="account.tax.template">
@@ -231,14 +570,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag17')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line17')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line17')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat15" model="account.tax.template">
@@ -246,14 +608,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag18')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line18')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line18')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat16" model="account.tax.template">
@@ -261,14 +646,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag19')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line19')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line19')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat17" model="account.tax.template">
@@ -276,14 +684,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag20')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line20')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line20')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat18" model="account.tax.template">
@@ -291,14 +722,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag21')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line21')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line21')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat19" model="account.tax.template">
@@ -306,14 +760,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag22')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line22')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line22')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat20" model="account.tax.template">
@@ -321,14 +798,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag23')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line23')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line23')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat21" model="account.tax.template">
@@ -336,14 +836,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag24')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line24')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line24')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat22" model="account.tax.template">
@@ -351,14 +874,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">20</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group2"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag25')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line25')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line25')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line27')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat23" model="account.tax.template">
@@ -366,14 +912,35 @@
         <field name="amount">0.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">30</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">0%</field>
         <field name="tax_group_id" ref="account_tax_group3"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag28')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line28')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line28')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat24" model="account.tax.template">
@@ -381,14 +948,35 @@
         <field name="amount">0.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">30</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">0%</field>
         <field name="tax_group_id" ref="account_tax_group3"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag29')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line29')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line29')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat3" model="account.tax.template">
@@ -396,14 +984,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag35')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line35')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line35')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat4" model="account.tax.template">
@@ -411,14 +1022,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag37')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line37')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line37')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat5" model="account.tax.template">
@@ -426,14 +1060,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag38')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line38')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line38')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line39')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat6" model="account.tax.template">
@@ -441,14 +1098,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag41')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line41')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line41')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat7" model="account.tax.template">
@@ -456,14 +1136,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag42')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line42')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line42')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat8" model="account.tax.template">
@@ -471,14 +1174,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag43')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line43')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line43')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat9" model="account.tax.template">
@@ -486,14 +1212,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag44')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line44')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line44')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat10" model="account.tax.template">
@@ -501,14 +1250,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag45')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line45')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line45')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat11" model="account.tax.template">
@@ -516,14 +1288,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">40</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group4"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag33'),ref('vat_report_tag46')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line46')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line33')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line46')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat25" model="account.tax.template">
@@ -531,14 +1326,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">50</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group5"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag48')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line48')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line50')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line48')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line50')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_sale_vat26" model="account.tax.template">
@@ -546,14 +1364,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">50</field>
-        <field name="account_id" ref="account_template_3401_0201"/>
-        <field name="refund_account_id" ref="account_template_3401_0201"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group5"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag49')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line49')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'plus_tag_ids': [ref('vat_report_line50')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line49')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_3401_0201'),
+                'minus_tag_ids': [ref('vat_report_line50')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat12" model="account.tax.template">
@@ -561,14 +1402,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">50</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group5"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag51')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line51')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line53')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line51')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line53')],
+            }),
+        ]"/>
     </record>
 
     <record id="account_tax_purchase_vat13" model="account.tax.template">
@@ -576,14 +1440,37 @@
         <field name="amount">10.0</field>
         <field name="price_include" eval="1"/>
         <field name="sequence">50</field>
-        <field name="account_id" ref="account_template_1204_0301"/>
-        <field name="refund_account_id" ref="account_template_1204_0301"/>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">purchase</field>
         <field name="description">10%</field>
         <field name="tax_group_id" ref="account_tax_group5"/>
-        <field name="tag_ids" eval="[(6,0,[ref('vat_report_tag52')])]"/>
         <field name="chart_template_id" ref="mn_chart_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_tag_ids': [ref('vat_report_line52')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'plus_tag_ids': [ref('vat_report_line53')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_tag_ids': [ref('vat_report_line52')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('account_template_1204_0301'),
+                'minus_tag_ids': [ref('vat_report_line53')],
+            }),
+        ]"/>
     </record>
 
 </odoo>
