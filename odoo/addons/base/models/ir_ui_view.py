@@ -194,9 +194,10 @@ def get_view_arch_from_file(filename, xmlid):
 xpath_utils = etree.FunctionNamespace(None)
 xpath_utils['hasclass'] = _hasclass
 
+TRANSLATED_ATTRS = [attr for attr in TRANSLATED_ATTRS if attr != 'src']
 TRANSLATED_ATTRS_RE = re.compile(r"@(%s)\b" % "|".join(TRANSLATED_ATTRS))
+TRANSLATED_IMG_SRC_RE = re.compile(r"(?<=img\[contains\()@src\b")  # Image with tranlatable src attribute
 WRONGCLASS = re.compile(r"(@class\s*=|=\s*@class|contains\(@class)")
-
 
 class View(models.Model):
     _name = 'ir.ui.view'
@@ -351,6 +352,9 @@ actual arch.
                 if match:
                     message = "View inheritance may not use attribute %r as a selector." % match.group(1)
                     self.raise_view_error(message, self.id)
+                if TRANSLATED_IMG_SRC_RE.search(node.get('expr', '')):
+                    message = "View inheritance may not used on image with @src as a selector."
+                    self.raise_view_error(message, self.id)
                 if WRONGCLASS.search(node.get('expr', '')):
                     _logger.warn(
                         "Error-prone use of @class in view %s (%s): use the "
@@ -358,6 +362,9 @@ actual arch.
                         "their classes", self.name, self.xml_id
                     )
             else:
+                if node.tag == 'img' and node.get('src'):
+                    message = "View inheritance may not used on image with @src as a selector."
+                    self.raise_view_error(message, self.id)
                 for attr in TRANSLATED_ATTRS:
                     if node.get(attr):
                         message = "View inheritance may not use attribute %r as a selector." % attr
