@@ -1,22 +1,8 @@
-// Radio buttons and checkboxes flex layout
-.o_website_form_flex {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.o_website_form_flex_item {
-    // col-lg-4
-    flex-basis: 33%;
-
-    // col-md-6
-    @include media-breakpoint-down(md) {
-        flex-basis: 50%;
-    }
-
-    // col-12
-    @include media-breakpoint-down(sm) {
-        flex-basis: 100%;
-    }
+// To align the radio / check-boxes with their label
+.o_website_form_selection {
+    padding-top: calc(#{$input-padding-y} + #{$input-border-width});
+    padding-bottom: calc(#{$input-padding-y} + #{$input-border-width});
+    margin-bottom: 0;
 }
 
 // Hidden field is only partially hidden in editor
