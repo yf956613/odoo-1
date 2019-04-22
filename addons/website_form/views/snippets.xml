@@ -37,6 +37,7 @@
                       <div class="dropdown-menu" role="menu" data-no-preview="true">
                           <a href="#" class="dropdown-item" role="menuitem" data-website_form_custom_field="char">Text</a>
                           <a href="#" class="dropdown-item" role="menuitem" data-website_form_custom_field="text">Long Text</a>
+                          <a href="#" class="dropdown-item" role="menuitem" data-website_form_custom_field="email">Email</a>
                           <a href="#" class="dropdown-item" role="menuitem" data-website_form_custom_field="integer">Number</a>
                           <a href="#" class="dropdown-item" role="menuitem" data-website_form_custom_field="float">Decimal Number</a>
                           <a href="#" class="dropdown-item" role="menuitem" data-website_form_custom_field="boolean">Checkbox</a>
