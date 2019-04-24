@@ -89,9 +89,31 @@ odoo.define('website_form_editor.tour', function(require) {
             trigger:  ".oe_overlay_options .dropdown-item[data-website_form_field_require]"
         },
         {
+            content:  "Click on input to change placeholder",
+            trigger:  ".o_website_form_input[name='date']",
+            run:      "click"
+        },
+        {
+            content:  "Click on Customize",
+            trigger:  ".oe_overlay_options [title='Customize']"
+        },
+        {
+            content:  "Click on Placeholder",
+            trigger:  ".oe_overlay_options .dropdown-item[data-website_form_field_placeholder]"
+        },
+        {
+            content:  "Change the placeholder",
+            trigger:  ".o_website_form_input[name='placeholder']",
+            run:      "text Enter Date"
+        },
+        {
+            content:  "Click on Save",
+            trigger:  ".modal-footer #modal-save"
+        },
+        {
             content:  "Check the resulting field",
             trigger:  ".form-field.o_website_form_required_custom" +
-                            ":has(input[type=text][name=date][required])" +
+                            ":has(input[type=text][name=date][required][placeholder='Enter Date'])" +
                             ":has(label:contains('Test Date'))",
             run:      function () {},
         },

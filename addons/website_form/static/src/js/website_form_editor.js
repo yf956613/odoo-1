@@ -13,6 +13,7 @@ odoo.define('website_form_editor', function (require) {
     var Wysiwyg = require('web_editor.wysiwyg');
 
     var qweb = core.qweb;
+    var _t = core._t;
 
     options.registry['website_form_editor'] = options.Class.extend({
         xmlDependencies: ['/website_form/static/src/xml/website_form_editor.xml'],
@@ -282,6 +283,28 @@ odoo.define('website_form_editor', function (require) {
                     ],
                 ]
             });
+        },
+
+        // Choose a placeholder for the field
+        website_form_field_placeholder: function (previewMode, value, $li) {
+            var self = this;
+            // Placeholder page input
+            var placeholderInput = qweb.render("website_form.field_char", {
+                field: {
+                    name: 'placeholder',
+                    string: _t("Placeholder"),
+                    value: self.$target.attr('placeholder')
+                }
+            });
+            // Placeholder modal
+            this.build_modal(
+                _t("Change Placeholder"),
+                placeholderInput,
+                function () {
+                    var placeholder = self.$modal.find("[name='placeholder']").val();
+                    self.$target.attr('placeholder', placeholder);
+                }
+            );
         },
 
         // Re-render the field and replace the current one

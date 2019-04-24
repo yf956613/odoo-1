@@ -51,6 +51,11 @@
                   </div>
               </div>
 
+              <!-- Placeholder -->
+              <div data-js="website_form_editor" data-selector="textarea.o_website_form_input, input:not([type=radio], [type=checkbox]).o_website_form_input">
+                  <a href="#" class="dropdown-item" data-website_form_field_placeholder="" data-no-preview="true">Placeholder</a>
+              </div>
+
               <!-- Field -->
               <div data-js='website_form_editor' data-selector=".form-field" data-drop-near=".form-field">
                     <a href="#" class="dropdown-item" data-toggle-class="o_website_form_field_hidden" data-no-preview="true">Hidden</a>
