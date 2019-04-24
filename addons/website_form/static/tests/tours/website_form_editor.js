@@ -53,8 +53,8 @@ odoo.define('website_form_editor.tour', function(require) {
         },
         // Add the date field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]"
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first"
         },
         {
             content:  "Click on Customize",
@@ -120,8 +120,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add record_name field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]"
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first"
         },
         {
             content:  "Click on Customize",
@@ -166,8 +166,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add body_html field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]"
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first"
         },
         {
             content:  "Click on Customize",
@@ -211,8 +211,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add recipient_ids relational field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]"
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first"
         },
         {
             content:  "Click on Customize",
@@ -239,8 +239,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add a custom multiple checkboxes field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]",
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first",
         },
         {
             content:  "Click on Customize",
@@ -334,8 +334,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add a custom radio field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]",
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first",
         },
         {
             content:  "Click on Customize",
@@ -416,8 +416,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add a custom selection field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]",
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first",
             onend: function() {
                 // I didn't find any other way to make that submenu element appear
                 $(".oe_options > ul > li:has(ul) > ul").css("display", "block");
@@ -500,8 +500,8 @@ odoo.define('website_form_editor.tour', function(require) {
 
         // Add attachment_ids field
         {
-            content:  "Click on Form snippet",
-            trigger:  ".s_website_form[data-model_name]"
+            content:  "Click on first visible row of a Form snippet",
+            trigger:  ".s_website_form[data-model_name] .form-field:visible:first"
         },
         {
             content:  "Click on Customize",
