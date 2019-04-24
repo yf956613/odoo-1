@@ -167,7 +167,7 @@
     <!-- Selection Field -->
     <t t-name="website_form.field_selection">
         <t t-call="website_form.field">
-            <div class="row">
+            <div class="row o_website_form_radio" data-display="horizontal">
                 <t t-foreach="field.selection" t-as="option">
                     <div class="radio o_website_form_flex_item col-12 col-md-6 col-lg-4">
                         <label class="o_website_form_selection">
@@ -219,7 +219,7 @@
         <!-- Generic one2many -->
         <t t-if="field.relation != 'ir.attachment'">
             <t t-call="website_form.field">
-                <div class="row">
+                <div class="row o_website_form_checkbox" data-display="horizontal">
                     <t t-if="!field.records">
                         <input
                             class="o_website_form_input"

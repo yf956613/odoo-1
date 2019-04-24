@@ -282,13 +282,31 @@ odoo.define('website_form_editor.tour', function(require) {
             trigger:  ".oe_overlay_options .dropdown-item[data-website_form_field_require]"
         },
         {
+            content:  "Click on first Check Box",
+            trigger:  "label:contains('Iphone') span",
+        },
+        {
+            content:  "Click on Customize",
+            trigger:  ".oe_overlay_options [title='Customize']",
+            run:      function (actions) {
+                actions.auto();
+                // I didn't find any other way to make that submenu element appear
+                $(".oe_options .dropdown-submenu .dropdown-menu").css("display", "block");
+            }
+        },
+        {
+            content:  "Click on Display > Vertical",
+            trigger:  ".oe_options .dropdown-item:contains('Vertical')",
+        },
+        {
             content:  "Check the resulting field",
             trigger:  ".form-field.o_website_form_custom.o_website_form_required_custom" +
                             ":has(.col-form-label:contains('Products'))" +
-                            ":has(.checkbox label:contains('Iphone'):has(input[type='checkbox'][required]))" +
-                            ":has(.checkbox label:contains('Galaxy S'):has(input[type='checkbox'][required]))" +
-                            ":has(.checkbox label:contains('Xperia'):has(input[type='checkbox'][required]))" +
-                            ":has(.checkbox label:contains('Wiko Stairway'):has(input[type='checkbox'][required]))",
+                            ":has(.o_website_form_checkbox:not(.row)[data-display='vertical'])" +
+                            ":has(.checkbox.px-0 label:contains('Iphone'):has(input[type='checkbox'][required]))" +
+                            ":has(.checkbox.px-0 label:contains('Galaxy S'):has(input[type='checkbox'][required]))" +
+                            ":has(.checkbox.px-0 label:contains('Xperia'):has(input[type='checkbox'][required]))" +
+                            ":has(.checkbox.px-0 label:contains('Wiko Stairway'):has(input[type='checkbox'][required]))",
             run:      function () {},
         },
 

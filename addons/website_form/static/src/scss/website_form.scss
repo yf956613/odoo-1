@@ -5,6 +5,13 @@
     margin-bottom: 0;
 }
 
+// vertical radio / check-boxes should be of full width
+.o_website_form_checkbox, .o_website_form_radio {
+    &:not(.row) .o_website_form_flex_item {
+        max-width: 100%;
+    }
+}
+
 // Hidden field is only partially hidden in editor
 .o_website_form_field_hidden {
     display: none;
