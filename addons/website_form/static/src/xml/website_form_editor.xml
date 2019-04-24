@@ -18,8 +18,8 @@
                         </form>
                     </main>
                     <footer class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="modal-save">Save</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><t t-esc="close_btn_txt"/></button>
+                        <button type="button" class="btn btn-primary" id="modal-save"><t t-esc="ok_btn_txt"/></button>
                     </footer>
                 </div>
             </div>
