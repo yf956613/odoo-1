@@ -378,6 +378,8 @@ class Channel(models.Model):
         # The fields "email_from" and "reply_to" are filled in automatically by method create in model mail.message.
         if self.moderation_notify and self.moderation_notify_msg and message_type == 'email' and moderation_status == 'pending_moderation':
             self.env['mail.mail'].create({
+                'author_id': self.env.user.partner_id.id,
+                'email_from': self.env.user.company_id.catchall,
                 'body_html': self.moderation_notify_msg,
                 'subject': 'Re: %s' % (kwargs.get('subject', '')),
                 'email_to': email,

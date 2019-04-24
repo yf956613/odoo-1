@@ -60,14 +60,13 @@ class MailComposer(models.TransientModel):
         result = super(MailComposer, self).default_get(fields)
 
         # author
-        if 'author_id' not in result:
-            result['author_id'] = self.env.user.partner_id.id
-            if 'email_from' not in result and self.env.user.email:
-                result['email_from'] = self.env.user.email_formatted
-        elif 'email_from' not in result:
-            author = self.env['res.partner'].browse(result['author_id'])
-            if author.email:
-                result['email_from'] = formataddr((author.name, author.email))
+        if ((not fields or 'email_from' in fields) and 'email_from' not in result) or \
+           ((not fields or 'author_id' in fields) and 'author_id' not in result):
+            author_id, email_from = self.env['mail.message']._determine_author_id_and_email_from(result.get('author_id'), result.get('email_from'))
+            if (not fields or 'email_from' in fields) and 'email_from' not in result:
+                result['email_from'] = email_from
+            if (not fields or 'author_id' in fields) and 'author_id' not in result:
+                result['author_id'] = author_id
 
         # v6.1 compatibility mode
         result['composition_mode'] = result.get('composition_mode', self._context.get('mail.compose.message.mode', 'comment'))
@@ -207,7 +206,6 @@ class MailComposer(models.TransientModel):
     def action_send_mail(self):
         self.send_mail()
         return {'type': 'ir.actions.act_window_close', 'infos': 'mail_sent'}
-
 
     def send_mail(self, auto_commit=False):
         """ Process the wizard content and proceed with sending the related

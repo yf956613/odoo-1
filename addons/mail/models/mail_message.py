@@ -7,7 +7,6 @@ import re
 from binascii import Error as binascii_error
 from collections import defaultdict
 from operator import itemgetter
-from email.utils import formataddr
 from openerp.http import request
 
 from odoo import _, api, fields, models, modules, tools
@@ -30,14 +29,32 @@ class Message(models.Model):
     _message_read_limit = 30
 
     @api.model
-    def _get_default_from(self):
-        if self.env.user.email:
-            return formataddr((self.env.user.name, self.env.user.email))
-        raise UserError(_("Unable to post message, please configure the sender's email address."))
+    def default_get(self, fields):
+        res = super(Message, self).default_get(fields)
+        if ((not fields or 'email_from' in fields) and 'email_from' not in res) or \
+           ((not fields or 'author_id' in fields) and 'author_id' not in res):
+            author_id, email_from = self._determine_author_id_and_email_from(res.get('author_id'), res.get('email_from'))
+            if (not fields or 'email_from' in fields) and 'email_from' not in res:
+                res['email_from'] = email_from
+            if (not fields or 'author_id' in fields) and 'author_id' not in res:
+                res['author_id'] = author_id
+        return res
 
-    @api.model
-    def _get_default_author(self):
-        return self.env.user.partner_id
+    def _determine_author_id_and_email_from(self, author_id, email_from, fallback_from=False):
+        if author_id is None:
+            if email_from:
+                author = self.env['mail.thread']._mail_find_partner_from_emails([email_from])[0]
+            else:
+                author_id = self.env.user.partner_id.id
+                author = self.env.user.partner_id
+                email_from = author.email_formatted
+        else:
+            author = self.env['res.partner'].browse(author_id)
+            if author and not email_from:
+                email_from = author.email_formatted
+        if not email_from and fallback_from:
+            email_from = fallback_from
+        return author.id, email_from
 
     # content
     subject = fields.Char('Subject')
@@ -72,12 +89,9 @@ class Message(models.Model):
         'mail.activity.type', 'Mail Activity Type',
         index=True, ondelete='set null')
     # origin
-    email_from = fields.Char(
-        'From', default=_get_default_from,
-        help="Email address of the sender. This field is set when no matching partner is found and replaces the author_id field in the chatter.")
+    email_from = fields.Char('From', help="Email address of the sender. This field is set when no matching partner is found and replaces the author_id field in the chatter.")
     author_id = fields.Many2one(
-        'res.partner', 'Author', index=True,
-        ondelete='set null', default=_get_default_author,
+        'res.partner', 'Author', index=True, ondelete='set null',
         help="Author of the message. If not set, email_from may hold an email address that did not match any partner.")
     author_avatar = fields.Binary("Author's avatar", related='author_id.image_small', readonly=False)
     # recipients: include inactive partners (they may have been archived after
@@ -1018,7 +1032,11 @@ class Message(models.Model):
             self = self.with_context({'default_starred_partner_ids': [(4, self.env.user.partner_id.id)]})
 
         if 'email_from' not in values:  # needed to compute reply_to
-            values['email_from'] = self._get_default_from()
+            author_id, email_from = self._determine_author_id_and_email_from(values.get('author_id'), None)
+            values['email_from'] = email_from
+        if not values['email_from']:
+            raise UserError(_("Unable to post message, please configure the sender's email address."))
+
         if not values.get('message_id'):
             values['message_id'] = self._get_message_id(values)
         if 'reply_to' not in values:
@@ -1185,15 +1203,13 @@ class Message(models.Model):
         for msg in self:
             if not msg.email_from:
                 continue
-            if self.env.user.partner_id.email:
-                email_from = formataddr((self.env.user.partner_id.name, self.env.user.partner_id.email))
-            else:
-                email_from = self.env.company.catchall
+            email_from = self.env.user.email_formatted or self.env.company_id.catchall
 
             body_html = tools.append_content_to_html('<div>%s</div>' % tools.ustr(comment), msg.body)
             vals = {
                 'subject': subject,
                 'body_html': body_html,
+                'author_id': self.env.user.partner_id.id,
                 'email_from': email_from,
                 'email_to': msg.email_from,
                 'auto_delete': True,

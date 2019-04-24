@@ -1707,11 +1707,8 @@ class MailThread(models.AbstractModel):
         if any(not isinstance(pc_id, int) for pc_id in partner_ids | channel_ids):
             raise ValueError('message_post partner_ids and channel_ids must be integer list, not commands')
 
-        # Find the message's author, because we need it for private discussion
-        if author_id is None:  # keep False values
-            author_id = self.env.user.partner_id.id
-        if not email_from:
-            email_from = self.env['res.partner'].browse(author_id).sudo().email_formatted if author_id else self.env['mail.message']._get_default_from()
+        # 0: Find the message's author, because we need it for private discussion
+        author_id, email_from = self.env['mail.message']._determine_author_id_and_email_from(kwargs.get('author_id'), kwargs.get('email_from'))
 
         if not subtype_id:
             subtype = subtype or 'mt_note'
@@ -1744,6 +1741,7 @@ class MailThread(models.AbstractModel):
         values = dict(msg_kwargs)
         values.update({
             'author_id': author_id,
+            'email_from': email_from,
             'model': self._name,
             'res_id': self.id,
             'body': body,
