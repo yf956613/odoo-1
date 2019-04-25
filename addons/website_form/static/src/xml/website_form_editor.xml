@@ -28,7 +28,8 @@
 
     <!-- Generic Field Layout -->
     <t t-name="website_form.field">
-        <div t-att-class="'row form-group form-field' + (field.custom ? ' o_website_form_custom' : '') + (field.required ? ' o_website_form_required' : '')">
+        <t t-set='isDynamic' t-value="!field.custom and _.contains(['many2one', 'many2many', 'one2many', 'selection'], field.type) ? true: false"/>
+        <div t-att-class="'row form-group form-field' + (field.custom ? ' o_website_form_custom' : '') + (field.required ? ' o_website_form_required' : '') + (isDynamic ? ' o_website_form_update': '')">
             <div t-att-class="field.formatInfo and field.formatInfo.lableClass || 'col-lg-3 col-md-4'">
                 <label class="col-form-label" t-att-for="field.name">
                     <t t-esc="field.string"/>
@@ -167,9 +168,10 @@
     <!-- Selection Field -->
     <t t-name="website_form.field_selection">
         <t t-call="website_form.field">
-            <div class="row o_website_form_radio" data-display="horizontal">
+            <t t-set="display" t-value="field.display || 'horizontal'"/>
+            <div t-att-class="'o_website_form_radio' + (display === 'horizontal' ? ' row' : '')" t-att-data-display="display">
                 <t t-foreach="field.selection" t-as="option">
-                    <div class="radio o_website_form_flex_item col-12 col-md-6 col-lg-4">
+                    <div t-att-class="'radio o_website_form_flex_item col-12 col-md-6 col-lg-4' + (display === 'horizontal' ? '' : ' px-0')">
                         <label class="o_website_form_selection">
                             <input
                                 type="radio"
@@ -219,7 +221,8 @@
         <!-- Generic one2many -->
         <t t-if="field.relation != 'ir.attachment'">
             <t t-call="website_form.field">
-                <div class="row o_website_form_checkbox" data-display="horizontal">
+                <t t-set="display" t-value="field.display || 'horizontal'"/>
+                <div t-att-class="'o_website_form_checkbox' + (display === 'horizontal' ? ' row' : '')" t-att-data-display="display">
                     <t t-if="!field.records">
                         <input
                             class="o_website_form_input"
@@ -230,7 +233,7 @@
                         />
                     </t>
                     <t t-foreach="field.records" t-as="record">
-                        <div class="checkbox o_website_form_flex_item col-12 col-md-6 col-lg-4">
+                        <div t-att-class="'checkbox o_website_form_flex_item col-12 col-md-6 col-lg-4' + (display === 'horizontal' ? '' : ' px-0')">
                             <label class="o_website_form_selection">
                                 <input
                                     type="checkbox"

@@ -33,6 +33,10 @@
                   <a href="#" class="dropdown-item" data-website_form_model_modal="" data-no-preview="true">Change Form Parameters</a>
               </div>
 
+              <div data-selector=".form-field.o_website_form_update">
+                    <a href="#" class="dropdown-item" data-toggle-class="o_website_form_field_sync" data-no-preview="true">Auto Sync</a>
+              </div>
+
               <!-- Required option for fields that are not required fields of the model -->
               <div data-js='website_form_editor_field' data-selector=".form-field:not(.o_website_form_required)">
                     <a href="#" class="dropdown-item" data-website_form_field_require="" data-toggle-class="o_website_form_required_custom" data-no-preview="true">Required</a>

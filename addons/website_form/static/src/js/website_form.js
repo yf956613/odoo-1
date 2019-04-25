@@ -10,6 +10,7 @@ odoo.define('website_form.animation', function (require) {
     var qweb = core.qweb;
 
     publicWidget.registry.form_builder_send = publicWidget.Widget.extend({
+        xmlDependencies: ['/website_form/static/src/xml/website_form_editor.xml'],
         selector: '.s_website_form',
 
         willStart: function () {
@@ -69,12 +70,57 @@ odoo.define('website_form.animation', function (require) {
                 });
             }
 
+            // re-fetches the values from db for relational / selection fields while landing on the
+            // page and updates the values for such fields to keep it in sync with db values
+            this.reFetchFieldsValue();
+
             return this._super.apply(this, arguments);
         },
 
         destroy: function () {
             this._super.apply(this, arguments);
             this.$target.find('button').off('click');
+        },
+
+        reFetchFieldsValue: function () {
+            var self = this;
+            // list out the fields to be updated in current form
+            var fieldsList = _.map(this.$target.find('.o_website_form_field_sync label.col-form-label'), function (label) {
+                return $(label).attr('for');
+            });
+            var modelName = this.$target.data('model_name');
+
+            if (modelName && fieldsList.length && !this.editableMode) {
+                this._rpc({
+                    route: '/website_form/get_updated_fields',
+                    params: {
+                        model: modelName,
+                        fields: fieldsList,
+                    }
+                }).then(function (fieldsInfo) {
+                    _.each(fieldsInfo, function (field, fieldName) {
+                        // If public user has no read access for relational model, do nothing.
+                        if (field.relation && !field.records) {
+                            return;
+                        }
+                        field.required = field.required ? 1 : null;
+                        field.name = fieldName;
+                        var $target = self.$target.find('label[for="'+ fieldName +'"]').closest('.o_website_form_field_sync');
+                        var $el = $target.children().last();
+                        field.formatInfo = {
+                            lableClass: $target.children().first().attr('class') || '',
+                            contentClass: $el.attr('class') || '',
+                        };
+
+                        if ($el.find('.o_website_form_checkbox, .o_website_form_radio').length) {
+                            field.display = $el.find('.o_website_form_checkbox, .o_website_form_radio').data('display');
+                        }
+                        var $content = $(qweb.render("website_form.field_" + field.type, {field: field}));
+                        // Replace the content with the values fetched from database
+                        $el.replaceWith($content.children().last());
+                    });
+                });
+            }
         },
 
         send: function (e) {
