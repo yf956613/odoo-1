@@ -538,11 +538,16 @@ odoo.define('website_form_editor', function (require) {
                 var self = this;
                 // Reconstruct the field from the select tag
                 var select = this.$target.find('select');
+                var $label = this.$target.find('label.col-form-label').parent();
                 var field = {
                     name: select.attr('name'),
                     string: this.$target.find('.col-form-label').text().trim(),
                     required: self.$target.hasClass('o_website_form_required'),
                     custom: self.$target.hasClass('o_website_form_custom'),
+                    formatInfo: {
+                        lableClass: $label.attr('class') || '',
+                        contentClass: $label.next().attr('class') || '',
+                    },
                 };
 
                 // Build the new records list from the editable select field
