@@ -67,9 +67,19 @@
 }
 
 @include media-breakpoint-down(sm) {
-    .o_chatter .o_chatter_topbar > .o_topbar_right_area {
-        .o_chatter_button_attachment {
+    .o_chatter .o_chatter_topbar {
+        height: $o-statusbar-height * 2;
+        flex-wrap: wrap;
+        .o_chatter_buttons {
+            display: inherit;
+            width: 100%;
+            .btn {
+                width: 33.33%;
+            }
+        }
+        .o_topbar_right_area .o_chatter_button_attachment {
             margin-right: initial;
+            width: 33.33%;
         }
     }
 }

@@ -96,12 +96,17 @@ var Chatter = Widget.extend({
             }));
         }
         // render and append the buttons
-        this._$topbar.prepend(QWeb.render('mail.chatter.Buttons', {
+        var $chatterButtons = QWeb.render('mail.chatter.Buttons', {
             newMessageButton: !!this.fields.thread,
             logNoteButton: this.hasLogButton,
             scheduleActivityButton: !!this.fields.activity,
             isMobile: config.device.isMobile,
-        }));
+        });
+        if (config.device.isMobile) {
+            this._$topbar.find('.o_topbar_right_area').after($chatterButtons);
+        } else {
+            this._$topbar.prepend($chatterButtons);
+        }
         // start and append the widgets
         var fieldDefs = _.invoke(this.fields, 'appendTo', $('<div>'));
         var def = this._dp.add(Promise.all(fieldDefs));

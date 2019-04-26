@@ -1,8 +1,5 @@
 .o_followers {
     float: right;
-    @include media-breakpoint-down(sm) {
-        display: none !important; // Hide the followers in mobile
-    }
 
     .o_followers_actions {
         position: relative;
@@ -122,6 +119,25 @@
                 }
             }
 
+        }
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .o_followers {
+        float: left;
+        display: flex;
+        width: 66.66%;
+        flex-direction: row-reverse;
+        .o_followers_actions {
+            width: 50%;
+        }
+        .o_followers_title_box {
+            width: 50%;
+            .btn {
+                display: block;
+                margin: auto;
+            }
         }
     }
 }
