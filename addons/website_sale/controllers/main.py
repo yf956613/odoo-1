@@ -258,7 +258,7 @@ class WebsiteSale(ProductConfiguratorController):
         ProductAttribute = request.env['product.attribute']
         if products:
             # get all products without limit
-            attributes = ProductAttribute.search([('attribute_line_ids.value_ids', '!=', False), ('attribute_line_ids.product_tmpl_id', 'in', search_product.ids)])        
+            attributes = ProductAttribute.search([('attribute_line_ids.value_ids', '!=', False), ('attribute_line_ids.product_tmpl_id', 'in', search_product.ids)])
         else:
             attributes = ProductAttribute.browse(attributes_ids)
 
@@ -968,11 +968,10 @@ class WebsiteSale(ProductConfiguratorController):
 
         if not order or (order.amount_total and not tx):
             return request.redirect('/shop')
-
         if order and not order.amount_total and not tx:
             order.with_context(send_email=True).action_confirm()
-            return request.redirect(order.get_portal_url())
-
+            portal_url = order.get_portal_url()
+            return request.redirect(portal_url)
         # clean context and session, then redirect to the confirmation page
         request.website.sale_reset()
         if tx and tx.state == 'draft':
