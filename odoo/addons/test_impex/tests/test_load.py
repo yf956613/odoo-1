@@ -870,6 +870,14 @@ class test_o2m(ImporterCase):
             values(b.value, 'str'),
             'this is the rhythm'.split())
 
+    def test_subfields_fail_by_implicit_id(self):
+        result = self.import_(['value/parent_id'], [['noxidforthat']])
+        self.assertEqual(result['messages'], [message(
+            u"No matching record found for name 'noxidforthat' in field 'Value/Parent'",
+            moreinfo=moreaction(res_model='export.one2many')
+            )])
+        self.assertIs(result['ids'], False)
+
     def test_link_inline(self):
         """ m2m-style specification for o2ms
         """

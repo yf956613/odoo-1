@@ -439,10 +439,18 @@ class IrFieldsConverter(models.AbstractModel):
             # [{subfield:ref1},{subfield:ref2},{subfield:ref3}]
             records = ({subfield:item} for item in record[subfield].split(','))
 
-        def log(_, e):
-            if not isinstance(e, Warning):
-                raise e
-            warnings.append(e)
+        RelatedModel = self.env[field.comodel_name]
+        field_names = {name: field.string for name, field in RelatedModel._fields.items()}
+        def log(f, exception):
+            if not isinstance(exception, Warning):
+                # raise self._format_import_error(
+                #     ValueError,
+                #     exception.args[0] % dict(field=("%%(field)s/" + field_names[f])),
+                #     {},
+                #     exception.args[1]
+                # )
+                raise type(exception)(exception.args[0] % dict(field=("%(field)s/" + field_names[f])), exception.args[1])
+            warnings.append(exception)
 
         convert = self.for_model(self.env[field.comodel_name])
 
