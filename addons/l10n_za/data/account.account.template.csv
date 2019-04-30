@@ -2,7 +2,7 @@ id,code,name,user_type_id/id,reconcile,chart_template_id/id
 100020,100020,Stock Valuation Account,account.data_account_type_current_assets,True,default_chart_template
 100030,100030,Stock Work In Progress,account.data_account_type_current_assets,False,default_chart_template
 100040,100040,Stock Finished Goods,account.data_account_type_current_assets,False,default_chart_template
-100050,100050,Stock Delivered Control Account,account.data_account_type_current_assets,False,default_chart_template
+100050,100050,Stock Delivered Control Account,account.data_account_type_current_assets,True,default_chart_template
 100060,100060,Purchase Tax Control Account,account.data_account_type_current_assets,False,default_chart_template
 100070,100070,Other Current Assets,account.data_account_type_current_assets,False,default_chart_template
 110010,110010,Debtors Control Account,account.data_account_type_receivable,True,default_chart_template
@@ -18,7 +18,7 @@ id,code,name,user_type_id/id,reconcile,chart_template_id/id
 140060,140060,Office Equipment (incl computer equipment),account.data_account_type_fixed_assets,False,default_chart_template
 140070,140070,Plant & Machinery,account.data_account_type_fixed_assets,False,default_chart_template
 150010,150010,Non-current assets,account.data_account_type_non_current_assets,False,default_chart_template
-200010,200010,Stock Received Control Account,account.data_account_type_current_liabilities,False,default_chart_template
+200010,200010,Stock Received Control Account,account.data_account_type_current_liabilities,True,default_chart_template
 200020,200020,Sundry Creditors,account.data_account_type_current_liabilities,False,default_chart_template
 200030,200030,Other Creditors,account.data_account_type_current_liabilities,False,default_chart_template
 200040,200040,Accruals,account.data_account_type_current_liabilities,False,default_chart_template
