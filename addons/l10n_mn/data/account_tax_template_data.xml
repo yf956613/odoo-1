@@ -15,26 +15,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line5')],
+                'financial_tag_ids': [ref('vat_report_tag5')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag5')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line5')],
+                'financial_tag_ids': [ref('vat_report_tag5')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag5')],
             }),
         ]"/>
     </record>
@@ -53,26 +53,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line36'),ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag36'),ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag36')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line36'),ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag36'),ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag36')],
             }),
         ]"/>
     </record>
@@ -91,7 +91,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -103,7 +103,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -127,7 +127,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line2')],
+                'financial_tag_ids': [ref('vat_report_tag2')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -139,7 +139,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line2')],
+                'financial_tag_ids': [ref('vat_report_tag2')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -163,7 +163,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line2')],
+                'financial_tag_ids': [ref('vat_report_tag2')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -175,7 +175,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line2')],
+                'financial_tag_ids': [ref('vat_report_tag2')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -199,26 +199,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line6')],
+                'financial_tag_ids': [ref('vat_report_tag6')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag6')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line6')],
+                'financial_tag_ids': [ref('vat_report_tag6')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag6')],
             }),
         ]"/>
     </record>
@@ -237,26 +237,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line7')],
+                'financial_tag_ids': [ref('vat_report_tag7')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag7')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line7')],
+                'financial_tag_ids': [ref('vat_report_tag7')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag7')],
             }),
         ]"/>
     </record>
@@ -275,26 +275,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line8')],
+                'financial_tag_ids': [ref('vat_report_tag8')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag8')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line8')],
+                'financial_tag_ids': [ref('vat_report_tag8')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag8')],
             }),
         ]"/>
     </record>
@@ -313,26 +313,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line9')],
+                'financial_tag_ids': [ref('vat_report_tag9')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag9')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line9')],
+                'financial_tag_ids': [ref('vat_report_tag9')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag9')],
             }),
         ]"/>
     </record>
@@ -351,26 +351,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line11')],
+                'financial_tag_ids': [ref('vat_report_tag11')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag11')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line11')],
+                'financial_tag_ids': [ref('vat_report_tag11')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag11')],
             }),
         ]"/>
     </record>
@@ -389,26 +389,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line12')],
+                'financial_tag_ids': [ref('vat_report_tag12')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag12')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line12')],
+                'financial_tag_ids': [ref('vat_report_tag12')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag12')],
             }),
         ]"/>
     </record>
@@ -427,26 +427,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line13')],
+                'financial_tag_ids': [ref('vat_report_tag13')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag13')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line13')],
+                'financial_tag_ids': [ref('vat_report_tag13')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag13')],
             }),
         ]"/>
     </record>
@@ -465,26 +465,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line14')],
+                'financial_tag_ids': [ref('vat_report_tag14')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag14')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line14')],
+                'financial_tag_ids': [ref('vat_report_tag14')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag14')],
             }),
         ]"/>
     </record>
@@ -503,26 +503,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line15')],
+                'financial_tag_ids': [ref('vat_report_tag15')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag15')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line15')],
+                'financial_tag_ids': [ref('vat_report_tag15')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag15')],
             }),
         ]"/>
     </record>
@@ -541,26 +541,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line16')],
+                'financial_tag_ids': [ref('vat_report_tag16')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag16')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line16')],
+                'financial_tag_ids': [ref('vat_report_tag16')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag16')],
             }),
         ]"/>
     </record>
@@ -579,26 +579,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line17')],
+                'financial_tag_ids': [ref('vat_report_tag17')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag17')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line17')],
+                'financial_tag_ids': [ref('vat_report_tag17')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag17')],
             }),
         ]"/>
     </record>
@@ -617,26 +617,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line18')],
+                'financial_tag_ids': [ref('vat_report_tag18')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag18')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line18')],
+                'financial_tag_ids': [ref('vat_report_tag18')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag18')],
             }),
         ]"/>
     </record>
@@ -655,26 +655,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line19')],
+                'financial_tag_ids': [ref('vat_report_tag19')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag19')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line19')],
+                'financial_tag_ids': [ref('vat_report_tag19')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag19')],
             }),
         ]"/>
     </record>
@@ -693,26 +693,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line20')],
+                'financial_tag_ids': [ref('vat_report_tag20')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag20')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line20')],
+                'financial_tag_ids': [ref('vat_report_tag20')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag20')],
             }),
         ]"/>
     </record>
@@ -731,26 +731,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line21')],
+                'financial_tag_ids': [ref('vat_report_tag21')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag21')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line21')],
+                'financial_tag_ids': [ref('vat_report_tag21')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag21')],
             }),
         ]"/>
     </record>
@@ -769,26 +769,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line22')],
+                'financial_tag_ids': [ref('vat_report_tag22')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag22')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line22')],
+                'financial_tag_ids': [ref('vat_report_tag22')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag22')],
             }),
         ]"/>
     </record>
@@ -807,26 +807,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line23')],
+                'financial_tag_ids': [ref('vat_report_tag23')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag23')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line23')],
+                'financial_tag_ids': [ref('vat_report_tag23')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag23')],
             }),
         ]"/>
     </record>
@@ -845,26 +845,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line24')],
+                'financial_tag_ids': [ref('vat_report_tag24')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag24')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line24')],
+                'financial_tag_ids': [ref('vat_report_tag24')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag24')],
             }),
         ]"/>
     </record>
@@ -883,26 +883,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line25')],
+                'financial_tag_ids': [ref('vat_report_tag25')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag25')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line25')],
+                'financial_tag_ids': [ref('vat_report_tag25')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line27')],
+                'financial_tag_ids': [ref('vat_report_tag25')],
             }),
         ]"/>
     </record>
@@ -921,7 +921,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line28')],
+                'financial_tag_ids': [ref('vat_report_tag28')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -933,7 +933,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line28')],
+                'financial_tag_ids': [ref('vat_report_tag28')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -957,7 +957,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line29')],
+                'financial_tag_ids': [ref('vat_report_tag29')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -969,7 +969,7 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line29')],
+                'financial_tag_ids': [ref('vat_report_tag29')],
             }),
             (0,0, {
                 'factor_percent': 100,
@@ -993,26 +993,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line35')],
+                'financial_tag_ids': [ref('vat_report_tag33'),ref('vat_report_tag35')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag35')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line35')],
+                'financial_tag_ids': [ref('vat_report_tag33'),ref('vat_report_tag35')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag35')],
             }),
         ]"/>
     </record>
@@ -1031,26 +1031,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line37')],
+                'financial_tag_ids': [ref('vat_report_tag33'),ref('vat_report_tag37')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag37')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line37')],
+                'financial_tag_ids': [ref('vat_report_tag33'),ref('vat_report_tag37')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag37')],
             }),
         ]"/>
     </record>
@@ -1069,26 +1069,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line38')],
+                'financial_tag_ids': [ref('vat_report_tag33'),ref('vat_report_tag38')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag38')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33'),ref('vat_report_line38')],
+                'financial_tag_ids': [ref('vat_report_tag33'),ref('vat_report_tag38')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line39')],
+                'financial_tag_ids': [ref('vat_report_tag38')],
             }),
         ]"/>
     </record>
@@ -1107,26 +1107,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line41')],
+                'financial_tag_ids': [ref('vat_report_tag41')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line41')],
+                'financial_tag_ids': [ref('vat_report_tag41')],
             }),
         ]"/>
     </record>
@@ -1145,26 +1145,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line42')],
+                'financial_tag_ids': [ref('vat_report_tag42')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line42')],
+                'financial_tag_ids': [ref('vat_report_tag42')],
             }),
         ]"/>
     </record>
@@ -1183,26 +1183,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line43')],
+                'financial_tag_ids': [ref('vat_report_tag43')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line43')],
+                'financial_tag_ids': [ref('vat_report_tag43')],
             }),
         ]"/>
     </record>
@@ -1221,26 +1221,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line44')],
+                'financial_tag_ids': [ref('vat_report_tag44')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line44')],
+                'financial_tag_ids': [ref('vat_report_tag44')],
             }),
         ]"/>
     </record>
@@ -1259,26 +1259,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line45')],
+                'financial_tag_ids': [ref('vat_report_tag45')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line45')],
+                'financial_tag_ids': [ref('vat_report_tag45')],
             }),
         ]"/>
     </record>
@@ -1297,26 +1297,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line46')],
+                'financial_tag_ids': [ref('vat_report_tag46')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line33')],
+                'financial_tag_ids': [ref('vat_report_tag33')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line46')],
+                'financial_tag_ids': [ref('vat_report_tag46')],
             }),
         ]"/>
     </record>
@@ -1335,26 +1335,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line48')],
+                'financial_tag_ids': [ref('vat_report_tag48')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line50')],
+                'financial_tag_ids': [ref('vat_report_tag48')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line48')],
+                'financial_tag_ids': [ref('vat_report_tag48')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line50')],
+                'financial_tag_ids': [ref('vat_report_tag48')],
             }),
         ]"/>
     </record>
@@ -1373,26 +1373,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line49')],
+                'financial_tag_ids': [ref('vat_report_tag49')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'plus_tag_ids': [ref('vat_report_line50')],
+                'financial_tag_ids': [ref('vat_report_tag49')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line49')],
+                'financial_tag_ids': [ref('vat_report_tag49')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_3401_0201'),
-                'minus_tag_ids': [ref('vat_report_line50')],
+                'financial_tag_ids': [ref('vat_report_tag49')],
             }),
         ]"/>
     </record>
@@ -1411,26 +1411,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line51')],
+                'financial_tag_ids': [ref('vat_report_tag51')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line53')],
+                'financial_tag_ids': [ref('vat_report_tag51')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line51')],
+                'financial_tag_ids': [ref('vat_report_tag51')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line53')],
+                'financial_tag_ids': [ref('vat_report_tag51')],
             }),
         ]"/>
     </record>
@@ -1449,26 +1449,26 @@
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'plus_tag_ids': [ref('vat_report_line52')],
+                'financial_tag_ids': [ref('vat_report_tag52')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'plus_tag_ids': [ref('vat_report_line53')],
+                'financial_tag_ids': [ref('vat_report_tag52')],
             }),
         ]"/>
         <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'base',
-                'minus_tag_ids': [ref('vat_report_line52')],
+                'financial_tag_ids': [ref('vat_report_tag52')],
             }),
             (0,0, {
                 'factor_percent': 100,
                 'repartition_type': 'tax',
                 'account_id': ref('account_template_1204_0301'),
-                'minus_tag_ids': [ref('vat_report_line53')],
+                'financial_tag_ids': [ref('vat_report_tag52')],
             }),
         ]"/>
     </record>
