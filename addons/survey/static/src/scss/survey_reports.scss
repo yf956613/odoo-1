@@ -98,6 +98,7 @@
 
                 img {
                     max-width: 40mm;
+                    max-height: 40mm;
                 }
             }
         }
@@ -123,7 +124,7 @@
                     margin-bottom: 10mm;
                     padding: 20mm 6mm 5mm;
                     text-align: center;
-
+                    width: 56mm;
                 }
 
                 .certification-company-wrapper {
@@ -132,6 +133,7 @@
 
                     img {
                         max-width: 40mm;
+                        max-height: 30mm;
                     }
                 }
 
@@ -169,7 +171,7 @@
 
                     .certification-bg-dark {
                         width: 56mm;
-                        height: 100%;
+                        max-height: 100%;
                     }
 
                     .certification-date {
