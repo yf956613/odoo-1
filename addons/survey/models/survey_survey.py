@@ -607,3 +607,12 @@ class Survey(models.Model):
             questions = self.question_ids
 
         return questions
+
+    @api.multi
+    def preview_certification_template(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'target': '_blank',
+            'url': '/survey/%s/get_certification_preview' % (self.certification_report_template_id.id)
+        }

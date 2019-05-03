@@ -508,6 +508,12 @@ class Survey(http.Controller):
         #     filter_finish: boolean => only finished surveys or not
         #
 
+    @http.route(['/survey/<int:report_template_id>/get_certification_preview'], type="http", auth="user", methods=['GET'], website=True)
+    def survey_get_certification_preview(self, report_template_id, **kwargs):
+        user_input = request.env.ref('survey.certification_report_template_preview_user_input')
+        user_input.survey_id.certification_report_template_id = request.env['survey.certification.report.template'].browse(report_template_id)
+        return self._generate_report(user_input, preview=True)
+
     @http.route(['/survey/<int:survey_id>/get_certification'], type='http', auth='user', methods=['GET'], website=True)
     def survey_get_certification(self, survey_id, **kwargs):
         """ The certification document can be downloaded as long as the user has succeeded the certification """
@@ -529,15 +535,7 @@ class Survey(http.Controller):
         if not succeeded_attempt:
             raise UserError(_("The user has not succeeded the certification"))
 
-        report_sudo = request.env.ref('survey.certification_report').sudo()
-
-        report = report_sudo.render_qweb_pdf([succeeded_attempt.id], data={'report_type': 'pdf'})[0]
-        reporthttpheaders = [
-            ('Content-Type', 'application/pdf'),
-            ('Content-Length', len(report)),
-        ]
-        reporthttpheaders.append(('Content-Disposition', content_disposition('Certification.pdf')))
-        return request.make_response(report, headers=reporthttpheaders)
+        return self._generate_report(succeeded_attempt)
 
     def _prepare_result_dict(self, survey, current_filters=None):
         """Returns dictionary having values for rendering template"""
@@ -640,3 +638,22 @@ class Survey(http.Controller):
         if token:
             values['token'] = token
         return values
+
+    def _generate_report(self, user_input, preview=False):
+        report_sudo = request.env.ref('survey.certification_report').sudo()
+
+        report = report_sudo.render_qweb_pdf([user_input.id], data={'report_type': 'pdf'})[0]
+
+        reporthttpheaders = [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', len(report)),
+        ]
+
+        cont_disposition = content_disposition('Certification.pdf')
+        if preview:
+            cont_disposition_arr = cont_disposition.split(';')
+            cont_disposition_arr[0] = 'inline'
+            cont_disposition = ';'.join(cont_disposition_arr)
+
+        reporthttpheaders.append(('Content-Disposition', cont_disposition))
+        return request.make_response(report, headers=reporthttpheaders)
