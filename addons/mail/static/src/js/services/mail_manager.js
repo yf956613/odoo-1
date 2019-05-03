@@ -883,14 +883,21 @@ var MailManager =  AbstractService.extend({
      */
     _joinAndAddChannel: function (channelID, options) {
         var self = this;
-        return this._rpc({
+        var def = this._rpc({
                 model: 'mail.channel',
                 method: 'channel_join_and_get_info',
                 args: [[channelID]],
-            })
-            .then(function (result) {
+            });
+        // We only want to addChannel if we open it locally called by
+        // _openAndDetachDMChat. Here, it's called when another browser want
+        // to open it.
+        if (!config.device.isMobile) {
+            return def.then(function (result) {
                 return self._addChannel(result, options);
             });
+        } else {
+            return def;
+        }
     },
     /**
      * Listen on several buses, before doing any action that trigger something
@@ -1215,9 +1222,16 @@ var MailManager =  AbstractService.extend({
     _updateChannelsFromServer: function (data) {
         var self = this;
         var proms = [];
+        var options = [];
+
+        // avoid to trigger new_channel on mail_bus
+        if (config.device.isMobile) {
+            options = {silent: true};
+        }
+
         _.each(data.channel_slots, function (channels) {
             _.each(channels, function (channel) {
-                proms.push(self._addChannel(channel));
+                proms.push(self._addChannel(channel, options));
             });
         });
         return Promise.all(proms);

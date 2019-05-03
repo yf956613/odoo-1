@@ -654,9 +654,10 @@ MailManager.include({
      *   channel (like the rendering of its window)
      */
     _onNewChannel: function (channel, proms) {
-        //if (config.device.isMobile) {
-            //return;
-        //}
+        /*if (config.device.isMobile) {
+            return;
+            see _joinAndAddChannel
+        }*/
         if (channel.isDetached()) {
             var prom = this.openThreadWindow(channel.getID(), {
                 keepFoldState: true,
