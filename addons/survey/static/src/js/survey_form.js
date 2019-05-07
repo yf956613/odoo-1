@@ -23,15 +23,6 @@ publicWidget.registry.SurveyFormWidget = publicWidget.Widget.extend({
     /**
     * @override
     */
-    willStart: function () {
-        var url = '/web/webclient/locale/' + (document.documentElement.getAttribute('lang') || 'en_US').replace('-', '_');
-        var localeReady = ajax.loadJS(url);
-        return Promise.all([this._super.apply(this, arguments), localeReady]);
-    },
-
-    /**
-    * @override
-    */
     start: function () {
         var self = this;
         self.surveyToken = self.$target.data('surveyToken');
