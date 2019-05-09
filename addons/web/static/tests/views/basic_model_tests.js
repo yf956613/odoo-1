@@ -2256,6 +2256,7 @@ odoo.define('web.basic_model_tests', function (require) {
 
             assert.strictEqual(record.data.product_ids.data[0].id, newRecordID,
                 "the id should match");
+            model.destroy();
         });
 
         QUnit.test('notifyChange MULTI on a many2many', async function (assert) {
