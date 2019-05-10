@@ -214,9 +214,9 @@ odoo.define('web.test_utils.leak', function (require) {
 var mixins = require('web.mixins');
 var oldInit = mixins.ParentedMixin.init;
 
-var ws;
+var ws = [];
 QUnit.testStart(function () {
-    ws = [];
+    ws.length = 0;
     mixins.ParentedMixin.init = function () {
         oldInit.apply(this, arguments);
         ws.push(this);
@@ -229,8 +229,10 @@ QUnit.testDone(function (details) {
         // only check for zombie objects if the test suceeded otherwise we don't care
         var zombies = _(ws).filter(function (w) { return !w.isDestroyed(); });
         if (zombies.length) {
-            console.error("Found non-destroyed widgets in ", details.module, ":", details.name);
+            console.log('--------------------------------------------------');
+            console.log("Found non-destroyed widgets in ", details.module, ":", details.name);
             _(zombies).each(function (it) {
+                console.log(it);
                 console.log(Object.entries(it).map(([k, v]) => {
                     try {
                         return `${k}=${v}`;
@@ -241,6 +243,7 @@ QUnit.testDone(function (details) {
             });
         }
     }
-    ws = [];
+    ws.length = 0;
 });
+return ws;
 });
