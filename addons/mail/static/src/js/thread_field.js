@@ -114,7 +114,7 @@ var ThreadField = AbstractField.extend({
     _fetchAndRenderThread: function (options) {
         var self = this;
         if (!this._documentThread) {
-            var thread = new CreateModeDocumentThread();
+            var thread = new CreateModeDocumentThread(this);
             options = { isCreateMode: true };
             self._threadWidget.render(thread, options);
             return Promise.resolve();

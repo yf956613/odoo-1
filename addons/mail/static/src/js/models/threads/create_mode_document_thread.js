@@ -23,8 +23,9 @@ var CreateModeDocumentThread = AbstractThread.extend({
     /**
      * @override
      */
-    init: function () {
+    init: function (parent) {
         var params = {
+            parent: parent,
             data: {
                 id: '_createModeDocumentThread'
             }
