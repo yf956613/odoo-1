@@ -174,6 +174,33 @@ class Location(models.Model):
         self.ensure_one()
         return self.usage in ('supplier', 'customer', 'inventory', 'production') or self.scrap_location
 
+    def _qweb_prepare_qcontext(self, view_id, domain):
+        values = super()._qweb_prepare_qcontext(view_id, domain)
+        result = self.search_read(domain, ['name', 'location_id', 'usage', 'barcode'])
+        data = {}
+        roots = []
+
+        for i in result:
+            i['childs'] = []
+            data[i['id']] = i
+
+        for i in data:
+            location_id = data[i]['location_id']
+            if location_id and data.get(location_id[0]):
+                data[location_id[0]]['childs'].append(data[i])
+            else:
+                roots.append(data[i])
+
+        values['data'] = roots
+        return values
+
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        result = super().fields_view_get(view_id, view_type, toolbar, submenu)
+        if result['type'] == 'qweb':
+            result['arch'] = '<qweb js_class="stock_location_hierarchy_qweb"/>'
+        return result
+
 
 class Route(models.Model):
     _name = 'stock.location.route'
