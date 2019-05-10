@@ -212,6 +212,7 @@ return Promise.all([
 });
 odoo.define('web.test_utils.leak', function (require) {
 var mixins = require('web.mixins');
+var RamStorage = require('web.RamStorage');
 var oldInit = mixins.ParentedMixin.init;
 
 var ws = [];
@@ -226,8 +227,12 @@ QUnit.testDone(function (details) {
     mixins.ParentedMixin.init = oldInit;
 
     if (!details.failed) {
-        // only check for zombie objects if the test suceeded otherwise we don't care
-        var zombies = _(ws).filter(function (w) { return !w.isDestroyed(); });
+        // only check for zombie objects if the test succeeded otherwise we don't care
+        // also ignore ramstorage as mail.testUtils ensures we've got a ton
+        // of uncleanable ramstorages lying around
+        var zombies = _(ws).filter(function (w) {
+            return !(w instanceof RamStorage) && !w.isDestroyed();
+        });
         if (zombies.length) {
             console.log('--------------------------------------------------');
             console.log("Found non-destroyed widgets in ", details.module, ":", details.name);
