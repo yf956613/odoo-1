@@ -71,6 +71,7 @@
                 <div class="table-responsive">
                     <table class="table-striped table-bordered oe_import_grid bg-white" />
                 </div>
+                <h2>This is a preview of the first 10 rows of your file</h2>
             </div>
             <div class="o_view_nocontent">
                 <div class="o_nocontent_help">
@@ -113,11 +114,11 @@
         <thead>
             <tr t-if="headers" class="oe_import_grid-header">
                 <td t-foreach="headers" t-as="header" class="oe_import_grid-cell"
-                    ><span class="o_import_header_name ellipsis_without_space"><t t-esc="header"/></span></td>
+                    ><span class="o_import_header_name o_text_ellipsis"><t t-esc="header"/></span></td>
             </tr>
             <tr class="oe_import_fields">
                 <!-- Iterate on first row to ensure we have all columns -->
-                <td t-foreach="preview[0]"  t-as="column">
+                <td t-foreach="preview[0]" t-as="column">
                     <input class="oe_import_match_field"/>
                 </td>
             </tr>
@@ -125,14 +126,9 @@
         <tbody>
             <tr t-foreach="preview" t-as="row" class="oe_import_grid-row">
                 <td t-foreach="row" t-as="cell" class="oe_import_grid-cell">
-                    <span t-attf-class="#{ cell.indexOf(' ') &gt; 0 ? 'o_import_header_name ellipsis_with_space' : 'o_import_header_name ellipsis_without_space' }" >
+                    <span t-attf-class="#{ cell.indexOf(' ') &gt; 0 ? 'o_import_header_name o_text_multiline_ellipsis' : 'o_import_header_name o_text_ellipsis' }" >
                         <t t-esc="cell"/>
                     </span>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <b style="color:red; font-size:18px;">This is a preview of the first 10 rows of your file</b>
                 </td>
             </tr>
         </tbody>

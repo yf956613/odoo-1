@@ -98,29 +98,27 @@
     }
 
     /* ------------- THE CSV TABLE ------------ */
-table tbody { display:block; max-height:450px; overflow-y:scroll; overflow-x: hidden; }
-table thead, table tbody tr { display:table; width:100%; }
-table thead, table tbody td { min-width: 384px; text-overflow: ellipsis; }
 
-.ellipsis_without_space{
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    max-width: 384px;
-    white-space: nowrap;
-    word-wrap: break-word;
-}
-.ellipsis_with_space{
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-height: 1.2em;
-    max-width: 384px;
-    max-height: 3.6em;
-    word-wrap: break-word;
-}
+    .o_text_ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        max-width: 384px;
+        white-space: nowrap;
+        word-wrap: break-word;
+    }
+
+    .o_text_multiline_ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-height: 1em;
+        width: 384px;
+        max-height: 3em;
+        word-wrap: break-word;
+    }
 
     .oe_import_grid {
         tr {
@@ -130,12 +128,12 @@ table thead, table tbody td { min-width: 384px; text-overflow: ellipsis; }
                 position: relative;
                 overflow: auto;
             }
-            td,th {
+            td {
                 padding: 4px;
                 vertical-align: top;
-                }
             }
         }
+    }
 
     /* Default Color for placeholder on import fields*/
     .select2-default{
