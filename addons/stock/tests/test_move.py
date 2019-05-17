@@ -1121,19 +1121,6 @@ class StockMove(SavepointCase):
         self.assertEqual(move.state, 'assigned')
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product, self.stock_location), 0.0)
 
-        # Check it isn't possible to set any value to quantity_done
-        with self.assertRaises(UserError):
-            move.quantity_done = 0.1
-            move._action_done()
-
-        with self.assertRaises(UserError):
-            move.quantity_done = 1.1
-            move._action_done()
-
-        with self.assertRaises(UserError):
-            move.quantity_done = 0.9
-            move._action_done()
-
         move.quantity_done = 1
         move._action_done()
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product, self.customer_location), 12.0)
@@ -1797,7 +1784,7 @@ class StockMove(SavepointCase):
 
     def test_link_assign_7(self):
         # on the dozen uom, set the rounding set 1.0
-        self.uom_dozen.rounding = 1
+        self.uom_dozen.rounding =  0.001
 
         # 6 units are available in stock
         self.env['stock.quant']._update_available_quantity(self.product, self.stock_location, 6.0)
@@ -1809,7 +1796,7 @@ class StockMove(SavepointCase):
             'picking_type_id': self.env.ref('stock.picking_type_internal').id,
         })
         move_stock_pack = self.env['stock.move'].create({
-            'name': 'test_link_assign_7',
+            'name': 'test_link_assign_stock_pack',
             'location_id': self.stock_location.id,
             'location_dest_id': self.pack_location.id,
             'product_id': self.product.id,
@@ -1823,7 +1810,7 @@ class StockMove(SavepointCase):
             'picking_type_id': self.env.ref('stock.picking_type_out').id,
         })
         move_pack_cust = self.env['stock.move'].create({
-            'name': 'test_link_assign_7',
+            'name': 'test_link_assign_pack_cust',
             'location_id': self.pack_location.id,
             'location_dest_id': self.customer_location.id,
             'product_id': self.product.id,
@@ -1837,7 +1824,7 @@ class StockMove(SavepointCase):
 
         # the pick should not be reservable because of the rounding of the dozen
         move_stock_pack._action_assign()
-        self.assertEqual(move_stock_pack.state, 'confirmed')
+        self.assertEqual(move_stock_pack.state, 'partially_available')
         move_pack_cust._action_assign()
         self.assertEqual(move_pack_cust.state, 'waiting')
 
@@ -1870,8 +1857,8 @@ class StockMove(SavepointCase):
         move_pack_cust._action_assign()
         self.assertEqual(move_pack_cust.state, 'partially_available')
         move_line_pack_cust = move_pack_cust.move_line_ids
-        self.assertEqual(move_line_pack_cust.product_uom_qty, 6)
-        self.assertEqual(move_line_pack_cust.product_uom_id.id, self.uom_unit.id)
+        self.assertEqual(move_line_pack_cust.product_uom_qty, 0.5)
+        self.assertEqual(move_line_pack_cust.product_uom_id.id, self.uom_dozen.id)
 
         # move a dozen on the backorder to see how we handle the extra move
         backorder = self.env['stock.picking'].search([('backorder_id', '=', picking_stock_pack.id)])
@@ -1892,15 +1879,15 @@ class StockMove(SavepointCase):
         overprocessed_wizard.action_confirm()
         backorder_move = backorder.move_lines
         self.assertEqual(backorder_move.state, 'done')
-        self.assertEqual(backorder_move.quantity_done, 12.0)
-        self.assertEqual(backorder_move.product_uom_qty, 12.0)
-        self.assertEqual(backorder_move.product_uom, self.uom_unit)
+        self.assertEqual(backorder_move.quantity_done, 1.0)
+        self.assertEqual(backorder_move.product_uom_qty, 1.0)
+        self.assertEqual(backorder_move.product_uom, self.uom_dozen)
 
         # the second move should now be reservable
         move_pack_cust._action_assign()
         self.assertEqual(move_pack_cust.state, 'assigned')
-        self.assertEqual(move_line_pack_cust.product_uom_qty, 12)
-        self.assertEqual(move_line_pack_cust.product_uom_id.id, self.uom_unit.id)
+        self.assertEqual(move_line_pack_cust.product_uom_qty, 1.0)
+        self.assertEqual(move_line_pack_cust.product_uom_id.id, self.uom_dozen.id)
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product, move_stock_pack.location_dest_id), 6)
 
     def test_link_assign_8(self):
@@ -1975,7 +1962,7 @@ class StockMove(SavepointCase):
             'name': '3 units',
             'category_id': self.uom_unit.category_id.id,
             'factor_inv': 3,
-            'rounding': 1,
+            'rounding': 0.001,
             'uom_type': 'bigger',
         })
         for i in range(1, 4):
@@ -2051,9 +2038,7 @@ class StockMove(SavepointCase):
             'move_id': backordered_move.id,
         })]})
 
-        overprocessed_wizard = backorder.button_validate()
-        overprocessed_wizard = self.env['stock.overprocessed.transfer'].browse(overprocessed_wizard['res_id'])
-        overprocessed_wizard.action_confirm()
+        backorder.button_validate()
 
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product_serial, self.customer_location), 3)
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product_serial, self.pack_location), 0)
