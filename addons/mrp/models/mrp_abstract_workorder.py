@@ -15,7 +15,7 @@ class MrpAbstractWorkorder(models.AbstractModel):
 
     production_id = fields.Many2one('mrp.production', 'Manufacturing Order', required=True)
     product_id = fields.Many2one(related='production_id.product_id', readonly=True, store=True)
-    qty_producing = fields.Float(string='Currently Produced Quantity', digits=dp.get_precision('Product Unit of Measure'))
+    qty_producing = fields.Uom(string='Currently Produced Quantity', uom_field='product_uom_id')
     product_uom_id = fields.Many2one('uom.uom', 'Unit of Measure', required=True, readonly=True)
     finished_lot_id = fields.Many2one('stock.production.lot', string='Lot/Serial Number', domain="[('product_id', '=', product_id)]", oldname='final_lot_id')
     product_tracking = fields.Selection(related="product_id.tracking")
@@ -306,10 +306,10 @@ class MrpAbstractWorkorderLine(models.AbstractModel):
     product_id = fields.Many2one('product.product', 'Product', required=True)
     product_tracking = fields.Selection(related="product_id.tracking")
     lot_id = fields.Many2one('stock.production.lot', 'Lot/Serial Number')
-    qty_to_consume = fields.Float('To Consume', digits=dp.get_precision('Product Unit of Measure'))
+    qty_to_consume = fields.Uom('To Consume', uom_field='product_uom_id')
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
-    qty_done = fields.Float('Consumed', digits=dp.get_precision('Product Unit of Measure'))
-    qty_reserved = fields.Float('Reserved', digits=dp.get_precision('Product Unit of Measure'))
+    qty_done = fields.Uom('Consumed', uom_field='product_uom_id')
+    qty_reserved = fields.Uom('Reserved', uom_field='product_uom_id')
 
     @api.onchange('lot_id')
     def _onchange_lot_id(self):

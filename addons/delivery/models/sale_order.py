@@ -147,7 +147,7 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     is_delivery = fields.Boolean(string="Is a Delivery", default=False)
-    product_qty = fields.Float(compute='_compute_product_qty', string='Product Qty', digits=dp.get_precision('Product Unit of Measure'))
+    product_qty = fields.Uom(compute='_compute_product_qty', string='Product Qty', uom_field='product_uom')
     recompute_delivery_price = fields.Boolean(related='order_id.recompute_delivery_price')
 
     @api.depends('product_id', 'product_uom', 'product_uom_qty')

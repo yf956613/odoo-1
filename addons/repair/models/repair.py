@@ -36,9 +36,9 @@ class Repair(models.Model):
     product_id = fields.Many2one(
         'product.product', string='Product to Repair',
         readonly=True, required=True, states={'draft': [('readonly', False)]})
-    product_qty = fields.Float(
+    product_qty = fields.Uom(
         'Product Quantity',
-        default=1.0, digits=dp.get_precision('Product Unit of Measure'),
+        default=1.0, uom_field='product_uom',
         readonly=True, required=True, states={'draft': [('readonly', False)]})
     product_uom = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',
@@ -201,11 +201,10 @@ class Repair(models.Model):
 
     def action_validate(self):
         self.ensure_one()
-        precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         available_qty_owner = self.env['stock.quant']._get_available_quantity(self.product_id, self.location_id, self.lot_id, owner_id=self.partner_id, strict=True)
         available_qty_noown = self.env['stock.quant']._get_available_quantity(self.product_id, self.location_id, self.lot_id, strict=True)
         for available_qty in [available_qty_owner, available_qty_noown]:
-            if float_compare(available_qty, self.product_qty, precision_digits=precision) >= 0:
+            if float_compare(available_qty, self.product_qty, precision_digits=self.product_uom.decimal_places) >= 0:
                 return self.action_repair_confirm()
         else:
             return {
@@ -433,13 +432,12 @@ class Repair(models.Model):
         if self.filtered(lambda repair: not repair.repaired):
             raise UserError(_("Repair must be repaired in order to make the product moves."))
         res = {}
-        precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         Move = self.env['stock.move']
         for repair in self:
             # Try to create move with the appropriate owner
             owner_id = False
             available_qty_owner = self.env['stock.quant']._get_available_quantity(repair.product_id, repair.location_id, repair.lot_id, owner_id=repair.partner_id, strict=True)
-            if float_compare(available_qty_owner, repair.product_qty, precision_digits=precision) >= 0:
+            if float_compare(available_qty_owner, repair.product_qty, precision_digits=repair.product_uom.decimal_places) >= 0:
                 owner_id = repair.partner_id.id
 
             moves = self.env['stock.move']
@@ -514,9 +512,8 @@ class RepairLine(models.Model):
     price_subtotal = fields.Float('Subtotal', compute='_compute_price_subtotal', store=True, digits=0)
     tax_id = fields.Many2many(
         'account.tax', 'repair_operation_line_tax', 'repair_operation_line_id', 'tax_id', 'Taxes')
-    product_uom_qty = fields.Float(
-        'Quantity', default=1.0,
-        digits=dp.get_precision('Product Unit of Measure'), required=True)
+    product_uom_qty = fields.Uom(
+        'Quantity', default=1.0, uom_field='product_uom', required=True)
     product_uom = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',
         required=True, domain="[('category_id', '=', product_uom_category_id)]")
@@ -630,7 +627,7 @@ class RepairFee(models.Model):
         index=True, ondelete='cascade', required=True)
     name = fields.Text('Description', index=True, required=True)
     product_id = fields.Many2one('product.product', 'Product')
-    product_uom_qty = fields.Float('Quantity', digits=dp.get_precision('Product Unit of Measure'), required=True, default=1.0)
+    product_uom_qty = fields.Uom('Quantity', uom_field='product_uom', required=True, default=1.0)
     price_unit = fields.Float('Unit Price', required=True)
     product_uom = fields.Many2one('uom.uom', 'Product Unit of Measure', required=True, domain="[('category_id', '=', product_uom_category_id)]")
     product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')

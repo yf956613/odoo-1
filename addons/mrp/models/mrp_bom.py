@@ -37,9 +37,8 @@ class MrpBom(models.Model):
         help="If a product variant is defined the BOM is available only for this product.")
     bom_line_ids = fields.One2many('mrp.bom.line', 'bom_id', 'BoM Lines', copy=True)
     byproduct_ids = fields.One2many('mrp.bom.byproduct', 'bom_id', 'By-products', copy=True)
-    product_qty = fields.Float(
-        'Quantity', default=1.0,
-        digits=dp.get_precision('Unit of Measure'), required=True)
+    product_qty = fields.Uom(
+        'Quantity', default=1.0, uom_field='product_uom_id', required=True)
     product_uom_id = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',
         default=_get_default_product_uom_id, oldname='product_uom', required=True,
@@ -227,9 +226,9 @@ class MrpBomLine(models.Model):
     product_id = fields.Many2one(
         'product.product', 'Component', required=True)
     product_tmpl_id = fields.Many2one('product.template', 'Product Template', related='product_id.product_tmpl_id', readonly=False)
-    product_qty = fields.Float(
+    product_qty = fields.Uom(
         'Quantity', default=1.0,
-        digits=dp.get_precision('Product Unit of Measure'), required=True)
+        uom_field='product_uom_id', required=True)
     product_uom_id = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',
         default=_get_default_product_uom_id,

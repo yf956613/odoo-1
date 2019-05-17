@@ -63,11 +63,11 @@ class MrpProduction(models.Model):
         readonly=True, required=True,
         states={'draft': [('readonly', False)]})
     product_tmpl_id = fields.Many2one('product.template', 'Product Template', related='product_id.product_tmpl_id')
-    product_qty = fields.Float(
+    product_qty = fields.Uom(
         'Quantity To Produce',
-        default=1.0, digits=dp.get_precision('Product Unit of Measure'),
+        default=1.0,
         readonly=True, required=True, tracking=True,
-        states={'draft': [('readonly', False)]})
+        states={'draft': [('readonly', False)]}, uom_field='product_uom_id')
     product_uom_id = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',
         oldname='product_uom', readonly=True, required=True,

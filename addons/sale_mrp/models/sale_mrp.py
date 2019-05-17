@@ -67,10 +67,9 @@ class SaleOrderLine(models.Model):
 
         # We check if we need to display the quantities of each missing components for all warehouses
         kit_by_wh = self.product_id.with_context(warehouse=self.order_id.warehouse_id.id)
-        precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
-        if float_compare(kit_by_wh.virtual_available, kit_qty, precision_digits=precision) != -1:
+        if float_compare(kit_by_wh.virtual_available, kit_qty, precision_digits=self.product_uom.decimal_places) != -1:
             return {}
-        ignore_warehouse = float_compare(kit.virtual_available, kit_qty, precision_digits=precision) != -1
+        ignore_warehouse = float_compare(kit.virtual_available, kit_qty, precision_digits=self.product_uom.decimal_places) != -1
 
         message = ''
         boms, bom_sub_lines = bom_kit.explode(kit, kit_qty)

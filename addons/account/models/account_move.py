@@ -624,7 +624,7 @@ class AccountMoveLine(models.Model):
             record.parent_state = record.move_id.state
 
     name = fields.Char(string="Label")
-    quantity = fields.Float(digits=dp.get_precision('Product Unit of Measure'),
+    quantity = fields.Uom(uom_field='product_uom_id',
         help="The optional quantity expressed by this line, eg: number of product sold. The quantity is not a legal requirement but is very useful for some reports.")
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
     product_id = fields.Many2one('product.product', string='Product')

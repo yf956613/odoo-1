@@ -234,9 +234,8 @@ class MrpUnbuild(models.Model):
 
     def action_validate(self):
         self.ensure_one()
-        precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         available_qty = self.env['stock.quant']._get_available_quantity(self.product_id, self.location_id, self.lot_id, strict=True)
-        if float_compare(available_qty, self.product_qty, precision_digits=precision) >= 0:
+        if float_compare(available_qty, self.product_qty, precision_digits=self.product_uom_id.decimal_places) >= 0:
             return self.action_unbuild()
         else:
             return {

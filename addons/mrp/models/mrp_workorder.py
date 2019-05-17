@@ -33,12 +33,12 @@ class MrpWorkorder(models.Model):
         'Production State', readonly=True,
         related='production_id.state',
         help='Technical: used in views only.')
-    qty_production = fields.Float('Original Production Quantity', readonly=True, related='production_id.product_qty')
-    qty_remaining = fields.Float('Quantity To Be Produced', compute='_compute_qty_remaining', digits=dp.get_precision('Product Unit of Measure'))
-    qty_produced = fields.Float(
+    qty_production = fields.Uom('Original Production Quantity', readonly=True, related='production_id.product_qty', uom_field='product_uom_id')
+    qty_remaining = fields.Uom('Quantity To Be Produced', compute='_compute_qty_remaining', uom_field='product_uom_id')
+    qty_produced = fields.Uom(
         'Quantity', default=0.0,
         readonly=True,
-        digits=dp.get_precision('Product Unit of Measure'),
+        uom_field='product_uom_id',
         help="The number of products already handled by this work order")
     is_produced = fields.Boolean(string="Has Been Produced",
         compute='_compute_is_produced')

@@ -1882,7 +1882,7 @@ class AccountInvoiceLine(models.Model):
         store=True, readonly=True, compute='_compute_price',
         help="Total amount in the currency of the company, negative for credit note.")
     price_tax = fields.Monetary(string='Tax Amount', compute='_get_price_tax', store=False)
-    quantity = fields.Float(string='Quantity', digits=dp.get_precision('Product Unit of Measure'),
+    quantity = fields.Uom(string='Quantity', uom_field='uom_id',
         required=True, default=1)
     discount = fields.Float(string='Discount (%)', digits=dp.get_precision('Discount'),
         default=0.0)

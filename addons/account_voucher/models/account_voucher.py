@@ -439,8 +439,8 @@ class AccountVoucherLine(models.Model):
     price_unit = fields.Float(string='Unit Price', required=True, digits=dp.get_precision('Product Price'), oldname='amount')
     price_subtotal = fields.Monetary(string='Amount',
         store=True, readonly=True, compute='_compute_subtotal')
-    quantity = fields.Float(digits=dp.get_precision('Product Unit of Measure'),
-        required=True, default=1)
+    uom_id = fields.Many2one('uom.uom', string='Unit of Measure', related='product_id.uom_id', readonly=False)
+    quantity = fields.Uom(uom_field='uom_id', required=True, default=1)
     account_analytic_id = fields.Many2one('account.analytic.account', 'Analytic Account')
     analytic_tag_ids = fields.Many2many('account.analytic.tag', string='Analytic Tags')
     company_id = fields.Many2one('res.company', related='voucher_id.company_id', string='Company', store=True, readonly=True)

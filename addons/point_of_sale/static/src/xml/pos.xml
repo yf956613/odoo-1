@@ -838,9 +838,7 @@
                         </t>
                         <line indent='1'>
                             <left>
-                                <value t-att-value-decimals='pos.dp["Product Unit of Measure"]' value-autoint='on'>
-                                    <t t-esc='line.quantity' />
-                                </value>
+                                <t t-esc='line.quantity' />
                                 <t t-if='line.unit_name !== "Unit(s)"'>
                                     <t t-esc='line.unit_name' />
                                 </t>
