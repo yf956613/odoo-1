@@ -408,11 +408,14 @@ class StockQuant(models.Model):
         this method is often called in batch and each unlink invalidate
         the cache. We defer the calls to unlink in this method.
         """
-        precision_digits = max(6, self.env.ref('product.decimal_product_uom').digits * 2)
         # Use a select instead of ORM search for UoM robustness.
-        query = """SELECT id FROM stock_quant WHERE round(quantity::numeric, %s) = 0 AND round(reserved_quantity::numeric, %s) = 0;"""
-        params = (precision_digits, precision_digits)
-        self.env.cr.execute(query, params)
+        query = """SELECT sq.id FROM stock_quant as sq
+                    LEFT JOIN product_product as p on (p.id = sq.product_id)
+                    LEFT JOIN product_template as pt on (pt.id = p.product_tmpl_id)
+                    LEFT JOIN uom_uom as u on (u.id = pt.uom_id)
+                    WHERE round(sq.quantity::numeric, u.decimal_places) = 0 AND round(sq.reserved_quantity::numeric, u.decimal_places) = 0;"""
+
+        self.env.cr.execute(query)
         quant_ids = self.env['stock.quant'].browse([quant['id'] for quant in self.env.cr.dictfetchall()])
         quant_ids.sudo().unlink()
 
