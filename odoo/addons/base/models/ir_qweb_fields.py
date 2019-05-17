@@ -194,6 +194,68 @@ class FloatConverter(models.AbstractModel):
         return super(FloatConverter, self).record_to_html(record, field_name, options)
 
 
+class UomConverter(models.AbstractModel):
+    """ ``Uom`` converter, has a mandatory option
+    ``display_uom`` only if field is not of type Uom.
+    Otherwise, if we are in presence of a uom field, the field definition must
+    have a uom_field attribute set.
+
+    The uom is used for *rounding* of the float value. It
+    is assumed that the linked uom_uom has a non-empty rounding value and
+    tools's ``float_round`` method is used to perform rounding.
+
+    .. note:: the uom converter internally adds the qweb context to its
+              options mapping, so that the context is available to callees.
+              It's set under the ``_values`` key.
+    """
+    _name = 'ir.qweb.field.uom'
+    _description = 'Qweb Field Uom'
+    _inherit = 'ir.qweb.field'
+
+    @api.model
+    def get_available_options(self):
+        options = super(UomConverter, self).get_available_options()
+        options.update(
+            display_uom=dict(type='model', params='uom.uom', string=_('Display Uom'), required="value_to_html"),
+        )
+        return options
+
+    @api.model
+    def value_to_html(self, value, options):
+        precision = options['display_uom'].decimal_places if options['display_uom'] else None
+        if precision is None:
+            fmt = '%f'
+        else:
+            value = float_utils.float_round(value, precision_digits=precision)
+            fmt = '%.{precision}f'.format(precision=precision)
+
+        formatted = self.user_lang().format(fmt, value, grouping=True).replace(r'-', u'-\N{ZERO WIDTH NO-BREAK SPACE}')
+
+        # %f does not strip trailing zeroes. %g does but its precision causes
+        # it to switch to scientific notation starting at a million *and* to
+        # strip decimals. So use %f and if no precision was specified manually
+        # strip trailing 0.
+        if precision is None:
+            formatted = re.sub(r'(?:(0|\d+?)0+)$', r'\1', formatted)
+
+        return pycompat.to_text(formatted)
+
+    @api.model
+    def record_to_html(self, record, field_name, options):
+        options = dict(options)
+        # uom should be specified by uom field
+        field = record._fields[field_name]
+        if not options.get('display_uom') and field.type == 'uom' and field.uom_field:
+            options['display_uom'] = record[field.uom_field]
+        if not options.get('display_uom'):
+            # search on the model if they are a uom.uom field to set as default
+            fields = record._fields.items()
+            uom_fields = [k for k, v in fields if v.type == 'many2one' and v.comodel_name == 'uom.uom']
+            if uom_fields:
+                options['display_uom'] = record[uom_fields[0]]
+        return super(UomConverter, self).record_to_html(record, field_name, options)
+
+
 class DateConverter(models.AbstractModel):
     _name = 'ir.qweb.field.date'
     _description = 'Qweb Field Date'
