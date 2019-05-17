@@ -270,8 +270,8 @@ class TestMrpOrder(TestMrpCommon):
         production = production_form.save()
         production.action_confirm()
         #Check the production order has the right quantities
-        self.assertEqual(production.move_raw_ids[0].product_qty, 41, 'The quantity should be rounded up')
-        self.assertEqual(production.move_raw_ids[1].product_qty, 84, 'The quantity should be rounded up')
+        self.assertEqual(production.move_raw_ids[0].product_qty, 40, 'The quantity should be rounded up')
+        self.assertEqual(production.move_raw_ids[1].product_qty, 80, 'The quantity should be rounded up')
 
         # produce product
         produce_form = Form(self.env['mrp.product.produce'].with_context({
@@ -282,7 +282,7 @@ class TestMrpOrder(TestMrpCommon):
         produce_wizard = produce_form.save()
         produce_wizard.do_produce()
         self.assertEqual(production.move_raw_ids[0].quantity_done, 16, 'Should use half-up rounding when producing')
-        self.assertEqual(production.move_raw_ids[1].quantity_done, 34, 'Should use half-up rounding when producing')
+        self.assertEqual(production.move_raw_ids[1].quantity_done, 32, 'Should use half-up rounding when producing')
 
     def test_product_produce_1(self):
         """ Checks the production wizard contains lines even for untracked products. """
