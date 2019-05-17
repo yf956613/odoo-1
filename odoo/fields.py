@@ -1313,6 +1313,74 @@ class Float(Field):
         return ''
 
 
+class Uom(Field):
+    """ The decimal precision is taken from the attribute
+
+    :param uom_field: name of the field holding the uom this uom
+                           field is expressed in (default: `uom_id`)
+    """
+    type = 'uom'
+    column_type = ('numeric', 'numeric')
+    column_cast_from = ('float8',)
+    _slots = {
+        'uom_field': None,
+        'group_operator': 'sum',
+    }
+
+    def __init__(self, string=Default, uom_field=Default, **kwargs):
+        super(Uom, self).__init__(string=string, uom_field=uom_field, **kwargs)
+
+    _description_uom_field = property(attrgetter('uom_field'))
+
+    def _setup_uom_field(self, model):
+        if not self.uom_field:
+            # pick a default, trying in order: 'uom_id', 'x_uom_id'
+            if 'uom_id' in model._fields:
+                self.uom_field = 'uom_id'
+            elif 'x_uom_id' in model._fields:
+                self.uom_field = 'x_uom_id'
+        assert self.uom_field in model._fields, \
+            "Field %s with unknown uom_id %r" % (self, self.uom_field)
+
+    def _setup_regular_full(self, model):
+        super(Uom, self)._setup_regular_full(model)
+        self._setup_uom_field(model)
+
+    def _setup_related_full(self, model):
+        super(Uom, self)._setup_related_full(model)
+        if self.inherited:
+            self.uom_field = self.related_field.uom_field
+        self._setup_uom_field(model)
+
+    def convert_to_column(self, value, record, values=None, validate=True):
+        # retrieve uom from values or record
+        if values and self.uom_field in values:
+            field = record._fields[self.uom_field]
+            uom = field.convert_to_cache(values[self.uom_field], record, validate)
+            uom = field.convert_to_record(uom, record)
+        else:
+            # Note: this is wrong if 'record' is several records with different
+            # uom, which is functional nonsense and should not happen
+            uom = record[:1][self.uom_field]
+
+        value = float(value or 0.0)
+        if uom:
+            return float_repr(float_round(value, precision_digits=uom.decimal_places), precision_digits=uom.decimal_places)
+        return value
+
+    def convert_to_cache(self, value, record, validate=True):
+        value = float(value or 0.0)
+        if validate and record[self.uom_field]:
+            value = float_round(value, precision_digits=record[self.uom_field].decimal_places)
+        return value
+
+    def convert_to_read(self, value, record, use_name_get=True):
+        return value
+
+    def convert_to_write(self, value, record):
+        return value
+
+
 class Monetary(Field):
     """ The decimal precision and currency symbol are taken from the attribute
 
