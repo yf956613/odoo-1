@@ -747,17 +747,15 @@ class Lead(models.Model):
         """
         if not team_id:
             team_id = self.team_id.id if self.team_id else False
-        value = {
-            'planned_revenue': self.planned_revenue,
-            'probability': self.probability,
-            'name': self.name,
+        value = self._onchange_partner_id_values(customer and customer.id)
+        value.update({
             'partner_id': customer.id if customer else False,
             'type': 'opportunity',
             'date_open': fields.Datetime.now(),
             'email_from': customer and customer.email or self.email_from,
             'phone': customer and customer.phone or self.phone,
             'date_conversion': fields.Datetime.now(),
-        }
+        })
         if not self.stage_id:
             stage = self._stage_find(team_id=team_id)
             value['stage_id'] = stage.id
