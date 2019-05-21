@@ -37,7 +37,7 @@ class ProductTemplate(models.Model):
 
     @api.one
     def _compute_mrp_product_qty(self):
-        self.mrp_product_qty = float_round(sum(self.mapped('product_variant_ids').mapped('mrp_product_qty')), precision_rounding=self.uom_id.rounding)
+        self.mrp_product_qty = sum(self.mapped('product_variant_ids').mapped('mrp_product_qty'))
 
     @api.multi
     def action_view_mos(self):
@@ -82,7 +82,7 @@ class ProductProduct(models.Model):
         read_group_res = self.env['mrp.production'].read_group(domain, ['product_id', 'product_uom_qty'], ['product_id'])
         mapped_data = dict([(data['product_id'][0], data['product_uom_qty']) for data in read_group_res])
         for product in self:
-            product.mrp_product_qty = float_round(mapped_data.get(product.id, 0), precision_rounding=product.uom_id.rounding)
+            product.mrp_product_qty = mapped_data.get(product.id, 0)
 
     def _compute_quantities(self):
         """ When the product is a kit, this override computes the fields :

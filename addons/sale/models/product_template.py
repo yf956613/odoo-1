@@ -47,7 +47,7 @@ class ProductTemplate(models.Model):
     @api.depends('product_variant_ids.sales_count')
     def _compute_sales_count(self):
         for product in self:
-            product.sales_count = float_round(sum([p.sales_count for p in product.with_context(active_test=False).product_variant_ids]), precision_rounding=product.uom_id.rounding)
+            product.sales_count = sum([p.sales_count for p in product.with_context(active_test=False).product_variant_ids])
 
     @api.multi
     def action_view_sales(self):
