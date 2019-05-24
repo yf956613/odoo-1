@@ -99,163 +99,66 @@ class MetaField(type):
 
 _global_seq = iter(itertools.count())
 class Field(MetaField('DummyField', (object,), {})):
-    """ The field descriptor contains the field definition, and manages accesses
-        and assignments of the corresponding field on records. The following
-        attributes may be provided when instanciating a field:
+    """The field descriptor contains the field definition, and manages accesses
+    and assignments of the corresponding field on records. The following
+    attributes may be provided when instanciating a field:
 
-        :param string: the label of the field seen by users (string); if not
-            set, the ORM takes the field name in the class (capitalized).
+    :param str string: the label of the field seen by users; if not
+        set, the ORM takes the field name in the class (capitalized).
 
-        :param help: the tooltip of the field seen by users (string)
+    :param str help: the tooltip of the field seen by users
 
-        :param readonly: whether the field is readonly (boolean, by default ``False``)
+    :param bool readonly: whether the field is readonly (default: ``False``)
 
-        :param required: whether the value of the field is required (boolean, by
-            default ``False``)
+    :param bool required: whether the value of the field is required (default: ``False``)
 
-        :param index: whether the field is indexed in database. Note: no effect
-            on non-stored and virtual fields. (boolean, by default ``False``)
+    :param bool index: whether the field is indexed in database. Note: no effect
+        on non-stored and virtual fields. (default: ``False``)
 
-        :param default: the default value for the field; this is either a static
-            value, or a function taking a recordset and returning a value; use
-            ``default=None`` to discard default values for the field
+    :param default: the default value for the field; this is either a static
+        value, or a function taking a recordset and returning a value; use
+        ``default=None`` to discard default values for the field
+    :type default: value or callable
 
-        :param states: a dictionary mapping state values to lists of UI attribute-value
-            pairs; possible attributes are: 'readonly', 'required', 'invisible'.
-            Note: Any state-based condition requires the ``state`` field value to be
+    :param dict states: a dictionary mapping state values to lists of UI attribute-value
+        pairs; possible attributes are: ``readonly``, ``required``, ``invisible``.
+
+        .. warning:: Any state-based condition requires the ``state`` field value to be
             available on the client-side UI. This is typically done by including it in
             the relevant views, possibly made invisible if not relevant for the
             end-user.
 
-        :param groups: comma-separated list of group xml ids (string); this
-            restricts the field access to the users of the given groups only
+    :param str groups: comma-separated list of group xml ids (string); this
+        restricts the field access to the users of the given groups only
 
-        :param bool copy: whether the field value should be copied when the record
-            is duplicated (default: ``True`` for normal fields, ``False`` for
-            ``one2many`` and computed fields, including property fields and
-            related fields)
+    :param bool company_dependent: whether the field is company-dependent
 
-        .. _field-computed:
+    :param bool copy: whether the field value should be copied when the record
+        is duplicated (default: ``True`` for normal fields, ``False`` for
+        ``one2many`` and computed fields, including property fields and
+        related fields)
 
-        .. rubric:: Computed fields
+    :param bool store: whether the field is stored in database
+        (default:``True``, ``False`` for computed fields)
 
-        One can define a field whose value is computed instead of simply being
-        read from the database. The attributes that are specific to computed
-        fields are given below. To define such a field, simply provide a value
-        for the attribute ``compute``.
+    :param str oldname: the previous name of this field, so that ORM can rename
+        it automatically at migration
 
-        :param compute: name of a method that computes the field
+    .. rubric:: Computed fields
 
-        :param inverse: name of a method that inverses the field (optional)
+    :param str compute: name of a method that computes the field
 
-        :param search: name of a method that implement search on the field (optional)
+    :param bool compute_sudo: whether the field should be recomputed as superuser
+        to bypass access rights (by default ``False``)
+        Note that this has no effects on non-stored computed fields
 
-        :param store: whether the field is stored in database (boolean, by
-            default ``False`` on computed fields)
+    :param str inverse: name of a method that inverses the field (optional)
 
-        :param compute_sudo: whether the field should be recomputed as superuser
-            to bypass access rights (boolean, by default ``True``)
+    :param str search: name of a method that implement search on the field (optional)
 
-        The methods given for ``compute``, ``inverse`` and ``search`` are model
-        methods. Their signature is shown in the following example::
+    :param str related: sequence of field names
 
-            upper = fields.Char(compute='_compute_upper',
-                                inverse='_inverse_upper',
-                                search='_search_upper')
-
-            @api.depends('name')
-            def _compute_upper(self):
-                for rec in self:
-                    rec.upper = rec.name.upper() if rec.name else False
-
-            def _inverse_upper(self):
-                for rec in self:
-                    rec.name = rec.upper.lower() if rec.upper else False
-
-            def _search_upper(self, operator, value):
-                if operator == 'like':
-                    operator = 'ilike'
-                return [('name', operator, value)]
-
-        The compute method has to assign the field on all records of the invoked
-        recordset. The decorator :meth:`odoo.api.depends` must be applied on
-        the compute method to specify the field dependencies; those dependencies
-        are used to determine when to recompute the field; recomputation is
-        automatic and guarantees cache/database consistency. Note that the same
-        method can be used for several fields, you simply have to assign all the
-        given fields in the method; the method will be invoked once for all
-        those fields.
-
-        By default, a computed field is not stored to the database, and is
-        computed on-the-fly. Adding the attribute ``store=True`` will store the
-        field's values in the database. The advantage of a stored field is that
-        searching on that field is done by the database itself. The disadvantage
-        is that it requires database updates when the field must be recomputed.
-
-        The inverse method, as its name says, does the inverse of the compute
-        method: the invoked records have a value for the field, and you must
-        apply the necessary changes on the field dependencies such that the
-        computation gives the expected value. Note that a computed field without
-        an inverse method is readonly by default.
-
-        The search method is invoked when processing domains before doing an
-        actual search on the model. It must return a domain equivalent to the
-        condition: ``field operator value``.
-
-        .. _field-related:
-
-        .. rubric:: Related fields
-
-        The value of a related field is given by following a sequence of
-        relational fields and reading a field on the reached model. The complete
-        sequence of fields to traverse is specified by the attribute
-
-        :param related: sequence of field names
-
-        Some field attributes are automatically copied from the source field if
-        they are not redefined: ``string``, ``help``, ``readonly``, ``required`` (only
-        if all fields in the sequence are required), ``groups``, ``digits``, ``size``,
-        ``translate``, ``sanitize``, ``selection``, ``comodel_name``, ``domain``,
-        ``context``. All semantic-free attributes are copied from the source
-        field.
-
-        By default, the values of related fields are not stored to the database.
-        Add the attribute ``store=True`` to make it stored, just like computed
-        fields. Related fields are automatically recomputed when their
-        dependencies are modified.
-
-        .. _field-company-dependent:
-
-        .. rubric:: Company-dependent fields
-
-        Formerly known as 'property' fields, the value of those fields depends
-        on the company. In other words, users that belong to different companies
-        may see different values for the field on a given record.
-
-        :param company_dependent: whether the field is company-dependent (boolean)
-
-        .. _field-incremental-definition:
-
-        .. rubric:: Incremental definition
-
-        A field is defined as class attribute on a model class. If the model
-        is extended (see :class:`~odoo.models.Model`), one can also extend
-        the field definition by redefining a field with the same name and same
-        type on the subclass. In that case, the attributes of the field are
-        taken from the parent class and overridden by the ones given in
-        subclasses.
-
-        For instance, the second class below only adds a tooltip on the field
-        ``state``::
-
-            class First(models.Model):
-                _name = 'foo'
-                state = fields.Selection([...], required=True)
-
-            class Second(models.Model):
-                _inherit = 'foo'
-                state = fields.Selection(help="Blah blah blah")
-
+            .. note:: Related fields are always computed as sudo user.
     """
 
     type = None                         # type of the field (string)
@@ -1185,11 +1088,13 @@ class Integer(Field):
 
 
 class Float(Field):
-    """ The precision digits are given by the attribute
+    """The precision digits are given by the attribute
 
     :param digits: a pair (total, decimal), or a function taking a database
                    cursor and returning a pair (total, decimal)
+    :type digits: tuple(int,int)
     """
+
     type = 'float'
     column_cast_from = ('int4', 'numeric', 'float8')
     _slots = {
@@ -1250,8 +1155,8 @@ class Float(Field):
 class Monetary(Field):
     """ The decimal precision and currency symbol are taken from the attribute
 
-    :param currency_field: name of the field holding the currency this monetary
-                           field is expressed in (default: `currency_id`)
+    :param str currency_field: name of the field holding the currency
+        this monetary field is expressed in (default: `\'currency_id\'`)
     """
     type = 'monetary'
     column_type = ('numeric', 'numeric')
@@ -1469,6 +1374,7 @@ class Char(_String):
         may also be a callable such that ``translate(callback, value)``
         translates ``value`` by using ``callback(term)`` to retrieve the
         translation of terms.
+    :type translate: bool or callable
     """
     type = 'char'
     column_cast_from = ('text',)
@@ -1522,6 +1428,7 @@ class Text(_String):
         may also be a callable such that ``translate(callback, value)``
         translates ``value`` by using ``callback(term)`` to retrieve the
         translation of terms.
+    :type translate: bool or callable
     """
     type = 'text'
     column_type = ('text', 'text')
@@ -1604,17 +1511,18 @@ class Date(Field):
 
     @staticmethod
     def today(*args):
-        """ Return the current day in the format expected by the ORM.
-            This function may be used to compute default values.
+        """Return the current day in the format expected by the ORM.
+
+        .. note:: This function may be used to compute default values.
         """
         return date.today()
 
     @staticmethod
     def context_today(record, timestamp=None):
-        """
-        Return the current date as seen in the client's timezone in a format
-        fit for date fields. This method may be used to compute default
-        values.
+        """Return the current date as seen in the client's timezone in a format
+        fit for date fields.
+
+        .. note:: This method may be used to compute default values.
 
         :param record: recordset from which the timezone will be obtained.
         :param datetime timestamp: optional datetime value to use instead of
@@ -1636,19 +1544,16 @@ class Date(Field):
 
     @staticmethod
     def to_date(value):
-        """
-        Attempt to convert ``value`` to a :class:`date` object.
+        r"""Attempt to convert ``value`` to a :class:`date` object.
 
-        This function can take as input different kinds of types:
-            * A falsy object, in which case None will be returned.
-            * A string representing a date or datetime.
-            * A date object, in which case the object will be returned as-is.
-            * A datetime object, in which case it will be converted to a date object and all\
-                        datetime-specific information will be lost (HMS, TZ, ...).
+        .. warning:: If a datetime object is given as value,
+            it will be converted to a date object and all\
+            datetime-specific information will be lost (HMS, TZ, ...).
 
         :param value: value to convert.
+        :type value: str or date or datetime
         :return: an object representing ``value``.
-        :rtype: date
+        :rtype: date or None
         """
         if not value:
             return None
@@ -1702,33 +1607,32 @@ class Datetime(Field):
 
     @staticmethod
     def now(*args):
-        """ Return the current day and time in the format expected by the ORM.
-            This function may be used to compute default values.
+        """Return the current day and time in the format expected by the ORM.
+
+        .. note:: This function may be used to compute default values.
         """
         # microseconds must be annihilated as they don't comply with the server datetime format
         return datetime.now().replace(microsecond=0)
 
     @staticmethod
     def today(*args):
-        """
-        Return the current day, at midnight (00:00:00).
-        """
+        """Return the current day, at midnight (00:00:00)."""
         return Datetime.now().replace(hour=0, minute=0, second=0)
 
     @staticmethod
     def context_timestamp(record, timestamp):
-        """
-        Returns the given timestamp converted to the client's timezone.
-        This method is *not* meant for use as a default initializer,
-        because datetime fields are automatically converted upon
-        display on client side. For default values, :meth:`fields.Datetime.now`
-        should be used instead.
+        """Return the given timestamp converted to the client's timezone.
+
+        .. note:: This method is *not* meant for use as a default initializer,
+            because datetime fields are automatically converted upon
+            display on client side. For default values, :meth:`now`
+            should be used instead.
 
         :param record: recordset from which the timezone will be obtained.
         :param datetime timestamp: naive datetime value (expressed in UTC)
             to be converted to the client timezone.
-        :rtype: datetime
         :return: timestamp converted to timezone-aware datetime in context timezone.
+        :rtype: datetime
         """
         assert isinstance(timestamp, datetime), 'Datetime instance expected'
         tz_name = record._context.get('tz') or record.env.user.tz
@@ -1745,18 +1649,12 @@ class Datetime(Field):
 
     @staticmethod
     def to_datetime(value):
-        """
-        Convert an ORM ``value`` into a :class:`datetime` value.
-
-        This function can take as input different kinds of types:
-            * A falsy object, in which case None will be returned.
-            * A string representing a date or datetime.
-            * A datetime object, in which case the object will be returned as-is.
-            * A date object, in which case it will be converted to a datetime object.
+        """Convert an ORM ``value`` into a :class:`datetime` value.
 
         :param value: value to convert.
+        :type value: str or date or datetime
         :return: an object representing ``value``.
-        :rtype: datetime
+        :rtype: datetime or None
         """
         if not value:
             return None
@@ -1776,12 +1674,13 @@ class Datetime(Field):
 
     @staticmethod
     def to_string(value):
-        """
-        Convert a :class:`datetime` or :class:`date` object to a string.
+        """Convert a :class:`datetime` or :class:`date` object to a string.
 
         :param value: value to convert.
-        :return: a string representing ``value`` in the server's datetime format, if ``value`` is
-            of type :class:`date`, the time portion will be midnight (00:00:00).
+        :type value: datetime or date
+        :return: a string representing ``value`` in the server's datetime format,
+            if ``value`` is of type :class:`date`,
+            the time portion will be midnight (00:00:00).
         :rtype: str
         """
         return value.strftime(DATETIME_FORMAT) if value else False
@@ -1982,6 +1881,7 @@ class Selection(Field):
     :param selection: specifies the possible values for this field.
         It is given as either a list of pairs ``(value, label)``, or a model
         method, or a method name.
+    :type selection: list(tuple(str,str)) or callable or str
 
     :param selection_add: provides an extension of the selection in the case
         of an overridden field. It is a list of pairs ``(value, label)`` or
@@ -1992,10 +1892,10 @@ class Selection(Field):
             selection = [('a', 'A'), ('b', 'B')]
             selection_add = [('c', 'C'), ('b',)]
             > result = [('a', 'A'), ('c', 'C'), ('b', 'B')]
+    :type selection_add: list(tuple(str,str))
 
     The attribute ``selection`` is mandatory except in the case of
-    :ref:`related fields <field-related>` or :ref:`field extensions
-    <field-incremental-definition>`.
+    ``related`` or extended fields.
     """
     type = 'selection'
     column_type = ('varchar', pg_varchar())
@@ -2092,7 +1992,7 @@ class Selection(Field):
             return selection
 
     def get_values(self, env):
-        """ return a list of the possible values """
+        """Return a list of the possible values."""
         selection = self.selection
         if isinstance(selection, str):
             selection = getattr(env[self.model_name], selection)()
@@ -2226,29 +2126,27 @@ class Many2one(_Relational):
     """ The value of such a field is a recordset of size 0 (no
     record) or 1 (a single record).
 
-    :param comodel_name: name of the target model (string)
+    :param str comodel_name: name of the target model
+        ``Mandatory`` except for related or extended fields.
 
     :param domain: an optional domain to set on candidate values on the
         client side (domain or string)
 
-    :param context: an optional context to use on the client side when
-        handling that field (dictionary)
+    :param dict context: an optional context to use on the client side when
+        handling that field
 
-    :param ondelete: what to do when the referred record is deleted;
+    :param str ondelete: what to do when the referred record is deleted;
         possible values are: ``'set null'``, ``'restrict'``, ``'cascade'``
 
-    :param auto_join: whether JOINs are generated upon search through that
-        field (boolean, by default ``False``)
+    :param bool auto_join: whether JOINs are generated upon search through that
+        field (default: ``False``)
 
-    :param delegate: set it to ``True`` to make fields of the target model
+    :param bool delegate: set it to ``True`` to make fields of the target model
         accessible from the current model (corresponds to ``_inherits``)
 
     :param check_company: add default domain ``['|', ('company_id', '=', False),
         ('company_id', '=', company_id)]``. Mark the field to be verified in
         ``_check_company``.
-
-    The attribute ``comodel_name`` is mandatory except in the case of related
-    fields or field extensions.
     """
     type = 'many2one'
     column_type = ('int4', 'int4')
@@ -2714,28 +2612,28 @@ class _RelationalMulti(_Relational):
 
 
 class One2many(_RelationalMulti):
-    """ One2many field; the value of such a field is the recordset of all the
-        records in ``comodel_name`` such that the field ``inverse_name`` is equal to
-        the current record.
+    """One2many field; the value of such a field is the recordset of all the
+    records in ``comodel_name`` such that the field ``inverse_name`` is equal to
+    the current record.
 
-        :param comodel_name: name of the target model (string)
+    :param str comodel_name: name of the target model
 
-        :param inverse_name: name of the inverse ``Many2one`` field in
-            ``comodel_name`` (string)
+    :param str inverse_name: name of the inverse ``Many2one`` field in
+        ``comodel_name``
 
-        :param domain: an optional domain to set on candidate values on the
-            client side (domain or string)
+    :param domain: an optional domain to set on candidate values on the
+        client side (domain or string)
 
-        :param context: an optional context to use on the client side when
-            handling that field (dictionary)
+    :param dict context: an optional context to use on the client side when
+        handling that field
 
-        :param auto_join: whether JOINs are generated upon search through that
-            field (boolean, by default ``False``)
+    :param bool auto_join: whether JOINs are generated upon search through that
+        field (default: ``False``)
 
-        :param limit: optional limit to use upon read (integer)
+    :param int limit: optional limit to use upon read
 
-        The attributes ``comodel_name`` and ``inverse_name`` are mandatory except in
-        the case of related fields or field extensions.
+    The attributes ``comodel_name`` and ``inverse_name`` are mandatory except in
+    the case of related fields or field extensions.
     """
     type = 'one2many'
     _slots = {
@@ -2975,46 +2873,43 @@ class One2many(_RelationalMulti):
 class Many2many(_RelationalMulti):
     """ Many2many field; the value of such a field is the recordset.
 
-        :param comodel_name: name of the target model (string)
+    :param comodel_name: name of the target model (string)
+        mandatory except in the case of related or extended fields
 
-        The attribute ``comodel_name`` is mandatory except in the case of related
-        fields or field extensions.
+    :param str relation: optional name of the table that stores the relation in
+        the database
 
-        :param relation: optional name of the table that stores the relation in
-            the database (string)
+    :param str column1: optional name of the column referring to "these" records
+        in the table ``relation``
 
-        :param column1: optional name of the column referring to "these" records
-            in the table ``relation`` (string)
+    :param str column2: optional name of the column referring to "those" records
+        in the table ``relation``
 
-        :param column2: optional name of the column referring to "those" records
-            in the table ``relation`` (string)
+    The attributes ``relation``, ``column1`` and ``column2`` are optional.
+    If not given, names are automatically generated from model names,
+    provided ``model_name`` and ``comodel_name`` are different!
 
-        The attributes ``relation``, ``column1`` and ``column2`` are optional.
-        If not given, names are automatically generated from model names,
-        provided ``model_name`` and ``comodel_name`` are different!
+    Note that having several fields with implicit relation parameters on a
+    given model with the same comodel is not accepted by the ORM, since
+    those field would use the same table. The ORM prevents two many2many
+    fields to use the same relation parameters, except if
 
-        Note that having several fields with implicit relation parameters on a
-        given model with the same comodel is not accepted by the ORM, since
-        those field would use the same table. The ORM prevents two many2many
-        fields to use the same relation parameters, except if
+    - both fields use the same model, comodel, and relation parameters are
+      explicit; or
 
-        - both fields use the same model, comodel, and relation parameters are
-          explicit; or
+    - at least one field belongs to a model with ``_auto = False``.
 
-        - at least one field belongs to a model with ``_auto = False``.
+    :param domain: an optional domain to set on candidate values on the
+        client side (domain or string)
 
-        :param domain: an optional domain to set on candidate values on the
-            client side (domain or string)
+    :param dict context: an optional context to use on the client side when
+        handling that field
 
-        :param context: an optional context to use on the client side when
-            handling that field (dictionary)
+    :param check_company: add default domain ``['|', ('company_id', '=', False),
+        ('company_id', '=', company_id)]``. Mark the field to be verified in
+        ``_check_company``.
 
-        :param limit: optional limit to use upon read (integer)
-
-        :param check_company: add default domain ``['|', ('company_id', '=', False),
-            ('company_id', '=', company_id)]``. Mark the field to be verified in
-            ``_check_company``.
-
+    :param int limit: optional limit to use upon read
     """
     type = 'many2many'
     _slots = {
