@@ -32,44 +32,6 @@
         <!-- Address Format:
                 street
                 street2
-                Zip City
-                Country_name -->
-        <record id="view_partner_address_street_zip_city_country" model="ir.ui.view">
-            <field name="name">view partner address form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_address"/>
-            <field name="mode">primary</field>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='state_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-            </field>
-        </record>
-
-        <!-- Address Format:
-                street
-                street2
-                City Zip
-                Country_name -->
-        <record id="view_partner_address_street_city_zip_country" model="ir.ui.view">
-            <field name="name">view partner address form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_address"/>
-            <field name="mode">primary</field>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='zip']" position="replace"/>
-                <xpath expr="//field[@name='city']" position="after">
-                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
-                </xpath>
-                <xpath expr="//field[@name='state_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-            </field>
-        </record>
-
-        <!-- Address Format:
-                street
-                street2
                 City Zip
                 State_name
                 Country_name -->
@@ -157,25 +119,29 @@
         </record>
 
         <!-- Address Format:
+                city
                 street
                 street2
-                City
+                zip
                 state
                 Country_name -->
-        <record id="view_partner_address_street_city_state_country" model="ir.ui.view">
+        <record id="view_partner_address_city_street_zip_state_country" model="ir.ui.view">
             <field name="name">view partner address form</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_address"/>
             <field name="mode">primary</field>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='zip']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
                 <xpath expr="//field[@name='city']" position="replace"/>
+                <xpath expr="//field[@name='zip']" position="replace"/>
                 <xpath expr="//field[@name='state_id']" position="replace"/>
-                <xpath expr="//field[@name='country_id']" position="before">
+                <xpath expr="//field[@name='street']" position="before">
                     <div>
                         <field name="city" placeholder="City"/>
+                    </div>
+                </xpath>
+                <xpath expr="//field[@name='country_id']" position="before">
+                    <div>
+                        <field name="zip" placeholder="ZIP"/>
                     </div>
                     <div>
                         <field name="state_id" placeholder="State" options='{"no_open": True}'/>
@@ -184,71 +150,6 @@
             </field>
         </record>
 
-        <!-- Address Format:
-                street
-                street2
-                City
-                Country_name -->
-        <record id="view_partner_address_street_city_country" model="ir.ui.view">
-            <field name="name">view partner address form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_address"/>
-            <field name="mode">primary</field>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='zip']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='state_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-            </field>
-        </record>
-        <!-- Address Format:
-                street
-                street2
-                state
-                Country_name -->
-        <record id="view_partner_address_street_state_country" model="ir.ui.view">
-            <field name="name">view partner address form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_address"/>
-            <field name="mode">primary</field>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='zip']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='city']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-            </field>
-        </record>
-
-        <!-- Address Format:
-                city
-                street
-                street2
-                zip
-                Country_name -->
-        <record id="view_partner_address_city_street_zip_country" model="ir.ui.view">
-            <field name="name">view partner address form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_address"/>
-            <field name="mode">primary</field>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='state_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='city']" position="replace"/>
-                <xpath expr="//field[@name='street']" position="before">
-                    <div>
-                        <field name="city" placeholder="City"/>
-                    </div>
-                </xpath>
-                <xpath expr="//field[@name='zip']" position="attributes">
-                    <attribute name="class"></attribute>
-                </xpath>
-            </field>
-        </record>
 
         <!-- Address Format:
                 Country_name
@@ -298,7 +199,7 @@
                 Country_name
                 Street
                 Street2
-                City Zip -->
+                City Zip state-->
         <record id="view_partner_address_country_street_city_zip" model="ir.ui.view">
             <field name="name">view partner address form</field>
             <field name="model">res.partner</field>
@@ -314,9 +215,6 @@
                 <xpath expr="//field[@name='zip']" position="replace"/>
                 <xpath expr="//field[@name='city']" position="after">
                     <field name="zip" placeholder="ZIP" class="o_address_zip"/>
-                </xpath>
-                <xpath expr="//field[@name='state_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
                 </xpath>
             </field>
         </record>
