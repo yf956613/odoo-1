@@ -163,8 +163,20 @@ def new_test_user(env, login='', groups='base.group_user', context=None, **kwarg
 class TreeCase(unittest.TestCase):
     def __init__(self, methodName='runTest'):
         super(TreeCase, self).__init__(methodName)
-        self.addTypeEqualityFunc(etree._Element, self.assertTreesEqual)
-        self.addTypeEqualityFunc(html.HtmlElement, self.assertTreesEqual)
+        self.addTypeEqualityFunc(etree._Element, 'assertTreesEqual')
+        self.addTypeEqualityFunc(html.HtmlElement, 'assertTreesEqual')
+        self.addTypeEqualityFunc(float, '_suggestAlmostEqual')
+        self.addTypeEqualityFunc(datetime, '_suggestAlmostEqual')
+
+    def _suggestAlmostEqual(self, v1, v2, msg=None):
+        _logger.warn(
+            "Asserting strict equality between two %s is often "
+            "problematic, using assertAlmostEqual is strongly"
+            " recommended. Use assertAlmostEqual(delta=zero_val) to"
+            " indicate a very explicit exact-match equality.",
+            type(v1).__name__
+        )
+        return self._baseAssertEqual(v1, v2, msg=msg)
 
     def assertTreesEqual(self, n1, n2, msg=None):
         self.assertIsNotNone(n1, msg)
