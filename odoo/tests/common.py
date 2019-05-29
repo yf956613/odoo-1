@@ -174,7 +174,8 @@ class TreeCase(unittest.TestCase):
             "problematic, using assertAlmostEqual is strongly"
             " recommended. Use assertAlmostEqual(delta=zero_val) to"
             " indicate a very explicit exact-match equality.",
-            type(v1).__name__
+            type(v1).__name__,
+            exc_info=True
         )
         return self._baseAssertEqual(v1, v2, msg=msg)
 
