@@ -284,6 +284,7 @@ var FileWidget = SearchableMediaWidget.extend({
         } else if (this.$media.is('a.o_image')) {
             o.url = this.$media.attr('href').replace(/[?].*/, '');
             o.id = +o.url.match(/\/web\/content\/(\d+)/, '')[1];
+            o.isDocument = true;
         }
         if (o.url) {
             self._toggleImage(_.find(self.records, function (record) { return record.src === o.url;}) || o, true);
