@@ -142,7 +142,7 @@ var Dialog = Widget.extend({
                     def = buttonData.click.call(self, e);
                 }
                 if (buttonData.close) {
-                    Promise.resolve(def).then(self.close.bind(self)).guardedCatch(self.close.bind(self));
+                    Promise.resolve(def).then(self.close.bind(self));
                 }
             });
             if (self.technical) {
