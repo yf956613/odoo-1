@@ -1901,7 +1901,7 @@ var PaymentScreenWidget = ScreenWidget.extend({
 	}
 
 	if (! open_paymentline) {
-            this.pos.get_order().add_paymentline( this.pos.cashregisters[0]);
+            this.pos.get_order().add_paymentline( this.pos.payment_methods[0]);
             this.render_paymentlines();
         }
 
@@ -1971,14 +1971,8 @@ var PaymentScreenWidget = ScreenWidget.extend({
         lines.appendTo(this.$('.paymentlines-container'));
     },
     click_paymentmethods: function(id) {
-        var cashregister = null;
-        for ( var i = 0; i < this.pos.cashregisters.length; i++ ) {
-            if ( this.pos.cashregisters[i].journal_id[0] === id ){
-                cashregister = this.pos.cashregisters[i];
-                break;
-            }
-        }
-        this.pos.get_order().add_paymentline( cashregister );
+        var payment_method = this.pos.payment_methods_by_id[id]
+        this.pos.get_order().add_paymentline(payment_method);
         this.reset_input();
         this.render_paymentlines();
     },

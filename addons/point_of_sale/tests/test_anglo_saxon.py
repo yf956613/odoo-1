@@ -44,7 +44,6 @@ class TestAngloSaxonCommon(common.TransactionCase):
         self.pos_config.journal_id = sale_journal
         self.cash_journal = self.env['account.journal'].create({'name': 'CASH journal', 'type': 'cash', 'code': 'CSH00'})
         self.pos_config.invoice_journal_id = False
-        self.pos_config.journal_ids = [self.cash_journal.id]
 
 
 class TestAngloSaxonFlow(TestAngloSaxonCommon):
@@ -52,18 +51,16 @@ class TestAngloSaxonFlow(TestAngloSaxonCommon):
     def test_create_account_move_line(self):
         # This test will check that the correct journal entries are created when a product in real time valuation
         # is sold in a company using anglo-saxon
-        self.pos_config.open_session_cb()
-        self.pos_config.current_session_id.write({'journal_ids': [(6, 0, [self.cash_journal.id])]})
-        self.cash_journal.loss_account_id = self.account
-        self.pos_statement = self.Statement.create({
-            'balance_start': 0.0,
-            'balance_end_real': 0.0,
-            'date': time.strftime('%Y-%m-%d'),
-            'journal_id': self.cash_journal.id,
-            'company_id': self.company.id,
-            'name': 'pos session test',
+        cash_payment_method = self.env['pos.payment.method'].create({
+            'name': 'Cash Test',
+            'is_cash_count': True,
+            'cash_journal_id': self.cash_journal.id,
+            'receivable_account_id': self.account.id,
         })
-        self.pos_config.current_session_id.write({'statement_ids': [(6, 0, [self.pos_statement.id])]})
+        self.pos_config.write({'payment_method_ids': [(6, 0, cash_payment_method.ids)]})
+        self.pos_config.open_session_cb()
+        current_session = self.pos_config.current_session_id
+        self.cash_journal.loss_account_id = self.account
 
         # I create a PoS order with 1 unit of New product at 450 EUR
         self.pos_order_pos0 = self.PosOrder.create({
@@ -90,7 +87,7 @@ class TestAngloSaxonFlow(TestAngloSaxonCommon):
         context_make_payment = {"active_ids": [self.pos_order_pos0.id], "active_id": self.pos_order_pos0.id}
         self.pos_make_payment_0 = self.PosMakePayment.with_context(context_make_payment).create({
             'amount': 450.0,
-            'journal_id': self.cash_journal.id,
+            'payment_method_id': cash_payment_method.id,
         })
 
         # I click on the validate button to register the payment.
@@ -107,10 +104,14 @@ class TestAngloSaxonFlow(TestAngloSaxonCommon):
         current_session_id.action_pos_session_close()
         self.assertEqual(current_session_id.state, 'closed', 'Check that session is closed')
 
+        # Check if there is account_move in the order.
+        # There shouldn't be because the order is not invoiced.
+        self.assertFalse(self.pos_order_pos0.account_move, 'There should be no invoice in the order.')
+
         # I test that the generated journal entries are correct.
         account_output = self.category.property_stock_account_output_categ_id
         expense_account = self.category.property_account_expense_categ_id
-        aml = self.pos_order_pos0.account_move.line_ids
+        aml = current_session.move_id.line_ids
         aml_output = aml.filtered(lambda l: l.account_id.id == account_output.id)
         aml_expense = aml.filtered(lambda l: l.account_id.id == expense_account.id)
         self.assertEqual(aml_output.credit, self.product.standard_price, "Cost of Good Sold entry missing or mismatching")
