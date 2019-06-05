@@ -1,0 +1,6 @@
+<odoo>
+    <record model="ir.actions.client" id="action_setup_totp">
+        <field name="name">Setup TOTP</field>
+        <field name="tag">totp_setup</field>
+    </record>
+</odoo>

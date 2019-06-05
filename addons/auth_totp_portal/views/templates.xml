@@ -1,0 +1,18 @@
+<odoo>
+    <template id="auth_totp_frontend" name="TOTP frontend (portal)" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <script type="application/javascript"
+                    src="/auth_totp_portal/static/src/js/totp_frontend.js"/>
+        </xpath>
+    </template>
+
+    <template id="totp_portal_hook" name="TOTP Portal hook" inherit_id="portal.portal_my_details">
+        <xpath expr="//div[button[hasclass('btn-primary')]]" position="after">
+            <div class="clearfix" t-if="not user_id.has_totp">
+                <button type="button" class="btn btn-warning auth_totp_portal_button">
+                    Enable secure login
+                </button>
+            </div>
+        </xpath>
+    </template>
+</odoo>

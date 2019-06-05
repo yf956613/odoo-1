@@ -1,0 +1,41 @@
+<odoo>
+    <template id="auth_totp_common" name="TOTP setup dialog" inherit_id="web.assets_common">
+        <xpath expr="." position="inside">
+            <script type="application/javascript"
+                    src="/auth_totp/static/src/js/totp_common.js"/>
+        </xpath>
+    </template>
+
+    <template id="auth_totp_backend" name="TOTP backend" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="application/javascript"
+                    src="/auth_totp/static/src/js/totp_backend.js"/>
+        </xpath>
+    </template>
+
+    <template id="auth_totp_form">
+        <t t-call="web.login_layout">
+            <t t-set="disable_footer">1</t>
+            <div class="oe_login_form">
+                <p class="alert alert-danger" t-if="error" role="alert">
+                    <t t-esc="error"/>
+                </p>
+                <form method="POST" action="" class="form-inline">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="redirect" t-att-value="redirect"/>
+                    <label class="sr-only" for="totp_token">Authentication Code</label>
+                    <input name="totp_token" class="form-control mb-2" autofocus="autofocus" placeholder="Authentication Code"/>
+                    <button type="submit" class="btn btn-primary mb-2">
+                        Verify
+                    </button>
+                </form>
+                <form method="POST" action="/web/session/logout" class="form-inline">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button type="submit" class="btn btn-link btn-sm mb-2">
+                        Cancel and log out
+                    </button>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>

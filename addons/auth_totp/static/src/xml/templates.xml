@@ -1,0 +1,12 @@
+<templates xml:space="preserve">
+    <div t-name="auth_totp.TOTPDialog" class="text-center">
+        <!-- Authy, Lastpass Authenticator, Google Authenticator, FreeOTP, Microsoft Authenticator, 1Password, ... -->
+        <p>Scan code into an authenticator application:</p>
+        <p>
+            <img t-attf-src="data:image/png;base64,{{widget._code}}"/>
+        </p>
+        <!-- provide secret string or explicit link? -->
+
+        <p><label for="code">Input authenticator-provided code: <input name="code" class="o_input o_required_modifier" autofocus="autofocus"/></label></p>
+    </div>
+</templates>
