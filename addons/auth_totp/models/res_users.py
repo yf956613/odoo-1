@@ -31,6 +31,12 @@ class Users(models.Model):
         for r, v in zip(self, self.sudo().read(['secret_totp'])):
             r.has_totp = bool(v['secret_totp'])
 
+    @api.depends('secret_totp')
+    def _compute_keys_only(self):
+        super()._compute_keys_only()
+        for u in self:
+            self.api_keys_only |= u.has_totp
+
     # TODO: token invalidation, time boundary
     def _check_totp(self, code):
         secret = self.sudo().secret_totp
