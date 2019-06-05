@@ -10,6 +10,7 @@ import qrcode
 import werkzeug.urls
 
 from odoo import api, fields, models
+from odoo.exceptions import AccessDenied
 from odoo.http import request
 
 
@@ -43,13 +44,9 @@ class Users(models.Model):
         key = base64.b32decode(sudo.secret_totp.upper())
         match = TOTP(key).match(code, previous=sudo.totp_last_valid)
         if match is None:
-            return False
+            raise AccessDenied()
 
         sudo.totp_last_valid = match
-        return True
-    """
-    it’s critical for applications implementing OTP to rate-limit the number of attempts on an account, since an unlimited number of attempts guarantees an attacker will be able to guess any given token.
-    """
 
     def try_setting(self, secret, code):
         match = TOTP(base64.b32decode(secret.upper())).match(code, previous=0)
