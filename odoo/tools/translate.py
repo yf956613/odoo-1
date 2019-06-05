@@ -605,7 +605,7 @@ class PoFileReader:
                     }
                     continue
 
-                _logger.error("malformed po file: unknown occurrence: %s", occurrence)
+                _logger.error("malformed po file: unknown occurrence: %s in %s", occurrence, entry.msgid)
 
 def TranslationFileWriter(target, fileformat='po', lang=None, modules=None):
     """ Iterate over translation file to return Odoo translation entries """

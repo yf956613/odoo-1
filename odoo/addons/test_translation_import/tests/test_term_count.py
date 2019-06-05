@@ -9,6 +9,9 @@ from odoo.tests import common, tagged
 from odoo.tools.misc import file_open, mute_logger
 from odoo.tools.translate import _
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class TestTermCount(common.TransactionCase):
 
@@ -220,6 +223,7 @@ class TestTranslationFlow(common.TransactionCase):
         # minus 3 as the original fr.po contains 3 fake code translations (cf
         # test_no_duplicate test) which are not found by babel_extract_terms
         init_translation_count = len(translations) - 3
+        init_translations = [(t.source, t.value) for t in translations]
 
         module = self.env.ref('base.module_test_translation_import')
         export = self.env["base.language.export"].create({
@@ -246,4 +250,7 @@ class TestTranslationFlow(common.TransactionCase):
             ('lang', '=', 'fr_FR'),
             ('module', '=', 'test_translation_import')
         ])
+        it = [(t.source, t.value) for t in import_translation]
+        _logger.info(init_translation_count, init_translations)
+        _logger.info(len(import_translation), it)
         self.assertEqual(init_translation_count, len(import_translation))
