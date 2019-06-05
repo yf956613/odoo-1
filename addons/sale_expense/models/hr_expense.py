@@ -11,7 +11,8 @@ class Expense(models.Model):
         'sale.order', string='Reinvoice Customer', readonly=True,
         states={'draft': [('readonly', False)], 'reported': [('readonly', False)]},
         domain="[('state', '=', 'sale'), ('company_id', '=', company_id)]",
-        help="If the product has an expense policy, it will be reinvoiced on this sales order")
+        help="If the product has an expense policy, it will be reinvoiced on this sales order",
+        tracking=True)
     can_be_reinvoiced = fields.Boolean("Can be reinvoiced", compute='_compute_can_be_reinvoiced')
 
     @api.depends('product_id')
