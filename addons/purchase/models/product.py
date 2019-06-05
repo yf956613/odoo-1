@@ -15,7 +15,7 @@ class ProductTemplate(models.Model):
         'account.account', string="Price Difference Account", company_dependent=True,
         help="This account is used in automated inventory valuation to "\
              "record the price difference between a purchase order and its related vendor bill when validating this vendor bill.")
-    purchased_product_qty = fields.Float(compute='_compute_purchased_product_qty', string='Purchased')
+    purchased_product_qty = fields.Uom(compute='_compute_purchased_product_qty', string='Purchased', uom_field='uom_id')
     purchase_method = fields.Selection([
         ('purchase', 'On ordered quantities'),
         ('receive', 'On received quantities'),
@@ -27,7 +27,7 @@ class ProductTemplate(models.Model):
     @api.multi
     def _compute_purchased_product_qty(self):
         for template in self:
-            template.purchased_product_qty = float_round(sum([p.purchased_product_qty for p in template.product_variant_ids]), precision_rounding=template.uom_id.rounding)
+            template.purchased_product_qty = sum([p.purchased_product_qty for p in template.product_variant_ids])
 
     @api.model
     def get_import_templates(self):
@@ -55,7 +55,7 @@ class ProductProduct(models.Model):
     _name = 'product.product'
     _inherit = 'product.product'
 
-    purchased_product_qty = fields.Float(compute='_compute_purchased_product_qty', string='Purchased')
+    purchased_product_qty = fields.Uom(compute='_compute_purchased_product_qty', string='Purchased', uom_field='uom_id')
 
     @api.multi
     def _compute_purchased_product_qty(self):
@@ -69,7 +69,7 @@ class ProductProduct(models.Model):
         order_lines = self.env['purchase.order.line'].read_group(domain, ['product_id', 'product_uom_qty'], ['product_id'])
         purchased_data = dict([(data['product_id'][0], data['product_uom_qty']) for data in order_lines])
         for product in self:
-            product.purchased_product_qty = float_round(purchased_data.get(product.id, 0), precision_rounding=product.uom_id.rounding)
+            product.purchased_product_qty = purchased_data.get(product.id, 0)
 
     @api.multi
     def action_view_po(self):

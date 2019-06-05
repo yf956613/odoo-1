@@ -8,7 +8,7 @@ from odoo.tools.float_utils import float_round
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
-    sales_count = fields.Float(compute='_compute_sales_count', string='Sold')
+    sales_count = fields.Uom(compute='_compute_sales_count', string='Sold', uom_field='uom_id')
 
     @api.multi
     def _compute_sales_count(self):
