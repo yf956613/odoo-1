@@ -17,51 +17,51 @@ from odoo.http import request
 class Users(models.Model):
     _inherit = 'res.users'
 
-    secret_totp = fields.Char()
+    totp_secret = fields.Char()
     totp_last_valid = fields.Integer(default=0)
-    has_totp = fields.Boolean(compute='_compute_has_totp')
+    totp_enabled = fields.Boolean(compute='_compute_totp_enabled')
 
     def _mfa_url(self):
         r = super()._mfa_url()
         if r is not None:
             return r
-        if self.has_totp:
+        if self.totp_enabled:
             return '/web/login/totp'
 
-    @api.depends('secret_totp')
-    def _compute_has_totp(self):
-        for r, v in zip(self, self.sudo().read(['secret_totp'])):
-            r.has_totp = bool(v['secret_totp'])
+    @api.depends('totp_secret')
+    def _compute_totp_enabled(self):
+        for r, v in zip(self, self.sudo().read(['totp_secret'])):
+            r.totp_enabled = bool(v['totp_secret'])
 
-    @api.depends('secret_totp')
+    @api.depends('totp_secret')
     def _compute_keys_only(self):
         super()._compute_keys_only()
         for u in self:
-            self.api_keys_only |= u.has_totp
+            self.api_keys_only |= u.totp_enabled
 
-    def _check_totp(self, code):
+    def _totp_check(self, code):
         sudo = self.sudo()
-        key = base64.b32decode(sudo.secret_totp.upper())
+        key = base64.b32decode(sudo.totp_secret.upper())
         match = TOTP(key).match(code, previous=sudo.totp_last_valid)
         if match is None:
             raise AccessDenied()
 
         sudo.totp_last_valid = match
 
-    def try_setting(self, secret, code):
+    def totp_try_setting(self, secret, code):
         match = TOTP(base64.b32decode(secret.upper())).match(code, previous=0)
         if match is None:
             return False
 
         sudo = self.sudo()
         sudo.write({
-            'secret_totp': secret,
+            'totp_secret': secret,
             'totp_last_valid': match,
         })
         return True
 
     def totp_generate(self):
-        if self.has_totp:
+        if self.totp_enabled:
             return False
 
         secret = base64.b32encode(os.urandom(35)).decode()

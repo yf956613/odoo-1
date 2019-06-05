@@ -8,7 +8,7 @@
 
     <template id="totp_portal_hook" name="TOTP Portal hook" inherit_id="portal.portal_my_details">
         <xpath expr="//div[button[hasclass('btn-primary')]]" position="after">
-            <div class="clearfix" t-if="not user_id.has_totp">
+            <div class="clearfix" t-if="not user_id.totp_enabled">
                 <button type="button" class="btn btn-warning auth_totp_portal_button">
                     Enable secure login
                 </button>

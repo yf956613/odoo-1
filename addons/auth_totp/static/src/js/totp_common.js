@@ -51,7 +51,7 @@ return Dialog.extend({
         console.log('tryEnabling', code);
         this._rpc({
             model: 'res.users',
-            method: 'try_setting',
+            method: 'totp_try_setting',
             args: [this.getSession().user_id, this._secret, code],
         }).then(function (valid) {
             if (valid) {

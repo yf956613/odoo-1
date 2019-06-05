@@ -20,7 +20,7 @@ class Home(odoo.addons.web.controllers.main.Home):
             user = request.env['res.users'].browse(request.session.pre_uid)
             try:
                 with user._assert_can_auth():
-                    user._check_totp(int(kwargs['totp_token']))
+                    user._totp_check(int(kwargs['totp_token']))
                     request.session.finalize()
                     return http.redirect_with_hash(self._login_redirect(request.session.uid, redirect=redirect))
             except AccessDenied:
