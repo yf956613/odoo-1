@@ -17,6 +17,7 @@ class Users(models.Model):
     _inherit = 'res.users'
 
     secret_totp = fields.Char()
+    totp_last_valid = fields.Integer(default=0)
     has_totp = fields.Boolean(compute='_compute_has_totp')
 
     def _mfa_url(self):
@@ -37,17 +38,30 @@ class Users(models.Model):
         for u in self:
             self.api_keys_only |= u.has_totp
 
-    # TODO: token invalidation, time boundary
     def _check_totp(self, code):
-        secret = self.sudo().secret_totp
-        key = base64.b32decode(secret.upper())
-        return TOTP(key).match(code)
+        sudo = self.sudo()
+        key = base64.b32decode(sudo.secret_totp.upper())
+        match = TOTP(key).match(code, previous=sudo.totp_last_valid)
+        if match is None:
+            return False
+
+        sudo.totp_last_valid = match
+        return True
+    """
+    it’s critical for applications implementing OTP to rate-limit the number of attempts on an account, since an unlimited number of attempts guarantees an attacker will be able to guess any given token.
+    """
 
     def try_setting(self, secret, code):
-        if TOTP(base64.b32decode(secret)).match(code):
-            self.sudo().secret_totp = secret
-            return True
-        return False
+        match = TOTP(base64.b32decode(secret.upper())).match(code, previous=0)
+        if match is None:
+            return False
+
+        sudo = self.sudo()
+        sudo.write({
+            'secret_totp': secret,
+            'totp_last_valid': match,
+        })
+        return True
 
     def totp_generate(self):
         if self.has_totp:
@@ -91,17 +105,29 @@ class TOTP:
     def __init__(self, key):
         self._key = key
 
-    def match(self, code, t=None, window=TIMESTEP):
+    def match(self, code, *, previous, t=None, window=TIMESTEP):
+        """
+        :param code: authenticator code to check against this key
+        :param int previous: counter value returned by a prevously successful
+                             match, windows older than that counter will not
+                             be attempted (avoids replay attacks / shoulder
+                             surfing), pass in `0` for a first attempt
+        :param int t: current timestamp (seconds)
+        :param int window: fuzz window to account for slow fingers, network
+                           latency, desynchronised clocks, ..., every code
+                           valid between t-window an t+window is considered
+                           valid
+        """
         if t is None:
             t = time.time()
 
-        low = int((t - window) / TIMESTEP)
+        low = max(int((t - window) / TIMESTEP), previous+1)
         high = int((t + window) / TIMESTEP) + 1
 
-        return any(
-            hotp(self._key, counter) == code
-            for counter in range(low, high)
-        )
+        return next((
+            counter for counter in range(low, high)
+            if hotp(self._key, counter) == code
+        ), None)
 
 def hotp(secret, counter):
     # C is the 64b counter encoded in big-endian
