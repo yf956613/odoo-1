@@ -88,7 +88,7 @@ class ProjectTask(models.Model):
             self.sudo().mapped('child_ids').write({
                 'so_line': values['sale_line_id']
             })
-            self.sudo().mapped('timesheet_ids').write({
+            self.sudo().with_context(sale_analytic_force_recompute=True).mapped('timesheet_ids').write({
                 'so_line': values['sale_line_id']
             })
         return result
