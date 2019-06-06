@@ -210,10 +210,27 @@ class TestTranslationFlow(common.TransactionCase):
     def test_export_import(self):
         """ Ensure export+import gives the same result as loading a language """
         # load language and generate missing terms to create missing empty terms
+        pre = self.env["ir.translation"].search([
+            ('lang', '=', 'fr_FR'),
+            ('source', '=', 'Bar'),
+            ('module', '=', 'test_translation_import')
+        ])
+        _logger.info(len(pre))
         with mute_logger('odoo.addons.base.models.ir_translation'):
             self.env["base.language.install"].create({'lang': 'fr_FR'}).lang_install()
-        self.env["base.update.translations"].create({'lang': 'fr_FR'}).act_update()
-
+        pre = self.env["ir.translation"].search([
+            ('lang', '=', 'fr_FR'),
+            ('source', '=', 'Bar'),
+            ('module', '=', 'test_translation_import')
+        ])
+        _logger.info(len(pre))
+        self.env["base.update.translations"].create({'lang': 'fr_FR'}).with_context(testing=True).act_update()
+        pre = self.env["ir.translation"].search([
+            ('lang', '=', 'fr_FR'),
+            ('source', '=', 'Bar'),
+            ('module', '=', 'test_translation_import')
+        ])
+        _logger.info(len(pre))
         translations = self.env["ir.translation"].search([
             ('lang', '=', 'fr_FR'),
             ('module', '=', 'test_translation_import')
@@ -222,7 +239,7 @@ class TestTranslationFlow(common.TransactionCase):
         # minus 3 as the original fr.po contains 3 fake code translations (cf
         # test_no_duplicate test) which are not found by babel_extract_terms
         init_translation_count = len(translations) - 3
-        init_translations = sorted([(t.source, t.value, t.type, t.name) for t in translations])
+        init_translations = sorted([(t.source, t.value, t.type, t.name, t.res_id) for t in translations if t.source == 'Bar'])
 
         module = self.env.ref('base.module_test_translation_import')
         export = self.env["base.language.export"].create({
@@ -251,5 +268,4 @@ class TestTranslationFlow(common.TransactionCase):
         ])
 
         _logger.info(init_translations)
-        _logger.info(sorted([(t.source, t.value, t.type, t.name) for t in import_translation]))
         self.assertEqual(init_translation_count, len(import_translation))

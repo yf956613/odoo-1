@@ -902,7 +902,12 @@ def trans_generate(lang, modules, cr):
             if isinstance(getattr(field, 'selection', None), (list, tuple)):
                 name = "%s,%s" % (record.model, field_name)
                 for dummy, val in field.selection:
-                    push_translation(module, 'selection', name, 0, val)
+                    choice = 0
+                    if val == 'Bar':
+                        import random
+                        choice = random.randint(1, 42)
+                        print(module, 'selection', name, choice, val)
+                    push_translation(module, 'selection', name, choice, val)
 
         for field_name, field in record._fields.items():
             if field.translate:
@@ -1081,6 +1086,8 @@ def trans_load_data(cr, fileobj, fileformat, lang, lang_name=None, verbose=True,
         # First process the entries from the PO file (doing so also fills/removes
         # the entries from the POT file).
         for row in reader:
+            if context and context.get('testing') and row['src'] == 'Bar':
+                print(row)
             process_row(row)
 
         irt_cursor.finish()
