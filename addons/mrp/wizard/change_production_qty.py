@@ -34,7 +34,7 @@ class ChangeProductionQty(models.TransientModel):
         """
         modification = {}
         for move in production.move_finished_ids.filtered(lambda m: m.state not in ('done', 'cancel')):
-            qty = (qty - old_qty) * move.unit_factor
+            qty = (old_qty - qty) * move.unit_factor
             modification[move] = (move.product_uom_qty - qty, move.product_uom_qty)
             move[0].write({'product_uom_qty': move.product_uom_qty - qty})
         return modification
