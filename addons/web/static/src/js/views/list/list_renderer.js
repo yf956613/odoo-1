@@ -28,6 +28,7 @@ var FIELD_CLASSES = {
     float: 'o_list_number',
     integer: 'o_list_number',
     monetary: 'o_list_number',
+    uom: 'o_list_number',
     text: 'o_list_text',
 };
 
@@ -738,7 +739,7 @@ var ListRenderer = BasicRenderer.extend({
             $th.attr('aria-sort', order[0].asc ? 'ascending' : 'descending');
         }
 
-        if (field.type === 'float' || field.type === 'integer' || field.type === 'monetary') {
+        if (field.type === 'float' || field.type === 'uom' || field.type === 'integer' || field.type === 'monetary') {
             $th.css({ textAlign: 'right' });
         }
 
