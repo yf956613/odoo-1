@@ -17,7 +17,7 @@ var _t = core._t;
  */
 var ProductConfiguratorWidget = relationalFields.FieldMany2One.extend({
     events: _.extend({}, relationalFields.FieldMany2One.prototype.events, {
-        'click .o_edit_product_configuration': '_onEditProductConfiguration'
+        'click .o_edit_product_configuration': '_onEditConfiguration'
     }),
 
      /**
@@ -26,8 +26,8 @@ var ProductConfiguratorWidget = relationalFields.FieldMany2One.extend({
     _render: function () {
         this._super.apply(this, arguments);
         if (this.mode === 'edit' && this.value &&
-            (this._isConfigurableProduct() || this._isConfigurableLine())) {
-                this._addConfigurationEditButton();
+        (this._isConfigurableProduct() || this._isConfigurableLine())) {
+            this._addConfigurationEditButton();
         } else {
             this.$('.o_edit_product_configuration').hide();
         }
@@ -98,7 +98,11 @@ var ProductConfiguratorWidget = relationalFields.FieldMany2One.extend({
         if (ev.data.changes && !ev.data.preventProductIdCheck && ev.data.changes.product_template_id) {
             self._onTemplateChange(ev.data.changes.product_template_id.id, ev.data.dataPointID);
         } else if (ev.data.changes && ev.data.changes.product_id) {
-            self._onProductChange(ev.data.changes.product_id.id, ev.data.dataPointID);
+            self._onProductChange(ev.data.changes.product_id.id, ev.data.dataPointID).then(function (wizardOpened) {
+                if (!wizardOpened) {
+                    self._onLineConfigured();
+                }
+            });
         }
     },
 
@@ -134,15 +138,45 @@ var ProductConfiguratorWidget = relationalFields.FieldMany2One.extend({
     },
 
     /**
+     * Hook for configurator happening after line has been set
+     * (options, ...).
+     * Should return
+     *    true if product has been configured through wizard or
+     *        the result of the super call for other wizard extensions
+     *    false if the product wasn't configurable through the wizard
+     *
+     * @param {String} dataPointID
+     * @returns {Promise<Boolean>} stopPropagation true if a suitable configurator has been found.
+     *
+     * @private
+     */
+    _onLineConfigured: function () {
+
+    },
+
+    /**
      * Hook for editing a configured line.
      * The button triggering this function is only shown in Edit mode,
      * when _isConfigurableProduct is True.
      *
      * @private
      */
+    _onEditConfiguration: function () {
+        if (this._isConfigurableLine()) {
+            this._onEditLineConfiguration();
+        } else if (this._isConfigurableProduct()) {
+            this._onEditProductConfiguration();
+        }
+    },
+
     _onEditProductConfiguration: function () {
 
     },
+
+    _onEditLineConfiguration: function () {
+        
+    },
+
 
     /**
      * Utilities for recordData conversion
