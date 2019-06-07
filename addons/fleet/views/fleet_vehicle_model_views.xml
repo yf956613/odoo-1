@@ -6,6 +6,11 @@
         <field name="arch" type="xml">
             <form string="Model">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
                     <field name="image_medium" widget='image' class="oe_avatar"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
@@ -128,7 +133,7 @@
                 <field name="image" />
                 <templates>
                     <t t-name="kanban-box">
-                        <div class="oe_kanban_vignette oe_semantic_html_override">
+                        <div class="oe_kanban_vignette oe_semantic_html_override oe_kanban_global_click">
                             <a type="open" href="#" class="o_kanban_image oe_kanban_action">
                                 <img alt="Open" t-att-src="kanban_image('fleet.vehicle.model.brand', 'image_small', record.id.raw_value)" class="img-fluid" style="width:100px;"/>
                             </a>
@@ -139,6 +144,12 @@
                                     </a>
                                 </h4>
                             </div>
+                            <div class="o_kanban_button">
+                                <a type="object" name="action_brand_model" class="oe_kanban_action oe_kanban_action_a">
+                                    <field name="model_count"/>
+                                MODELS
+                                </a>
+                            </div>
                         </div>
                     </t>
                 </templates>
@@ -147,7 +158,7 @@
     </record>
 
     <record id='fleet_vehicle_model_brand_action' model='ir.actions.act_window'>
-        <field name="name">Car Manufacturers</field>
+        <field name="name">Models</field>
         <field name="res_model">fleet.vehicle.model.brand</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="help" type="html">
@@ -157,5 +168,5 @@
         </field>
     </record>
 
-    <menuitem action="fleet_vehicle_model_brand_action" parent="fleet_configuration" id="fleet_vehicle_model_brand_menu" sequence="2"/>
+    <menuitem action="fleet_vehicle_model_brand_action" parent="fleet_configuration" name="Models" id="fleet_vehicle_model_brand_menu" sequence="2"/>
 </odoo>

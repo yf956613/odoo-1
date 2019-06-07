@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 
 
 class FleetVehicleModel(models.Model):
@@ -17,6 +17,7 @@ class FleetVehicleModel(models.Model):
     image = fields.Binary(related='brand_id.image', string="Logo", readonly=False)
     image_medium = fields.Binary(related='brand_id.image_medium', string="Logo (medium)", readonly=False)
     image_small = fields.Binary(related='brand_id.image_small', string="Logo (small)", readonly=False)
+    active = fields.Boolean(default=True)
 
     @api.depends('name', 'brand_id')
     def name_get(self):
@@ -52,6 +53,12 @@ class FleetVehicleModelBrand(models.Model):
         help="Small-sized logo of the brand. It is automatically "
              "resized as a 64x64px image, with aspect ratio preserved. "
              "Use this field anywhere a small image is required.")
+    model_count = fields.Integer(compute="_compute_model_count", string="")
+
+    def _compute_model_count(self):
+        Model = self.env['fleet.vehicle.model']
+        for record in self:
+            record.model_count = Model.search_count([('brand_id', '=', record.id)])
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -62,3 +69,16 @@ class FleetVehicleModelBrand(models.Model):
     def write(self, vals):
         tools.image_resize_images(vals)
         return super(FleetVehicleModelBrand, self).write(vals)
+
+    @api.multi
+    def action_brand_model(self):
+        self.ensure_one()
+        view = {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'tree,form',
+            'res_model': 'fleet.vehicle.model',
+            'name': 'Models',
+            'context': {'search_default_brand_id': self.id, 'default_brand_id': self.id}
+        }
+
+        return view

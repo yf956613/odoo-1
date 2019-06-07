@@ -18,6 +18,7 @@ class FleetVehicle(models.Model):
         return state if state and state.id else False
 
     name = fields.Char(compute="_compute_vehicle_name", store=True)
+    description = fields.Text("Vehicle Description")
     active = fields.Boolean('Active', default=True, tracking=True)
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company)
     currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
@@ -31,13 +32,10 @@ class FleetVehicle(models.Model):
     manager_id = fields.Many2one('res.users', related='model_id.manager_id')
     brand_id = fields.Many2one('fleet.vehicle.model.brand', 'Brand', related="model_id.brand_id", store=True, readonly=False)
     log_drivers = fields.One2many('fleet.vehicle.assignation.log', 'vehicle_id', string='Assignation Logs')
-    log_fuel = fields.One2many('fleet.vehicle.log.fuel', 'vehicle_id', 'Fuel Logs')
     log_services = fields.One2many('fleet.vehicle.log.services', 'vehicle_id', 'Services Logs')
     log_contracts = fields.One2many('fleet.vehicle.log.contract', 'vehicle_id', 'Contracts')
-    cost_count = fields.Integer(compute="_compute_count_all", string="Costs")
     contract_count = fields.Integer(compute="_compute_count_all", string='Contract Count')
     service_count = fields.Integer(compute="_compute_count_all", string='Services')
-    fuel_logs_count = fields.Integer(compute="_compute_count_all", string='Fuel Log Count')
     odometer_count = fields.Integer(compute="_compute_count_all", string='Odometer')
     history_count = fields.Integer(compute="_compute_count_all", string="Drivers History Count")
     next_assignation_date = fields.Date('Assignation Date', help='This is the date at which the car will be available, if not set it means available instantly')
@@ -110,16 +108,12 @@ class FleetVehicle(models.Model):
 
     def _compute_count_all(self):
         Odometer = self.env['fleet.vehicle.odometer']
-        LogFuel = self.env['fleet.vehicle.log.fuel']
         LogService = self.env['fleet.vehicle.log.services']
         LogContract = self.env['fleet.vehicle.log.contract']
-        Cost = self.env['fleet.vehicle.cost']
         for record in self:
             record.odometer_count = Odometer.search_count([('vehicle_id', '=', record.id)])
-            record.fuel_logs_count = LogFuel.search_count([('vehicle_id', '=', record.id)])
             record.service_count = LogService.search_count([('vehicle_id', '=', record.id)])
             record.contract_count = LogContract.search_count([('vehicle_id', '=', record.id), ('state', '!=', 'closed')])
-            record.cost_count = Cost.search_count([('vehicle_id', '=', record.id), ('parent_id', '=', False)])
             record.history_count = self.env['fleet.vehicle.assignation.log'].search_count([('vehicle_id', '=', record.id)])
 
     @api.depends('log_contracts')
@@ -151,7 +145,7 @@ class FleetVehicle(models.Model):
                             ], limit=1, order='expiration_date asc')
                         if log_contract:
                             # we display only the name of the oldest overdue/due soon contract
-                            name = log_contract.cost_subtype_id.name
+                            name = log_contract.name
 
             record.contract_renewal_overdue = overdue
             record.contract_renewal_due_soon = due_soon
@@ -212,12 +206,16 @@ class FleetVehicle(models.Model):
 
     @api.model
     def create(self, vals):
-        res = super(FleetVehicle, self).create(vals)
+        res = super(FleetVehicle, self.with_context({'odometer_no_chatter': True})).create(vals)
         if 'driver_id' in vals and vals['driver_id']:
             res.create_driver_history(vals['driver_id'])
         if 'future_driver_id' in vals and vals['future_driver_id']:
             future_driver = self.env['res.partner'].browse(vals['future_driver_id'])
             future_driver.write({'plan_to_change_car': True})
+        for rec in res:
+            if rec.odometer:
+                date = fields.Date.context_today(rec)
+                rec.message_post(body=_("Odometer on %s: %s %s") % (date, rec.odometer, rec.odometer_unit))
         return res
 
     def write(self, vals):
@@ -264,6 +262,12 @@ class FleetVehicle(models.Model):
     @api.model
     def _read_group_stage_ids(self, stages, domain, order):
         return self.env['fleet.vehicle.state'].search([], order=order)
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        if 'co2' in fields:
+            fields.remove('co2')
+        return super(FleetVehicle, self).read_group(domain, fields, groupby, offset, limit, orderby, lazy)
 
     @api.model
     def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
@@ -346,6 +350,15 @@ class FleetVehicleOdometer(models.Model):
         if self.vehicle_id:
             self.unit = self.vehicle_id.odometer_unit
 
+    @api.model
+    def create(self, vals):
+        odometers = super(FleetVehicleOdometer, self).create(vals)
+
+        for odometer in odometers:
+            if not self.env.context.get('odometer_no_chatter'):
+                odometer.vehicle_id.message_post(body=_("Odometer on %s: %s %s") % (odometer.date, odometer.value, odometer.unit))
+
+        return odometers
 
 class FleetVehicleState(models.Model):
     _name = 'fleet.vehicle.state'
@@ -373,11 +386,6 @@ class FleetServiceType(models.Model):
     _description = 'Fleet Service Type'
 
     name = fields.Char(required=True, translate=True)
-    category = fields.Selection([
-        ('contract', 'Contract'),
-        ('service', 'Service')
-        ], 'Category', required=True, help='Choose whether the service refer to contracts, vehicle services or both')
-
 
 class FleetVehicleAssignationLog(models.Model):
     _name = "fleet.vehicle.assignation.log"
