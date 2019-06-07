@@ -10,6 +10,7 @@ var _t = core._t;
 
 var WysiwygMultizone = Wysiwyg.extend({
     assetLibs: Wysiwyg.prototype.assetLibs.concat(['website.compiled_assets_wysiwyg']),
+    publicMethods: Wysiwyg.prototype.publicMethods.concat(['setupEditable']),
     _getWysiwygContructor: function () {
         return odoo.__DEBUG__.services['web_editor.wysiwyg.multizone'];
     }

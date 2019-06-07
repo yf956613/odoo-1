@@ -39,6 +39,23 @@ var WysiwygMultizone = Wysiwyg.extend({
             return {isDirty: false};
         }
     },
+    /**
+     * Setup editable attributes on the given element.
+     *
+     * This is also used when element is updated/replaced
+     * after the editor is initialized.
+     *
+     * @public
+     * @param {jQueryElement} $target
+     */
+    setupEditable: function ($target) {
+        var $editable = $target || this.$el;
+        this._getEditableArea($target).attr('contenteditable', true);
+        $editable.find('.note-editable').addClass('o_not_editable').attr('contenteditable', false);
+        $editable.find('[data-oe-readonly]').addClass('o_not_editable').attr('contenteditable', false);
+        $editable.find('.oe_structure').attr('contenteditable', false).addClass('o_fake_not_editable');
+        $editable.find('[data-oe-field][data-oe-type="image"]').attr('contenteditable', false).addClass('o_fake_not_editable');
+    },
 
 
     //--------------------------------------------------------------------------
