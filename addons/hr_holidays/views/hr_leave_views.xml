@@ -214,6 +214,11 @@
                 <field name="state" widget="statusbar" statusbar_visible="confirm,validate"/>
             </header>
             <sheet>
+                <div class="alert alert-info" role="alert" attrs="{'invisible': [('employee_tz_mismatch', '=', False)]}">
+                    The employee has a different timezone than yours! Here dates and times are set as per employee's timezone
+                    (<field name="employee_tz"/>).
+                </div>
+                <field name="employee_tz_mismatch" invisible="1"/>
                 <field name="leave_type_request_unit" invisible="1"/>
                 <div class="oe_title" attrs="{'invisible': [('display_name', '=', False)]}">
                     <h1>
