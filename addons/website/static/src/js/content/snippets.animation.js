@@ -6,6 +6,7 @@ odoo.define('website.content.snippets.animation', function (require) {
  */
 
 var Class = require('web.Class');
+var config = require('web.config');
 var core = require('web.core');
 var mixins = require('web.mixins');
 var utils = require('web.utils');
@@ -678,6 +679,127 @@ registry.mediaVideo = publicWidget.Widget.extend({
         }));
 
         return def;
+    },
+});
+
+registry.backgroundVideo = publicWidget.Widget.extend({
+    selector: '.o_background_video',
+    xmlDependencies: ['/website/static/src/xml/website.background.video.xml'],
+    disabledInEditableMode: false,
+
+    /**
+     * @override
+     */
+    start: function () {
+        var self = this;
+        var defs = [this._super.apply(this, arguments)];
+        this.videoSrc = this.$target.attr('data-bg-video-src');
+        this.iframeID = _.uniqueId('bg_video_iframe_');
+        this.isYoutubeVideo = this.videoSrc.indexOf('youtube') !== -1;
+        this.isMobileEnv = config.device.size_class <= config.device.SIZES.LG && config.device.touch;
+        this.$bgVideoContainer = this.$('> .o_bg_video_container');
+        this.$iframe = this.$bgVideoContainer.find('.o_bg_video_iframe');
+
+        if (this.isYoutubeVideo && this.isMobileEnv) {
+            this.videoSrc = this.videoSrc + "&enablejsapi=1";
+        }
+        // Load iframe_api only for mobile devices
+        if (this.isMobileEnv && typeof _.isUndefined(window.YT) && this.isYoutubeVideo) {
+            var $script = $('<script/>', {
+                src: 'https://www.youtube.com/iframe_api'
+            });
+            $script.appendTo('head');
+            var def = new Promise(function (resolve, reject) {
+                window.onYouTubeIframeAPIReady = function () {
+                    self._appendBgVideoBlock();
+                    resolve();
+                };
+            });
+            defs.push(def);
+        } else {
+            this._appendBgVideoBlock();
+        }
+        return Promise.all(defs);
+    },
+    /**
+     * @override
+     */
+    destroy: function () {
+        if (this.$iframe) {
+            this.$iframe.off('.bg_video_load');
+        }
+        this._super.apply(this, arguments);
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * Adjust iframe to fit the video into the container.
+     *
+     * @private
+     */
+    _adjustIframe: function () {
+        var margin = 24;
+        var overprint = 100;
+        var wrapperWidth = this.$target.width();
+        var wrapperHeight = this.$target.height();
+        var style = {};
+        // assume that video aspect ratio is 16:9
+        var width = wrapperWidth + ((wrapperWidth * margin) / 100);
+        style.height = Math.round((9 * wrapperWidth) / 16);
+        if (style.height < wrapperHeight) {
+            style.height = wrapperHeight + ((wrapperHeight * margin) / 100);
+            width = Math.floor((16 * wrapperHeight) / 9);
+        }
+        width += overprint;
+        style.height += overprint;
+        style.flex = '0 0 ' + width + 'px';
+        this.$iframe.css(style);
+    },
+    /**
+     * Append background video related elements to the target.
+     *
+     * @private
+     */
+    _appendBgVideoBlock: function () {
+        var self = this;
+        var $element = $(qweb.render('website.background.video', {
+            videoSrc: this.videoSrc,
+            iframeID: this.iframeID
+        }));
+        this.$bgVideoContainer.remove();
+        $element.prependTo(this.$target);
+        this.$bgVideoContainer = this.$('> .o_bg_video_container');
+        this.$iframe = this.$bgVideoContainer.find('.o_bg_video_iframe');
+        this.$iframe.on('load.bg_video_load', function () {
+            self.$bgVideoContainer.find('.o_bg_video_loader').remove();
+        });
+        this._adjustIframe();
+        // YouTube does not allow to auto-play video in mobile
+        // devices, so we have to play the video manually.
+        if (this.isMobileEnv && this.isYoutubeVideo) {
+            new window.YT.Player(this.iframeID, {
+                events: {
+                    'onReady': this._onPlayerReady,
+                }
+            });
+        }
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * Called when when the video player is ready.
+     *
+     * @private
+     * @param {Event} ev
+     */
+    _onPlayerReady: function (ev) {
+        ev.target.playVideo();
     },
 });
 

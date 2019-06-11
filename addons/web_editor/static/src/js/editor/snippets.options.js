@@ -841,16 +841,10 @@ registry.background = SnippetOption.extend({
         // Put fake image in the DOM, edit it and use it as background-image
         var $image = $('<img/>', {class: 'd-none', src: value === 'true' ? '' : value}).appendTo(this.$target);
 
-        var $editable = this.$target.closest('.o_editable');
-        var _editor = new weWidgets.MediaDialog(this, {
-            'onlyImages': true,
-            'firstFilters': ['background'],
-            'res_model': $editable.data('oe-model'),
-            'res_id': $editable.data('oe-id'),
-        }, $image[0]).open();
+        var _editor = new weWidgets.MediaDialog(this, this._getMediaDialogOptions(), this._getDefaultMedia($image)).open();
 
-        _editor.on('save', this, function () {
-            this._setCustomBackground($image.attr('src'));
+        _editor.on('save', this, function (data) {
+            this._onSaveMediaDialog(data);
             this.$target.trigger('content_changed');
         });
         _editor.on('closed', this, function () {
@@ -871,16 +865,7 @@ registry.background = SnippetOption.extend({
             return;
         }
         this.$target.off('.background-option')
-            .on('background-color-event.background-option', (function (e, previewMode) {
-                e.stopPropagation();
-                if (e.currentTarget !== e.target) {
-                    return;
-                }
-                if (previewMode === false) {
-                    this.__customImageSrc = undefined;
-                }
-                this.background(previewMode);
-            }).bind(this));
+            .on('background-color-event.background-option', this._onBackgroundColorUpdate.bind(this));
     },
     /**
      * @override
@@ -897,6 +882,16 @@ registry.background = SnippetOption.extend({
     //--------------------------------------------------------------------------
 
     /**
+     * Returns the respective element for MediaDialog
+     *
+     * @private
+     * @param {jQueryElement} $element
+     * @returns {Object}
+     */
+    _getDefaultMedia: function ($element) {
+        return $element[0];
+    },
+    /**
      * Returns the src value from a css value related to a background image
      * (e.g. "url('blabla')" => "blabla" / "none" => "").
      *
@@ -910,6 +905,23 @@ registry.background = SnippetOption.extend({
         }
         var srcValueWrapper = /url\(['"]*|['"]*\)|^none$/g;
         return value && value.replace(srcValueWrapper, '') || '';
+    },
+    /**
+     * Returns the options to be passed during initialization of MediaDialog.
+     *
+     * @private
+     * @returns {Object}
+     */
+    _getMediaDialogOptions: function () {
+        var $editable = this.$target.closest('.o_editable');
+        return {
+            noDocuments: true,
+            noIcons: true,
+            noVideos: true,
+            firstFilters: ['background'],
+            res_model: $editable.data('oe-model'),
+            res_id: $editable.data('oe-id'),
+        };
     },
     /**
      * @override
@@ -940,6 +952,37 @@ registry.background = SnippetOption.extend({
         this.$target.toggleClass('oe_custom_bg', !!value);
         this._setActive();
         this.$target.trigger('snippet-option-change', [this]);
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * Called on background-color update.
+     *
+     * @private
+     * @param {Event} ev
+     * @param {boolean|string} previewMode
+     */
+    _onBackgroundColorUpdate: function (ev, previewMode) {
+        ev.stopPropagation();
+        if (ev.currentTarget !== ev.target) {
+            return;
+        }
+        if (previewMode === false) {
+            this.__customImageSrc = undefined;
+        }
+        this.background(previewMode);
+    },
+    /**
+     * Called on save mediaDialog.
+     *
+     * @private
+     * @param {Object} data
+     */
+    _onSaveMediaDialog: function (data) {
+        this._setCustomBackground(data.src);
     },
 });
 

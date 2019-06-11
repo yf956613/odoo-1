@@ -29,6 +29,145 @@ options.Class.include({
     },
 });
 
+options.registry.background.include({
+
+    //--------------------------------------------------------------------------
+    // Public
+    //--------------------------------------------------------------------------
+
+    /**
+    * @override
+    */
+    cleanForSave: function () {
+        if (this._hasBgvideo()) {
+            this._getContainer().remove();
+        }
+        this._super.apply(this, arguments);
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * Handles a background change.
+     *
+     * @see this.selectClass for parameters
+     */
+    _backgroundVideoUpdate: function (previewMode, value, $opt) {
+        var $bgVideoContainer = this._getContainer();
+        switch (previewMode) {
+            case 'reset':
+                $bgVideoContainer.removeClass('d-none');
+                break;
+            case true:
+                $bgVideoContainer.addClass('d-none');
+                break;
+            case false:
+                if (value && value.length) {
+                    this.$target.attr('data-bg-video-src', value);
+                    // Remove existing container
+                    $bgVideoContainer.remove();
+                    this._refreshPublicWidgets();
+                } else {
+                    this._cleanTarget();
+                }
+                break;
+        }
+    },
+    /**
+     * Removes background video related elements.
+     *
+     * @private
+     */
+    _cleanTarget: function () {
+        this.$target.removeClass('o_background_video');
+        this.$target.removeAttr('data-bg-video-src');
+        this._getContainer().remove();
+    },
+    /**
+     * Returns respective background video container.
+     *
+     * @private
+     * @returns {jQueryElement}
+     */
+    _getContainer: function () {
+        return this.$('> .o_bg_video_container');
+    },
+    /**
+     * @override
+     */
+    _getDefaultMedia: function ($element) {
+        if (!this._hasBgvideo()) {
+            return this._super.apply(this, arguments);
+        }
+        return this._getContainer().find('.o_bg_video_iframe')[0];
+    },
+    /**
+     * @override
+     */
+    _getMediaDialogOptions: function () {
+        return _.extend(this._super.apply(this, arguments), {
+            noVideos: false,
+            isForBgVideo: true,
+        });
+    },
+    /**
+     * @override
+     */
+    _setActive: function () {
+        if (!this._hasBgvideo()) {
+            return this._super.apply(this, arguments);
+        }
+        this.$el.find('[data-choose-image]').addClass('active');
+    },
+    /**
+     * Returns whether the current target has background video or not.
+     *
+     * @private
+     * @returns {boolean}
+     */
+    _hasBgvideo: function () {
+        return this.$target.hasClass('o_background_video');
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * @override
+     */
+     _onBackgroundColorUpdate: function (ev, previewMode) {
+        if (!this._hasBgvideo()) {
+            return this._super.apply(this, arguments);
+        }
+        ev.stopPropagation();
+        if (ev.currentTarget !== ev.target) {
+            return;
+        }
+        this._backgroundVideoUpdate(previewMode);
+    },
+    /**
+     * @override
+     */
+    _onSaveMediaDialog: function (data) {
+        var videoSrc = data.bgVideoSrc;
+        if (!videoSrc) {
+            if (this._hasBgvideo()) {
+                this._cleanTarget();
+            }
+            return this._super.apply(this, arguments);
+        }
+        this.$target.addClass('o_background_video');
+        this.$target.css('background-image', '');
+        this.$target.removeClass('oe_img_bg oe_custom_bg');
+        this.__customImageSrc = undefined;
+        this._backgroundVideoUpdate(false, videoSrc);
+        this._setActive();
+    },
+});
+
 options.registry.menu_data = options.Class.extend({
     xmlDependencies: ['/website/static/src/xml/website.editor.xml'],
 

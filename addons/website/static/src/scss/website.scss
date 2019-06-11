@@ -257,6 +257,26 @@ font[class*='bg-'] {
     }
 }
 
+.o_background_video {
+    position: relative;
+    .o_bg_video_container {
+        @include o-position-absolute(0, 0 ,0 ,0);
+        .o_iframe_wrapper {
+            overflow:hidden;
+            .o_bg_video_iframe {
+                pointer-events: none;
+            }
+        }
+        .o_bg_video_loader {
+            @include o-position-absolute(0, 0 ,0 ,0);
+            .spinner-border {
+                width: 4rem;
+                height: 4rem;
+            }
+        }
+    }
+}
+
 // Probably outdated
 // Lists
 .o_ul_toggle {

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="website.background.video">
+        <div class="o_bg_video_container h-100 w-100">
+            <div class="d-flex justify-content-center text-primary align-items-center o_bg_video_loader">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <div class="o_iframe_wrapper d-flex justify-content-center align-items-center h-100">
+                <iframe t-att-id="iframeID" class="o_bg_video_iframe" frameBorder="0" t-att-src="videoSrc"/>
+            </div>
+        </div>
+    </t>
+</templates>
