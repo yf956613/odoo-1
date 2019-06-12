@@ -203,6 +203,15 @@ class Property(models.Model):
         return [('fields_id', '=', res[0]), ('company_id', 'in', [company_id, False])]
 
     @api.model
+    def get_values_action(self, model, res_id, field):
+        action = self.env.ref('base.ir_property_form').read()[0]
+        action['domain'] = [
+            ('name', '=', field),
+            ('res_id', '=', '%s,%s' % (model, res_id)),
+        ]
+        return action
+
+    @api.model
     def get_multi(self, name, model, ids):
         """ Read the property field `name` for the records of model `model` with
             the given `ids`, and return a dictionary mapping `ids` to their
