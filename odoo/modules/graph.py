@@ -94,8 +94,10 @@ class Graph(dict):
 
         for package in later:
             unmet_deps = [p for p in dependencies[package] if p not in self]
-            _logger.error('module %s: Unmet dependencies: %s', package, ', '.join(unmet_deps))
-
+            level = logging.ERROR if 'all' not in tools.config['update'] else logging.INFO
+            # this will avoid to display error in log when making migrations since modules will be installed later
+            # TODO xdo: add a check to ensure dependencies at the end of migrations
+            _logger.log(level, 'module %s: Unmet dependencies: %s', package, ', '.join(unmet_deps))
         return len(self) - len_graph
 
 
