@@ -48,3 +48,16 @@ class StripeController(http.Controller):
         acquirer = request.env['payment.acquirer'].browse(int(acquirer_id))
         res = acquirer._create_setup_intent(kwargs)
         return res.get('client_secret')
+
+    @http.route('/payment/stripe/account/success', type="http", auth="user", csrf=False)
+    def stripe_account_success(self, res_id=None, secret_key=None, publishable_key=None, **post):
+        if res_id and secret_key and publishable_key:
+            acquirer = request.env['payment.acquirer'].browse(int(res_id))
+            acquirer.write({
+                'stripe_secret_key': secret_key,
+                'stripe_publishable_key': publishable_key,
+                'environment': 'prod',
+                'website_published': True,
+                'stripe_connect_status_msg': True,
+            })
+            return werkzeug.utils.redirect('/web#id='+res_id+'&model=payment.acquirer&view_type=form')
