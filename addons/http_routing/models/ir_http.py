@@ -374,11 +374,15 @@ class IrHttp(models.AbstractModel):
 
         func = None
         routing_error = None
+
+
+        # handle // in url
+        if request.httprequest.method == 'GET' and '//' in request.httprequest.path:
+            new_url = request.httprequest.path.replace('//', '/') + '?' + request.httprequest.query_string.decode('utf-8')
+            return werkzeug.utils.redirect(new_url, 301)
+
         # locate the controller method
         try:
-            if request.httprequest.method == 'GET' and '//' in request.httprequest.path:
-                new_url = request.httprequest.path.replace('//', '/') + '?' + request.httprequest.query_string.decode('utf-8')
-                return werkzeug.utils.redirect(new_url, 301)
             rule, arguments = cls._find_handler(return_rule=True)
             func = rule.endpoint
             request.is_frontend = func.routing.get('website', False)
@@ -388,13 +392,8 @@ class IrHttp(models.AbstractModel):
             request.is_frontend = True
             routing_error = e
 
-        request.is_frontend_multilang = (
-            request.is_frontend and
-            (not func or (func and func.routing.get('multilang', func.routing['type'] == 'http')))
-        )
+        request.is_frontend_multilang = not func or (func and request.is_frontend and func.routing.get('multilang', func.routing['type'] == 'http'))
 
-        cls._geoip_setup_resolver()
-        cls._geoip_resolve()
 
         # check authentication level
         try:
@@ -404,6 +403,9 @@ class IrHttp(models.AbstractModel):
                 cls._auth_method_public()
         except Exception as e:
             return cls._handle_exception(e)
+
+        cls._geoip_setup_resolver()
+        cls._geoip_resolve()
 
         # For website routes (only), add website params on `request`
         if request.is_frontend:

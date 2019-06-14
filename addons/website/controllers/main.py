@@ -463,3 +463,24 @@ class WebsiteBinary(http.Controller):
     def favicon(self, **kw):
         # when opening a pdf in chrome, chrome tries to open the default favicon url
         return self.content_image(model='website', id=str(request.website.id), field='favicon', **kw)
+
+# ---------------------
+#   TESTING
+# ---------------------  
+class WebsiteRewrite(http.Controller):
+
+    @http.route(['/route'], type='http', auth="public", website=True, multilang=False)
+    def route(self):
+        return request.make_response('OK')
+
+    @http.route(['/route/<int:id>'], type='http', auth="public", website=True, multilang=False)
+    def route2(self, id):
+        return request.make_response('OK: %s' % id)
+
+    @http.route(['/route/c/<model("res.country"):country>'], type='http', auth="public", website=True, multilang=False)
+    def route3(self, country):
+        return request.make_response('OK: %s' % (country))
+
+    @http.route(['/route/c/<int:id>/<model("res.country"):country>'], type='http', auth="public", website=True, multilang=False)
+    def route4(self, id, country):
+        return request.make_response('OK: %d-%s' % (id, country))
