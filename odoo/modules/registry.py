@@ -84,7 +84,9 @@ class Registry(Mapping):
                     # This should be a method on Registry
                     try:
                         odoo.modules.load_modules(registry._db, force_demo, status, update_module)
-                    except Exception:
+                    except Exception as e:
+                        print('##############"')
+                        print(e)
                         odoo.modules.reset_modules_state(db_name)
                         raise
                 except Exception:

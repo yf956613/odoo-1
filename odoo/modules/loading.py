@@ -531,6 +531,8 @@ def reset_modules_state(db_name):
     # of time
     db = odoo.sql_db.db_connect(db_name)
     with db.cursor() as cr:
+        import traceback
+        traceback.print_stack()
         cr.execute(
             "UPDATE ir_module_module SET state='installed' WHERE state IN ('to remove', 'to upgrade')"
         )
