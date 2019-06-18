@@ -67,30 +67,33 @@ function dragAndDrop($el, $to, options) {
         toOffset.left += bound.left;
         toOffset.top += bound.top;
     }
-    $el.trigger($.Event("mouseenter"));
+    $el.trigger($.Event(new MouseEvent("mouseenter")));
     if (!(options.continueMove)) {
         elementCenter.left += $el.outerWidth() / 2;
         elementCenter.top += $el.outerHeight() / 2;
 
-        $el.trigger($.Event("mousedown", {
-            which: 1,
+        $el.trigger($.Event(new MouseEvent("mousedown", {
+            clientX: elementCenter.left,
+            clientY: elementCenter.top,
             pageX: elementCenter.left,
             pageY: elementCenter.top
-        }));
+        })));
     }
 
-    $el.trigger($.Event("mousemove", {
-        which: 1,
+    $el.trigger($.Event(new MouseEvent("mousemove", {
+        clientX: toOffset.left,
+        clientY: toOffset.top,
         pageX: toOffset.left,
         pageY: toOffset.top
-    }));
+    })));
 
     if (!options.disableDrop) {
-        $el.trigger($.Event("mouseup", {
-            which: 1,
+        $el.trigger($.Event(new MouseEvent("mouseup", {
+            clientX: toOffset.left,
+            clientY: toOffset.top,
             pageX: toOffset.left,
             pageY: toOffset.top
-        }));
+        })));
         if (options.withTrailingClick) {
             $el.click();
         }
@@ -100,7 +103,7 @@ function dragAndDrop($el, $to, options) {
         // over otherwise it's impossible for the next tests to drag and
         // drop elements.
         $el.on("remove", function () {
-            $el.trigger($.Event("mouseup"));
+            $el.trigger($.Event(new MouseEvent("mouseup")));
         });
     }
     return concurrency.delay(0);
@@ -116,12 +119,15 @@ function dragAndDrop($el, $to, options) {
  */
 function triggerMouseEvent($el, type) {
     var pos = $el.offset();
-    var e = new $.Event(type);
     // little fix since it seems on chrome, it triggers 1px too on the left
-    e.pageX = e.layerX = e.screenX = pos.left + 1;
-    e.pageY = e.layerY = e.screenY = pos.top;
-    e.which = 1;
-    $el.trigger(e);
+    var ev = new MouseEvent(type, {
+        clientX: pos.left + 1,
+        clientY: pos.top,
+        screenX: pos.left + 1,
+        screenY: pos.top,
+    });
+    var $ev = new $.Event(ev);
+    $el.trigger($ev);
 }
 
 /**

@@ -300,7 +300,7 @@ var CalendarController = AbstractController.extend({
      */
     _onOpenEvent: function (event) {
         var self = this;
-        var id = event.data._id;
+        var id = event.data.id;
         id = id && parseInt(id).toString() === id ? parseInt(id) : id;
 
         if (!this.eventOpenPopup) {

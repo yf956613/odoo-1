@@ -34,7 +34,7 @@
         .o_calendar_widget {
             height: 100%;
             background-color: $o-view-background-color;
-            * {
+            *:not(.fc-resizer) {
                 z-index: 0; // FIXME
             }
             .fc-week-number, .fc-widget-header {
