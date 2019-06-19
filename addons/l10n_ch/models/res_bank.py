@@ -3,7 +3,7 @@
 
 import re
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from odoo.tools.misc import mod10r
 
 import werkzeug.urls
@@ -34,6 +34,25 @@ class ResPartnerBank(models.Model):
     _inherit = 'res.partner.bank'
 
     l10n_ch_postal = fields.Char(string='ISR reference', help='The ISR number of the company within the bank')
+    acc_type = fields.Selection(
+        selection=lambda x: x.env['res.partner.bank'].get_supported_account_types(),
+        compute='_compute_acc_type',
+        store=True,
+        string='Type',
+        help='Bank account type: Normal or IBAN. Inferred from the bank account number.'
+    )
+
+    @api.model_cr_context
+    def _auto_init(self):
+        res = super()._auto_init()
+        tools.drop_constraint(self._cr, self._table, 'res_partner_bank_unique_number')
+        '''
+        We need system to allow unique account numbers per company only if account type(acc_type) is not `postal`.
+        Such `partial` constraints are not supported by postgresql but it can be implemented with partial unique index.
+        '''
+        if not tools.index_exists(self._cr, 'res_partner_bank_unique_account_number_except_postal_account'):
+            self._cr.execute("CREATE UNIQUE INDEX res_partner_bank_unique_account_number_except_postal_account ON res_partner_bank (sanitized_acc_number, company_id) WHERE acc_type <> 'postal'")
+        return res
 
     @api.model
     def _get_supported_account_types(self):
