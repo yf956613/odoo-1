@@ -711,21 +711,20 @@ Kanban view processes ``field``, ``button`` and ``a`` elements specially:
 * by default fields are replaced by their formatted value, unless they
   match specific kanban view widgets
 
- .. todo:: list widgets?
+.. todo:: list widgets?
 
 * buttons and links with a ``type`` attribute become perform Odoo-related
   operations rather than their standard HTML function. Possible types are:
 
- ``action``, ``object``
-   standard behavior for :ref:`Odoo buttons
-   <reference/views/list/button>`, most attributes relevant to standard
-   Odoo buttons can be used.
- ``open``
-   opens the card's record in the form view in read-only mode
- ``edit``
-   opens the card's record in the form view in editable mode
- ``delete``
-   deletes the card's record and removes the card
+``action``, ``object``
+  standard behavior for :ref:`Odoo buttons <reference/views/list/button>`,
+  most attributes relevant to standard Odoo buttons can be used.
+``open``
+  opens the card's record in the form view in read-only mode
+``edit``
+  opens the card's record in the form view in editable mode
+``delete``
+  deletes the card's record and removes the card
 
 .. todo::
 
