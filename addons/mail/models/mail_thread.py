@@ -2844,7 +2844,7 @@ class MailThread(models.AbstractModel):
             res = self.env['mail.followers']._get_subscription_data(doc_data, None, None, include_pshare=True)
             for fid, rid, pid, cid, subtype_ids, pshare in res:
                 sids = [parent[sid] for sid in subtype_ids if parent.get(sid)]
-                sids += [sid for sid in subtype_ids if sid not in parent and sid in def_ids]
+                sids += [sid for sid in subtype_ids if sid not in parent and sid in def_ids or sid in int_ids]
                 if pid:
                     new_partners[pid] = (set(sids) & set(all_ids)) - set(int_ids) if pshare else set(sids) & set(all_ids)
                 if cid:
@@ -2861,7 +2861,7 @@ class MailThread(models.AbstractModel):
             self._name, self.ids,
             list(new_partners), new_partners,
             list(new_channels), new_channels,
-            check_existing=True, existing_policy='skip')
+            check_existing=True, existing_policy='update')
 
         # notify people from auto subscription, for example like assignation
         for template, pids in notify_data.items():
