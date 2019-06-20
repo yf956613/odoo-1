@@ -58,6 +58,7 @@ var SidebarFilter = Widget.extend(FieldManagerMixin, {
         this.filters = options.filters;
         this.label = options.label;
         this.getColor = options.getColor;
+        this.isSwipeEnabled = true;
     },
     /**
      * @override
@@ -311,6 +312,9 @@ return AbstractRenderer.extend({
         });
         this.$calendar.on('touchend', function (event) {
             touchEndX = event.originalEvent.changedTouches[0].pageX;
+            if (!self.isSwipeEnabled) {
+                return;
+            }
             if (touchStartX - touchEndX > 100) {
                 self.trigger_up('next');
             } else if (touchStartX - touchEndX < -100) {
@@ -382,6 +386,7 @@ return AbstractRenderer.extend({
                 self.$calendar.fullCalendar('unselect');
             },
             select: function (target_date, end_date, event, _js_event, _view) {
+                self.isSwipeEnabled = false;
                 var data = {'start': target_date, 'end': end_date};
                 if (self.state.context.default_name) {
                     data.title = self.state.context.default_name;
@@ -390,6 +395,7 @@ return AbstractRenderer.extend({
                 self.$calendar.fullCalendar('unselect');
             },
             eventRender: function (event, element) {
+                self.isSwipeEnabled = false;
                 var $render = $(self._eventRender(event));
                 event.title = $render.find('.o_field_type_char:first').text();
                 element.find('.fc-content').html($render.html());
@@ -408,6 +414,7 @@ return AbstractRenderer.extend({
             },
             // Dirty hack to ensure a correct first render
             eventAfterAllRender: function () {
+                self.isSwipeEnabled = true;
                 $(window).trigger('resize');
             },
             viewRender: function (view) {
