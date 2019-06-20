@@ -9,6 +9,8 @@
     'depends': ['l10n_lu', 'account'],
     'data': [
         'wizard/account_lu_faia_view.xml',
+        'wizard/lu_faia1.xml',
         'views/FAIA_xml_format.xml',
+        'views/FAIA.xml',
     ],
 }
