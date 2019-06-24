@@ -103,21 +103,16 @@
         overflow: hidden;
         text-overflow: ellipsis;
         display: block;
-        max-width: 384px;
         white-space: nowrap;
-        word-wrap: break-word;
     }
 
     .o_text_multiline_ellipsis {
         overflow: hidden;
-        text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-box-orient: vertical;
+        -moz-box-orient: vertical;
         -webkit-line-clamp: 3;
-        line-height: 1em;
-        width: 384px;
-        max-height: 3em;
-        word-wrap: break-word;
+        -moz-line-clamp: 3;
     }
 
     .oe_import_grid {
@@ -125,8 +120,6 @@
             &.oe_import_grid-header:first-child {
                 line-height: 24px;
                 font-weight: normal;
-                position: relative;
-                overflow: auto;
             }
             td {
                 padding: 4px;

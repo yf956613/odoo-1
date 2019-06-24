@@ -114,7 +114,7 @@
         <thead>
             <tr t-if="headers" class="oe_import_grid-header">
                 <td t-foreach="headers" t-as="header" class="oe_import_grid-cell"
-                    ><span class="o_import_header_name o_text_ellipsis"><t t-esc="header"/></span></td>
+                    ><span class="o_import_header_name o_text_ellipsis" t-att-title="header"><t t-esc="header"/></span></td>
             </tr>
             <tr class="oe_import_fields">
                 <!-- Iterate on first row to ensure we have all columns -->
@@ -126,7 +126,7 @@
         <tbody>
             <tr t-foreach="preview" t-as="row" class="oe_import_grid-row">
                 <td t-foreach="row" t-as="cell" class="oe_import_grid-cell">
-                    <span t-attf-class="#{ cell.indexOf(' ') &gt; 0 ? 'o_import_header_name o_text_multiline_ellipsis' : 'o_import_header_name o_text_ellipsis' }" >
+                    <span t-attf-class="o_import_header_name #{cell.indexOf(' ') &gt; 0 ? 'o_text_multiline_ellipsis' : 'o_text_ellipsis'}" >
                         <t t-esc="cell"/>
                     </span>
                 </td>
