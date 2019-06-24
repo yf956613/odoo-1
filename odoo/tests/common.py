@@ -19,6 +19,7 @@ import requests
 import shutil
 import signal
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -158,9 +159,38 @@ def new_test_user(env, login='', groups='base.group_user', context=None, **kwarg
 # ------------------------------------------------------------
 # Main classes
 # ------------------------------------------------------------
+class OdooSuite(unittest.suite.TestSuite):
 
+    def _handleClassSetup(self, test, result):
+        super()._handleClassSetup(self, test, result)
+        current_class = test.__class__
+        if current_class._classSetupFailed is True and hasattr(current_class, 'doClassCleanups'):
+            current_class.doClassCleanups()
+
+# monkey-patch for bpo-24412 support
+unittest.suite.TestSuite = OdooSuite
 
 class TreeCase(unittest.TestCase):
+    # backport of bpo-24412
+    _class_cleanups = []
+
+    @classmethod
+    def addClassCleanup(cls, function, *args, **kwargs):
+        """Same as addCleanup, except the cleanup items are called even if
+        setUpClass fails (unlike tearDownClass). Backport of bpo-24412."""
+        cls._class_cleanups.append((function, args, kwargs))
+
+    @classmethod
+    def doClassCleanups(cls):
+        """Execute all class cleanup functions. Normally called for you after tearDownClass.
+        Backport of bpo-24412."""
+        while cls._class_cleanups:
+            function, args, kwargs = cls._class_cleanups.pop()
+            try:
+                function(*args, **kwargs)
+            except Exception:
+                pass
+
     def __init__(self, methodName='runTest'):
         super(TreeCase, self).__init__(methodName)
         self.addTypeEqualityFunc(etree._Element, self.assertTreesEqual)
