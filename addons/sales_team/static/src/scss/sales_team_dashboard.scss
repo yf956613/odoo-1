@@ -3,6 +3,9 @@
     &.o_kanban_ungrouped {
         .o_kanban_record {
             width: 450px;
+            canvas {
+                height: 150px;
+            }
         }
     }
 }

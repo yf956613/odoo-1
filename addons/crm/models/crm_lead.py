@@ -112,7 +112,7 @@ class Lead(models.Model):
     email_state = fields.Selection([
         ('correct', 'Correct'),
         ('incorrect', 'Incorrect'),
-        ('empty', 'Empty')], string='Email quality', default="empty", compute="_compute_email_state", store=True)
+        ('empty', 'Empty')], string='Email Quality', default="empty", compute="_compute_email_state", store=True)
 
     # Only used for type opportunity
     planned_revenue = fields.Monetary('Expected Revenue', currency_field='company_currency', tracking=True)
@@ -476,9 +476,10 @@ class Lead(models.Model):
     # ----------------------------------------
 
     @api.multi
-    def action_set_lost(self):
+    def action_set_lost(self, **additional_values):
         """ Lost semantic: probability = 0 or active = False """
-        result = self.write({'active': False, 'probability': 0})
+        additional_values = additional_values if len(additional_values) > 0 else {}
+        result = self.write({'active': False, 'probability': 0, **additional_values})
         return result
 
     @api.multi
@@ -1211,10 +1212,12 @@ class Lead(models.Model):
         self.ensure_one()
         if 'stage_id' in init_values and self.probability == 100 and self.stage_id:
             return self.env.ref('crm.mt_lead_won')
-        elif 'active' in init_values and self.probability == 0 and not self.active:
+        elif 'lost_reason' in init_values:
             return self.env.ref('crm.mt_lead_lost')
         elif 'stage_id' in init_values:
             return self.env.ref('crm.mt_lead_stage')
+        elif 'team_id' not in init_values and self.active:
+            return self.env.ref('crm.mt_lead_restored')
         return super(Lead, self)._track_subtype(init_values)
 
     @api.multi

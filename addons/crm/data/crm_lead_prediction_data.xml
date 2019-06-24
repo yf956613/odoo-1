@@ -17,6 +17,15 @@
         <record id="frequency_field_source_id" model="crm.lead.scoring.frequency.field">
             <field name="field_id" eval="ref('crm.field_crm_lead__source_id')"/>
         </record>
+        <function model="ir.config_parameter" name="set_param" eval="('crm.pls_fields', 'State,Country,Phone Quality,Email Quality,Source')"/>
+        <record id="default_config_frequency_field" model="res.config.settings">
+            <field name="predictive_lead_scoring_fields" eval="[(6, 0, [
+                frequency_field_state_id,
+                frequency_field_country_id,
+                frequency_field_phone_state,
+                frequency_field_email_state,
+                frequency_field_source_id])]"/>
+        </record>
     </data>
 
 	<record id="website_crm_score_cron" model="ir.cron">

@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-lg-6 o_setting_box" title="This can be used to compute statistical probability to close a lead">
+                        <div class="col-12 col-lg-6 o_setting_box" title="This can be used to compute statistical probability to close a lead" groups="base.group_no_one">
                             <div class="o_setting_left_pane"></div>
                             <div class="o_setting_right_pane">
                                 <b>Predictive Lead Scoring</b>

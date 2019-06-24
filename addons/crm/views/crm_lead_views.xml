@@ -81,7 +81,7 @@
                                             attrs="{'invisible': [('is_automated_probability', '=', True)]}">
                                         <i class="fa fa-gear" role="img" title="Switch to automatic probability" aria-label="Switch to automatic probability"></i>
                                     </button>
-                                    <small class="oe_grey" attrs="{'invisible': [('is_automated_probability', '=', True)]}"><field name="automated_probability"/> %%</small>
+                                    <small class="oe_grey" attrs="{'invisible': [('is_automated_probability', '=', True)]}"><field name="automated_probability"/> %% (Estimated by Odoo)</small>
                                 </span>
                                 <div id="probability" class="o_row d-flex">
                                     <field name="is_automated_probability" invisible="1"/>
