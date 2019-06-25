@@ -52,15 +52,16 @@ class MrpProduction(models.Model):
         """ Calculates total costs at the end of the production.
         """
         self.ensure_one()
-        AccountAnalyticLine = self.env['account.analytic.line'].sudo()
+        analytic_line_vals = []
         for wc_line in self.workorder_ids.filtered('workcenter_id.costs_hour_account_id'):
             vals = self._prepare_wc_analytic_line(wc_line)
             precision_rounding = wc_line.workcenter_id.costs_hour_account_id.currency_id.rounding
             if not float_is_zero(vals.get('amount', 0.0), precision_rounding=precision_rounding):
-                # we use SUPERUSER_ID as we do not guarantee an mrp user
-                # has access to account analytic lines but still should be
-                # able to produce orders
-                AccountAnalyticLine.create(vals)
+                analytic_line_vals.append(vals)
+        # we use SUPERUSER_ID as we do not guarantee an mrp user
+        # has access to account analytic lines but still should be
+        # able to produce orders
+        self.env['account.analytic.line'].sudo().create(analytic_line_vals)
 
     def button_mark_done(self):
         self.ensure_one()
