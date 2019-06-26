@@ -185,7 +185,7 @@ class Partner(models.Model):
          ('other', 'Other Address'),
          ("private", "Private Address"),
         ], string='Address Type',
-        default='contact',
+        default='other',
         help="Invoice & Delivery addresses are used in sales orders. Private addresses are only visible by authorized users.")
     street = fields.Char()
     street2 = fields.Char()
@@ -201,7 +201,7 @@ class Partner(models.Model):
         help='Format email address "Name <email@domain>"')
     phone = fields.Char()
     mobile = fields.Char()
-    is_company = fields.Boolean(string='Is a Company', default=False,
+    is_company = fields.Boolean(string='Is a Company', default=True,
         help="Check if the contact is a company, otherwise it is a person")
     industry_id = fields.Many2one('res.partner.industry', 'Industry')
     # company_type is only an interface field, do not use it in business logic
