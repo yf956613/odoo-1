@@ -42,7 +42,7 @@ class SaleCouponProgram(models.Model):
         help="A promotion code is a code that is associated with a marketing discount. For example, a retailer might tell frequent customers to enter the promotion code 'THX001' to receive a 10%% discount on their whole order.")
     promo_applicability = fields.Selection([
         ('on_current_order', 'Apply On Current Order'),
-        ('on_next_order', 'Apply On Next Order')],
+        ('on_next_order', 'Send a Coupon')],
         default='on_current_order', string="Applicability")
     coupon_ids = fields.One2many('sale.coupon', 'program_id', string="Generated Coupons", copy=False)
     coupon_count = fields.Integer(compute='_compute_coupon_count')
