@@ -302,15 +302,14 @@ class WebsiteSale(http.Controller):
                 layout_mode = 'grid'
 
         params = {
+            **post,
             'page': page,
             'category': category and category.id or None,
             'search': search,
             'ppg': ppg,
-            'ppr': ppr,
-            **post
+            'ppr': ppr
         }
         shop_context = {'data-' + k: params[k] for k in params if params[k]}
-
         return {
             'search': search,
             'category': category,
@@ -1145,6 +1144,7 @@ class WebsiteSale(http.Controller):
     def render_grid(self, shop_context={}):
         if shop_context.get('category'):
             shop_context['category'] = request.env['product.public.category'].browse(shop_context['category'])
+        shop_context.pop('ppg')
         values = self._get_shop_qcontext(**shop_context)
         return request.env['ir.ui.view'].render_template("website_sale.product_grid", values)
 
