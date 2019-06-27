@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!--base.user_demo-->
+        <record id="tracking_03" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">1850</field>
+            <field name="new_value">2100</field>
+            <field name="consolidation_type">yearly</field>
+            <field name="tracking_date">2016-01-01 00:00:00</field>
+        </record>
+
+        <record id="tracking_02" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2100</field>
+            <field name="new_value">2300</field>
+            <field name="consolidation_type">yearly</field>
+            <field name="tracking_date">2017-01-01 00:00:00</field>
+        </record>
+
+        <record id="tracking_01" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2300</field>
+            <field name="new_value">2500</field>
+            <field name="consolidation_type">yearly</field>
+            <field name="tracking_date">2018-01-01 00:00:00</field>
+        </record>
+
+        <record id="tracking_1" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2500</field>
+            <field name="new_value">2504</field>
+            <field name="tracking_date">2019-06-03 08:00:00</field>
+        </record>
+
+        <record id="tracking_2" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2504</field>
+            <field name="new_value">2510</field>
+            <field name="tracking_date">2019-06-04 12:00:00</field>
+        </record>
+
+        <record id="tracking_3" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2510</field>
+            <field name="new_value">2515</field>
+            <field name="tracking_date">2019-06-09 12:00:00</field>
+        </record>
+
+        <record id="tracking_4" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2515</field>
+            <field name="new_value">2525</field>
+            <field name="tracking_date">2019-06-10 10:00:00</field>
+        </record>
+
+        <record id="tracking_5" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2525</field>
+            <field name="new_value">2530</field>
+            <field name="tracking_date">2019-06-12 11:00:00</field>
+        </record>
+
+        <record id="tracking_6" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2530</field>
+            <field name="new_value">2545</field>
+            <field name="tracking_date">2019-06-16 11:30:00</field>
+        </record>
+
+        <record id="tracking_7" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2545</field>
+            <field name="new_value">2550</field>
+            <field name="tracking_date">2019-06-18 10:00:00</field>
+        </record>
+
+        <record id="tracking_8" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2550</field>
+            <field name="new_value">2565</field>
+            <field name="tracking_date">2019-06-20 11:00:00</field>
+        </record>
+
+        <record id="tracking_9" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2565</field>
+            <field name="new_value">2575</field>
+            <field name="tracking_date">2019-06-21 06:00:00</field>
+        </record>
+
+        <record id="tracking_10" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2575</field>
+            <field name="new_value">2580</field>
+            <field name="tracking_date">2019-06-24 11:00:00</field>
+        </record>
+
+        <record id="tracking_11" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2580</field>
+            <field name="new_value">2590</field>
+            <field name="tracking_date">2019-06-26 12:00:00</field>
+        </record>
+
+        <record id="tracking_12" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2590</field>
+            <field name="new_value">2605</field>
+            <field name="tracking_date">2019-06-27 11:00:00</field>
+        </record>
+
+        <record id="tracking_13" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="old_value">2605</field>
+            <field name="new_value">2610</field>
+            <field name="tracking_date">2019-06-29 16:00:00</field>
+        </record>
+
+        <!--base.demo_user0-->
+        <record id="tracking2_03" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2320</field>
+            <field name="new_value">2400</field>
+            <field name="consolidation_type">monthly</field>
+            <field name="tracking_date">2019-03-01 00:00:00</field>
+        </record>
+
+        <record id="tracking2_02" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2400</field>
+            <field name="new_value">2460</field>
+            <field name="consolidation_type">monthly</field>
+            <field name="tracking_date">2019-04-01 00:00:00</field>
+        </record>
+
+        <record id="tracking2_01" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2460</field>
+            <field name="new_value">2500</field>
+            <field name="consolidation_type">monthly</field>
+            <field name="tracking_date">2019-05-01 00:00:00</field>
+        </record>
+
+        <record id="tracking2_1" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2500</field>
+            <field name="new_value">2505</field>
+            <field name="tracking_date">2019-06-02 16:00:00</field>
+        </record>
+
+        <record id="tracking2_2" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2505</field>
+            <field name="new_value">2520</field>
+            <field name="tracking_date">2019-06-04 11:00:00</field>
+        </record>
+
+        <record id="tracking2_3" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2520</field>
+            <field name="new_value">2530</field>
+            <field name="tracking_date">2019-06-05 16:00:00</field>
+        </record>
+
+        <record id="tracking2_4" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2530</field>
+            <field name="new_value">2545</field>
+            <field name="tracking_date">2019-06-08 14:00:00</field>
+        </record>
+
+        <record id="tracking2_5" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2545</field>
+            <field name="new_value">2555</field>
+            <field name="tracking_date">2019-06-12 11:00:00</field>
+        </record>
+
+        <record id="tracking2_6" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2555</field>
+            <field name="new_value">2565</field>
+            <field name="tracking_date">2019-06-13 17:00:00</field>
+        </record>
+
+        <record id="tracking2_7" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2565</field>
+            <field name="new_value">2570</field>
+            <field name="tracking_date">2019-06-14 13:00:00</field>
+        </record>
+
+        <record id="tracking2_8" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2570</field>
+            <field name="new_value">2585</field>
+            <field name="tracking_date">2019-06-18 14:00:00</field>
+        </record>
+
+        <record id="tracking2_9" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2585</field>
+            <field name="new_value">2590</field>
+            <field name="tracking_date">2019-06-19 16:00:00</field>
+        </record>
+
+        <record id="tracking2_10" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2590</field>
+            <field name="new_value">2595</field>
+            <field name="tracking_date">2019-06-22 14:00:00</field>
+        </record>
+
+        <record id="tracking2_11" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.demo_user0"/>
+            <field name="old_value">2595</field>
+            <field name="new_value">2600</field>
+            <field name="tracking_date">2019-06-25 18:00:00</field>
+        </record>
+
+        <!--base.user_admin-->
+        <record id="tracking3_1" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="old_value">2500</field>
+            <field name="new_value">2505</field>
+            <field name="tracking_date">2019-06-05 18:00:00</field>
+        </record>
+
+        <record id="tracking3_2" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="old_value">2505</field>
+            <field name="new_value">2520</field>
+            <field name="tracking_date">2019-06-24 18:00:00</field>
+        </record>
+
+        <record id="tracking3_3" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="old_value">2520</field>
+            <field name="new_value">2550</field>
+            <field name="tracking_date">2019-06-25 18:00:00</field>
+        </record>
+
+        <record id="tracking3_4" model="gamification.karma.tracking">
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="old_value">2550</field>
+            <field name="new_value">2585</field>
+            <field name="tracking_date">2019-06-27 18:00:00</field>
+        </record>
+
+    </data>
+</odoo>

@@ -13,6 +13,8 @@ class Users(models.Model):
 
 
     karma = fields.Integer('Karma', default=0)
+    karma_position = fields.Integer('Karma position', compute="_compute_karma_position", store=False)
+    karma_tracking_ids = fields.One2many('gamification.karma.tracking', 'user_id', string='Karma Changes')
     badge_ids = fields.One2many('gamification.badge.user', 'user_id', string='Badges', copy=False)
     gold_badge = fields.Integer('Gold badges count', compute="_get_user_badge_level")
     silver_badge = fields.Integer('Silver badges count', compute="_get_user_badge_level")
@@ -57,6 +59,7 @@ class Users(models.Model):
 
     def add_karma(self, karma):
         for user in self:
+            self.env['gamification.karma.tracking'].create({'user_id': user.id, 'old_value': user.karma, 'new_value': user.karma + karma})
             user.karma += karma
         return True
 

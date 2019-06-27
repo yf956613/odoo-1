@@ -8,6 +8,8 @@ import werkzeug.urls
 import werkzeug.wrappers
 import math
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from odoo import http, modules, tools
 from odoo.http import request
 from odoo.osv import expression
@@ -205,12 +207,13 @@ class WebsiteProfile(http.Controller):
 
     @http.route(['/profile/users',
                  '/profile/users/page/<int:page>'], type='http', auth="public", website=True)
-    def view_all_users_page(self, page=1, **searches):
+    def view_all_users_page(self, page=1, **kwargs):
         User = request.env['res.users']
         dom = [('karma', '>', 1), ('website_published', '=', True)]
 
         # Searches
-        search_term = searches.get('search')
+        search_term = kwargs.get('search')
+        group_by = kwargs.get('group_by', False)
         if search_term:
             dom = expression.AND([['|', ('name', 'ilike', search_term), ('company_id.name', 'ilike', search_term)], dom])
 
@@ -225,12 +228,22 @@ class WebsiteProfile(http.Controller):
             user_values = self._prepare_all_users_values(users)
 
             # Get karma position for users (only website_published)
-            position_domain = [('karma', '>', 1), ('website_published', '=', True)]
-            position_map = self._get_users_karma_position(position_domain, users.ids)
-            for user in user_values:
-                user['position'] = position_map.get(user['id'], 0)
+            if group_by:
+                position_map = self._get_users_karma_gain_position(group_by)
+                for user in user_values:
+                    u = position_map.get(user['id'], 0)
+                    user['position'] = 0 if u == 0 else u.get('position')
+                    user['karma_gain'] = 0 if u == 0 else u.get('karma_gain')
+                user_values = list(filter(lambda i: i['position'] != 0, sorted(user_values, key=lambda i: i['position'])))
+            else:
+                position_domain = [('karma', '>', 1), ('website_published', '=', True)]
+                position_map = self._get_users_karma_position(position_domain, users.ids)
+                for user in user_values:
+                    user['position'] = position_map.get(user['id'], 0)
+                    user['karma_gain'] = False
 
             values = {
+                'group_by': group_by or 'all',
                 'top3_users': user_values[:3] if not search_term and page == 1 else None,
                 'users': user_values[3:] if not search_term and page == 1 else user_values,
                 'pager': pager
@@ -241,6 +254,8 @@ class WebsiteProfile(http.Controller):
         return request.render("website_profile.users_page_main", values)
 
     def _get_users_karma_position(self, domain, user_ids):
+        # FIXME: SQL Request not working when not logged in. When logged in as portal user
+        # We can only see his own rank (as first) Is it on purpose ?
         if not user_ids:
             return {}
 
@@ -263,6 +278,17 @@ class WebsiteProfile(http.Controller):
         request.env.cr.execute(query, where_clause_params + [tuple(user_ids)])
 
         return {item['id']: item['karma_position'] for item in request.env.cr.dictfetchall()}
+
+    def _get_users_karma_gain_position(self, group_by):
+        to_date = datetime.now()
+        if group_by == 'week':
+            from_date = to_date - relativedelta(weeks=1)
+        elif group_by == 'month':
+            from_date = to_date - relativedelta(months=1)
+        else:
+            from_date = None
+        items = request.env['gamification.karma.tracking']._get_total_karma(from_date, to_date)
+        return {item['id']: {'position': items.index(item) + 1, 'karma_gain': item['total_karma']} for item in items}
 
     # User and validation
     # --------------------------------------------------
