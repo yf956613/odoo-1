@@ -625,9 +625,7 @@ class MassMailing(models.Model):
                     mailing_domain.append(('list_ids', 'in', self.contact_list_ids.ids))
                 else:
                     mailing_domain.append((0, '=', 1))
-            elif self.mailing_model_name == 'res.partner':
-                mailing_domain.append(('customer', '=', True))
-            elif 'opt_out' in self.env[self.mailing_model_name]._fields and not self.mailing_domain:
+            elif not self.mailing_model_name == 'res.partner' and 'opt_out' in self.env[self.mailing_model_name]._fields and not self.mailing_domain:
                 mailing_domain.append(('opt_out', '=', False))
         else:
             mailing_domain.append((0, '=', 1))

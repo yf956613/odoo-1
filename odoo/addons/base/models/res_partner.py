@@ -172,10 +172,6 @@ class Partner(models.Model):
                                     column2='category_id', string='Tags', default=_default_category)
     credit_limit = fields.Float(string='Credit Limit')
     active = fields.Boolean(default=True)
-    customer = fields.Boolean(string='Is a Customer', default=True,
-                               help="Check this box if this contact is a customer. It can be selected in sales orders.")
-    supplier = fields.Boolean(string='Is a Vendor',
-                               help="Check this box if this contact is a vendor. It can be selected in purchase orders.")
     employee = fields.Boolean(help="Check this box if this contact is an Employee.")
     function = fields.Char(string='Job Position')
     type = fields.Selection(

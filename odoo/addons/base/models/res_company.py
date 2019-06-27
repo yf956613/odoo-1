@@ -221,7 +221,6 @@ class Company(models.Model):
             'name': vals['name'],
             'is_company': True,
             'image': vals.get('logo'),
-            'customer': False,
             'email': vals.get('email'),
             'phone': vals.get('phone'),
             'website': vals.get('website'),

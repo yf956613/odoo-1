@@ -315,7 +315,6 @@ class TestInherits(TransactionCase):
         user_foo = self.env['res.users'].create({
             'name': 'Foo',
             'login': 'foo',
-            'supplier': True,
         })
         foo_before, = user_foo.read()
         del foo_before['__last_update']
@@ -327,7 +326,6 @@ class TestInherits(TransactionCase):
 
         self.assertEqual(user_bar.name, 'Foo (copy)')
         self.assertEqual(user_bar.login, 'bar')
-        self.assertEqual(user_foo.supplier, user_bar.supplier)
         self.assertNotEqual(user_foo.id, user_bar.id)
         self.assertNotEqual(user_foo.partner_id.id, user_bar.partner_id.id)
 

@@ -461,21 +461,21 @@ class TestAPI(common.TransactionCase):
         with self.assertRaises(TypeError):
             res = ps >= ms
 
-    @mute_logger('odoo.models')
-    def test_80_filter(self):
-        """ Check filter on recordsets. """
-        ps = self.env['res.partner'].search([])
-        customers = ps.browse([p.id for p in ps if p.customer])
+    # @mute_logger('odoo.models')
+    # def test_80_filter(self):
+    #     """ Check filter on recordsets. """
+    #     ps = self.env['res.partner'].search([])
+    #     customers = ps.browse([p.id for p in ps if p.customer])
 
-        # filter on a single field
-        self.assertEqual(ps.filtered(lambda p: p.customer), customers)
-        self.assertEqual(ps.filtered('customer'), customers)
+    #     # filter on a single field
+    #     self.assertEqual(ps.filtered(lambda p: p.customer), customers)
+    #     self.assertEqual(ps.filtered('customer'), customers)
 
-        # filter on a sequence of fields
-        self.assertEqual(
-            ps.filtered(lambda p: p.parent_id.customer),
-            ps.filtered('parent_id.customer')
-        )
+    #     # filter on a sequence of fields
+    #     self.assertEqual(
+    #         ps.filtered(lambda p: p.parent_id.customer),
+    #         ps.filtered('parent_id.customer')
+    #     )
 
     @mute_logger('odoo.models')
     def test_80_map(self):

@@ -100,7 +100,6 @@
                 <data>
                     <button name="toggle_active" position="before">
                         <button class="oe_stat_button o_res_partner_tip_opp" type="action"
-                            attrs="{'invisible': [('customer', '=', False)]}"
                             name="%(crm.crm_lead_opportunities)d"
                             icon="fa-star"
                             groups="sales_team.group_sale_salesman"
