@@ -27,6 +27,8 @@ MONTH_SELECTION = [
     ('12', 'December'),
 ]
 
+SYSCOHADA_LIST = ['BJ', 'BF', 'CM', 'CF', 'KM', 'CG', 'CI', 'GA', 'GN', 'GW', 'GQ', 'ML', 'NE', 'CD', 'SN', 'TD', 'TG']
+
 
 class ResCompany(models.Model):
     _inherit = "res.company"
@@ -277,6 +279,73 @@ Best Regards,'''))
                 ('date', '<=', values['fiscalyear_lock_date'])])
             if nb_draft_entries:
                 raise ValidationError(_('There are still unposted entries in the period you want to lock. You should either post or delete them.'))
+
+    def _install_localization_packages(self, from_init=False):
+        for company in self:
+            country_code = company.country_id.code
+            if country_code:
+                #auto install localization module(s) if available
+                module_list = []
+                if country_code in SYSCOHADA_LIST:
+                    #countries using OHADA Chart of Accounts
+                    module_list.append('l10n_syscohada')
+                elif country_code == 'GB':
+                    module_list.append('l10n_uk')
+                elif country_code == 'DE':
+                    module_list.append('l10n_de_skr03')
+                    module_list.append('l10n_de_skr04')
+                elif country_code == 'CN':
+                    module_list.append('l10n_cn_small_business')
+                    module_list.append('l10n_cn_standard')
+                else:
+                    if company.env['ir.module.module'].search([('name', '=', 'l10n_' + country_code.lower())]):
+                        module_list.append('l10n_' + country_code.lower())
+                    else:
+                        module_list.append('l10n_generic_coa')
+                if country_code == 'US':
+                    module_list.append('account_plaid')
+                    module_list.append('l10n_us_check_printing')
+                if country_code == 'CA':
+                    module_list.append('l10n_ca_check_printing')
+                if country_code in ['US', 'AU', 'NZ', 'CA', 'CO', 'EC', 'ES', 'FR', 'IN', 'MX', 'UK']:
+                    module_list.append('account_yodlee')
+                if country_code in SYSCOHADA_LIST + [
+                    'AT', 'BE', 'CA', 'CO', 'DE', 'EC', 'ES', 'ET', 'FR', 'GR', 'IT', 'LU', 'MX', 'NL', 'NO',
+                    'PL', 'PT', 'RO', 'SI', 'TR', 'UK', 'VE', 'VN'
+                    ]:
+                    module_list.append('base_vat')
+                if country_code == 'MX':
+                    module_list.append('l10n_mx_edi')
+
+                # European countries will be using SEPA
+                europe = company.env.ref('base.europe', raise_if_not_found=False)
+                if europe:
+                    europe_country_codes = [x.code for x in europe.country_ids]
+                    if country_code in europe_country_codes:
+                        module_list.append('account_sepa')
+                        module_list.append('account_bank_statement_import_camt')
+                module_ids = company.env['ir.module.module'].search([('name', 'in', module_list), ('state', '=', 'uninstalled')])
+                #module is being installed.
+                if(from_init):
+                    module_ids.sudo().button_install()
+                else:
+                    #a new company is being created.
+                    #localization for the given country isn't installed.
+                    if module_ids:
+                        module_ids.with_context({'allowed_company_ids': [company.id]}).button_immediate_install()
+                    #localizaton for the given country is already installed.
+                    else:
+                        #filter out the list of templates that belong to newly created company's country and load the first one.
+                        chart_template_xml_ids = self.env['ir.model.data'].search([('module', 'in', module_list), ('model', '=', 'account.chart.template')])
+                        if chart_template_xml_ids:
+                            chart_template = self.env['account.chart.template'].browse(chart_template_xml_ids[0].res_id)
+                            chart_template.with_context({'allowed_company_ids': [company.id]}).try_loading_for_current_company()
+
+    @api.model
+    def create(self, vals):
+        company = super(ResCompany, self).create(vals)
+        company._install_localization_packages()
+        return company
 
     def write(self, values):
         #restrict the closing of FY if there are still unposted entries
