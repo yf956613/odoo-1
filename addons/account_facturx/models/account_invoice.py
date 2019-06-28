@@ -239,9 +239,9 @@ class AccountInvoice(models.Model):
     @api.one
     def _create_invoice_from_attachment(self, attachment):
         if 'pdf' in attachment.mimetype:
-            self._create_invoice_from_pdf(attachment)
+            return self._create_invoice_from_pdf(attachment)
         if 'xml' in attachment.mimetype:
-            self._create_invoice_from_xml(attachment)
+            return self._create_invoice_from_xml(attachment)
 
     def _create_invoice_from_pdf(self, attachment):
         def _get_attachment_filename(attachment):
@@ -302,7 +302,6 @@ class AccountInvoice(models.Model):
     @api.multi
     def _create_invoice_from_xml(self, attachment):
         decoders = self._get_xml_decoders()
-
         # Convert attachment -> etree
         content = base64.b64decode(attachment.datas)
         try:
