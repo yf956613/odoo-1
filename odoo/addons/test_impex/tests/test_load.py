@@ -983,7 +983,6 @@ class test_o2m_multiple(ImporterCase):
         self.assertEqual(values(b.child1), [11, 12, 13, 14])
         self.assertEqual(values(b.child2), [21, 22, 23])
 
-
 class test_realworld(common.TransactionCase):
     def test_bigfile(self):
         data = json.loads(pkgutil.get_data(self.__module__, 'contacts_big.json').decode('utf-8'))
@@ -1028,6 +1027,18 @@ class test_realworld(common.TransactionCase):
         self.assertFalse(len(b[1].child[1].child1))
         self.assertEqual([child.value for child in b[1].child[1].child2],
                          [12])
+
+    def test_o2m_subfields_fail_by_implicit_id(self):
+        self.env['ir.model.data'].clear_caches()
+        Model = self.env['export.one2many.recursive']
+        result = Model.load(
+            ['child/child1/parent_id'],
+            [['5'],],
+        )
+        self.assertEqual(result['messages'], [message(
+            u"No matching record found for name '5' in field 'Child/Child1/Parent'", field='child',
+            moreinfo=moreaction(res_model='export.one2many.multiple'))])
+        self.assertIs(result['ids'], False)
 
 
 class test_date(ImporterCase):

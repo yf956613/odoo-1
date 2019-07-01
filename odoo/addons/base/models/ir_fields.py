@@ -443,13 +443,10 @@ class IrFieldsConverter(models.AbstractModel):
         field_names = {name: field.string for name, field in RelatedModel._fields.items()}
         def log(f, exception):
             if not isinstance(exception, Warning):
-                # raise self._format_import_error(
-                #     ValueError,
-                #     exception.args[0] % dict(field=("%%(field)s/" + field_names[f])),
-                #     {},
-                #     exception.args[1]
-                # )
-                raise type(exception)(exception.args[0] % dict(field=("%(field)s/" + field_names[f])), exception.args[1])
+                args = [exception.args[0] % dict(field=("%(field)s/" + field_names[f]))]
+                if len(exception.args) > 1 and exception.args[1]:
+                    args.append(exception.args[1])
+                raise type(exception)(*args)
             warnings.append(exception)
 
         convert = self.for_model(self.env[field.comodel_name])
