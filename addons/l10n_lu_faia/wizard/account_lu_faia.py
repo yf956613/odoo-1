@@ -23,23 +23,20 @@ class AccountLuFaia(models.TransientModel):
 
     def _prepare_address_structure(self, addresses):
         address_list = []
-        add = []
+        wrong_addresses = []
         for address in addresses:
-            a = {
+            address_list.append({
                 'street': address.street,
                 'street2': address.street2,
                 'city': address.city,
                 'zip': address.zip,
                 'state_code': address.state_id.code,
                 'country': address.country_id.code
-            }
-            address_list.append(a)
+            })
             if not (address.city or address.zip):
-                add.append(address.display_name)
-                print("AAAAA", a)
-        if add:
-            print("\n\nADDD:::", add)
-            raise UserError(_('Please define City/Zip for Customer(s)/Vendor(s) `%s`.' % (', '.join(add))))
+                wrong_addresses.append(address.display_name)
+        if wrong_addresses:
+            raise UserError(_('Please define City/Zip for `%s`.' % (', '.join(wrong_addresses))))
         return address_list
 
     def _prepare_contact_information_structure(self, contacts):
@@ -65,21 +62,20 @@ class AccountLuFaia(models.TransientModel):
         return bank_account_list
 
     def _prepare_company_structure(self, company):
-        address_contact = company.partner_id.child_ids
-        contacts = address_contact.filtered(lambda partner: partner.type == 'contact')
-        addresses = address_contact.filtered(lambda partner: partner.type != 'contact')
-        if not addresses:
-            addresses = [company.partner_id]
-        addresses = self._prepare_address_structure(addresses)
-
         if not company.company_registry:
             raise UserError(_('Define `Company Registry` for %s company.' % (company.name,)))
+        company_contacts = company.partner_id.child_ids.filtered(lambda partner: partner.type == 'contact')
+        if not company_contacts:
+            raise UserError(_('Define atleast one `Contact` for %s company.' % (company.name,)))
+        addresses = company.partner_id.child_ids.filtered(lambda partner: partner.type != 'contact')
+        company_addresses = self._prepare_address_structure(addresses or company.partner_id)
+
         return {
             'id': company.id,
             'company_registry': company.company_registry,
             'name': company.name,
-            'addresses': addresses,
-            'contacts': self._prepare_contact_information_structure(contacts),
+            'addresses': company_addresses,
+            'contacts': self._prepare_contact_information_structure(company_contacts),
             'vat': company.vat,
             'bank_accounts': self._prepare_bank_account_structure(company.bank_ids),
         }
@@ -100,11 +96,10 @@ class AccountLuFaia(models.TransientModel):
         for partner in partners:
             contacts = partner.child_ids.filtered(lambda p: p.type == 'contact')
             addresses = partner.child_ids.filtered(lambda p: p.type != 'contact')
-            if not addresses:
                 # partner has no contacts/addresses, address details set in partner is used as address
-                partner_address = self._prepare_address_structure(partner)
-            else:
-                partner_address = self._prepare_address_structure(addresses)
+            partner_address = self._prepare_address_structure(addresses or partner)
+            print("\n\npartner_address::::", partner.name, partner_address)
+            print("contacts:::::::::::", contacts)
             partner_data = {
                 'name': partner.name,
                 'addresses': partner_address,
@@ -138,16 +133,16 @@ class AccountLuFaia(models.TransientModel):
                         """, where_params)
             debit_credit = {}
 
-            for aid, val in self._cr.fetchall():
-                if not debit_credit.get(aid):
-                    debit_credit[aid] = {}
-                #debit_credit[aid] = aid
-                if val < 0:
-                    debit_credit[aid]['credit'] = '%.2f' % abs(val)
-                    debit_credit[aid]['debit'] = 0.0
+            for account_id, balance in self._cr.fetchall():
+                if not debit_credit.get(account_id):
+                    debit_credit[account_id] = {}
+                #debit_credit[account_id] = account_id
+                if balance < 0:
+                    debit_credit[account_id]['credit'] = '%.2f' % abs(balance)
+                    debit_credit[account_id]['debit'] = 0.0
                 else:
-                    debit_credit[aid]['debit'] = '%.2f' % val
-                    debit_credit[aid]['credit'] = 0.0
+                    debit_credit[account_id]['debit'] = '%.2f' % balance
+                    debit_credit[account_id]['credit'] = 0.0
 
             return debit_credit
 
@@ -185,10 +180,7 @@ class AccountLuFaia(models.TransientModel):
                 'taxes': []
             }
             for tax in product.taxes_id:
-                product_data['taxes'].append({
-                    'type': 'TVA-%s' % (tax.id),
-                    'code': tax.id
-                })
+                product_data['taxes'] = self._prepare_tax_structure(product.taxes_id)
             product_list.append(product_data)
 
         return product_list
@@ -207,25 +199,27 @@ class AccountLuFaia(models.TransientModel):
             })
         return amount_data
 
-    def _prepare_tax_structure(self, taxes, move_line=False):
+    def _prepare_tax_structure(self, taxes, amount=0, amount_currency=False, company=False, currency=False, date=False):
+        """
+        pass amount_currency, company, currency and date along with amount when amount needs to be converted into another currency
+        """
         tax_list = []
 
         for tax in taxes:
+            print("TAXXX IN TAX STR", tax, tax.name, tax.amount)
             tax_data = {
                 'name': tax.name,
-                'type': 'TVA-%s' % (tax.id), # TODO: verify if it is correct
+                'type': 'TVA-%s' % (tax.id), # TODO: verify if it is correct(we can't have duplicate type here)
                 'code': tax.id,
                 'amount_type': tax.amount_type, # TODO: What happens when it is group of taxes or tax included in price
                 'amount_percentage': '%.2f' % tax.amount,
                 'country': tax.company_id.country_id.code,
                 'state_code': tax.company_id.state_id.code,
             }
-            if move_line:
+            if amount:
                 tax_data['amount_data'] = self._get_amount_currency(
-                    move_line.debit or move_line.credit, move_line.amount_currency,
-                    move_line.company_id, move_line.currency_id, move_line.date_maturity
+                    amount, amount_currency, company, currency, date
                 )
-            print("TTTTT",tax_data)
             tax_list.append(tax_data)
 
         return tax_list
@@ -261,7 +255,7 @@ class AccountLuFaia(models.TransientModel):
             if not lines.get(line.move_id.id):
                 lines[line.move_id.id] = []
 
-            d = {
+            lines[line.move_id.id].append({
                 'record_id': line.id,
                 'account_id': line.account_id.id,
                 'date': line.date,
@@ -270,9 +264,10 @@ class AccountLuFaia(models.TransientModel):
                 'supplier_id': line.partner_id.id if line.move_id.journal_id.type == 'purchase' else '',
                 'description': line.name,
                 'amount_data': amount_data,
-                'tax_information': self._prepare_tax_structure(line.tax_line_id, move_line=line)
-            }
-            lines[line.move_id.id].append(d)
+                'tax_information': self._prepare_tax_structure(line.tax_line_id, line.debit or line.credit,
+                                                                   line.amount_currency, line.company_id,
+                                                                   line.currency_id, line.date_maturity)
+            })
         return lines
 
     def _prepare_transaction_entries(self, move_lines):
@@ -284,7 +279,7 @@ class AccountLuFaia(models.TransientModel):
                 'period': move.date.year,
                 'period_year': move.date.year,
                 'transaction_date': move.date,
-                'source_id': move.journal_id.id,
+                'source': move.ref,
                 'transaction_type': move.journal_id.type,
                 'description': move.name,
                 'system_entry_date': move.create_date.date(),
@@ -342,18 +337,14 @@ class AccountLuFaia(models.TransientModel):
     def _prepare_invoice_line(self, invoice_line_ids):
         datas = []
         for line in invoice_line_ids:
-            # rate = line.currency_id._get_rates(line.company_id, line.invoice_id.date_invoice)
             amount_data = self._get_amount_currency(line.price_subtotal_signed, line.price_subtotal, line.company_id, line.currency_id, line.invoice_id.date_invoice)
-            d = {
+            datas.append({
                 'line_number': line.id,
                 'account_id': line.account_id.id,
                 'order_ref': line.origin,
-                # 'ship_delivery_date': line.invoice_id.date_due,
-                # 'ship_to_address': line.partner_id and self._prepare_address_structure(line.partner_id)[0] or {},
-                # 'ship_from_address': line.company_id and self._prepare_address_structure(line.company_id.partner_id)[0] or {},
+                'order_date': line.invoice_id.date_invoice,
                 'product_code': line.product_id.default_code,
                 'product_desc': line.product_id.name,
-                'delivery_date': line.invoice_id.date_due,
                 'quantity': line.quantity,
                 'uom_id': line.uom_id.name,
                 'convert_fact': line.uom_id.factor_inv,
@@ -363,41 +354,46 @@ class AccountLuFaia(models.TransientModel):
                 'description': line.name,
                 'amount_data': amount_data,
                 'indicator': 'C' if line.invoice_id.type in ['in_refund', 'out_invoice'] else 'D',
-            }
-            d.get('invoice line amount_data', amount_data)
-            datas.append(d)
-
+                # 'tax_information': 
+            })
         return datas
 
-    def _prepare_invoice_tax_detail(self, invoice):
+    def _convert_amount(self, amount, from_currency, to_currency, company, date):
+        tax_amount_unsigned = amount
+        if from_currency and company and from_currency != to_currency:
+            tax_amount_unsigned = from_currency._convert(amount, to_currency, company, date)
+        return tax_amount_unsigned
+
+    def _prepare_invoice_tax_detail(self, tax_line_ids, date_invoice):
         datas = []
-        for tax_line in invoice.tax_line_ids.filtered(lambda x: x.tax_id.type_tax_use != 'none'):
-            [tax_data] = self._prepare_tax_structure(tax_line.tax_id)
+        for tax_line in tax_line_ids.filtered(lambda x: x.tax_id.type_tax_use != 'none'):
             # currently we do not store tax amount in company currency, hence converting amount from invoice currency into company currency
-            tax_amount_unsigned = tax_line.amount
-            if tax_line.currency_id and tax_line.company_id and tax_line.currency_id != tax_line.company_id.currency_id:
-                currency_id = tax_line.currency_id
-                tax_amount_unsigned = currency_id._convert(tax_line.amount, tax_line.company_id.currency_id, tax_line.company_id, invoice.date_invoice or fields.Date.today())
-            amount_data = self._get_amount_currency(
-                tax_amount_unsigned, tax_line.amount,
-                tax_line.company_id, tax_line.currency_id, invoice.date_invoice
-            )
-            datas.append(dict(tax_data, **{'amount_data': amount_data}))
+            tax_amount_unsigned = self._convert_amount(tax_line.amount, tax_line.currency_id, tax_line.company_id.currency_id, tax_line.company_id, date_invoice or fields.Date.today())
+            [tax_data] = self._prepare_tax_structure(tax_line.tax_id, tax_amount_unsigned, tax_line.amount,
+                tax_line.company_id, tax_line.currency_id, date_invoice)
+            datas.append(dict(tax_data))
         return datas
-
 
     def _prepare_invoice_structure(self, invoices):
         sales_invoices = {}
-        total_debit = sum(invoices.filtered(lambda x:x.type == 'out_invoice').mapped('amount_total')) - sum(invoices.filtered(lambda x:x.type == 'out_refund').mapped('amount_total'))
-        total_credit = sum(invoices.filtered(lambda x:x.type == 'in_invoice').mapped('amount_total')) - sum(invoices.filtered(lambda x:x.type == 'in_refund').mapped('amount_total'))
+        total_debit = sum(invoices.filtered(lambda inv: inv.type == 'out_invoice').mapped('amount_total')) - \
+                        sum(invoices.filtered(lambda inv: inv.type == 'out_refund').mapped('amount_total'))
+        total_credit = sum(invoices.filtered(lambda inv: inv.type == 'in_invoice').mapped('amount_total')) - \
+                        sum(invoices.filtered(lambda inv: inv.type == 'in_refund').mapped('amount_total'))
         sales_invoices['total_debit'] = '%.2f' % total_debit
         sales_invoices['total_credit'] = '%.2f' % total_credit
         sales_invoices['invoices'] = []
         for invoice in invoices:
-            d = {
+            customer_info = supplier_info = {}
+            [address] = self._prepare_address_structure(invoice.partner_id)
+            if invoice.type in ['out_refund', 'out_invoice']:
+                customer_info = address
+            elif invoice.type in ['in_refund', 'in_invoice']:
+                supplier_info = address
+            sales_invoices['invoices'].append({
                 'invoice_no': invoice.number,
-                'customer_info': invoice.partner_id and self._prepare_address_structure(invoice.partner_id)[0] if invoice.type in ['out_refund', 'out_invoice'] else {} or {},
-                'supplier_info': invoice.partner_id and self._prepare_address_structure(invoice.partner_id)[0] if invoice.type in ['in_refund', 'in_invoice'] else {} or {},
+                'customer_info': customer_info,
+                'supplier_info': supplier_info,
                 'partner_id': invoice.partner_id.id,
                 'partner_shipping_id': (invoice.partner_shipping_id.id if 'partner_shipping_id' in invoice else '') or invoice.partner_id.id,
                 'account_id': invoice.account_id.id,
@@ -405,30 +401,28 @@ class AccountLuFaia(models.TransientModel):
                 'period_year': invoice.date_invoice.year,
                 'invoice_date': invoice.date_invoice,
                 'invoice_type': invoice.type[:9],
-                # 'ship_to_delivery_date': invoice.date_due if 'partner_shipping_id' in invoice else '',
-                # 'ship_to_address': invoice.partner_shipping_id and self._prepare_address_structure(invoice.partner_shipping_id)[0] if 'partner_shipping_id' in invoice else {} or {},
-                # 'ship_from_delivery_date': invoice.date_due,
-                # 'ship_from_address': invoice.company_id.partner_id and self._prepare_address_structure(invoice.company_id.partner_id)[0] if invoice.company_id.partner_id else {} or {},
                 'payment_term_id': invoice.payment_term_id.name,
-                'source_id': invoice.origin,
+                'source': invoice.origin,
                 'gl_posting_date': invoice.move_id.date,
                 'transaction_id': invoice.move_id.id,
-                'receipt_number': invoice.payment_ids and invoice.payment_ids[0].name or '',
                 'lines': self._prepare_invoice_line(invoice.invoice_line_ids),
-                'tax_information': self._prepare_invoice_tax_detail(invoice),
+                'tax_information': self._prepare_invoice_tax_detail(invoice.tax_line_ids, invoice.date_invoice),
                 'net_total': '%.2f' % invoice.amount_total_signed,
                 'gross_total': '%.2f' % invoice.amount_total_signed
-            }
-            sales_invoices['invoices'].append(d)
+            })
         return sales_invoices
 
-
     def generate_faia_report(self):
-        """
-        company_data, owner_address, customers, suppliers,
-        taxes, uom_entries, products, general_ledger,
-        accounts, fiscalyear_starting_date, sales_invoices
-        """
+
+        def prettyPrint(x):
+            # Helper function to properly indent the XML content
+            s = ''
+            for line in x.toprettyxml().split('\n'):
+                if not line.strip() == '':
+                    line+='\n'
+                    s+=line
+            return s
+
         move_lines = self.env['account.move.line'].search([
             ('date', '>=', self.date_from), ('date', '<=', self.date_to)
         ])
@@ -443,14 +437,14 @@ class AccountLuFaia(models.TransientModel):
         products = move_lines.mapped('product_id')
         product_list = self._prepare_product_structure(products)
 
-        taxes = move_lines.mapped('tax_ids')
+        # Tax table need to have all the taxes that are used in move lines/invoice lines/product's default taxes
+        taxes = move_lines.mapped('tax_ids') | products.mapped('taxes_id')
         tax_list = self._prepare_tax_structure(taxes)
 
         uoms = move_lines.mapped('product_uom_id') | move_lines.mapped('product_id.uom_id')
         uom_list = self._prepare_uom_structure(uoms)
 
         invoices = move_lines.mapped('invoice_id')
-        print("INVOICES::::", move_lines, invoices)
         invoice_list = self._prepare_invoice_structure(invoices)
 
         values = {
@@ -462,30 +456,17 @@ class AccountLuFaia(models.TransientModel):
             'products': product_list,
             'taxes': tax_list,
             'uom_entries': uom_list,
-            # 'fiscalyear_starting_date': fiscalyear_starting_date,
-            # 'owner_address': owner_address,
             'general_ledger': general_ledger_data,
             'sales_invoices': invoice_list
         }
 
         data = self.env['ir.qweb'].render('l10n_lu_faia.FAIATemplate', values)
-        data_str = data.decode('utf-8')
-        def prettyPrint(x):
-            s = ''
-            for line in x.toprettyxml().split('\n'):
-                if not line.strip() == '':
-                    line+='\n'
-                    s+=line
-            return s
-        dom = xml.dom.minidom.parseString(data_str)
-        pretty_xml_as_string = dom.toprettyxml()
+        dom = xml.dom.minidom.parseString(data.decode('utf-8'))
         s1 = prettyPrint(dom)
         data = s1.encode('utf-8')
-
-        root = etree.fromstring(s1)
         path = get_module_resource('l10n_lu_faia', 'schemas', 'FAIA_v_2_01_reduced_version_A.xsd')
         # print(">>>>\n", s1)
-        #_check_with_xsd(data, open(path, "r"))
+        # _check_with_xsd(data, open(path, "r"))
         self.write({
             'faia_data': base64.encodestring(data),
             'filename': 'FAIA Report_%s.xml' % (self.date_to)
@@ -496,7 +477,6 @@ class AccountLuFaia(models.TransientModel):
             'url': "web/content/?model=account.lu.faia&id=" + str(self.id) + "&filename_field=filename&field=faia_data&download=true&filename=" + self.filename,
             'target': 'self'
         }
-        # print(STOP)
         _check_with_xsd(data, open(path, "r"))
         return action
 
