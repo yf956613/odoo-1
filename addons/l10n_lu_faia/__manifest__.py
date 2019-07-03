@@ -8,9 +8,7 @@
     'description': 'Fichier Audit Informatisé AED',
     'depends': ['l10n_lu', 'account'],
     'data': [
-        'wizard/account_lu_faia_view.xml',
-        'wizard/lu_faia1.xml',
-        'views/FAIA_xml_format.xml',
-        'views/FAIA.xml',
+        'wizard/l10n_lu_faia_views.xml',
+        'views/l10n_lu_faia_templates.xml',
     ],
 }
