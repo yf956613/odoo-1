@@ -922,6 +922,7 @@ var MailManager =  AbstractService.extend({
             });
         }
         if (data.channel_type === 'livechat') {
+            this.call('bus_service', 'addChannel', data.uuid);
             return new Livechat({
                 parent: this,
                 data: data,
