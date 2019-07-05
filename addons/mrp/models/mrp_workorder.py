@@ -154,6 +154,7 @@ class MrpWorkorder(models.Model):
     def _onchange_finished_lot_id(self):
         """When the user changes the lot being currently produced, suggest
         a quantity to produce consistent with the previous workorders. """
+        res = super(MrpWorkorder, self)._onchange_finished_lot_id()
         previous_wo = self.env['mrp.workorder'].search([
             ('next_work_order_id', '=', self.id)
         ])
@@ -161,6 +162,7 @@ class MrpWorkorder(models.Model):
             line = previous_wo.finished_workorder_line_ids.filtered(lambda line: line.product_id == self.product_id and line.lot_id == self.finished_lot_id)
             if line:
                 self.qty_producing = line.qty_done
+        return res
 
     @api.depends('production_id.workorder_ids.finished_workorder_line_ids',
     'production_id.workorder_ids.finished_workorder_line_ids.qty_done',
