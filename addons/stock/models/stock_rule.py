@@ -256,8 +256,10 @@ class StockRule(models.Model):
         # it is possible that we've already got some move done, so check for the done qty and create
         # a new move with the correct qty
         qty_left = product_qty
+        product_desc = product_id._get_description(self.picking_type_id)
         move_values = {
             'name': name[:2000],
+            'description': values.get('description'),
             'company_id': self.company_id.id or self.location_src_id.company_id.id or self.location_id.company_id.id or company_id.id,
             'product_id': product_id.id,
             'product_uom': product_uom.id,
@@ -278,7 +280,7 @@ class StockRule(models.Model):
             'propagate_cancel': self.propagate_cancel,
             'propagate_date': self.propagate_date,
             'propagate_date_minimum_delta': self.propagate_date_minimum_delta,
-            'description_picking': product_id._get_description(self.picking_type_id),
+            'description_picking': values.get('description') and (product_desc + values.get('description')) or product_desc,
             'priority': values.get('priority', "1"),
             'delay_alert': self.delay_alert,
         }

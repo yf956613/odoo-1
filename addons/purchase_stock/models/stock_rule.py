@@ -118,11 +118,11 @@ class StockRule(models.Model):
 
     @api.model
     def _get_procurements_to_merge_groupby(self, procurement):
-        return procurement.product_id, procurement.product_uom, procurement.values['propagate_date'], procurement.values['propagate_date_minimum_delta'], procurement.values['propagate_cancel']
+        return procurement.product_id, procurement.product_uom, procurement.values['propagate_date'], procurement.values['propagate_date_minimum_delta'], procurement.values['propagate_cancel'], procurement.values.get('description')
 
     @api.model
     def _get_procurements_to_merge_sorted(self, procurement):
-        return procurement.product_id.id, procurement.product_uom.id, procurement.values['propagate_date'], procurement.values['propagate_date_minimum_delta'], procurement.values['propagate_cancel']
+        return procurement.product_id.id, procurement.product_uom.id, procurement.values['propagate_date'], procurement.values['propagate_date_minimum_delta'], procurement.values['propagate_cancel'], procurement.values.get('description')
 
     @api.model
     def _get_procurements_to_merge(self, procurements):
@@ -232,7 +232,7 @@ class StockRule(models.Model):
         date_planned = self.env['purchase.order.line']._get_date_planned(seller, po=po)
 
         return {
-            'name': name,
+            'name': values.get('description') and (name + values.get('description')) or name,
             'product_qty': procurement_uom_po_qty,
             'product_id': product_id.id,
             'product_uom': product_id.uom_po_id.id,

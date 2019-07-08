@@ -391,6 +391,7 @@ class SaleOrderLine(models.Model):
         date_planned = self.order_id.date_order\
             + timedelta(days=self.customer_lead or 0.0) - timedelta(days=self.order_id.company_id.security_lead)
         values.update({
+            'description': self._get_sale_order_line_multiline_description_variants(),
             'group_id': group_id,
             'sale_line_id': self.id,
             'date_planned': date_planned,

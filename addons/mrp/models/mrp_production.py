@@ -226,6 +226,7 @@ class MrpProduction(models.Model):
                 productions_with_done_move[production_record[0]] = True
         for production in self:
             production.confirm_cancel = productions_with_done_move.get(production.id, False)
+    description = fields.Char()
 
     @api.depends('procurement_group_id')
     def _compute_picking_ids(self):

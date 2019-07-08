@@ -93,6 +93,7 @@
                             <field name="id" invisible="1"/>
                             <field name="product_id" attrs="{'readonly': [('state', '!=', 'draft')]}" domain="[('bom_ids', '!=', False), ('bom_ids.active', '=', True), ('bom_ids.type', '=', 'normal')]"/>
                             <field name="product_tmpl_id" invisible="1"/>
+                            <field name="description" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <label for="product_qty"/>
                             <div class="o_row">
                                 <field name="product_qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>

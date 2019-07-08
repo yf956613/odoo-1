@@ -26,6 +26,7 @@ class StockMove(models.Model):
         return False
 
     name = fields.Char('Description', index=True, required=True)
+    description = fields.Char('Custom Description')
     sequence = fields.Integer('Sequence', default=10)
     priority = fields.Selection(PROCUREMENT_PRIORITIES, 'Priority', default='1')
     create_date = fields.Datetime('Creation Date', index=True, readonly=True)
@@ -957,6 +958,7 @@ class StockMove(models.Model):
             elif self.rule_id.group_propagation_option == 'none':
                 group_id = False
         return {
+            'description': self.description,
             'date_planned': self.date_expected,
             'move_dest_ids': self,
             'group_id': group_id,
