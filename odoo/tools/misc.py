@@ -1235,10 +1235,10 @@ def format_datetime(env, value, tz=False, dt_format='medium', lang_code=False):
     return babel.dates.format_datetime(localized_datetime, dt_format, locale=locale)
 
 
-def format_time(env, value, tz=False, time_format='medium', lang_code=False):
+def format_time(env, value, time_format='medium', lang_code=False):
     """ Format the given time (hour, minute and second) with the current user preference (language, format, ...)
 
-        :param value: the time to format
+        :param value: the time to format (eventually timezoned)
         :type value: `datetime.time` instance. Could be timezoned to display tzinfo according to format (e.i.: 'full' format)
         :param format: one of “full”, “long”, “medium”, or “short”, or a custom date/time pattern
         :param lang_code: ISO
