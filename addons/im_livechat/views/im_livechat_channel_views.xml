@@ -122,9 +122,13 @@
                         </page>
                         <page string="Options">
                             <group>
+                                <field name="header_background_color"/>
+                                <field name="title_color"/>
                                 <field name="button_text"/>
                                 <field name="default_message" placeholder="e.g. Hello, how may I help you?"/>
                                 <field name="input_placeholder"/>
+                                <field name="button_background_color"/>
+                                <field name="button_text_color"/>
                             </group>
                         </page>
                         <page string="Channel Rules">
