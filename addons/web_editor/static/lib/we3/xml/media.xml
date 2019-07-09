@@ -114,6 +114,33 @@
     </we3-button>
 </we3-group>
 
+<we3-group class="we3-video" t-name="we3.modal.media.video">
+    <form action="#" class="row">
+        <we3-group class="col mt-4 o_video_dialog_form">
+            <we3-group class="form-group mb-2" id="o_video_form_group">
+                <label class="col-form-label" for="o_video_text">
+                    Video code <small>(URL or Embed)</small>
+                </label>
+                <textarea class="form-control" id="o_video_text" placeholder="Copy-paste your URL or embed code here" />
+            </we3-group>
+            <div class="text-right">
+                <small class="text-muted">Accepts <b><i>Youtube</i></b>, <b><i>Instagram</i></b>, <b><i>Vine.co</i></b>, <b><i>Vimeo</i></b>, <b><i>Dailymotion</i></b> and <b><i>Youku</i></b> videos</small>
+            </div>
+            <div class="o_video_dialog_options mt-4">
+            </div>
+        </we3-group>
+        <div class="col-md-6">
+            <div id="video-preview" class="p-3">
+                <div class="o_video_dialog_preview_text small mb-2 d-none">Preview</div>
+                <div class="media_iframe_video">
+                    <div class="media_iframe_video_size"/>
+                    <iframe class="o_video_dialog_iframe" allowfullscreen="allowfullscreen" frameborder="0" src=""/>
+                </div>
+            </div>
+        </div>
+    </form>
+</we3-group>
+
 <we3-group class="we3-pictogram" t-name="we3.modal.media.pictogram">
     <we3-buttons>
         <we3-group name="search">

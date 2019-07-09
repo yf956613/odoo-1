@@ -345,7 +345,7 @@ we3.addPlugin('UploadDocument', class extends we3.AbstractPlugin {
 
     _addPanel () {
         var title = this.options.translate(this.pluginName, 'Document');
-        this.dependencies.Media.addPanel(title, this._renderMediaTab.bind(this), this._onSaveMedia.bind(this), 20);
+        this.dependencies.Media.addPanel('upload-document' ,title, this._renderMediaTab.bind(this), this._onSaveMedia.bind(this), 20);
     }
     _displayRecord (record) {
         return this.dependencies[this._dep].displayRecord(record);
@@ -425,7 +425,7 @@ we3.addPlugin('UploadImage', class extends (we3.getPlugin('UploadDocument')) {
 
     _addPanel () {
         var title = this.options.translate(this.pluginName, 'Image');
-        this.dependencies.Media.addPanel(title, this._renderMediaTab.bind(this), this._onSaveMedia.bind(this), 10);
+        this.dependencies.Media.addPanel('upload-image', title, this._renderMediaTab.bind(this), this._onSaveMedia.bind(this), 10);
     }
 });
 })();
