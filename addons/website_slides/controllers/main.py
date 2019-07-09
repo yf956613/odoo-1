@@ -710,16 +710,30 @@ class WebsiteSlides(WebsiteProfile):
 
         rank_progress = {}
         if not user_bad_answers:
+            user = request.env.user
+            old_lower_bound = user.rank_id.karma_min
+            old_upper_bound = user.next_rank_id.karma_min
+            old_karma = user.karma
+            old_motivational = user.next_rank_id.description_motivational
             slide._action_set_quiz_done()
             slide.action_set_completed()
-            lower_bound = request.env.user.rank_id.karma_min
-            upper_bound = request.env.user.next_rank_id.karma_min
+            new_lower_bound = user.rank_id.karma_min
+            new_upper_bound = user.next_rank_id.karma_min
+            last_rank = not user.next_rank_id
             rank_progress = {
-                'lowerBound': lower_bound,
-                'upperBound': upper_bound,
-                'currentKarma': request.env.user.karma,
-                'motivational': request.env.user.next_rank_id.description_motivational,
-                'progress': 100 * ((request.env.user.karma - lower_bound) / (upper_bound - lower_bound))
+                'oldLowerBound': old_lower_bound,
+                'oldUpperBound': old_upper_bound,
+                'oldKarma': old_karma,
+                'oldMotivational': old_motivational,
+                'oldProgress': 100 * ((old_karma - old_lower_bound) / (old_upper_bound - old_lower_bound)),
+                'description': user.rank_id.description,
+                'lastRank': last_rank,
+                'levelUp': old_lower_bound != new_lower_bound,
+                'newLowerBound': new_lower_bound,
+                'newUpperBound': new_upper_bound,
+                'newKarma': user.karma,
+                'newMotivational': user.next_rank_id.description_motivational,
+                'newProgress': 100 if last_rank else 100 * ((user.karma - new_lower_bound) / (new_upper_bound - new_lower_bound)),
             }
         return {
             'goodAnswers': user_good_answers.ids,

@@ -171,6 +171,37 @@ odoo.define('website_slides.quiz', function (require) {
                 this.$el.append(QWeb.render('slide.slide.quiz.finish', {'widget': this}));
                 $modal = this.$('#slides_quiz_modal');
             }
+            var self = this;
+            $modal.on('shown.bs.modal', function () {
+                var rank = self.quiz.rankProgress;
+                if (rank.levelUp) {
+                    $modal.find('.progress-bar').animate({
+                        width: '100%'
+                    }, 600, function () {
+                        $modal.find('.o_wslides_rank_motivational').animate({
+                            opacity: 0
+                        }, 600, function () {
+                            $modal.find('.o_wslides_rank_motivational').html(rank.description);
+                            $modal.find('.o_wslides_rank_motivational').animate({
+                                opacity: 1
+                            }, 600);
+                        });
+                        $modal.find('.progress-bar').animate({
+                            width: '0%'
+                        }, 0, function () {
+                            $modal.find('.o_wslides_rank_lower_bound').html(rank.newLowerBound);
+                            $modal.find('.o_wslides_rank_upper_bound').html(rank.lastRank ? rank.newKarma : rank.newUpperBound);
+                            $modal.find('.progress-bar').animate({
+                                width: rank.newProgress + '%'
+                            }, 600);
+                        });
+                    });
+                } else {
+                    $modal.find('.progress-bar').animate({
+                        width: rank.newProgress + '%'
+                    }, 600);
+                }
+            });
             $modal.modal({
                 'show': true,
             });
