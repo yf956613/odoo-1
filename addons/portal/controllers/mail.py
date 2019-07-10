@@ -44,7 +44,7 @@ def _message_post_helper(res_model='', res_id=None, message='', token='', nosubs
             record = record.sudo()
             if request.env.user._is_public():
                 if kw.get('pid') and consteq(kw.get('hash'), record._sign_token(int(kw.get('pid')))):
-                    author_id = kw.get('pid')
+                    author_id = int(kw.get('pid'))
                 else:
                     # TODO : After adding the pid and sign_token in access_url when send invoice by email, remove this line
                     # TODO : Author must be Public User (to rename to 'Anonymous')
