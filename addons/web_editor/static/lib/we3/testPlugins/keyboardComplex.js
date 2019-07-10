@@ -13,7 +13,28 @@ var TestKeyboardComplex = class extends we3.AbstractPlugin {
         // range start: ▶
         // range end: ◀
 
-        this.keyboardTests = [{
+        this.keyboardTests = [
+            {
+                name: "in p: ENTER + BACKSPACE + LEFT",
+                content: "<p>d◆om to edit</p>",
+                steps: [
+                    {key: 'ENTER'},
+                    {key: 'BACKSPACE'},
+                    {key: 'LEFT'},
+                ],
+                test: "<p>do◆m to edit</p>",
+            },
+            {
+                name: "in p: ENTER + BACKSPACE + RIGHT",
+                content: "<p>d◆om to edit</p>",
+                steps: [
+                    {key: 'ENTER'},
+                    {key: 'BACKSPACE'},
+                    {key: 'RIGHT'},
+                ],
+                test: "<p>d◆om to edit</p>",
+            },
+            {
                 name: "in span > b: SHIFT+ENTER -> BACKSPACE -> 'a'",
                 content: "<p><span><b>dom◆ to edit</b></span></p>",
                 steps: [{
