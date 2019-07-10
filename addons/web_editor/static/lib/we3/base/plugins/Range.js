@@ -321,23 +321,50 @@ var BaseRange = class extends we3.AbstractPlugin {
     _isCollapsed () {
         return this._range.scID === this._range.ecID && this._range.so === this._range.eo;
     }
+    /**
+     * When pressing the left or right arrow, jump over virtual text nodes.
+     *
+     * @private
+     * @param {Object} points
+     * @param {Number} points.scID
+     * @param {Number} points.so
+     * @param {Number} points.ecID
+     * @param {Number} points.eo
+     * @param {Object} [options]
+     * @param {Boolean} [options.moveLeft] true if a movement is initiated from right to left
+     * @param {Boolean} [options.moveRight] true if a movement is initiated from left to right
+     * @returns {Object}
+     */
     _jumpOverVirtualText (points, options) {
+        var oldStart = this.dependencies.BaseArch.getArchNode(this._range.scID);
         var start = this.dependencies.BaseArch.getArchNode(points.scID);
+        var oldEnd = this.dependencies.BaseArch.getArchNode(this._range.ecID);
         var end = this.dependencies.BaseArch.getArchNode(points.ecID);
         var isCollapsed = points.scID === points.ecID && points.so === points.eo;
-        if (options.moveLeft && start.type === 'TEXT-VIRTUAL') {
+        if (start.id === end.id && start.type === 'TEXT-VIRTUAL') {
+            points.eo = points.so;
+        }
+        // range start is on a virtual node or it already moved from one
+        if (options.moveLeft && (start.type === 'TEXT-VIRTUAL' || oldStart.type === 'TEXT-VIRTUAL' && !points.so)) {
             var prev = start.prevUntil(a => a.type !== 'TEXT-VIRTUAL', {doCrossUnbreakables: true, doNotInsertVirtual: true});
             if (prev) {
                 points.scID = prev.id;
                 points.so = prev.length();
             }
+        } else if (options.moveLeft && oldStart.type === 'TEXT-VIRTUAL' && points.so > 0) {
+            // range moved from a virtual and is not at the start of prev
+            points.so = points.so - 1;
         }
-        if (options.moveRight && end.type === 'TEXT-VIRTUAL') {
+        // range end is on a virtual node or it already moved from one
+        if (options.moveRight && (end.type === 'TEXT-VIRTUAL' || oldEnd.type === 'TEXT-VIRTUAL' && points.eo === end.length())) {
             var next = end.nextUntil(a => a.type !== 'TEXT-VIRTUAL', {doCrossUnbreakables: true, doNotInsertVirtual: true});
             if (next) {
                 points.ecID = next.id;
-                points.eo = next.isText() ? 1 : 0;
+                points.eo = next.isText() && end.type === 'TEXT-VIRTUAL' ? 1 : 0;
             }
+        } else if (options.moveRight && oldEnd.type === 'TEXT-VIRTUAL' && points.eo < end.length()) {
+            // range moved from a virtual and is not at the end of next
+            points.eo = points.eo + 1;
         }
         if (isCollapsed) {
             if (options.moveLeft) {
@@ -883,6 +910,7 @@ var BaseRange = class extends we3.AbstractPlugin {
      * @param {MouseEvent} e
      */
     _onMouseUp (e) {
+        this._setRangeFromDOM();
         if (!this.editor.contains(e.target) || this.editable === e.target || this.editable.contains(e.target)) {
             return;
         }
@@ -906,10 +934,8 @@ var BaseRange = class extends we3.AbstractPlugin {
                     scID: voidoid.id,
                     so: 0,
                 });
-                return;
             }
         }
-        this._setRangeFromDOM();
     }
 };
 

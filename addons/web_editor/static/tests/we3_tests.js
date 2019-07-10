@@ -161,7 +161,7 @@ QUnit.module('web_editor', {
         await createFormAndTest(this);
     });
     QUnit.test('change range with arrow', async function (assert) {
-        assert.expect(17);
+        assert.expect(19);
         this.testOptions = {
             assert: assert,
             plugins: Object.assign({}, disableAllTests, {TestKeyboardArrow: true}),

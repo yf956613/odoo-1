@@ -166,17 +166,13 @@ we3.addPlugin('Keyboard', class extends we3.AbstractPlugin {
      * @returns {Boolean} true if case handled
      */
     _onKeydown (e) {
-        if (e.defaultPrevented) {
+        var isNavKey = e.keyCode >= 33 && e.keyCode <= 40;
+        var isSelectAll = e.ctrlKey && e.key === 'a';
+        if (e.defaultPrevented || isNavKey || isSelectAll) {
             return;
         }
+
         var handled = false;
-
-        if (e.ctrlKey && e.key === 'a') {
-            e.preventDefault();
-            this._selectAll();
-            return;
-        }
-
         var isChar = e.key && e.key.length === 1;
         var isAccented = e.key && (e.key === "Dead" || e.key === "Unidentified");
         var isModified = e.ctrlKey || e.altKey || e.metaKey;
@@ -197,10 +193,6 @@ we3.addPlugin('Keyboard', class extends we3.AbstractPlugin {
                 case 13: // ENTER
                     handled = this._onEnter(e);
                     break;
-                case 37: // ARROW LEFT
-                case 39: // ARROW RIGHT
-                    handled = this._onArrowSide(e);
-                    break;
                 case 46: // DELETE
                     handled = this._onDelete(e);
                     break;
@@ -212,20 +204,6 @@ we3.addPlugin('Keyboard', class extends we3.AbstractPlugin {
         if (e.key !== "Dead") {
             this._accented = false;
         }
-    }
-    /**
-     * Move the range left or right.
-     *
-     * @private
-     * @param {KeyboardEvent} e
-     */
-    _onArrowSide (e) {
-        var range = this.dependencies.Range.getRange();
-        this.dependencies.Range.setRange(range, {
-            moveLeft: e.keyCode === 37,
-            moveRight: e.keyCode === 39,
-        });
-        return range.scArch.isVoidoid();
     }
     /**
      * Handle BACKSPACE keydown event.

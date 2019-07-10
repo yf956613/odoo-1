@@ -15,7 +15,7 @@ var TestKeyboardArrow = class extends we3.AbstractPlugin {
 
         this.keyboardTests = [
             {
-                name: "LEFT colapse selection",
+                name: "LEFT collapse selection",
                 content: "<p>dom▶ to◀ edit</p>",
                 steps: [{
                     key: 'LEFT',
@@ -23,7 +23,7 @@ var TestKeyboardArrow = class extends we3.AbstractPlugin {
                 test: "<p>dom◆ to edit</p>",
             },
             {
-                name: "RIGHT colapse selection",
+                name: "RIGHT collapse selection",
                 content: "<p>dom▶ to◀ edit</p>",
                 steps: [{
                     key: 'RIGHT',
@@ -100,7 +100,7 @@ var TestKeyboardArrow = class extends we3.AbstractPlugin {
                 steps: [{
                     key: 'LEFT',
                 }],
-                content: '<p>dom to ◆<img src="/web_editor/static/src/img/transparent.png"/> edit</p>',
+                test: '<p>dom to ◆<img src="/web_editor/static/src/img/transparent.png"/> edit</p>',
             },
             {
                 name: "RIGHT move after voidoid",
@@ -108,7 +108,7 @@ var TestKeyboardArrow = class extends we3.AbstractPlugin {
                 steps: [{
                     key: 'RIGHT',
                 }],
-                content: '<p>dom to <img src="/web_editor/static/src/img/transparent.png"/>◆ edit</p>',
+                test: '<p>dom to <img src="/web_editor/static/src/img/transparent.png"/>◆ edit</p>',
             },
             {
                 name: "LEFT before image in image in table",
