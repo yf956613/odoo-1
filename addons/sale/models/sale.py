@@ -114,10 +114,6 @@ class SaleOrder(models.Model):
         for order in self:
             order.order_line._compute_tax_id()
 
-    def _get_payment_type(self):
-        self.ensure_one()
-        return 'form'
-
     name = fields.Char(string='Order Reference', required=True, copy=False, readonly=True, states={'draft': [('readonly', False)]}, index=True, default=lambda self: _('New'))
     origin = fields.Char(string='Source Document', help="Reference of the document that generated this sales order request.")
     client_order_ref = fields.Char(string='Customer Reference', copy=False)
@@ -884,7 +880,7 @@ class SaleOrder(models.Model):
 
     def _get_payment_type(self):
         self.ensure_one()
-        return 'form_save' if self.require_payment else 'form'
+        return 'save_token' if self.require_payment else 'form'
 
 
 class SaleOrderLine(models.Model):

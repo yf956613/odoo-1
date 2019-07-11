@@ -210,7 +210,7 @@ class WebsitePayment(http.Controller):
             'amount': float(amount),
             'currency_id': int(currency_id),
             'partner_id': partner_id,
-            'type': 'form_save' if acquirer.save_token != 'none' and partner_id else 'form',
+            'type': 'save_token' if kwargs.get('save_token') and partner_id else 'form',
         }
 
         if order_id:
@@ -248,7 +248,7 @@ class WebsitePayment(http.Controller):
             'currency_id': int(currency_id),
             'partner_id': partner_id,
             'payment_token_id': pm_id,
-            'type': 'server2server',
+            'type': 'save_token' if kwargs.get('save_token') and partner_id else 'server2server',
             'return_url': return_url,
         }
 

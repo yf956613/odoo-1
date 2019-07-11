@@ -227,7 +227,7 @@ class PaymentTransactionStripe(models.Model):
             self.write(vals)
             self._set_transaction_done()
             self.execute_callback()
-            if self.type == 'form_save':
+            if self.type == 'save_token' and not self.payment_token_id and self.partner_id:
                 s2s_data = {
                     'customer': tree.get('customer'),
                     'payment_method': tree.get('payment_method'),
@@ -293,3 +293,8 @@ class PaymentTokenStripe(models.Model):
                 'acquirer_ref': cust_resp['id'],
             }
         return values
+
+    @api.model
+    def stripe_unlink(self):
+        api_url_customer_unlink = 'customers/%s' % self.acquirer_ref
+        return self.acquirer_id._stripe_request(api_url_customer_unlink, method='delete')
