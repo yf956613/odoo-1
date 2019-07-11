@@ -50,6 +50,9 @@ from stdnum.se.vat import compact as compact_se
 from stdnum.si.ddv import compact as compact_si
 from stdnum.sk.dph import compact as compact_sk
 # tr compact vat is not in stdnum
+import stdnum
+from stdnum.cl.rut import format as format_cl
+from stdnum.co.nit import format as format_co
 
 
 _eu_country_vat = {
@@ -63,6 +66,8 @@ _ref_vat = {
     'be': 'BE0477472701',
     'bg': 'BG1234567892',
     'ch': 'CHE-123.456.788 TVA or CH TVA 123456',  # Swiss by Yannick Vaucher @ Camptocamp
+    'cl': 'CL76086428-5',
+    'co': 'CO213123432-1 or CO213.123.432-1',
     'cy': 'CY12345678F',
     'cz': 'CZ12345679',
     'de': 'DE123456788',
@@ -222,6 +227,12 @@ class ResPartner(models.Model):
             check = (11 - (csum % 11)) % 11
             return check == int(num[8])
         return False
+
+    def check_vat_cl(self, vat):
+        return stdnum.util.get_cc_module('cl','vat').is_valid(vat)
+
+    def check_vat_co(self, vat):
+        return stdnum.util.get_cc_module('co','vat').is_valid(vat)
 
     def _ie_check_char(self, vat):
         vat = vat.zfill(8)
@@ -406,6 +417,10 @@ class ResPartner(models.Model):
         check_func_name = 'compact_' + vat_country
         check_func = globals().get(check_func_name) or getattr(self, 'default_compact')
         vat_number = check_func(vat_number)
+        format_func_name = 'format_' + vat_country
+        format_func = globals().get(format_func_name)
+        if format_func:
+            vat_number = format_func(vat_number)
         return vat_country.upper() + vat_number
 
     @api.model
