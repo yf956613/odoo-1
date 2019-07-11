@@ -485,26 +485,30 @@ ListRenderer.include({
     _getColumnWidthFactor: function (column) {
         if (column.attrs.width) {
             // the width attribute has precedence on the width factor
-            return 0;
+            return column.attrs.width;
         }
-        var fieldType = this.state.fields[column.attrs.name].type;
+        if (!this.state.fieldsInfo.list[column.attrs.name]) {
+            // Unnamed columns get default value
+            return 1;
+        }
+        var field = this.state.fields[column.attrs.name] || {};
         var widget = this.state.fieldsInfo.list[column.attrs.name].Widget.prototype;
         if ('widthFactor' in widget) {
             return widget.widthFactor;
         }
-        switch (fieldType) {
+        switch (field.type) {
             case 'binary': return 1;
-            case 'boolean': return 0.4;
+            case 'boolean': return '40px';
             case 'char': return 1;
-            case 'date': return 1;
-            case 'datetime': return 1.5;
-            case 'float': return 1;
+            case 'date': return '100px';
+            case 'datetime': return '150px';
+            case 'float': return '100px';
             case 'html': return 3;
-            case 'integer': return 0.8;
-            case 'many2many': return 2.2;
+            case 'integer': return '80px';
+            case 'many2many': return 2.5;
             case 'many2one': return 1.5;
             case 'monetary': return 1.2;
-            case 'one2many': return 2.2;
+            case 'one2many': return 2.5;
             case 'reference': return 1.5;
             case 'selection': return 1.5;
             case 'text': return 3;
@@ -727,18 +731,15 @@ ListRenderer.include({
      */
     _processColumns: function () {
         this._super.apply(this, arguments);
-
+        
         if (this.editable) {
             var self = this;
             this.columns.forEach(function (column) {
-                if (column.attrs.width_factor) {
-                    column.attrs.widthFactor = parseFloat(column.attrs.width_factor, 10);
+                var factor = self._getColumnWidthFactor(column);
+                if (factor.toString().slice(-2) == 'px' || factor.toString().slice(-1) == '%') {
+                    column.attrs.width = factor;
                 } else {
-                    if (column.tag === 'field') {
-                        column.attrs.widthFactor = self._getColumnWidthFactor(column);
-                    } else {
-                        column.attrs.widthFactor = 1;
-                    }
+                    column.attrs.widthFactor = factor;
                 }
             });
         }
@@ -819,14 +820,12 @@ ListRenderer.include({
 
         if (this.editable) {
             var totalWidth = this.columns.reduce(function (acc, column) {
-                return acc + column.attrs.widthFactor;
+                return acc + (column.attrs.widthFactor || 0);
             }, 0);
             this.columns.forEach(function (column) {
-                var $cell = $thead.find('th[data-name=' + column.attrs.name + ']');
-                if (column.attrs.width) {
-                    $cell.css('width', column.attrs.width);
-                } else if (column.attrs.widthFactor) {
-                    $cell.css('width', (column.attrs.widthFactor / totalWidth * 100) + '%');
+                var $th = $thead.find('th[data-name=' + column.attrs.name + ']');
+                if ($th.data('name') && (column.attrs.width || column.attrs.widthFactor)) {
+                    $th.css('width', column.attrs.width || ((column.attrs.widthFactor / totalWidth * 100) + '%'));
                 }
             });
         }
