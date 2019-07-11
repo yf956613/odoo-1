@@ -425,6 +425,15 @@ we3.utils = {
             return indexOfValue === index;
         });
     },
+    /**
+     * Produce a list of integers from 0 to n.
+     *
+     * @param {integer} n number of integer
+     * @return {integer []} list of integer from 0 to n
+     */
+    range: function (n) {
+        return Array.from(Array(n).keys());
+    },
 };
 
 new Array(128 - 40).forEach(function (keyCode) {

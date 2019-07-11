@@ -78,6 +78,8 @@
     <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/TestArchAndRules.js"/>
     <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/TestComplexDefaultConfig.js"/>
     <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/TestRange.js"/>
+    <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/TestUndoRedo.js"/>
+    <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/TestBrowserConsistency.js"/>
     <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/ui.js"/>
     <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/keyboard.js"/>
     <script type="text/javascript" src="/web_editor/static/lib/we3/testPlugins/keyboardArrow.js"/>
