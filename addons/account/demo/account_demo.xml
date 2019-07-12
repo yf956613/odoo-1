@@ -7,9 +7,6 @@
         <record id="demo_capital_account" model="account.account.tag">
             <field name="name">Demo Capital Account</field>
         </record>
-        <record id="demo_stock_account" model="account.account.tag">
-            <field name="name">Demo Stock Account</field>
-        </record>
         <record id="demo_sale_of_land_account" model="account.account.tag">
             <field name="name">Demo Sale of Land Account</field>
         </record>
