@@ -17,7 +17,7 @@ we3.ArchNodeText = class extends we3.ArchNode {
 
         var next = this.split(offset) || this.nextSibling() || this;
         this.nodeValue = this.nodeValue.replace(/ $/, '\u00A0');
-        next.nodeValue = next.nodeValue.replace(/^ /, '\u00A0');
+        next.nodeValue = next.nodeValue && next.nodeValue.replace(/^ /, '\u00A0');
         if (next.isRightEdge()) {
             this.params.change(next, 0);
         }
