@@ -377,7 +377,7 @@
     </record>
 
     <record id='fleet_vehicle_odometer_action' model='ir.actions.act_window'>
-        <field name="name">Vehicles Odometer</field>
+        <field name="name">Odometer</field>
         <field name="res_model">fleet.vehicle.odometer</field>
         <field name="view_mode">tree,kanban,form,graph</field>
         <field name="context"></field>

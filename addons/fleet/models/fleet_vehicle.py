@@ -360,6 +360,14 @@ class FleetVehicleOdometer(models.Model):
 
         return odometers
 
+    @api.multi
+    def write(self, vals):
+        odometers = super(FleetVehicleOdometer, self).write(vals)
+        if 'value' in vals and not self.env.context.get('odometer_no_chatter'):
+            for odometer in self:
+                odometer.vehicle_id.message_post(body=_("Odometer on %s: %s %s") % (odometer.date, odometer.value, odometer.unit))
+        return odometers
+
 class FleetVehicleState(models.Model):
     _name = 'fleet.vehicle.state'
     _order = 'sequence asc'

@@ -13,6 +13,7 @@
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
+                    <field name="active" invisible="1"/>
                     <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <field name="currency_id" invisible="1"/>
                     <div class="oe_title">
@@ -175,7 +176,7 @@
     </record>
 
     <record id='fleet_vehicle_log_contract_action' model='ir.actions.act_window'>
-        <field name="name">Vehicles Contracts</field>
+        <field name="name">Contracts</field>
         <field name="res_model">fleet.vehicle.log.contract</field>
         <field name="view_mode">tree,kanban,form,graph,activity</field>
         <field name="context">{'search_default_open': 1}</field>
@@ -302,7 +303,7 @@
     </record>
 
     <record id='fleet_vehicle_log_services_action' model='ir.actions.act_window'>
-        <field name="name">Vehicles Services Logs</field>
+        <field name="name">Services</field>
         <field name="res_model">fleet.vehicle.log.services</field>
         <field name="view_mode">tree,kanban,form,graph</field>
         <field name="help" type="html">

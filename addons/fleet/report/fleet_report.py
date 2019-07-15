@@ -24,7 +24,6 @@ class FleetReport(models.Model):
         ('service', 'Service')
     ], readonly=True)
 
-    @api.model_cr
     def init(self):
         query = """
 WITH service_costs AS (

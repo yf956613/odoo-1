@@ -70,7 +70,6 @@ class FleetVehicleModelBrand(models.Model):
         tools.image_resize_images(vals)
         return super(FleetVehicleModelBrand, self).write(vals)
 
-    @api.multi
     def action_brand_model(self):
         self.ensure_one()
         view = {
