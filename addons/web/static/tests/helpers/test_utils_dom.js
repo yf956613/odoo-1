@@ -151,6 +151,21 @@ function triggerPositionalMouseEvent(x, y, type) {
         false, false, false, false, /* modifier keys */
         0 /*left button*/, null
     );
+    if (type.indexOf('touch') === 0) {
+        var touch = new Touch({
+            identifier: 42,
+            target: document,
+            clientX: x,
+            clientY: y,
+            pageX: x,
+            pageY: y,
+        });
+        if (type !== 'touchend') {
+            ev.touches = [touch];
+            ev.targetTouches = [touch];
+        }
+        ev.changedTouches = [touch];
+    }
     el.dispatchEvent(ev);
     return el;
 }
