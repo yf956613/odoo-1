@@ -163,6 +163,26 @@
                         </t>
 
                     </DatiBeniServizi>
+                    <DatiPagamento t-foreach="payments_info" t-as="payment_data">
+                        <t t-set="payment_move_line" t-value="move_line_obj.browse(payment_data['payment_id'])"/>
+                        <CondizioniPagamento>
+                            <t t-if="payment_data.get('date') &lt; record.date">TP03</t> <!-- advance payment -->
+                            <t t-if="payment_data.get('date') &gt;= record.date and len(payments_info) == 1 and record.invoice_payment_state == 'paid'">TP02</t> <!-- complete payment -->
+                            <t t-if="payment_data.get('date') &gt;= record.date and len(payments_info) > 1">TP01</t> <!-- partial payment -->
+                        </CondizioniPagamento>
+                        <DettaglioPagamento>
+                            <ModalitaPagamento t-esc="'MP02' if payment_move_line.journal_id.type == 'bank' else 'MP01'"/>
+                            <DataRiferimentoTerminiPagamento t-esc="format_date(payment_data['date'])"/>
+                            <ImportoPagamento t-esc="format_numbers(payment_data['amount'])"/>
+                            <DataScadenzaPagamento t-esc="format_date(record.invoice_date_due)"/>
+                            <t t-if="payment_move_line.journal_id.type == 'bank'">
+                                <t t-set="partner_bank_account" t-value="payment_move_line.payment_id.partner_bank_account_id"/>
+                                <IstitutoFinanziario t-if="partner_bank_account.bank_id" t-esc="partner_bank_account.bank_id.name"/>
+                                <IBAN t-if="partner_bank_account.acc_type == 'iban'" t-esc="partner_bank_account.acc_number"/>
+                                <BIC t-if="partner_bank_account.acc_type == 'bank' and partner_bank_account.bank_id" t-esc="partner_bank_account.bank_id.bic"/>
+                            </t>
+                        </DettaglioPagamento>
+                    </DatiPagamento>
                     <Allegati t-if="pdf">
                         <NomeAttachment t-esc="pdf_name"/>
                         <FormatoAttachment>PDF</FormatoAttachment>

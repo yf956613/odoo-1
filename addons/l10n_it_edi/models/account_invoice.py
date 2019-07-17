@@ -231,8 +231,10 @@ class AccountMove(models.Model):
         pdf = base64.b64encode(pdf)
         pdf_name = re.sub(r'\W+', '', self.name) + '.pdf'
 
+        payments_info = self._get_reconciled_info_JSON_values()
         # Create file content.
         template_values = {
+            'move_line_obj': self.env['account.move.line'],
             'record': self,
             'format_date': format_date,
             'format_monetary': format_monetary,
@@ -245,6 +247,7 @@ class AccountMove(models.Model):
             'abs': abs,
             'formato_trasmissione': formato_trasmissione,
             'document_type': document_type,
+            'payments_info': payments_info,
             'pdf': pdf,
             'pdf_name': pdf_name,
         }
