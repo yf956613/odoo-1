@@ -306,7 +306,7 @@
                             <label for="pricelist_id" groups="product.group_sale_pricelist"/>
                             <div groups="product.group_sale_pricelist">
                                 <field name="pricelist_id"/>
-                                <button name="update_pricelist" type="object" string=" Recompute Price" class="btn-link" icon="fa-refresh" confirm="Are you sure to recompute all the prices based on the new pricelist?" attrs="{'invisible': [('is_change_pricelist', '=', False)]}"/>
+                                <button name="update_pricelist" type="object" string=" Update Prices" class="btn-link mb-1 px-0" icon="fa-refresh" confirm="Are you sure to recompute all the prices based on the new pricelist?" attrs="{'invisible': ['|', ('is_change_pricelist', '=', False), ('state', 'in', ['sale', 'done','cancel'])]}"/>
                             </div>
                             <field name="currency_id" invisible="1"/>
                             <field name="payment_term_id" options="{'no_create': True}"/>
