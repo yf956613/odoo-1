@@ -126,12 +126,6 @@ class DriverMetaClass(type):
     def __new__(cls, clsname, bases, attrs):
         newclass = super(DriverMetaClass, cls).__new__(cls, clsname, bases, attrs)
         #  We only add concrete classes to `drivers`.
-        try:
-            newclass.supported('test')
-        except NotImplementedError:
-            return newclass
-        except Exception:
-            pass
         # Some drivers must be tried only when all the others have been ruled out. These are kept at the bottom of the list.
         if newclass.is_tested_last:
             drivers.append(newclass)
@@ -174,7 +168,7 @@ class Driver(Thread, metaclass=DriverMetaClass):
         """
         On specific driver override this method to give type of device
         return string
-        possible value : printer - camera - device
+        possible value : printer - camera - device - opcua
         """
         return self._device_type
 
@@ -184,7 +178,7 @@ class Driver(Thread, metaclass=DriverMetaClass):
         On specific driver override this method to check if device is supported or not
         return True or False
         """
-        raise NotImplementedError
+        pass
 
     def get_message(self):
         return ''
@@ -302,17 +296,42 @@ class Manager(Thread):
             urllib3.disable_warnings()
             http = urllib3.PoolManager(cert_reqs='CERT_NONE')
             try:
-                http.request(
+                resp = http.request(
                     'POST',
                     server + "/iot/setup",
                     body = json.dumps(data).encode('utf8'),
                     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 )
+                data = json.loads(resp.data.decode())
+
+                for device in [devices for devices in data['result'] if data['result']]:
+                    if data['result'] and data['result'][device]['type'] == 'opcua':
+                        nodes = data['result'][device]['nodes']
+                        data = {
+                            'action': 'create_subscription',
+                            'nodes': nodes,
+                        }
+                        iot_devices[device].action(data)
+
             except Exception as e:
                 _logger.error('Could not reach configured server')
                 _logger.error('A error encountered : %s ' % e)
         else:
             _logger.warning('Odoo server not set')
+
+    def opcua_loop(self):
+        opcua_devices = {}
+        opcua_server = read_file_first_line('odoo-opcua-server.conf')
+        if opcua_server:
+            dev = {
+                'login': 'login',
+                'passw': 'passw',
+                'identifier': opcua_server,
+                'server': opcua_server,
+            }
+            iot_device = IoTDevice(dev, 'network')
+            opcua_devices[dev['identifier']] = iot_device
+        return opcua_devices
 
     def serial_loop(self):
         serial_devices = {}
@@ -390,6 +409,7 @@ class Manager(Thread):
             updated_devices.update(bt_devices)
             updated_devices.update(socket_devices)
             updated_devices.update(self.serial_loop())
+            updated_devices.update(self.opcua_loop())
             if cpt % 40 == 0:
                 printer_devices = self.printer_loop()
                 cpt = 0

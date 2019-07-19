@@ -53,6 +53,7 @@ wifi_config_template = jinja_env.get_template('wifi_config.html')
 driver_list_template = jinja_env.get_template('driver_list.html')
 remote_connect_template = jinja_env.get_template('remote_connect.html')
 configure_wizard_template = jinja_env.get_template('configure_wizard.html')
+opcua_server_template = jinja_env.get_template('opcua_server.html')
 
 class IoTboxHomepage(web.Home):
 
@@ -65,6 +66,11 @@ class IoTboxHomepage(web.Home):
             Odoo version 11, or above, is required to use the customer display feature.
         </p>
         """
+    def get_opcua_server(self):
+        path = Path.home() / 'odoo-opcua-server.conf'
+        if path.exists():
+            return path.read_text()
+        return 'Not Configured'
 
     def get_pos_device_status(self):
         statuses = {}
@@ -113,6 +119,7 @@ class IoTboxHomepage(web.Home):
             'mac': ":".join(i + next(h) for i in h),
             'iot_device_status': iot_device,
             'server_status': get_odoo_server_url() or 'Not Configured',
+            'opcua_server': self.get_opcua_server(),
             'network_status': network,
             }
 
@@ -296,3 +303,30 @@ class IoTboxHomepage(web.Home):
             return 'starting with ' + auth_token
         else:
             return 'already running'
+
+    @http.route('/opcua_server', type='http', auth='none', cors='*', csrf=False)
+    def opcua_server(self):
+        return opcua_server_template.render({
+            'title': 'Opc-Ua Server',
+            'breadcrumb': 'Opc-Ua Server',
+            'opcuaServer': self.get_opcua_server(),
+        })
+
+    @http.route('/opcua_server_add', type='http', auth='none', cors='*', csrf=False)
+    def add_opcua_server(self, opcua_server):
+        subprocess.check_call(["sudo", "mount", "-o", "remount,rw", "/"])
+        path = Path.home() / 'odoo-opcua-server.conf'
+        path.write_text(opcua_server)
+        subprocess.check_call(["sudo", "service", "odoo", "restart"])
+        subprocess.check_call(["sudo", "mount", "-o", "remount,ro", "/"])
+        return 'http://' + get_ip() + ':8069'
+
+    @http.route('/opcua_server_clear', type='http', auth='none', cors='*', csrf=False)
+    def clear_opcua_server(self):
+        subprocess.check_call(["sudo", "mount", "-o", "remount,rw", "/"])
+        path = Path.home() / 'odoo-opcua-server.conf'
+        if path.exists():
+            path.unlink()
+        subprocess.check_call(["sudo", "service", "odoo", "restart"])
+        subprocess.check_call(["sudo", "mount", "-o", "remount,ro", "/"])
+        return "<meta http-equiv='refresh' content='0; url=http://" + get_ip() + ":8069'>"
