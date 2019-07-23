@@ -22,7 +22,7 @@
                                         <th><span>Date</span></th>
                                         <th><span>Responsible</span></th>
                                         <th><span>Description</span></th>
-                                        <th t-if="show_task"><t t-if="show_project">Project - </t>Task</th>
+                                        <th t-if="show_task"><span t-if="show_project">Project - </span><span>Task</span></th>
                                         <th class="text-right"><span>Time</span></th>
                                     </tr>
                                </thead>
@@ -39,7 +39,7 @@
                                         </td>
                                         <td t-if="show_task">
                                             <t t-if="show_project"><span t-field="l.project_id.name"/></t>
-                                            <t t-if="show_project and l.task_id"> - </t>
+                                            <span t-if="show_project and l.task_id"> - </span>
                                             <t t-if="l.task_id"><span t-field="l.task_id.name"/></t>
                                         </td>
                                         <td class="text-right">

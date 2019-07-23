@@ -74,8 +74,8 @@
                         </th>
                         <th class="text-right">Taxes</th>
                         <th class="text-right">
-                            <t groups="account.group_show_line_subtotals_tax_excluded">Amount</t>
-                            <t groups="account.group_show_line_subtotals_tax_included">Total Price</t>
+                            <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
+                            <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
                         </th>
                     </tr>
                 </thead>
