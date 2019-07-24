@@ -16,6 +16,8 @@ var SlideUploadDialog = Dialog.extend({
         'click .o_wslides_select_type': '_onClickSlideTypeIcon',
         'change input#upload': '_onChangeSlideUpload',
         'change input#url': '_onChangeSlideUrl',
+        'change input#certification_give_badge': '_toggleCertificationBadge',
+        'change input#certification_id': '_populateWithCertificationName'
     }),
 
     /**
@@ -44,6 +46,8 @@ var SlideUploadDialog = Dialog.extend({
         this.on('change:state', this, this._onChangeType);
         this.set('can_submit_form', false);
         this.on('change:can_submit_form', this, this._onChangeCanSubmitForm);
+
+        this.numberNew = 0;
 
         this.file = {};
         this.isValidUrl = true;
@@ -162,7 +166,7 @@ var SlideUploadDialog = Dialog.extend({
                     'mime_type': this.file.type === 'image/svg+xml' ? 'image/png' : this.file.type,
                     'datas': this.file.type === 'image/svg+xml' ? this._svgToPng() : this.file.data
                 });
-            } else {
+            } else{
                 _.extend(values, {
                     'image': this.file.type === 'image/svg+xml' ? this._svgToPng() : this.file.data,
                 });
@@ -403,8 +407,8 @@ var SlideUploadDialog = Dialog.extend({
             tmpl = this.slide_type_data[currentType]['template'];
         }
         this.$('.o_w_slide_upload_modal_container').empty();
-        this.$('.o_w_slide_upload_modal_container').append(QWeb.render(tmpl, {widget: this}));
-
+        var test = QWeb.render(tmpl, {widget: this});
+        this.$('.o_w_slide_upload_modal_container').append(test);
         this._resetModalButton();
 
         if (currentType === '_import') {
@@ -581,8 +585,27 @@ var SlideUploadDialog = Dialog.extend({
             self._resetModalButton();
         });
     },
+    _toggleCertificationBadge: function (ev) {
+        if($(ev.target).is(":checked")){    
+            $('.o_web_slide_survey_badge').show();
+            $("#certification_badge_id").attr("required", "required");
+        }
+        else{
+            $('.o_web_slide_survey_badge').hide();
+            $("#certification_badge_id").removeAttr("required");
+        }
+    },
 
-    _onClickGoBack: function () {
+    _populateWithCertificationName: function (ev) {
+        if(!ev.added){
+            return;
+        }
+        var certificationName = ev.added.text;
+        if($("#name").val() === ""){
+            $("#name").val(certificationName);
+        };
+    },
+    _onClickGoBack: function (ev) {
         this.set('state', '_select');
         this.isValidUrl = true;
         if (this.modulesToInstallStatus && !this.modulesToInstallStatus.installing) {

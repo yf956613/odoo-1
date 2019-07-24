@@ -13,3 +13,11 @@ class WebsiteSlidesSurvey(http.Controller):
             'read_results': request.env['survey.survey'].search_read([('certificate', '=', True)], fields),
             'can_create': can_create,
         }
+    
+    @http.route(['/slides_survey/badge/search_read'], type='json', auth='user', methods=['POST'], website=True)
+    def slides_badge_search_read(self, fields):
+        can_create = request.env['survey.survey'].check_access_rights('create', raise_exception=False)
+        return {
+            'read_results': request.env['gamification.badge'].search_read([('rule_auth', '=', 'nobody')], fields),
+            'can_create': can_create,
+        }

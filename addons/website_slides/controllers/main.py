@@ -807,34 +807,60 @@ class WebsiteSlides(WebsiteProfile):
                 return {'error': _('File is too big. File size cannot exceed 25MB')}
 
         values = dict((fname, post[fname]) for fname in self._get_valid_slide_post_values() if post.get(fname))
+        try:
+            if post.get('category_id'):
+                if post['category_id'][0] == 0:
+                    values['category_id'] = request.env['slide.category'].create({
+                        'name': post['category_id'][1]['name'],
+                        'channel_id': values.get('channel_id')
+                        }).id
+                else:
+                    values['category_id'] = post['category_id'][0]
+        except (UserError, AccessError) as e:
+            _logger.error(e)
+            return {'error': e.name}
 
-        if post.get('category_id'):
-            if post['category_id'][0] == 0:
-                values['category_id'] = request.env['slide.category'].create({
-                    'name': post['category_id'][1]['name'],
-                    'channel_id': values.get('channel_id')}).id
-            else:
-                values['category_id'] = post['category_id'][0]
+        try:
+            if post.get('badge_id'):
+                if post['badge_id'][0] == 0:
+                    values['badge_id'] = request.env['gamification.badge'].create({
+                        'name': post['badge_id'][1]['title'],
+                        }).id
+                else:
+                    values['badge_id'] = post['badge_id'][0]
+        except (UserError, AccessError) as e:
+            _logger.error(e)
+            return {'error': e.name}
 
         new_certification = False
-        if post.get('survey_id'):
-            if post['survey_id'][0] == 0:
-                survey_id = request.env['survey.survey'].create({
-                    'title': post['survey_id'][1]['title'],
-                    'questions_layout': 'page_per_question',
-                    'is_attempts_limited': True,
-                    'attempts_limit': 1,
-                    'is_time_limited': True,
-                    'time_limit': 60.0,
-                    'scoring_type': 'scoring_without_answers',
-                    'certificate': True,
-                    'passing_score': 70.0,
-                    'certification_mail_template_id': request.env['mail.template'].search([('name','=','Certification: Send by email')]).id
-                    })
-                values['survey_id'] = survey_id.id
-                new_certification = True
-            else:
-                values['survey_id'] = post['survey_id'][0]
+        try:
+            if post.get('survey_id'):
+                if post['survey_id'][0] == 0:
+                    survey_id = request.env['survey.survey'].create({
+                        'title': post['survey_id'][1]['title'],
+                        'questions_layout': 'page_per_question',
+                        'is_attempts_limited': True,
+                        'attempts_limit': 1,
+                        'is_time_limited': True,
+                        'time_limit': 60.0,
+                        'scoring_type': 'scoring_without_answers',
+                        'certificate': True,
+                        'passing_score': 70.0,
+                        'certification_mail_template_id': request.env['mail.template'].search([('name','=','Certification: Send by email')]).id,
+                        })
+                    if 'give_badge' in values:
+                        survey_id.write({
+                            'users_login_required': True,
+                            'certification_give_badge': True,
+                            'certification_badge_id': values['badge_id'],
+                        })                    
+                    values['survey_id'] = survey_id.id
+                    new_certification = True
+                else:
+                    values['survey_id'] = post['survey_id'][0]
+        except (UserError, AccessError) as e:
+            _logger.error(e)
+            return {'error': e.name}
                 
         # handle exception during creation of slide and sent error notification to the client
         # otherwise client slide create dialog box continue processing even server fail to create a slide
@@ -899,8 +925,7 @@ class WebsiteSlides(WebsiteProfile):
 
     def _get_valid_slide_post_values(self):
         return ['name', 'url', 'tag_ids', 'slide_type', 'channel_id', 'is_preview',
-                'mime_type', 'datas', 'description', 'image_1920', 'is_published']
-
+                'mime_type', 'datas', 'description', 'image_1920', 'index_content', 'is_published', 'survey_id', 'give_badge', 'badge_id']
     @http.route(['/slides/tag/search_read'], type='json', auth='user', methods=['POST'], website=True)
     def slide_tag_search_read(self, fields, domain):
         can_create = request.env['slide.tag'].check_access_rights('create', raise_exception=False)

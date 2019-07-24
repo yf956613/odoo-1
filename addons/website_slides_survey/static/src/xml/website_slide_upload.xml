@@ -14,6 +14,18 @@
                 </div>
                 <t t-call="website.slide.upload.modal.common"/>
                 <div class="form-group row">
+                    <label for="certification_give_badge" class="col-form-label col-md-3">Give badge</label>
+                    <div class="controls col-md-9 mt8">
+                        <input id="certification_give_badge" name="certification_give_badge" type="checkbox" checked="checked"/>
+                    </div>
+                </div>
+                <div class="form-group row o_web_slide_survey_badge">
+                    <label for="certification_badge_id" class="col-form-label col-md-3">Certification Badge</label>
+                    <div class="controls col-md-9">
+                        <input class="form-control" id="certification_badge_id" required="required"/>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <div class="col-md-4">
                         <div class="img-thumbnail">
                             <div class="o_slide_preview">
