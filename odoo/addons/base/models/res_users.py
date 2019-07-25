@@ -440,7 +440,7 @@ class Users(models.Model):
         users = super(Users, self).create(vals_list)
         for user in users:
             user.partner_id.active = user.active
-            if user.partner_id.company_id:
+            if user.partner_id:
                 user.partner_id.write({'company_id': user.company_id.id})
         return users
 

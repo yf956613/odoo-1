@@ -199,10 +199,6 @@
                                             <div class="mt16">
                                                 <button name="%(base.action_res_company_form)d" icon="fa-arrow-right" type="action" string="Companies" class="btn-link"/>
                                             </div>
-                                            <div id="company_share_partner">
-                                                <field name="company_share_partner" class="oe_inline"/>
-                                                <label string="Common Contact Book" class="o_light_label" for="company_share_partner"/>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
