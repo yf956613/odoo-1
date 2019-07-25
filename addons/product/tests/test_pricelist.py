@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.tests.common import TransactionCase
+from odoo.addons.product.tests.common import TestProductCommon
 
 
-class TestPricelist(TransactionCase):
+class TestPricelist(TestProductCommon):
 
     def setUp(self):
         super(TestPricelist, self).setUp()
 
-        self.datacard = self.env.ref('product.product_delivery_02')
-        self.usb_adapter = self.env.ref('product.product_delivery_01')
+        self.datacard = self.product_0
+        self.usb_adapter = self.product_02
         self.uom_ton = self.env.ref('uom.product_uom_ton')
         self.uom_unit_id = self.ref('uom.product_uom_unit')
         self.uom_dozen_id = self.ref('uom.product_uom_dozen')
