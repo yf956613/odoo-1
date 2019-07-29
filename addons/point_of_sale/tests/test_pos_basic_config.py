@@ -180,8 +180,9 @@ class TestPoSBasicConfig(TestPoSCommon):
         # check values after the session is closed
         session_move = self.session.move_id
 
-        sale_line = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
-        self.assertAlmostEqual(sale_line.balance, -110.0)
+        sale_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
+        self.assertAlmostEqual(len(sale_lines), 2, 'There should be lines for both sales and refund.')
+        self.assertAlmostEqual(sum(sale_lines.mapped('balance')), -110.0)
 
         receivable_line_bank = session_move.line_ids.filtered(lambda line: self.bank_pm.name in line.name)
         self.assertAlmostEqual(receivable_line_bank.balance, 110.0)

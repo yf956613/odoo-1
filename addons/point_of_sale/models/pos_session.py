@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from itertools import chain
 from collections import defaultdict
 from datetime import timedelta
 
 from odoo import api, fields, models, SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_is_zero, groupby
+from odoo.tools import float_is_zero
 
 
 class PosSession(models.Model):
@@ -343,7 +342,185 @@ class PosSession(models.Model):
             'name': journal.sequence_id.next_by_id()
         })
         self.write({'move_id': account_move.id})
-        self._create_account_move_lines()
+
+        ## PART 1: Accumulate the amounts for each accounting line group
+        split_receivables   = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
+        combine_receivables = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
+        invoice_receivables = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
+        sales               = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
+        taxes               = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0, 'base_amount': 0.0})
+        stock_expense       = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
+        stock_output        = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
+        for order in self.order_ids:
+            # 1. handle pos receivable
+            for payment in order.payment_ids:
+                if payment.payment_method_id.split_transactions:
+                    split_receivables[payment] = self._update_amounts(payment.amount, payment.payment_date, **split_receivables[payment])
+                else:
+                    key = payment.payment_method_id
+                    combine_receivables[key] = self._update_amounts(payment.amount, payment.payment_date, **combine_receivables[key])
+
+            if order.is_invoiced:
+                # 2. handle invoice receivable lines
+                key = order.partner_id.property_account_receivable_id.id
+                invoice_receivables[key] = self._update_amounts(order.amount_total, order.date_order, **invoice_receivables[key])
+            else:
+                for line in map(self._prepare_line, order.lines):
+                    # 3. handle sales/refund lines
+                    sale_key = (
+                        # account
+                        line['income_account_id'],
+                        # sign
+                        -1 if line['amount'] < 0 else 1,
+                        # for taxes
+                        tuple((tax['id'], tax['account_id'], tax['tax_repartition_line_id']) for tax in line['taxes']),
+                    )
+                    sales[sale_key] = self._update_amounts(line['amount'], line['date_order'], **sales[sale_key])
+                    # 4. handle tax lines
+                    for tax in line['taxes']:
+                        tax_key = (tax['account_id'], tax['tax_repartition_line_id'], tax['id'], tuple(tax['tag_ids']))
+                        taxes[tax_key] = self._update_tax_amounts(tax['amount'], tax['base'], tax['date_order'], **taxes[tax_key])
+                # 5. handle stock lines
+                stock_moves = self.env['stock.move'].search([
+                    ('picking_id', '=', order.picking_id.id),
+                    ('company_id.anglo_saxon_accounting', '=', True),
+                    ('product_id.categ_id.property_valuation', '=', 'real_time')
+                ])
+                for move in stock_moves:
+                    exp_key = move.product_id.property_account_expense_id or move.product_id.categ_id.property_account_expense_categ_id
+                    out_key = move.product_id.categ_id.property_stock_account_output_categ_id
+                    amount = -sum(move.stock_valuation_layer_ids.mapped('value'))
+                    stock_expense[exp_key] = self._update_amounts(amount, move.picking_id.date, **stock_expense[exp_key])
+                    stock_output[out_key] = self._update_amounts(amount, move.picking_id.date, **stock_output[out_key])
+
+        ## PART 2: Generate the vals for creating the accounting lines
+        split_receivable_vals = [self._create_split_receivable_val(key, **amounts) for key, amounts in split_receivables.items()]
+        combine_receivable_vals = [self._create_combine_receivable_val(key, **amounts) for key, amounts in combine_receivables.items()]
+        invoice_receivable_vals = [self._create_invoice_receivable_val(key, **amounts) for key, amounts in invoice_receivables.items()]
+        sale_vals = [self._create_sale_val(key, **amounts) for key, amounts in sales.items()]
+        tax_vals = [self._create_tax_val(key, **amounts) for key, amounts in taxes.items()]
+        stock_expense_vals = [self._create_stock_expense_val(key, **amounts) for key, amounts in stock_expense.items()]
+        stock_output_vals = [self._create_stock_output_val(key, **amounts) for key, amounts in stock_output.items()]
+        line_vals = (
+            split_receivable_vals
+            + combine_receivable_vals
+            + invoice_receivable_vals
+            + sale_vals
+            + tax_vals
+            + stock_expense_vals
+            + stock_output_vals
+        )
+
+        # PART 3: Quality check
+        # Check if all taxes lines have account_id assigned, if not, the repartition line probably has no account_id set.
+        tax_names_no_account = [line['name'] for line in tax_vals if line['account_id'] == False]
+        if len(tax_names_no_account) > 0:
+            error_message = _(
+                'Unable to close and validate the session.\n'
+                'Please set corresponding tax account in each repartition line of the following taxes: \n%s'
+            ) % ', '.join(tax_names_no_account)
+            raise UserError(error_message)
+
+        # Handle error
+        line_vals = line_vals + self._get_rounding_error_line_vals(line_vals)
+        # filter lines with zero balance
+        line_vals = [val for val in line_vals if not float_is_zero(val['credit'] - val['debit'], precision_rounding=self.currency_id.rounding)]
+        return self.env['account.move.line'].create(line_vals)
+
+    def _prepare_line(self, order_line):
+        def get_income_account(order_line):
+            product = order_line.product_id
+            income_account = product.property_account_income_id or product.categ_id.property_account_income_categ_id
+            if not income_account:
+                raise UserError(_('Please define income account for this product: "%s" (id:%d).')
+                                % (product.name, product.id))
+            return order_line.order_id.fiscal_position_id.map_account(income_account)
+
+        tax_ids = order_line.tax_ids_after_fiscal_position\
+                    .filtered(lambda t: t.company_id.id == order_line.order_id.company_id.id)
+        price = order_line.price_unit * (1 - (order_line.discount or 0.0) / 100.0)
+        taxes = tax_ids.compute_all(price_unit=price, quantity=order_line.qty, currency=self.currency_id).get('taxes', [])
+        date_order = order_line.order_id.date_order
+        taxes = [{'date_order': date_order, **tax} for tax in taxes]
+        return {
+            'date_order': order_line.order_id.date_order,
+            'income_account_id': get_income_account(order_line).id,
+            'amount': order_line.price_subtotal,
+            'taxes': taxes,
+        }
+
+    def _create_split_receivable_val(self, payment, amount, amount_converted):
+        partial_vals = {
+            'account_id': payment.payment_method_id.receivable_account_id.id,
+            'move_id': self.move_id.id,
+            'partner_id': self.env["res.partner"]._find_accounting_partner(payment.partner_id).id,
+            'name': '%s - %s' % (self.name, payment.payment_method_id.name),
+        }
+        return self._debit_amounts(partial_vals, amount, amount_converted)
+
+    def _create_combine_receivable_val(self, payment_method, amount, amount_converted):
+        partial_vals = {
+            'account_id': payment_method.receivable_account_id.id,
+            'move_id': self.move_id.id,
+            'name': '%s - %s' % (self.name, payment_method.name)
+        }
+        return self._debit_amounts(partial_vals, amount, amount_converted)
+
+    def _create_invoice_receivable_val(self, account_id, amount, amount_converted):
+        partial_vals = {'account_id': account_id, 'move_id': self.move_id.id, 'name': 'From invoiced orders'}
+        return self._credit_amounts(partial_vals, amount, amount_converted)
+
+    def _create_sale_val(self, key, amount, amount_converted):
+        account_id, sign, tax_keys = key
+        tax_ids = [tax[0] for tax in tax_keys]
+        applied_taxes = self.env['account.tax'].browse(tax_ids)
+        name = '' if not applied_taxes else '%s group: %s' % ('Sales' if sign == 1 else 'Refund', ', '.join([tax.name for tax in applied_taxes]))
+        base_tags = applied_taxes\
+            .mapped('invoice_repartition_line_ids' if sign == 1 else 'refund_repartition_line_ids')\
+            .filtered(lambda line: line.repartition_type == 'base')\
+            .tag_ids
+        partial_vals = {
+            'name': name,
+            'account_id': account_id,
+            'move_id': self.move_id.id,
+            'tax_ids': [(6, 0, tax_ids)],
+            'tag_ids': [(6, 0, base_tags.ids)],
+        }
+        return self._credit_amounts(partial_vals, amount, amount_converted)
+
+    def _create_tax_val(self, key, amount, amount_converted, base_amount):
+        account_id, repartition_line_id, tax_id, tag_ids = key
+        tax = self.env['account.tax'].browse(tax_id)
+        partial_args = {
+            'name': tax.name,
+            'account_id': account_id,
+            'move_id': self.move_id.id,
+            'tax_base_amount': base_amount,
+            'tax_repartition_line_id': repartition_line_id,
+            'tag_ids': [(6, 0, tag_ids)],
+        }
+        return self._credit_amounts(partial_args, amount, amount_converted)
+
+    def _create_stock_expense_val(self, exp_account, amount, amount_converted):
+        partial_args = {'account_id': exp_account.id, 'move_id': self.move_id.id}
+        return self._debit_amounts(partial_args, amount, amount_converted)
+
+    def _create_stock_output_val(self, out_account, amount, amount_converted):
+        partial_args = {'account_id': out_account.id, 'move_id': self.move_id.id}
+        return self._credit_amounts(partial_args, amount, amount_converted)
+
+    def _update_amounts(self, new_amount, date, amount, amount_converted):
+        return {
+            'amount': amount + new_amount,
+            'amount_converted': amount_converted if self.is_in_company_currency else (amount_converted + self._amount_converter(new_amount, date)),
+        }
+
+    def _update_tax_amounts(self, new_amount, new_base_amount, date, amount, amount_converted, base_amount):
+        return {
+            'amount': amount + new_amount,
+            'amount_converted': amount_converted if self.is_in_company_currency else (amount_converted + self._amount_converter(new_amount, date)),
+            'base_amount': base_amount + new_base_amount
+        }
 
     @api.model
     def reconcile_invoiced_receivable_lines(self):
@@ -390,18 +567,6 @@ class PosSession(models.Model):
                 .mapped('line_ids')\
                 .filtered(lambda line: line.account_id.id == out_account.id).reconcile()
 
-    def _create_account_move_lines(self):
-        invoiced_orders = self.order_ids.filtered(lambda order: order.is_invoiced)
-        uninvoiced_orders = self.order_ids - invoiced_orders
-        lines_vals = []
-        lines_vals.extend(self._get_pos_receivable_lines_vals())
-        lines_vals.extend(self._get_invoiced_receivable_lines_vals(invoiced_orders))
-        lines_vals.extend(self._get_sales_lines_vals(uninvoiced_orders.mapped('lines')))
-        lines_vals.extend(self._get_tax_lines_vals(uninvoiced_orders.mapped('lines')))
-        lines_vals.extend(self._get_anglo_saxon_lines_vals(uninvoiced_orders))
-        lines_vals.extend(self._get_rounding_error_line_vals(lines_vals))
-        return self.env['account.move.line'].create(lines_vals)
-
     def _validate_cash_statement(self, statement, statement_payments):
         """ Validates each statement of the given session then returns
             cash account.bank.statement.line records.
@@ -430,276 +595,7 @@ class PosSession(models.Model):
         statement_lines_args = [create_vals(pm) for pm in cash_payment_methods]
         return self.env['account.bank.statement.line'].create([args for args in statement_lines_args if args.get('amount')])
 
-    def _get_invoiced_receivable_lines_vals(self, invoiced_orders):
-        """ Generate receivable lines counterpart of the receivable lines of the invoiced orders.
-
-        Receivable lines groups are based on property_account_receivable_id of the pos.order.partner_id.
-        These receivable lines are automatically reconciled with the invoiced receivable lines.
-        """
-        if len(invoiced_orders) == 0:
-            return []
-
-        def generate_vals(account_id, amount, amount_converted):
-            partial_vals = {'account_id': account_id, 'move_id': self.move_id.id, 'name': 'From invoiced orders'}
-            return self._credit_amounts(partial_vals, amount, amount_converted)
-
-        def compute_total_amounts(orders):
-            # Use `amount_total` (w/c includes tax) field since this will be
-            # reconciled with receivable item in an invoice move which counts taxes.
-            total_amount = sum(order.amount_total for order in orders)
-            total_amount_converted = (not self.is_in_company_currency) and sum(
-                self._amount_converter(order.amount_total, order.date_order) for order in orders
-            )
-            return total_amount, total_amount_converted
-
-        grouped_invoiced_orders = groupby(invoiced_orders, key=lambda order: order.partner_id.property_account_receivable_id.id)
-        account_amounts = [(account_id, compute_total_amounts(orders)) for account_id, orders in grouped_invoiced_orders]
-        return [generate_vals(account_id, *amounts) for account_id, amounts in account_amounts]
-
-    def _get_pos_receivable_lines_vals(self):
-        """ Generate pos receivable line vals for the move_id of this session.
-
-        The lines are based on all the payments. Payments from payment methods
-        that are not flagged with 'split_transactions' are combined based on
-        the payment method. Each 'split_transactions' payment has its own
-        receivable line.
-
-        Cash payments are received immediately thus the cash receivable lines
-        are automatically reconciled with the journal entries of the cash statements.
-        Receivable lines from other payment methods requires manual reconciliation.
-        """
-        payments = self.order_ids.mapped('payment_ids')
-        if not payments:
-            return []
-
-        split_payment_methods = self.payment_method_ids.filtered(lambda pm: pm.split_transactions)
-        combine_payment_methods = self.payment_method_ids - split_payment_methods
-        split_pm_payments = payments.filtered(lambda payment: payment.payment_method_id <= split_payment_methods)
-        combine_pm_payments = payments.filtered(lambda payment: payment.payment_method_id <= combine_payment_methods)
-
-        return (self._receivable_lines_from_split_pm(split_pm_payments)
-                + self._receivable_lines_from_combine_pm(combine_payment_methods, combine_pm_payments))
-
-    def _receivable_lines_from_combine_pm(self, combine_payment_methods, combine_payments):
-        if not combine_payments:
-            return []
-
-        def generate_vals(pm, amount, amount_converted):
-            partial_vals = {
-                'account_id': pm.receivable_account_id.id,
-                'move_id': self.move_id.id,
-                'name': '%s - %s' % (self.name, pm.name)
-            }
-            return self._debit_amounts(partial_vals, amount, amount_converted)
-
-        def compute_amount_sum(payments):
-            if not payments:
-                return (0.0, 0.0)
-            amount = sum(payments.mapped('amount'))
-            amount_converted = (not self.is_in_company_currency) and sum(
-                self._amount_converter(payment.amount, payment.payment_date) for payment in payments
-            )
-            return amount, amount_converted
-
-        # Total amount grouped by payment method
-        grouped_total_amount = [(pm, *compute_amount_sum(combine_payments.filtered(lambda p: p.payment_method_id == pm))) for pm in combine_payment_methods]
-        return [
-            generate_vals(pm, amount, amount_converted)
-                for pm, amount, amount_converted in grouped_total_amount
-                if not float_is_zero(amount, precision_rounding=self.currency_id.rounding)
-        ]
-
-    def _receivable_lines_from_split_pm(self, split_payments):
-        if not split_payments:
-            return []
-
-        def generate_vals(payment):
-            amount_converted = (not self.is_in_company_currency) and self._amount_converter(payment.amount, payment.payment_date)
-            partial_vals = {
-                'account_id': payment.payment_method_id.receivable_account_id.id,
-                'move_id': self.move_id.id,
-                'partner_id': self.env["res.partner"]._find_accounting_partner(payment.partner_id).id,
-                'name': '%s - %s' % (self.name, payment.payment_method_id.name),
-            }
-            return self._debit_amounts(partial_vals, payment.amount, amount_converted)
-
-        return [generate_vals(payment) for payment in split_payments]
-
-    def _get_sales_lines_vals(self, uninvoiced_lines):
-        """ Generate vals for sales lines for the move_id of this session.
-
-        It is only based on the uninvoiced orders because invoiced orders
-        already have journal entries.
-
-        Groups of sales lines are based on income accounts and taxes in the order lines.
-        """
-        if not uninvoiced_lines:
-            return []
-
-        def get_income_account(order_line):
-            product = order_line.product_id
-            income_account = product.property_account_income_id or product.categ_id.property_account_income_categ_id
-            if not income_account:
-                raise UserError(_('Please define income account for this product: "%s" (id:%d).')
-                                % (product.name, product.id))
-            return order_line.order_id.fiscal_position_id.map_account(income_account)
-
-        def generate_vals(key, order_line_group):
-            account_id, sign, tax_keys = key
-            tax_ids = [tax[0] for tax in tax_keys]
-            applied_taxes = self.env['account.tax'].browse(tax_ids)
-            name = '' if not applied_taxes else '%s group: %s' % ('Sales' if sign == 1 else 'Refund', ', '.join([tax.name for tax in applied_taxes]))
-            amount = sum(line['amount'] for line in order_line_group)
-            amount_converted = (not self.is_in_company_currency) and sum(
-                self._amount_converter(line['amount'], line['date_order'])
-                for line in order_line_group
-            )
-            base_tags = applied_taxes\
-                .mapped('invoice_repartition_line_ids' if sign == 1 else 'refund_repartition_line_ids')\
-                .filtered(lambda line: line.repartition_type == 'base')\
-                .tag_ids
-            partial_vals = {
-                'name': name,
-                'account_id': account_id,
-                'move_id': self.move_id.id,
-                'tax_ids': [(6, 0, tax_ids)],
-                'tag_ids': [(6, 0, base_tags.ids)],
-            }
-            return self._credit_amounts(partial_vals, amount, amount_converted)
-
-        def prepare_line(order_line):
-            tax_ids = order_line.tax_ids_after_fiscal_position\
-                        .filtered(lambda t: t.company_id.id == order_line.order_id.company_id.id)
-            price = order_line.price_unit * (1 - (order_line.discount or 0.0) / 100.0)
-            taxes = tax_ids.compute_all(price_unit=price, quantity=order_line.qty, currency=self.currency_id).get('taxes', [])
-            date_order = order_line.order_id.date_order
-            taxes = [{'date_order': date_order, **tax} for tax in taxes]
-            return {
-                'date_order': order_line.order_id.date_order,
-                'income_account_id': get_income_account(order_line).id,
-                'amount': order_line.price_subtotal,
-                'taxes': taxes,
-            }
-
-        def group_key(line):
-            return (
-                line['income_account_id'],
-                -1 if line['amount'] < 0 else 1,
-                tuple(
-                    (tax['id'], tax['account_id'], tax['tax_repartition_line_id'])
-                    for tax in line['taxes']
-                )
-            )
-
-        grouped_order_lines = groupby(map(prepare_line, uninvoiced_lines), key=group_key)
-        return [generate_vals(key, order_line_group) for key, order_line_group in grouped_order_lines]
-
-    def _get_tax_lines_vals(self, uninvoiced_lines):
-        """ Generate the tax lines of the move_id of this session.
-
-        Grouping of tax lines is based on tax, tax account and tax repartition line.
-        """
-        if not uninvoiced_lines:
-            return []
-
-        session_currency = self.currency_id
-
-        def generate_vals(account_id, repartition_line_id, tax_id, tag_ids, amount, amount_converted, base_amount):
-            tax = self.env['account.tax'].browse(tax_id)
-            partial_args = {
-                'name': tax.name,
-                'account_id': account_id,
-                'move_id': self.move_id.id,
-                'tax_base_amount': base_amount,
-                'tax_repartition_line_id': repartition_line_id,
-                'tag_ids': [(6, 0, tag_ids)],
-            }
-            return self._credit_amounts(partial_args, amount, amount_converted)
-
-        def compute_tax(order_line):
-            tax_ids = order_line.tax_ids_after_fiscal_position\
-                        .filtered(lambda t: t.company_id.id == order_line.order_id.company_id.id)
-            price = order_line.price_unit * (1 - (order_line.discount or 0.0) / 100.0)
-            taxes = tax_ids.compute_all(price_unit=price, quantity=order_line.qty, currency=session_currency, is_refund=sign(order_line.qty)==-1).get('taxes', [])
-            # add the date_order field in each tax calculation result for currency conversion
-            # date_order is needed in the conversion of currency
-            return [{'date_order': order_line.order_id.date_order, **tax} for tax in taxes]
-
-        def compute_total_amounts(taxes):
-            total_amount = sum(tax['amount'] for tax in taxes)
-            total_amount_converted = (
-                0.0
-                if self.is_in_company_currency
-                else sum(self._amount_converter(tax['amount'], tax['date_order']) for tax in taxes)
-            )
-            tax_base_amount = sum(tax['base'] for tax in taxes)
-            return total_amount, total_amount_converted, tax_base_amount
-
-        line_taxes = [compute_tax(line) for line in uninvoiced_lines]
-
-        # combine list of taxes into a single list
-        # e.g. [[tax_a1, tax_a3], [tax_b2], [], [tax_c1, tax_c2, tax_c3]]
-        #      -> [tax_a1, tax_a3, tax_b2, tax_c1, tax_c2, tax_c3]
-        flat_line_taxes = chain.from_iterable(line_taxes)
-
-        # group the taxes by account_id and tax id
-        grouped_line_taxes = groupby(flat_line_taxes, key=lambda tax: (tax['account_id'], tax['tax_repartition_line_id'], tax['id'], tuple(tax['tag_ids'])))
-        account_tax_amounts = ((account_id, repartition_line_id, tax_id, tag_ids, *compute_total_amounts(taxes)) for (account_id, repartition_line_id, tax_id, tag_ids), taxes in grouped_line_taxes)
-        lines_vals = [generate_vals(*values) for values in account_tax_amounts]
-
-        # quality check before returning the line vals
-        # check if all taxes lines have account_id assigned, if not, the repartition line probably has no account_id set.
-        tax_names_no_account = [line['name'] for line in lines_vals if line['account_id'] == False]
-        if len(tax_names_no_account) > 0:
-            error_message = _(
-                'Unable to close and validate the session.\n'
-                'Please set corresponding tax account in each repartition line of the following taxes: \n%s'
-            ) % ', '.join(tax_names_no_account)
-            raise UserError(error_message)
-
-        return lines_vals
-
-    def _get_anglo_saxon_lines_vals(self, uninvoiced_orders):
-        """ Generate anglo saxon line vals for the uninvoiced orders.
-
-        Anglo saxon journal items are already available in the account_move
-        of the invoiced orders.
-
-        Grouping of the lines is based on the products stock output accounts.
-        """
-        if len(uninvoiced_orders) == 0:
-            return []
-
-        def generate_vals(method, account, amount, amount_converted):
-            partial_args = {'account_id': account.id, 'move_id': self.move_id.id}
-            return getattr(self, method)(partial_args, amount, amount_converted)
-
-        StockMove = self.env['stock.move']
-        moves = StockMove\
-            .search([('picking_id', 'in', uninvoiced_orders.picking_id.ids)])\
-            .filtered(lambda m: m.company_id.anglo_saxon_accounting)
-        # group amounts by expense and output accounts
-        credit_amounts = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
-        debit_amounts = defaultdict(lambda: {'amount': 0.0, 'amount_converted': 0.0})
-        for move in moves.filtered(lambda m: m.product_id.categ_id.property_valuation == 'real_time'):
-            exp_account = move.product_id.property_account_expense_id or move.product_id.categ_id.property_account_expense_categ_id
-            out_account = move.product_id.categ_id.property_stock_account_output_categ_id
-            # stock.move.value is recalculated after negative stock, but not the price_unit.
-            # Also, stock.move.value is negative when the product goes out of the stock (e.g. sales),
-            # so it is appropriate to revert the sign.
-            amount = -sum(move.stock_valuation_layer_ids.mapped('value'))
-            debit_amounts[exp_account]['amount'] += amount
-            credit_amounts[out_account]['amount'] += amount
-            if not self.is_in_company_currency:
-                amount_converted = self._amount_converter(amount, move.picking_id.date)
-                debit_amounts[exp_account]['amount_converted'] += amount_converted
-                credit_amounts[out_account]['amount_converted'] += amount_converted
-
-        credit_lines = [generate_vals('_credit_amounts', account, **amounts) for account, amounts in credit_amounts.items()]
-        debit_lines = [generate_vals('_debit_amounts', account, **amounts) for account, amounts in debit_amounts.items()]
-        return credit_lines + debit_lines
-
-    def _get_rounding_error_line_vals(self, line_args):
+    def _get_rounding_error_line_vals(self, line_vals):
         """ Generate the line for imbalanced lines in this session's move_id.
 
         NOTE Decision on how to tackle rounding error is not very easy.
@@ -713,7 +609,7 @@ class PosSession(models.Model):
           2. Multiple payments in one order at different currency from company.
         """
         undistributed_account = self.env['account.account'].search([('code', '=', '999999')])
-        diff = sum(map(lambda line: line['debit'], line_args)) - sum(map(lambda line: line['credit'], line_args))
+        diff = sum(map(lambda line: line['debit'], line_vals)) - sum(map(lambda line: line['credit'], line_vals))
         if float_is_zero(diff, precision_rounding=self.currency_id.rounding):
             return []
         counter_amount = -self.currency_id.round(diff)
