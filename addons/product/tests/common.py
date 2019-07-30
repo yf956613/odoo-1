@@ -14,6 +14,10 @@ class TestProductCommon(common.SavepointCase):
             'name': 'Julia Agrolait',
             'email': 'julia@agrolait.example.com',
         })
+        cls.partner_2 = cls.env['res.partner'].create({
+            'name': 'camptocamp',
+            'email': 'camptocamp@camptocamp.com',
+        })
 
         # Product environment related data
         Uom = cls.env['uom.uom']
@@ -30,6 +34,11 @@ class TestProductCommon(common.SavepointCase):
         Product = cls.env['product.product']
         cls.product_0 = Product.create({
             'name': 'Work',
+            'type': 'service',
+            'uom_id': cls.uom_unit.id,
+            'uom_po_id': cls.uom_unit.id})
+        cls.product_02 = Product.create({
+            'name': 'Service',
             'type': 'service',
             'uom_id': cls.uom_unit.id,
             'uom_po_id': cls.uom_unit.id})
