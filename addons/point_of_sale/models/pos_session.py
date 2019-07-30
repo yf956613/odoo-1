@@ -78,9 +78,12 @@ class PosSession(models.Model):
         readonly=True)
     cash_register_difference = fields.Monetary(
         compute='_compute_cash_balance',
-        string='Difference',
+        string='Before Closing Difference',
         help="Difference between the theoretical closing balance and the real closing balance.",
         readonly=True)
+    cash_real_difference = fields.Monetary(string='Difference', readonly=True)
+    cash_real_transaction = fields.Monetary(string='Transaction', readonly=True)
+    cash_real_expected = fields.Monetary(string="Expected", readonly=True)
 
     order_ids = fields.One2many('pos.order', 'session_id',  string='Orders')
     order_count = fields.Integer(compute='_compute_order_count')
@@ -274,6 +277,8 @@ class PosSession(models.Model):
 
     def _validate_session(self):
         self.ensure_one()
+        self.cash_real_transaction = self.cash_register_total_entry_encoding
+        self.cash_real_expected = self.cash_register_balance_end
         self._check_if_no_draft_orders()
         self._create_account_move()
         if self.move_id.line_ids:
@@ -480,6 +485,8 @@ class PosSession(models.Model):
             stock_output_vals[output_account].append(self._get_stock_output_vals(output_account, amounts['amount'], amounts['amount_converted']))
         for output_account, vals in stock_output_vals.items():
             stock_output_lines[output_account] = MoveLine.create(vals)
+
+        self.cash_real_difference = self.statement_ids.difference
 
         ## SECTION: Reconcile account move lines
         # reconcile cash receivable lines
