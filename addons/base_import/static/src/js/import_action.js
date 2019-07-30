@@ -373,7 +373,7 @@ var DataImport = AbstractAction.extend({
         this.$form.addClass('oe_import_preview');
         this.$('input.oe_import_advanced_mode').prop('checked', result.advanced_mode);
         this.$('.oe_import_grid').html(QWeb.render('ImportView.preview', result));
-        this.$('.o_import_header_name.o_text_ellipsis, .o_import_header_name.o_text_multiline_ellipsis').css({"max-width": screen.width*0.2});
+        this.$('.o_text_ellipsis,.o_text_multiline_ellipsis').css({"max-width": screen.width*0.2});
         if (result.headers.length === 1) {
             this.$('.oe_import_options').show();
             this.onresults(null, null, null, {'messages': [{

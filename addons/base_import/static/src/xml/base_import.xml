@@ -71,7 +71,7 @@
                 <div class="table-responsive">
                     <table class="table-striped table-bordered oe_import_grid bg-white" />
                 </div>
-                <h2>This is a preview of the first 10 rows of your file</h2>
+                <h6 class="oe_padding">This is a preview of the first 10 rows of your file</h6>
             </div>
             <div class="o_view_nocontent">
                 <div class="o_nocontent_help">
@@ -126,7 +126,7 @@
         <tbody>
             <tr t-foreach="preview" t-as="row" class="oe_import_grid-row">
                 <td t-foreach="row" t-as="cell" class="oe_import_grid-cell">
-                    <span t-attf-class="o_import_header_name #{cell.indexOf(' ') &gt; 0 ? 'o_text_multiline_ellipsis' : 'o_text_ellipsis'}" >
+                    <span t-attf-class="#{cell.indexOf(' ') &gt; 0 ? 'o_text_multiline_ellipsis' : 'o_text_ellipsis'}" >
                         <t t-esc="cell"/>
                     </span>
                 </td>
