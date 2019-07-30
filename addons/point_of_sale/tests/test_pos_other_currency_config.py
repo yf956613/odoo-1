@@ -72,13 +72,13 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # close the session
-        self.session.action_pos_session_validate()
-        session_move = self.session.move_id
+        self.pos_session.action_pos_session_validate()
+        session_move = self.pos_session.move_id
 
         sale_account_line = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sale_account_line.balance, -1119.6)
@@ -144,13 +144,13 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # close the session
-        self.session.action_pos_session_validate()
-        session_move = self.session.move_id
+        self.pos_session.action_pos_session_validate()
+        session_move = self.pos_session.move_id
 
         sale_account_line = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sale_account_line.balance, -659.8)

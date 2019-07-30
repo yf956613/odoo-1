@@ -36,15 +36,15 @@ class TestPoSBasicConfig(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        account_move = self.session.move_id
+        account_move = self.pos_session.move_id
 
         sales_line = account_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sales_line.balance, -orders_total, msg='Sales line balance should be equal to total orders amount.')
@@ -88,22 +88,22 @@ class TestPoSBasicConfig(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # check account move in the invoiced order
-        invoiced_order = self.session.order_ids.filtered(lambda order: order.account_move)
+        invoiced_order = self.pos_session.order_ids.filtered(lambda order: order.account_move)
         self.assertEqual(1, len(invoiced_order), 'Only one order is invoiced in this test.')
         invoice = invoiced_order.account_move
         self.assertAlmostEqual(invoice.amount_total, 130, msg='Amount total should be 130. Product is untaxed.')
         invoice_receivable_line = invoice.line_ids.filtered(lambda line: line.account_id == self.receivable_account)
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         sales_line = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sales_line.balance, -(orders_total - invoice.amount_total), msg='Sales line should be total order minus invoiced order.')
@@ -152,14 +152,14 @@ class TestPoSBasicConfig(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(2, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(2, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # return order
-        order_to_return = self.session.order_ids.filtered(lambda order: '12345-123-1234' in order.pos_reference)
+        order_to_return = self.pos_session.order_ids.filtered(lambda order: '12345-123-1234' in order.pos_reference)
         order_to_return.refund()
-        refund_order = self.session.order_ids.filtered(lambda order: order.state == 'draft')
+        refund_order = self.pos_session.order_ids.filtered(lambda order: order.state == 'draft')
 
         # check if amount to pay
         self.assertAlmostEqual(refund_order.amount_to_pay, -100)
@@ -175,10 +175,10 @@ class TestPoSBasicConfig(TestPoSCommon):
         self.assertAlmostEqual(refund_order.amount_paid, -100.0, msg='Amount paid for return order should be negative.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         sale_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(len(sale_lines), 2, 'There should be lines for both sales and refund.')
@@ -234,7 +234,7 @@ class TestPoSBasicConfig(TestPoSCommon):
         )
 
         # picking and stock moves should be in done state
-        for order in self.session.order_ids:
+        for order in self.pos_session.order_ids:
             self.assertEqual(
                 order.picking_id.state,
                 'done',
@@ -246,3 +246,42 @@ class TestPoSBasicConfig(TestPoSCommon):
                 ['done'] * len(move_lines),
                 'Move Lines should be in done state.'
             )
+
+    def test_split_cash_payments(self):
+        self.open_new_session()
+        self.cash_pm.write({'split_transactions': True})
+
+        # create orders
+        orders = []
+        orders.append(self.create_ui_order_data(
+            [(self.product1, 10), (self.product2, 5)],
+            payments=[(self.cash_pm, 100), (self.bank_pm, 100)]
+        ))
+        orders.append(self.create_ui_order_data(
+            [(self.product2, 7), (self.product3, 1)],
+            payments=[(self.cash_pm, 70), (self.bank_pm, 100)]
+        ))
+        orders.append(self.create_ui_order_data(
+            [(self.product1, 1), (self.product3, 5), (self.product2, 3)],
+            payments=[(self.cash_pm, 120), (self.bank_pm, 100)]
+        ))
+
+        # sync orders
+        order = self.env['pos.order'].create_from_ui(orders)
+
+        # close the session
+        self.pos_session.action_pos_session_validate()
+
+        # check values after the session is closed
+        account_move = self.pos_session.move_id
+
+        bank_receivable_lines = account_move.line_ids.filtered(lambda line: self.bank_pm.name in line.name)
+        self.assertEqual(len(bank_receivable_lines), 1, msg='Bank receivable lines should only have one line because it\'s supposed to be combined.')
+        self.assertAlmostEqual(bank_receivable_lines.balance, 300.0, msg='Bank receivable should be equal to the total bank payments.')
+
+        cash_receivable_lines = account_move.line_ids.filtered(lambda line: self.cash_pm.name in line.name)
+        self.assertEqual(len(cash_receivable_lines), 3, msg='There should be a number of cash receivable lines because the cash pm is `split_transactions`.')
+        self.assertAlmostEqual(sum(cash_receivable_lines.mapped('balance')), 290, msg='Cash receivable should be equal to the total cash payments.')
+
+        for line in cash_receivable_lines:
+            self.assertTrue(line.full_reconcile_id, msg='Each cash receivable line should be fully-reconciled.')

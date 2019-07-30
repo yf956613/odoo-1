@@ -4,8 +4,6 @@ from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 @odoo.tests.tagged('post_install', '-at_install')
 class TestPoSProductsWithTax(TestPoSCommon):
     """ Test normal configuration PoS selling products with tax
-
-    TODO jcb: check in tax_lines if important values such as base_amount and tax_line_id are properly set.
     """
 
     def setUp(self):
@@ -77,15 +75,15 @@ class TestPoSProductsWithTax(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, 'Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, 'Total order amount should be equal to the total payment amount.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         sales_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sum(sales_lines.mapped('balance')), -628.18, msg='Sales line balance should be equal to untaxed orders amount.')
@@ -96,11 +94,15 @@ class TestPoSProductsWithTax(TestPoSCommon):
         receivable_line_cash = session_move.line_ids.filtered(lambda line: self.cash_pm.name in line.name)
         self.assertAlmostEqual(receivable_line_cash.balance, 474.64, msg='Cash receivable should be equal to the total cash payments.')
 
-        manually_calculated_taxes = (-24.89, -51.82)
         tax_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.tax_received_account)
+
+        manually_calculated_taxes = (-24.89, -51.82)
         self.assertAlmostEqual(sum(manually_calculated_taxes), sum(tax_lines.mapped('balance')))
         for t1, t2 in zip(sorted(manually_calculated_taxes), sorted(tax_lines.mapped('balance'))):
             self.assertAlmostEqual(t1, t2, msg='Taxes should be correctly combined.')
+
+        base_amounts = (355.45, 518.18)
+        self.assertAlmostEqual(sum(base_amounts), sum(tax_lines.mapped('tax_base_amount')))
 
         self.assertTrue(receivable_line_cash.full_reconcile_id, 'Cash receivable line should be fully-reconciled.')
 
@@ -161,21 +163,21 @@ class TestPoSProductsWithTax(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # check account move in the invoiced order
-        invoiced_order = self.session.order_ids.filtered(lambda order: '09876-098-0987' in order.pos_reference)
+        invoiced_order = self.pos_session.order_ids.filtered(lambda order: '09876-098-0987' in order.pos_reference)
         self.assertEqual(1, len(invoiced_order), 'Only one order is invoiced in this test.')
         invoice = invoiced_order.account_move
         self.assertAlmostEqual(invoice.amount_total, 426.09)
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         # check sales line
         # should not include tax amounts
@@ -203,11 +205,15 @@ class TestPoSProductsWithTax(TestPoSCommon):
         receivable_line = session_move.line_ids.filtered(lambda line: line.account_id == self.receivable_account)
         self.assertAlmostEqual(receivable_line.balance, -invoice.amount_total)
 
-        manually_calculated_taxes = (-6.81, -44.54)
         tax_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.tax_received_account)
+
+        manually_calculated_taxes = (-6.81, -44.54)
         self.assertAlmostEqual(sum(manually_calculated_taxes), sum(tax_lines.mapped('balance')))
         for t1, t2 in zip(sorted(manually_calculated_taxes), sorted(tax_lines.mapped('balance'))):
             self.assertAlmostEqual(t1, t2, msg='Taxes should be correctly combined.')
+
+        base_amounts = (97.27, 445.46)  # computation does not include invoiced order.
+        self.assertAlmostEqual(sum(base_amounts), sum(tax_lines.mapped('tax_base_amount')))
 
     def test_return_order(self):
         """ Test return order
@@ -215,7 +221,7 @@ class TestPoSProductsWithTax(TestPoSCommon):
         1. 1 order
         2. return order with the same payment method
 
-        Order
+        Order (invoiced)
         ======
                 product   qty    untaxed    tax                     total
                 product1  3      30         2.1                     32.1
@@ -240,15 +246,15 @@ class TestPoSProductsWithTax(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(1, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(1, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # return order
-        order_to_return = self.session.order_ids.filtered(lambda order: '12345-123-1234' in order.pos_reference)
+        order_to_return = self.pos_session.order_ids.filtered(lambda order: '12345-123-1234' in order.pos_reference)
         order_to_return.refund()
 
-        refund_order = self.session.order_ids.filtered(lambda order: order.state == 'draft')
+        refund_order = self.pos_session.order_ids.filtered(lambda order: order.state == 'draft')
         context_make_payment = {"active_ids": [refund_order.id], "active_id": refund_order.id}
         make_payment = self.env['pos.make.payment'].with_context(context_make_payment).create({
             'payment_method_id': self.cash_pm.id,
@@ -259,20 +265,20 @@ class TestPoSProductsWithTax(TestPoSCommon):
         self.assertAlmostEqual(refund_order.amount_paid, -104.01, msg='Amount paid for return order should be negative.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         # instead of credit, the sales line should be debit
         sales_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sum(sales_lines.mapped('balance')), 93.63)
 
         receivable_line_bank = session_move.line_ids.filtered(lambda line: self.bank_pm.name in line.name)
-        self.assertFalse(receivable_line_bank, msg='There should be no bank receivable line.')
+        self.assertFalse(receivable_line_bank, msg='There should be no bank receivable line because no bank payment made.')
 
         receivable_line_cash = session_move.line_ids.filtered(lambda line: self.cash_pm.name in line.name)
-        self.assertFalse(receivable_line_cash, msg='There should be no cash receivable line.')
+        self.assertFalse(receivable_line_cash, msg='There should be no cash receivable line because it is combined with the original cash payment.')
 
         manually_calculated_taxes = (4.01, 6.37)  # should be positive since it is return order
         tax_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.tax_received_account)
@@ -325,7 +331,7 @@ class TestPoSProductsWithTax(TestPoSCommon):
         )
 
         # picking and stock moves should be in done state
-        for order in self.session.order_ids:
+        for order in self.pos_session.order_ids:
             self.assertEqual(
                 order.picking_id.state,
                 'done',

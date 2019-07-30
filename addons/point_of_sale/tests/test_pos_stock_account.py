@@ -1,7 +1,7 @@
 import odoo
 from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 
-@odoo.tests.tagged('post_install', '-at_install', 'jcb_test')
+@odoo.tests.tagged('post_install', '-at_install')
 class TestPoSStock(TestPoSCommon):
     """ Tests for anglo saxon accounting scenario.
     """
@@ -72,9 +72,9 @@ class TestPoSStock(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
         self.assertAlmostEqual(orders_total, 1010.0, msg='The orders\'s total amount should equal the computed.')
 
         # check product qty_available after syncing the order
@@ -83,15 +83,15 @@ class TestPoSStock(TestPoSCommon):
         self.assertEqual(self.product3.qty_available, 12)
 
         # picking and stock moves should be in done state
-        for order in self.session.order_ids:
+        for order in self.pos_session.order_ids:
             self.assertEqual(order.picking_id.state, 'done', 'Picking should be in done state.')
             self.assertTrue(all(state == 'done' for state in order.picking_id.move_lines.mapped('state')), 'Move Lines should be in done state.' )
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        account_move = self.session.move_id
+        account_move = self.pos_session.move_id
 
         sales_line = account_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sales_line.balance, -orders_total, msg='Sales line balance should be equal to total orders amount.')
@@ -113,19 +113,7 @@ class TestPoSStock(TestPoSCommon):
 
         Orders
         ======
-            product     qty  total price  total cost
-        order 1
-            product1    10   100.0        50.0 (5.0*10)         -> 10 items at cost of 5.0 is consumed, remains 5 items at 6.0 and 10 items at 13.0
-            product2    10   200.0        100.0 (10.0*10)       -> 10 items at cost of 10.0 is consumed, remains 5 items at 6.0 and 10 items at 13.0
-
-        order 2
-            product2    7    140.0        56.0 (6.0*5+13.0*2)   -> 5 items at cost of 6.0 and 2 items at cost of 13.0, remains 8 items at cost of 13.0
-            product3    7    210.0        0.0 (not anglo)
-
-        order 3 (invoiced)
-            product1    6    60.0         43.0 (6.0*5+13.0*1)   -> 5 items at cost of 6.0 and 1 item at cost of 13.0, remains 9 items at cost of 13.0
-            product2    6    120.0        78.0 (13.0*6)         -> 6 items at cost of 13.0, remains 2 items at cost of 13.0
-            product3    6    180.0        0.0 (not anglo)
+        Same with test_01 but order 3 is invoiced.
 
         Result
         ======
@@ -157,9 +145,9 @@ class TestPoSStock(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
         self.assertAlmostEqual(orders_total, 1010.0, msg='The orders\'s total amount should equal the computed.')
 
         # check product qty_available after syncing the order
@@ -168,15 +156,15 @@ class TestPoSStock(TestPoSCommon):
         self.assertEqual(self.product3.qty_available, 12)
 
         # picking and stock moves should be in done state
-        for order in self.session.order_ids:
+        for order in self.pos_session.order_ids:
             self.assertEqual(order.picking_id.state, 'done', 'Picking should be in done state.')
             self.assertTrue(all(state == 'done' for state in order.picking_id.move_lines.mapped('state')), 'Move Lines should be in done state.' )
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        account_move = self.session.move_id
+        account_move = self.pos_session.move_id
 
         sales_line = account_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         self.assertAlmostEqual(sales_line.balance, -650.0)
@@ -194,7 +182,7 @@ class TestPoSStock(TestPoSCommon):
         self.assertAlmostEqual(output_line.balance, -206.0)
 
         # check order journal entry
-        invoiced_order = self.session.order_ids.filtered(lambda order: invoiced_uid in order.pos_reference)
+        invoiced_order = self.pos_session.order_ids.filtered(lambda order: invoiced_uid in order.pos_reference)
         invoiced_output_account_lines = invoiced_order.account_move.line_ids.filtered(lambda line: line.account_id == self.output_account)
         self.assertAlmostEqual(sum(invoiced_output_account_lines.mapped('balance')), -121.0)
 

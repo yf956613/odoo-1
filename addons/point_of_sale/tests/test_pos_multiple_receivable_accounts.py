@@ -37,35 +37,47 @@ class TestPoSMultipleReceivableAccounts(TestPoSCommon):
         """
         Orders
         ======
-                product     qty     untaxed     tax                             total
-        order 1 (paid by cash)
-                product1    10      109.9       7.69 [7%]                       117.59
-                product2    10      181.73      18.17 [10%]                     199.9
-                product3    10      281.73      19.72 [7%] + 28.17 [10%]        329.62
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        | order   | payments | invoiced? | product  | qty | untaxed | tax                      | total  |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        | order 1 | cash     | no        | product1 | 10  | 109.9   | 7.69 [7%]                | 117.59 |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        |         |          |           | product2 | 10  | 181.73  | 18.17 [10%]              | 199.9  |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        |         |          |           | product3 | 10  | 281.73  | 19.72 [7%] + 28.17 [10%] | 329.62 |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        | order 2 | bank     | no        | product1 | 5   | 54.95   | 3.85 [7%]                | 58.80  |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        |         |          |           | product2 | 5   | 90.86   | 9.09 [10%]               | 99.95  |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        | order 3 | bank     | yes       | product2 | 5   | 90.86   | 9.09 [10%]               | 99.95  |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
+        |         |          |           | product3 | 5   | 140.86  | 9.86 [7%] + 14.09 [10%]  | 164.81 |
+        +---------+----------+-----------+----------+-----+---------+--------------------------+--------+
 
-        order 2 (paid by bank)
-                product1    5       54.95       3.85 [7%]                       58.80
-                product2    5       90.86       9.09 [10%]                      99.95
-
-        order 3 (paid by bank, invoiced: other customer)
-                product2    5       90.86       9.09 [10%]                      99.95
-                product3    5       140.86      9.86 [7%] + 14.09 [10%]         164.81
-
-        Result
+        Expected Result
         ======
-
-        account                 balance
-        --
-        sale_account            -164.85     (for the 7% base amount)
-        sale_account            -281.73     (for the 7+10% base amount)
-        other_sale_account      -272.59
-        tax 7%                   -31.26
-        tax 10%                  -55.43
-        pos receivable cash      647.11
-        pos receivable bank      423.51
-        other receivable        -264.76
-        --
-        Total balance              0.00
+        +---------------------+---------+
+        | account             | balance |
+        +---------------------+---------+
+        | sale_account        | -164.85 |
+        +---------------------+---------+
+        | sale_account        | -281.73 |
+        +---------------------+---------+
+        | other_sale_account  | -272.59 |
+        +---------------------+---------+
+        | tax 7%              |  -31.26 |
+        +---------------------+---------+
+        | tax 10%             |  -55.43 |
+        +---------------------+---------+
+        | pos receivable cash |  647.11 |
+        +---------------------+---------+
+        | pos receivable bank |  423.51 |
+        +---------------------+---------+
+        | other receivable    | -264.76 |
+        +---------------------+---------+
+        | Total balance       |    0.00 |
+        +---------------------+---------+
         """
         self.open_new_session()
 
@@ -88,17 +100,17 @@ class TestPoSMultipleReceivableAccounts(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # check if there is one invoiced order
-        self.assertEqual(len(self.session.order_ids.filtered(lambda order: order.state == 'invoiced')), 1, 'There should only be one invoiced order.')
+        self.assertEqual(len(self.pos_session.order_ids.filtered(lambda order: order.state == 'invoiced')), 1, 'There should only be one invoiced order.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
         # There should be no line corresponding the original receivable account
         # But there should be a line for other_receivable_account because
         # that is the property_account_receivable_id of the customer
@@ -112,31 +124,39 @@ class TestPoSMultipleReceivableAccounts(TestPoSCommon):
         """
         Orders
         ======
-                product     qty     untaxed     tax                             total
-        order 1 (paid by cash, invoiced: other customer)
-                product1    10      109.9       7.69 [7%]                       117.59
-                product2    10      181.73      18.17 [10%]                     199.9
-                product3    10      281.73      19.72 [7%] + 28.17 [10%]        329.62
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        | order   | payments | invoiced?           | product  | qty | untaxed | tax                      |  total |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        | order 1 | cash     | yes, other_customer | product1 |  10 |  109.90 | 7.69 [7%]                | 117.59 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        |         |          |                     | product2 |  10 |  181.73 | 18.17 [10%]              | 199.90 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        |         |          |                     | product3 |  10 |  281.73 | 19.72 [7%] + 28.17 [10%] | 329.62 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        | order 2 | bank     | yes, customer       | product1 |   5 |   54.95 | 3.85 [7%]                |  58.80 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        |         |          |                     | product2 |   5 |   90.86 | 9.09 [10%]               |  99.95 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        | order 3 | bank     | yes, other customer | product2 |   5 |   90.86 | 9.09 [10%]               |  99.95 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
+        |         |          |                     | product3 |   5 |  140.86 | 9.86 [7%] + 14.09 [10%]  | 164.81 |
+        +---------+----------+---------------------+----------+-----+---------+--------------------------+--------+
 
-        order 2 (paid by bank, invoiced: customer)
-                product1    5       54.95       3.85 [7%]                       58.80
-                product2    5       90.86       9.09 [10%]                      99.95
-
-        order 3 (paid by bank, invoiced: other customer)
-                product2    5       90.86       9.09 [10%]                      99.95
-                product3    5       140.86      9.86 [7%] + 14.09 [10%]         164.81
-
-        Result
+        Expected Result
         ======
-
-        account                 balance
-        --
-        receivable cash          647.11
-        receivable bank          423.51
-        other receivable        -911.87
-        receivable              -158.75
-        --
-        Total balance              0.00
+        +------------------+---------+
+        | account          | balance |
+        +------------------+---------+
+        | receivable cash  |  647.11 |
+        +------------------+---------+
+        | receivable bank  |  423.51 |
+        +------------------+---------+
+        | other receivable | -911.87 |
+        +------------------+---------+
+        | receivable       | -158.75 |
+        +------------------+---------+
+        | Total balance    |    0.00 |
+        +------------------+---------+
         """
         self.open_new_session()
 
@@ -167,17 +187,17 @@ class TestPoSMultipleReceivableAccounts(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # check if there is one invoiced order
-        self.assertEqual(len(self.session.order_ids.filtered(lambda order: order.state == 'invoiced')), 3, 'All orders should be invoiced.')
+        self.assertEqual(len(self.pos_session.order_ids.filtered(lambda order: order.state == 'invoiced')), 3, 'All orders should be invoiced.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         receivable_line = session_move.line_ids.filtered(lambda line: line.account_id == self.receivable_account)
         self.assertAlmostEqual(receivable_line.balance, -158.75)

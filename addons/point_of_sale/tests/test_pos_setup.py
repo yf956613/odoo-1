@@ -3,6 +3,11 @@ from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 
 @odoo.tests.tagged('post_install', '-at_install')
 class TestPoSSetup(TestPoSCommon):
+    """ This group of tests is for sanity check in setting up global records which will be used
+    in each testing.
+
+    If a test fails here, then it means there are inconsistencies in what we expect in the setup.
+    """
     def setUp(self):
         super(TestPoSSetup, self).setUp()
         self.config = self.basic_config
@@ -24,9 +29,11 @@ class TestPoSSetup(TestPoSCommon):
 
     def test_product_categories(self):
         # check basic product category
+        # it is expected to have standard and manual_periodic valuation
         self.assertEqual(self.categ_basic.property_cost_method, 'standard')
         self.assertEqual(self.categ_basic.property_valuation, 'manual_periodic')
         # check anglo saxon product category
+        # this product categ is expected to have fifo and real_time valuation
         self.assertEqual(self.categ_anglo.property_cost_method, 'fifo')
         self.assertEqual(self.categ_anglo.property_valuation, 'real_time')
 
@@ -40,6 +47,8 @@ class TestPoSSetup(TestPoSCommon):
             self.assertAlmostEqual(get_price(pricelist, product), product.lst_price)
 
         # check eur pricelist
+        # exchange rate to the other currency is set to 0.5, thus, lst_price
+        # is expected to have half its original value.
         pricelist = self.other_currency_config.pricelist_id
         for product in self.products:
             self.assertAlmostEqual(get_price(pricelist, product), product.lst_price * 0.5)

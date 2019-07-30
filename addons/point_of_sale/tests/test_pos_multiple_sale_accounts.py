@@ -91,15 +91,15 @@ class TestPoSMultipleSaleAccounts(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         sale_account_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         for balance, amount in zip(sorted(sale_account_lines.mapped('balance')), sorted([-164.85, -422.59])):
@@ -178,18 +178,18 @@ class TestPoSMultipleSaleAccounts(TestPoSCommon):
         order = self.env['pos.order'].create_from_ui(orders)
 
         # check values before closing the session
-        self.assertEqual(3, self.session.order_count)
-        orders_total = sum(order.amount_total for order in self.session.order_ids)
-        self.assertAlmostEqual(orders_total, self.session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
+        self.assertEqual(3, self.pos_session.order_count)
+        orders_total = sum(order.amount_total for order in self.pos_session.order_ids)
+        self.assertAlmostEqual(orders_total, self.pos_session.total_payments_amount, msg='Total order amount should be equal to the total payment amount.')
 
         # check if there is one invoiced order
-        self.assertEqual(len(self.session.order_ids.filtered(lambda order: order.state == 'invoiced')), 1, 'There should only be one invoiced order.')
+        self.assertEqual(len(self.pos_session.order_ids.filtered(lambda order: order.state == 'invoiced')), 1, 'There should only be one invoiced order.')
 
         # close the session
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         # check values after the session is closed
-        session_move = self.session.move_id
+        session_move = self.pos_session.move_id
 
         sale_account_lines = session_move.line_ids.filtered(lambda line: line.account_id == self.sale_account)
         for balance, amount in zip(sorted(sale_account_lines.mapped('balance')), sorted([-164.85, -281.73])):
