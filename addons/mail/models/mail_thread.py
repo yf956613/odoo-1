@@ -2150,7 +2150,12 @@ class MailThread(models.AbstractModel):
                 for partner_id in inbox_pids:
                     bus_notifications.append([(self._cr.dbname, 'ir.needaction', partner_id), dict(message_format_values)])
             if channel_ids:
-                bus_notifications += self.env['mail.channel'].sudo().browse(channel_ids)._channel_message_notifications(message, message_format_values)
+                channels = self.env['mail.channel'].sudo().browse(channel_ids)
+                bus_notifications += channels._channel_message_notifications(message, message_format_values)
+                for partner_channel_id in channels.channel_last_seen_partner_ids:
+                    if partner_channel_id.partner_id.user_ids.notification_type == 'email':
+                        partner_channel_id.channel_id.channel_seen(partner_channel_id.partner_id.id)
+
         if bus_notifications:
             self.env['bus.bus'].sudo().sendmany(bus_notifications)
 
@@ -2414,9 +2419,9 @@ class MailThread(models.AbstractModel):
                 ('email', 'not in', [email_from]),
             ])
             for partner in new_pids:
-                # caution: side effect, if user has notif type inbox, will receive en email anyway?
                 # ocn_client: will add partners to recipient recipient_data. more ocn notifications. We neeed to filter them maybe
-                recipient_data['partners'].append({'id': partner.id, 'share': True, 'active': True, 'notif': 'email', 'type': 'channel_email', 'groups': []})
+                if partner.user_ids.notification_type == 'email':
+                    recipient_data['partners'].append({'id': partner.id, 'share': True, 'active': True, 'notif': 'email', 'type': 'channel_email', 'groups': []})
 
         return recipient_data
 

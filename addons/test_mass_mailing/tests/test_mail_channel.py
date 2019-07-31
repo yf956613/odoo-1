@@ -24,6 +24,11 @@ class TestChannelPartnersNotification(common.MockEmails):
             'name': 'Test Partner',
             'email': 'test@example.com',
         })
+        self.env['res.users'].with_context({'no_reset_password': True}).create({
+            'login': 'test_user',
+            'partner_id': self.test_partner.id,
+            'notification_type': 'email',
+        })
 
         self.blacklisted_partner = self.env['res.partner'].create({
             'name': 'Blacklisted Partner',

@@ -401,6 +401,7 @@ class TestMessageModeration(common.Moderation):
         self._clear_bus()
         # A pending moderation message needs to have field channel_ids empty. Moderators
         # need to be able to notify a pending moderation message (in a channel they moderate).
+        self.user_employee.write({'notification_type': 'inbox'})
         self.assertFalse(self.msg_admin_pending_c1.channel_ids)
         self.msg_admin_pending_c1.with_user(self.user_employee)._moderate('accept')
         self.assertEqual(self.msg_admin_pending_c1.channel_ids, self.channel_1)
@@ -413,6 +414,7 @@ class TestMessageModeration(common.Moderation):
         self._clear_bus()
         # A pending moderation message needs to have field channel_ids empty. Moderators
         # need to be able to notify a pending moderation message (in a channel they moderate).
+        self.user_employee.write({'notification_type': 'inbox'})
         self.assertFalse(self.msg_admin_pending_c1.channel_ids)
         self.assertFalse(self.msg_admin_pending_c1_2.channel_ids)
         self.msg_admin_pending_c1.with_user(self.user_employee)._moderate('allow')

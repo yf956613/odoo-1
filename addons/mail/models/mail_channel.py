@@ -711,11 +711,12 @@ class Channel(models.Model):
         if channel_partners:
             channel_partners.write({'is_pinned': pinned})
 
-    def channel_seen(self):
+    def channel_seen(self, partner_id=False):
         self.ensure_one()
         if self.channel_message_ids.ids:
+            partner_id = partner_id or self.env.user.partner_id.id
             last_message_id = self.channel_message_ids.ids[0] # zero is the index of the last message
-            channel_partner = self.env['mail.channel.partner'].search([('channel_id', 'in', self.ids), ('partner_id', '=', self.env.user.partner_id.id)], limit=1)
+            channel_partner = self.env['mail.channel.partner'].search([('channel_id', 'in', self.ids), ('partner_id', '=', partner_id)], limit=1)
             if channel_partner.seen_message_id.id == last_message_id:
                 # last message seen by user is already up-to-date
                 return
@@ -726,13 +727,13 @@ class Channel(models.Model):
             data = {
                 'info': 'channel_seen',
                 'last_message_id': last_message_id,
-                'partner_id': self.env.user.partner_id.id,
+                'partner_id': partner_id,
             }
             if self.channel_type == 'chat':
                 self.env['bus.bus'].sendmany([[(self._cr.dbname, 'mail.channel', self.id), data]])
             else:
                 data['channel_id'] = self.id
-                self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), data)
+                self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', partner_id), data)
             return last_message_id
 
     def channel_fetched(self):

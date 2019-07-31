@@ -123,6 +123,11 @@ class TestChannelFeatures(common.BaseFunctionalTest, common.MockEmails):
             'name': 'Test Partner',
             'email': 'test@example.com',
         })
+        cls.env['res.users'].with_context({'no_reset_password': True}).create({
+            'login': 'test_user',
+            'partner_id': cls.test_partner.id,
+            'notification_type': 'email',
+        })
 
     def _join_channel(self, channel, partners):
         for partner in partners:
