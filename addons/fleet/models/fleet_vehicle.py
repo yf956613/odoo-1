@@ -360,7 +360,6 @@ class FleetVehicleOdometer(models.Model):
 
         return odometers
 
-    @api.multi
     def write(self, vals):
         odometers = super(FleetVehicleOdometer, self).write(vals)
         if 'value' in vals and not self.env.context.get('odometer_no_chatter'):
