@@ -145,7 +145,7 @@ class TestUi(odoo.tests.HttpCase):
         product_template = self.env.ref('product.product_product_4_product_template')
         pricelist = self.env.ref('product.list0')
 
-        if not pricelist.item_ids.filtered(lambda i: i.product_tmpl_id == product_template and i.price_discount == 20):
+        if not pricelist.item_ids.filtered(lambda i: i.product_tmpl_id == product_template and i.applied_on == '1_product' and i.price_discount == 20):
             self.env['product.pricelist.item'].create({
                 'base': 'list_price',
                 'applied_on': '1_product',
