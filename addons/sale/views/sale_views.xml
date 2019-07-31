@@ -304,7 +304,7 @@
                             <field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])], 'required': [('state', 'in', ['sale', 'done'])]}"/>
                             <field name="is_change_pricelist" invisible="1"/>
                             <label for="pricelist_id" groups="product.group_sale_pricelist"/>
-                            <div groups="product.group_sale_pricelist">
+                            <div groups="product.group_sale_pricelist" class="o_row">
                                 <field name="pricelist_id"/>
                                 <button name="update_pricelist" type="object" string=" Update Prices" class="btn-link mb-1 px-0" icon="fa-refresh" confirm="Are you sure to recompute all the prices based on the new pricelist?" attrs="{'invisible': ['|', ('is_change_pricelist', '=', False), ('state', 'in', ['sale', 'done','cancel'])]}"/>
                             </div>

@@ -92,3 +92,14 @@ class ProductAttributeCustomValue(models.Model):
     attribute_value_id = fields.Many2one('product.attribute.value', string='Attribute Value')
     sale_order_line_id = fields.Many2one('sale.order.line', string='Sale order line')
     custom_value = fields.Char('Custom value')
+
+
+class PricelistItem(models.Model):
+    _inherit = "product.pricelist.item"
+
+    def write(self, vals):
+        res = super(PricelistItem, self).write(vals)
+        product = self.product_id or self.product_tmpl_id.product_variant_ids
+        order = self.env['sale.order'].search([('order_line.product_id', 'in', product.ids), ('state', 'in', ('draft', 'sent')), ('pricelist_id', '=', self.pricelist_id.id)])
+        order.write({'is_change_pricelist': True})
+        return res
