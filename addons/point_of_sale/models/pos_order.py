@@ -107,14 +107,15 @@ class PosOrder(models.Model):
             pos_session.refresh()
 
         if not float_is_zero(pos_order['amount_return'], prec_acc):
-            if not pos_session.cash_payment_method_id:
+            cash_payment_method = pos_session.payment_method_ids.filtered('is_cash_count')[0]
+            if not cash_payment_method:
                 raise UserError(_("No cash statement found for this session. Unable to record returned cash."))
             return_payment_vals = {
                 'name': _('return'),
                 'pos_order_id': order.id,
                 'amount': -pos_order['amount_return'],
                 'payment_date': fields.Date.context_today(self),
-                'payment_method_id': pos_session.cash_payment_method_id.id,
+                'payment_method_id': cash_payment_method.id,
             }
             self.env['pos.payment'].create(return_payment_vals)
         return order

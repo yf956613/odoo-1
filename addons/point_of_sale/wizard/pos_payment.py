@@ -20,7 +20,7 @@ class PosMakePayment(models.TransientModel):
         if active_id:
             order_id = self.env['pos.order'].browse(active_id)
             payment_method_ids = order_id.session_id.payment_method_ids
-            cash_payment_method = order_id.session_id.cash_payment_method_id
+            cash_payment_method = order_id.session_id.payment_method_ids.filtered('is_cash_count')[0]
             return (cash_payment_method or payment_method_ids[0]) if payment_method_ids else False
         return False
 
