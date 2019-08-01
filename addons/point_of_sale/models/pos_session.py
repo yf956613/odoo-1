@@ -577,9 +577,12 @@ class PosSession(models.Model):
 
     def _get_sale_vals(self, key, amount, amount_converted):
         account_id, sign, tax_keys = key
-        tax_ids = [tax[0] for tax in tax_keys]
+        tax_ids = set(tax[0] for tax in tax_keys)
         applied_taxes = self.env['account.tax'].browse(tax_ids)
-        name = '' if not applied_taxes else '%s group: %s' % ('Sales' if sign == 1 else 'Refund', ', '.join([tax.name for tax in applied_taxes]))
+        title = 'Sales' if sign == 1 else 'Refund'
+        name = '%s untaxed' % title
+        if applied_taxes:
+            name = '%s with %s' % (title, ', '.join([tax.name for tax in applied_taxes]))
         base_tags = applied_taxes\
             .mapped('invoice_repartition_line_ids' if sign == 1 else 'refund_repartition_line_ids')\
             .filtered(lambda line: line.repartition_type == 'base')\
