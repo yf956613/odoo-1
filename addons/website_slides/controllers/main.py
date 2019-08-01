@@ -825,6 +825,8 @@ class WebsiteSlides(WebsiteProfile):
                 if post['badge_id'][0] == 0:
                     values['badge_id'] = request.env['gamification.badge'].create({
                         'name': post['badge_id'][1]['title'],
+                        'description': 'Congratulation, you succeeded this certification',
+                        'website_published': True,
                         }).id
                 else:
                     values['badge_id'] = post['badge_id'][0]
@@ -858,6 +860,14 @@ class WebsiteSlides(WebsiteProfile):
                     new_certification = True
                 else:
                     values['survey_id'] = post['survey_id'][0]
+                    if 'give_badge' in values:
+                        survey = request.env['survey.survey'].search([('id','=',values['survey_id'])])
+                        survey.write({
+                            'users_login_required': True,
+                            'certification_give_badge': True,
+                            'certification_badge_id': values['badge_id'],
+                        })
+
         except (UserError, AccessError) as e:
             _logger.error(e)
             return {'error': e.name}
