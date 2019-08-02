@@ -11,7 +11,7 @@ import werkzeug.urls
 
 def sanitize_account_number(acc_number):
     if acc_number:
-        return re.sub(r'\W+', '', acc_number).upper()
+        return re.sub(r'[^a-zA-Z0-9_()]', '', acc_number).upper()
     return False
 
 
