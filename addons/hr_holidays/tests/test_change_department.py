@@ -15,7 +15,6 @@ class TestChangeDepartment(TestHrHolidaysBase):
         self.holidays_status_1 = HolidayStatusManagerGroup.create({
             'name': 'NotLimitedHR',
             'allocation_type': 'no',
-            'validation_type': 'hr',
             'validity_start': False,
         })
 
