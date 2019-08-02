@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <form t-name="product.report_pricelist_search">
+        <div class="form-row">
+            <div class="form-group col-12 col-md-auto">
+                <label class="font-weight-bold">Pricelist:</label>
+                <div class="o_pricelist"/>
+            </div>
+            <div class="form-group col-12 col-md-6 o_product_qty">
+                <label class="font-weight-bold">Quantities:</label>
+            </div>
+        </div>
+    </form>
+
+    <div t-name="product.report_pricelist_qty">
+        <div class="input-group input-group-sm">
+            <input type="number" class="o_input o_product_qty w-50" value="1" min="1"/>
+            <div class="input-group-append ml-2">
+                <button class="btn btn-secondary o_add_qty" type="button" title="Add a quantity">
+                    <i class="fa fa-plus"/>
+                </button>
+            </div>
+        </div>
+        <div class="o_badges">
+            <t t-set="quantities" t-value="widget.quantities"/>
+            <t t-call="product.report_pricelist_qty_badges"/>
+        </div>
+    </div>
+
+    <t t-name="product.report_pricelist_qty_badges">
+        <t t-foreach="quantities" t-as="qty">
+            <span class="badge badge-pill border" t-att-data-qty="qty">
+                Qty: <t t-esc="qty"/>
+                <i class="fa fa-close o_remove_qty" title="Remove quantity"/>
+            </span>
+        </t>
+    </t>
+
+</templates>
