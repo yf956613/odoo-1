@@ -110,7 +110,7 @@ class Groups(models.Model):
     @api.multi
     @api.constrains('users')
     def _check_one_user_type(self):
-        self.mapped('users')._check_one_user_type()
+        self.mapped('users').with_context(from_groups=self.ids)._check_one_user_type()
 
     @api.depends('category_id.name', 'name')
     def _compute_full_name(self):
@@ -394,9 +394,50 @@ class Users(models.Model):
     @api.multi
     @api.constrains('groups_id')
     def _check_one_user_type(self):
-        for user in self:
-            if len(user.groups_id.filtered(lambda x: x.category_id.xml_id == 'base.module_category_user_type')) > 1:
-                raise ValidationError(_('The user cannot have more than one user types.'))
+        """We check that no users are both portal and users (same with public).
+           This could typically happen because of implied groups.
+        """
+        user_types_category = self.env.ref('base.module_category_user_type', raise_if_not_found=False)
+        user_types_groups = self.env['res.groups'].search(
+            [('category_id', '=', user_types_category.id)]) if user_types_category else False
+        if user_types_groups:  # needed at install
+            bad_users = self._fast_check_users_in_more_than_one_group(user_types_groups.ids)
+            if bad_users:
+                raise ValidationError(_('The user cannot have more than one user types.') + '\n' +
+                                      _('Problematic ids: ') + ", ".join(str(bad[0]) for bad in bad_users))
+
+    @api.multi
+    def _fast_check_users_in_more_than_one_group(self, group_ids):
+        """The method is not 'fast' if the list of ids is very long;
+           e.g. using group.users as self with 10^5 users makes this query take 1 minute
+           that's why we need to split the cases depending on the user ids size;
+           when called from groups we use a subquery to get the ids from the groups,
+           and as backup we check everything
+        :param group_ids: list of group ids
+        :optional context param from_groups: ids of groups on which we want to check the users
+        :return: the users that are in more than one of the provided groups
+        """
+        if group_ids and (self or self.env.context.get('from_groups')):
+            args = [tuple(group_ids)]
+            if self.env.context.get('from_groups'):  # should be the ids of the groups we are interested in
+                where_clause = "AND r.uid IN (SELECT uid FROM res_groups_users_rel WHERE gid IN %s)"
+                args.append(tuple(self.env.context['from_groups']))
+            elif len(self.ids) < 10000:  # arbitrary limit; when the self advances, the ten thousand things retreat
+                where_clause = "AND r.uid IN %s"
+                args.append(tuple(self.ids))
+            else:
+                where_clause = ""  # default; we check ALL users (actually pretty efficient)
+            query = """
+                    SELECT r.uid
+                    FROM res_groups_users_rel r
+                    WHERE r.gid IN %s""" + where_clause + """
+                    GROUP BY r.uid
+                    HAVING COUNT(r.gid) > 1
+            """
+            self.env.cr.execute(query, args)
+            return  self.env.cr.fetchall()
+        else:
+            return False
 
     @api.multi
     def toggle_active(self):
@@ -902,6 +943,7 @@ class GroupsImplied(models.Model):
                            JOIN group_imply i ON (r.gid = i.hid)
                           WHERE i.gid = %(gid)s
                 """, dict(gid=group.id))
+            self._check_one_user_type()
         return res
 
 class UsersImplied(models.Model):

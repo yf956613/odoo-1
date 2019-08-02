@@ -13,12 +13,13 @@ class Users(models.Model):
     def _check_one_user_type(self):
         super(Users, self)._check_one_user_type()
 
-        users_with_both_groups = self.filtered(lambda user:
-            user.has_group('account.group_show_line_subtotals_tax_included') and
-            user.has_group('account.group_show_line_subtotals_tax_excluded')
-        )
+        g1 = self.env.ref('account.group_show_line_subtotals_tax_included')
+        g2 = self.env.ref('account.group_show_line_subtotals_tax_excluded')
+
+        users_with_both_groups = self._fast_check_users_in_more_than_one_group([g1.id, g2.id])
+
         if users_with_both_groups:
-            names = ", ".join(users_with_both_groups.mapped('name'))
+            names = ", ".join(str(u[0]) for u in users_with_both_groups)
             raise ValidationError(_("A user cannot have both Tax B2B and Tax B2C.\n"
                                     "Problematic user(s): %s\n"
                                     "You should go in General Settings, and choose to display Product Prices\n"
