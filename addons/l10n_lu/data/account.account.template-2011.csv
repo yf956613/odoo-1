@@ -220,6 +220,7 @@ lu_2011_account_342,342,Payments on account on work and contracts in progress,ac
 lu_2011_account_343,343,Payments on account on finished goods and merchandise,account.data_account_type_current_assets,FALSE,lu_2011_chart_1
 lu_2011_account_344,344,Payments on account on land and buildings held for resale,account.data_account_type_current_assets,FALSE,lu_2011_chart_1
 lu_2011_account_4011,4011,Customers,account.data_account_type_receivable,TRUE,lu_2011_chart_1
+lu_2011_account_40111,40111,Customers (PoS),account.data_account_type_receivable,TRUE,lu_2011_chart_1
 lu_2011_account_4012,4012,Customers - Receivable bills of exchange,account.data_account_type_receivable,TRUE,lu_2011_chart_1
 lu_2011_account_4013,4013,Doubtful or disputed customers,account.data_account_type_receivable,TRUE,lu_2011_chart_1
 lu_2011_account_4014,4014,Customers - Unbilled sales,account.data_account_type_receivable,TRUE,lu_2011_chart_1
