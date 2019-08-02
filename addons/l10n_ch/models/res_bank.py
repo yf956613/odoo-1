@@ -5,6 +5,7 @@ import re
 
 from odoo import api, fields, models, _
 from odoo.tools.misc import mod10r
+from odoo.addons.base.models.res_bank import sanitize_account_number
 
 import werkzeug.urls
 
@@ -35,6 +36,23 @@ class ResPartnerBank(models.Model):
 
     l10n_ch_postal = fields.Char(string='ISR reference', help='The ISR number of the company within the bank')
 
+    def _get_ch_sanitized_acc_number(self, acc_type, acc_number, partner_id):
+        '''
+        To allow duplicate `postal` accounts, we trick unicity constraint on `sanitized_acc_number`
+        by adding account holder's name inside round braces after account number like `672737776(PARTNERX)`
+        so now we can have same `postal` account for say Partner X and Partner Y
+        '''
+        if acc_type == 'postal':
+            partner = self.env['res.partner'].browse(partner_id)
+            acc_number = acc_number + (partner and '(' + partner.name + ')' or '')
+        return acc_number
+
+    @api.depends('acc_number', 'partner_id')
+    def _compute_sanitized_acc_number(self):
+        for bank in self:
+            acc_number = self._get_ch_sanitized_acc_number(bank.acc_type, bank.acc_number, bank.partner_id.id)
+            bank.sanitized_acc_number = sanitize_account_number(acc_number)
+
     @api.model
     def _get_supported_account_types(self):
         rslt = super(ResPartnerBank, self)._get_supported_account_types()
@@ -51,12 +69,34 @@ class ResPartnerBank(models.Model):
         else:
             return super(ResPartnerBank, self).retrieve_acc_type(acc_number)
 
-    @api.onchange('acc_number')
-    def _onchange_set_l10n_ch_postal(self):
-        if self.acc_type == 'iban':
-            self.l10n_ch_postal = self._retrieve_l10n_ch_postal(self.sanitized_acc_number)
+    def _set_l10n_ch_postal(self, acc_type, sanitize_acc_number):
+        if acc_type == 'iban':
+            l10n_ch_postal = self._retrieve_l10n_ch_postal(sanitize_acc_number)
         else:
-            self.l10n_ch_postal = self.sanitized_acc_number
+            l10n_ch_postal = sanitize_acc_number
+        return l10n_ch_postal
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('l10n_ch_postal'):
+            acc_type = self.retrieve_acc_type(vals['acc_number'])
+            ch_sanitized_acc_number = self._get_ch_sanitized_acc_number(acc_type, vals['acc_number'], vals['partner_id'])
+            sanitized_acc_number = re.sub(r'\(.*?\)', '', ch_sanitized_acc_number)
+            l10n_ch_postal = self._set_l10n_ch_postal(acc_type, sanitized_acc_number)
+            vals['l10n_ch_postal'] = l10n_ch_postal
+        return super().create(vals)
+
+    def write(self, vals):
+        bank_accounts = self.filtered(lambda bank: not bank.sanitized_acc_number)
+        if vals.get('acc_number') and not vals.get('l10n_ch_postal') and bank_accounts:
+            for bank in bank_accounts:
+                # remove partner name along with round braces from `sanitized_acc_number` and retrive postal account number
+                sanitized_acc_number = re.sub(r'\(.*?\)', '', vals.get('sanitized_acc_number') or bank.sanitized_acc_number)
+                vals['l10n_ch_postal'] = self._set_l10n_ch_postal(vals.get('acc_type') or bank.acc_type, sanitized_acc_number)
+                res = super(ResPartnerBank, bank).write(vals)
+        else:
+            res = super().write(vals)
+        return res
 
     @api.model
     def _retrieve_l10n_ch_postal(self, iban):
