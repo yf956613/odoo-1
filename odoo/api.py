@@ -144,10 +144,12 @@ def onchange(*args):
     pseudo-record that contains the values present in the form. Field
     assignments on that record are automatically sent back to the client.
 
-    return {
-        'domain': {'other_id': [('partner_id', '=', partner_id)]},
-        'warning': {'title': "Warning", 'message': "What is this?", 'type': 'notification'},
-    }
+    .. code-block:: python
+
+        return {
+            'domain': {'other_id': [('partner_id', '=', partner_id)]},
+            'warning': {'title': "Warning", 'message': "What is this?", 'type': 'notification'},
+        }
 
     If the type is set to notification, the warning will be displayed in a notification.
     Otherwise it will be displayed in a dialog as default.
@@ -157,6 +159,7 @@ def onchange(*args):
         ``@onchange`` only supports simple field names, dotted names
         (fields of relational fields e.g. ``partner_id.tz``) are not
         supported and will be ignored
+
     """
     return attrsetter('_onchange', args)
 

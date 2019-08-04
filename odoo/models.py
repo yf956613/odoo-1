@@ -330,6 +330,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
     _needaction = False         #: whether the model supports "need actions" (see mail)
     _translate = True           #: False disables translations export for this model
     _check_company_auto = False
+    """On write and create, call ``_check_company`` to ensure companies
+    consistency on the relational fields having ``check_company=True``
+    as attribute.
+    """
 
     # default values for _transient_vacuum()
     _transient_check_count = 0

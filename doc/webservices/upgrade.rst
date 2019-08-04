@@ -426,7 +426,7 @@ should be empty if everything went fine.
 .. _upgrade-api-skip-tests:
 
 
-Asking to skip the tests 
+Asking to skip the tests
 =========================
 
 This action asks the Upgrade Platform to skip the tests for your request.
@@ -656,4 +656,3 @@ your database dump. Here is a sample session using the 'sftp' client:
     Connected to upgrade.odoo.com.
     sftp> get upgraded_openchs.70.cdump /path/to/upgraded_openchs.70.cdump
     Downloading /upgraded_openchs.70.cdump to /path/to/upgraded_openchs.70.cdump
-
