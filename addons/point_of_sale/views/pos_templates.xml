@@ -36,15 +36,10 @@
         </script>
 
         <t t-call-assets="web.assets_common" t-css="false"/>
-<<<<<<< HEAD
         <t t-call-assets="point_of_sale.pos_assets_backend" t-css="false"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        <t t-call-assets="web.assets_backend" t-css="false"/>
-=======
         <t t-call-assets="web.assets_backend" t-css="false"/>
         <t t-call-assets="web_editor.summernote" t-css="false"/>
         <t t-call-assets="web_editor.assets_editor" t-css="false"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         <t t-call-assets="point_of_sale.assets"/>
         <t t-call="web.conditional_assets_tests"/>
 
