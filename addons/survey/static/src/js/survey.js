@@ -5,13 +5,7 @@ require('web.dom_ready');
 var core = require('web.core');
 var time = require('web.time');
 var ajax = require('web.ajax');
-<<<<<<< HEAD
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var base = require('web_editor.base');
-=======
-var base = require('web_editor.base');
 var context = require('web_editor.context');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var field_utils = require('web.field_utils');
 
 var _t = core._t;
