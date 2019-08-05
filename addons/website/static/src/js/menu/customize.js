@@ -93,16 +93,8 @@ var CustomizeMenu = Widget.extend({
                     currentGroup = item.inherit_id[1];
                     $menu.append('<li class="dropdown-header">' + currentGroup + '</li>');
                 }
-<<<<<<< HEAD
                 var $a = $('<a/>', {href: '#', class: 'dropdown-item', 'data-view-key': item.key, role: 'menuitem'})
-                            .append(qweb.render('website.components.switch', {id: 'switch-' + item.id, label: item.name}));
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-                var $a = $('<a/>', {href: '#', class: 'dropdown-item', 'data-view-id': item.id, role: 'menuitem'})
-                            .append(qweb.render('website.components.switch', {id: 'switch-' + item.id, label: item.name}));
-=======
-                var $a = $('<a/>', {href: '#', class: 'dropdown-item', 'data-view-id': item.id, role: 'menuitem'})
                             .append(qweb.render('web_editor.components.switch', {id: 'switch-' + item.id, label: item.name}));
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
                 $a.find('input').prop('checked', !!item.active);
                 $menu.append($a);
             });
