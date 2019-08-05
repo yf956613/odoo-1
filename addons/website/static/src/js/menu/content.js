@@ -5,15 +5,7 @@ var Class = require('web.Class');
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var time = require('web.time');
-<<<<<<< HEAD
-var weWidgets = require('wysiwyg.widgets');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var weContext = require('web_editor.context');
-var weWidgets = require('wysiwyg.widgets');
-=======
-var weContext = require('web_editor.context');
 var weWidgets = require('web_editor.widget');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var websiteNavbarData = require('website.navbar');
 var websiteRootData = require('website.root');
 var Widget = require('web.Widget');
@@ -379,25 +371,10 @@ var MenuEntryDialog = weWidgets.LinkDialog.extend({
     init: function (parent, options, editor, data) {
         data.text = data.name || '';
         data.isNewWindow = data.new_window;
-<<<<<<< HEAD
-
-        this._super(parent, _.extend({
+        this.data = data;
+        this._super(parent, _.extend({}, {
             title: _t("Add a menu item"),
-        }, options || {}), _.extend({
-            needLabel: true,
-        }, data || {}));
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        this.data = data;
-
-        this._super(parent, _.extend({}, {
-            title: _t("Create Menu"),
-        }, options || {}), data);
-=======
-        this.data = data;
-        this._super(parent, _.extend({}, {
-            title: _t("Create Menu"),
         }, options || {}), editor, data);
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     },
     /**
      * @override
