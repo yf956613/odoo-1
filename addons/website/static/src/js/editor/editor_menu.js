@@ -4,52 +4,22 @@ odoo.define('web_editor.editor', function (require) {
 var Dialog = require('web.Dialog');
 var Widget = require('web.Widget');
 var core = require('web.core');
-<<<<<<< HEAD
-var Wysiwyg = require('web_editor.wysiwyg.root');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var weContext = require('web_editor.context');
-var WysiwygMultizone = require('web_editor.wysiwyg.multizone');
-=======
 var rte = require('web_editor.rte');
 var snippetsEditor = require('web_editor.snippet.editor');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
 var _t = core._t;
 
-<<<<<<< HEAD
-var WysiwygMultizone = Wysiwyg.extend({
-    assetLibs: Wysiwyg.prototype.assetLibs.concat(['website.compiled_assets_wysiwyg']),
-    _getWysiwygContructor: function () {
-        return odoo.__DEBUG__.services['web_editor.wysiwyg.multizone'];
-    }
-});
-
-var EditorMenu = Widget.extend({
-    template: 'website.editorbar',
-    xmlDependencies: ['/website/static/src/xml/website.editor.xml'],
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var EditorMenu = Widget.extend({
-    template: 'website.editorbar',
-    xmlDependencies: ['/website/static/src/xml/website.editor.xml'],
-=======
 var EditorMenuBar = Widget.extend({
     template: 'web_editor.editorbar',
     xmlDependencies: ['/web_editor/static/src/xml/editor.xml'],
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     events: {
         'click button[data-action=save]': '_onSaveClick',
         'click button[data-action=cancel]': '_onCancelClick',
     },
     custom_events: {
-<<<<<<< HEAD
-        request_save: '_onSnippetRequestSave',
-        get_clean_html: '_onGetCleanHTML',
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        request_save: '_onSnippetRequestSave',
-=======
         request_history_undo_record: '_onHistoryUndoRecordRequest',
         request_save: '_onSaveRequest',
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        get_clean_html: '_onGetCleanHTML',
     },
 
     /**
@@ -150,9 +120,8 @@ var EditorMenuBar = Widget.extend({
      */
     cancel: function (reload) {
         var self = this;
-<<<<<<< HEAD
         var def = new Promise(function (resolve, reject) {
-            if (!self.wysiwyg.isDirty()) {
+            if (!rte.history.getEditableHasUndo().length) {
                 resolve();
             } else {
                 var confirm = Dialog.confirm(self, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
@@ -161,28 +130,6 @@ var EditorMenuBar = Widget.extend({
                 confirm.on('closed', self, reject);
             }
         });
-
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        var def = $.Deferred();
-        if (!this.wysiwyg.isDirty()) {
-            def.resolve();
-        } else {
-            var confirm = Dialog.confirm(this, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
-                confirm_callback: def.resolve.bind(def),
-            });
-            confirm.on('closed', def, def.reject);
-        }
-=======
-        var def = $.Deferred();
-        if (!rte.history.getEditableHasUndo().length) {
-            def.resolve();
-        } else {
-            var confirm = Dialog.confirm(this, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
-                confirm_callback: def.resolve.bind(def),
-            });
-            confirm.on('closed', def, def.reject);
-        }
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         return def.then(function () {
             if (reload !== false) {
                 window.onbeforeunload = null;
@@ -200,156 +147,38 @@ var EditorMenuBar = Widget.extend({
      */
     save: function (reload) {
         var self = this;
-<<<<<<< HEAD
-        this.trigger_up('edition_will_stopped');
-        return this.wysiwyg.save().then(function (result) {
-            var $wrapwrap = $('#wrapwrap');
-            self.editable($wrapwrap).removeClass('o_editable');
-            if (result.isDirty && reload !== false) {
-                // remove top padding because the connected bar is not visible
-                $('body').removeClass('o_connected_user');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        this.trigger_up('edition_will_stopped');
-        return this.wysiwyg.save().then(function (dirty) {
-            var $wrapwrap = $('#wrapwrap');
-            self.editable($wrapwrap).removeClass('o_editable');
-            if (dirty && reload !== false) {
-                // remove top padding because the connected bar is not visible
-                $('body').removeClass('o_connected_user');
-=======
         var defs = [];
         this.trigger_up('ready_to_save', {defs: defs});
-        return $.when.apply($, defs).then(function () {
+        return Promise.all(defs).then(function () {
             self.snippetsMenu.cleanForSave();
             return self._saveCroppedImages();
         }).then(function () {
             return self.rte.save();
         }).then(function () {
             if (reload !== false) {
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
                 return self._reload();
             }
         });
     },
-<<<<<<< HEAD
-    /**
-     * Returns the editable areas on the page.
-     *
-     * @param {DOM} $wrapwrap
-     * @returns {jQuery}
-     */
-    editable: function ($wrapwrap) {
-        return $wrapwrap.find('[data-oe-model]')
-            .not('.o_not_editable')
-            .filter(function () {
-                var $parent = $(this).closest('.o_editable, .o_not_editable');
-                return !$parent.length || $parent.hasClass('o_editable');
-            })
-            .not('link, script')
-            .not('[data-oe-readonly]')
-            .not('img[data-oe-field="arch"], br[data-oe-field="arch"], input[data-oe-field="arch"]')
-            .not('.oe_snippet_editor')
-            .not('hr, br, input, textarea')
-            .add('.o_editable');
-    },
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    /**
-     * Returns the editable areas on the page.
-     *
-     * @param {DOM} $wrapwrap
-     * @returns {jQuery}
-     */
-    editable: function ($wrapwrap) {
-        return $wrapwrap.find('[data-oe-model]')
-            .not('.o_not_editable')
-            .filter(function () {
-                return !$(this).closest('.o_not_editable').length;
-            })
-            .not('link, script')
-            .not('[data-oe-readonly]')
-            .not('img[data-oe-field="arch"], br[data-oe-field="arch"], input[data-oe-field="arch"]')
-            .not('.oe_snippet_editor')
-            .add('.o_editable');
-    },
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
 
     /**
-<<<<<<< HEAD
-     * @private
-     */
-    _wysiwygInstance: function () {
-        var context;
-        this.trigger_up('context_get', {
-            callback: function (ctx) {
-                context = ctx;
-            },
-        });
-        return new WysiwygMultizone(this, {
-            snippets: 'website.snippets',
-            recordInfo: {
-                context: context,
-                data_res_model: 'website',
-                data_res_id: context.website_id,
-            }
-        });
-    },
-    /**
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-     * @private
-     */
-    _wysiwygInstance: function () {
-        return new WysiwygMultizone(this, {
-            snippets: 'website.snippets',
-            recordInfo: {
-                context: weContext.get(),
-                data_res_model: 'website',
-                data_res_id: weContext.get().website_id,
-            }
-        });
-    },
-    /**
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
      * Reloads the page in non-editable mode, with the right scrolling.
      *
      * @private
      * @returns {Deferred} (never resolved, the page is reloading anyway)
      */
     _reload: function () {
-<<<<<<< HEAD
-        $('body').addClass('o_wait_reload');
-        this.wysiwyg.destroy();
-        this.$el.hide();
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        $('body').addClass('o_wait_reload');
-        this.wysiwyg.destroy();
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         window.location.hash = 'scrollTop=' + window.document.body.scrollTop;
-<<<<<<< HEAD
-        window.location.reload(true);
-        return new Promise(function () {});
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        if (window.location.search.indexOf(this.LOCATION_SEARCH) >= 0) {
-            var regExp = new RegExp('[&?]' + this.LOCATION_SEARCH + '(=[^&]*)?', 'g');
-            window.location.href = window.location.href.replace(regExp, '?');
-        } else {
-            window.location.reload(true);
-        }
-        return $.Deferred();
-=======
         if (window.location.search.indexOf('enable_editor') >= 0) {
-            window.location.href = window.location.href.replace(/&?enable_editor(=[^&]*)?/g, '');
+            window.location.href = window.location.href.replace(/[&?]enable_editor(=[^&]*)?/g, '');
         } else {
             window.location.reload(true);
         }
-        return $.Deferred();
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        return new Promise(function () {});
     },
     /**
      * @private
@@ -415,7 +244,6 @@ var EditorMenuBar = Widget.extend({
         this.cancel();
     },
     /**
-<<<<<<< HEAD
      * Get the cleaned value of the editable element.
      *
      * @private
@@ -425,12 +253,7 @@ var EditorMenuBar = Widget.extend({
         ev.data.callback(this.wysiwyg.getValue({$layout: ev.data.$layout}));
     },
     /**
-     * Snippet (menu_data) can request to save the document to leave the page
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-     * Snippet (menu_data) can request to save the document to leave the page
-=======
      * Called when an element askes to record an history undo -> records it.
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
      *
      * @private
      * @param {OdooEvent} ev
