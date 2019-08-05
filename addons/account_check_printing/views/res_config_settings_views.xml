@@ -8,8 +8,8 @@
             <div id="print_bills_payment" position="after">
                 <div class="content-group">
                     <div class="row mt16">
-                        <label for="account_check_printing_layout" class="col-lg-4 o_light_label"/>
-                        <field name="account_check_printing_layout"/>
+                        <label for="account_check_printing_report_actions" class="col-lg-4 o_light_label"/>
+                        <field name="account_check_printing_report_actions"/>
                     </div>
                     <div class="row">
                         <label for="account_check_printing_multi_stub" class="col-lg-4 o_light_label"/>
