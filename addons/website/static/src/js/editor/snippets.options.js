@@ -844,19 +844,11 @@ options.registry.ul = options.Class.extend({
         $li.map(function () { return $(this).children()[0] || this; })
             .prepend('<a href="#" class="o_ul_toggle_next fa" />');
         $li.removeClass('o_open').next().addClass('o_close');
-<<<<<<< HEAD
-        this.$target.find('li').removeClass('o_open');
-        this._refreshPublicWidgets();
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        this.$target.find('li').removeClass('o_open');
-        this._refreshAnimations();
-=======
         this.$target.find('li').removeClass('o_open').css('list-style', '');
         this.$target.find('li:has(.o_ul_toggle_self, .o_ul_toggle_next), li:has(>ul,>ol):not(:has(>li))').css('list-style', 'none');
 
         this.$target.find('li:not(:has(>ul))').css('list-style', '');
-        this._refreshAnimations();
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        this._refreshPublicWidgets();
     },
 });
 
