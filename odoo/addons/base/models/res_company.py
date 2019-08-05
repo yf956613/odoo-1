@@ -226,6 +226,7 @@ class Company(models.Model):
         })
         vals['partner_id'] = partner.id
         self.clear_caches()
+        self.pool.signal_changes()
         company = super(Company, self).create(vals)
         # The write is made on the user to set it automatically in the multi company group.
         self.env.user.write({'company_ids': [(4, company.id)]})
