@@ -51,6 +51,7 @@
 			</xpath>
 		</template>
 
+<<<<<<< HEAD
     <template id="assets_editor" name="Website CRM Assets Editor" inherit_id="website.assets_editor">
         <xpath expr="." position="inside">
             <script type="text/javascript" src="/website_crm/static/src/js/website_crm_editor.js"></script>
@@ -58,6 +59,11 @@
     </template>
 
         <template id="assets_tests" name="Website CRM Assets Tests" inherit_id="web.assets_tests">
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        <template id="website_crm_tests" name="Website CRM Tests" inherit_id="web.assets_frontend">
+=======
+        <template id="website_crm_tests" name="Website CRM Tests" inherit_id="web.assets_common">
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             <xpath expr="." position="inside">
                 <script type="text/javascript" src="/website_crm/static/tests/tours/website_crm.js"></script>
             </xpath>

@@ -36,7 +36,15 @@
         </script>
 
         <t t-call-assets="web.assets_common" t-css="false"/>
+<<<<<<< HEAD
         <t t-call-assets="point_of_sale.pos_assets_backend" t-css="false"/>
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        <t t-call-assets="web.assets_backend" t-css="false"/>
+=======
+        <t t-call-assets="web.assets_backend" t-css="false"/>
+        <t t-call-assets="web_editor.summernote" t-css="false"/>
+        <t t-call-assets="web_editor.assets_editor" t-css="false"/>
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         <t t-call-assets="point_of_sale.assets"/>
         <t t-call="web.conditional_assets_tests"/>
 
@@ -75,7 +83,13 @@
     </script>
 </template>
 
-<template id="pos_editor_assets" inherit_id="web_editor.wysiwyg_snippets">
+<template id="pos_editor_fieldtexthtml_assets" inherit_id="web.assets_backend">
+    <xpath expr="." position="inside">
+        <script type="text/javascript" src="/point_of_sale/static/src/js/field_text_html.js"/>
+    </xpath>
+</template>
+
+<template id="pos_editor_assets" inherit_id="web_editor.assets_editor">
     <xpath expr="//script[last()]" position="after">
         <script type="text/javascript" src="/point_of_sale/static/src/js/pos.web_editor.js"/>
     </xpath>

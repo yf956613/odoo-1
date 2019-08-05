@@ -3,15 +3,15 @@ odoo.define('web_unsplash.image_widgets', function (require) {
 
 var core = require('web.core');
 var UnsplashAPI = require('unsplash.api');
-var widgetsMedia = require('wysiwyg.widgets.media');
+var weWidgets = require('web_editor.widget');
 
 var unsplashAPI = null;
 
-widgetsMedia.ImageWidget.include({
-    xmlDependencies: widgetsMedia.ImageWidget.prototype.xmlDependencies.concat(
+weWidgets.ImageWidget.include({
+    xmlDependencies: weWidgets.ImageWidget.prototype.xmlDependencies.concat(
         ['/web_unsplash/static/src/xml/unsplash_image_widget.xml']
     ),
-    events: _.extend({}, widgetsMedia.ImageWidget.prototype.events, {
+    events: _.extend({}, weWidgets.ImageWidget.prototype.events, {
         'dblclick .unsplash_img_container [data-imgid]': '_onUnsplashImgDblClick',
         'click .unsplash_img_container [data-imgid]': '_onUnsplashImgClick',
         'click button.save_unsplash': '_onSaveUnsplash',

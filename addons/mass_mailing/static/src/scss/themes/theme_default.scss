@@ -15,7 +15,6 @@ $o-mm-def-color-eta: #87a6b5;
 $o-mm-def-body-width    : 600px;
 $o-mm-def-body-bobile   : 480px;
 $o-mm-def-b-radius      : 2px;
-$o-mm-def-body-bg       : $o-mm-def-color-beta;
 
 $o-mm-def-font          : -apple-system, "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 $o-mm-def-text-color    : $o-mm-def-color-delta;
@@ -38,9 +37,9 @@ $o-mm-def-btn-text      : $o-mm-def-color-beta;
     background-color: $o-mm-def-color-alpha;
 }
 
-td:not([align]) {
+td {
     // Default browser style but needed so that alignment works on some mail
-    // clients (see convert_inline)
+    // clients (see transcoder)
     text-align: inherit;
 }
 
@@ -55,10 +54,10 @@ td:not([align]) {
 
     // Forces on <p/> and <hx/> elements as several mail clients does not
     // correctly inherit font properties
-    &, p, ol {
+    &, p {
         font-size: 14px; // force bootstrap default
     }
-    &, p, h1, h2, h3, h4, h5, h6, ol {
+    &, p, h1, h2, h3, h4, h5, h6 {
         font-family: $o-mm-def-font;
         color: lighten($o-mm-def-text-color, 20%);
     }
@@ -82,7 +81,6 @@ td:not([align]) {
     width: 100%;
     max-width: $o-mm-def-body-width; // should not be necessary thanks to mail wrapper
     margin: 0 auto;
-    background-color: $o-mm-def-body-bg;
 
     h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
         color: $o-mm-def-text-color;

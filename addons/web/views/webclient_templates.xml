@@ -162,12 +162,17 @@
         <script type="text/javascript" src="/web/static/src/js/widgets/name_and_signature.js"></script>
         <script type="text/javascript" src="/web/static/src/js/widgets/notification.js"></script>
         <script type="text/javascript" src="/web/static/src/js/widgets/rainbow_man.js"></script>
+<<<<<<< HEAD
         <script type="text/javascript" src="/web/static/src/js/widgets/colorpicker_dialog.js"></script>
         <script type="text/javascript" src="/web/static/src/js/libs/zoomodoo.js"></script>
     </template>
 
     <template id="assets_common_lazy" inherit_id="web.assets_common" primary="True">
         <xpath expr="//t[@t-call='web._assets_common_minimal_js']" position="replace"/>
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+=======
+        <script type="text/javascript" src="/web/static/src/js/widgets/colorpicker.js"/>
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     </template>
 
     <template id="assets_backend" name="Backend Assets (used in backend interface)">

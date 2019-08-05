@@ -259,7 +259,8 @@ font[class*='bg-'] {
 
 // Probably outdated
 // Lists
-.o_ul_toggle {
+.o_ul_toggle_self,
+.o_ul_toggle_next {
     display: none;
 }
 
@@ -1043,8 +1044,7 @@ table.table_desc tr td {
 //
 
 // Header
-.o_header_affix {
-    display: block;
+#wrapwrap .o_header_affix {
     @include o-position-absolute(0, 0, auto, 0);
     position: fixed;
     z-index: $zindex-modal - 20;

@@ -3,10 +3,23 @@ odoo.define('website.theme', function (require) {
 
 var config = require('web.config');
 var core = require('web.core');
+<<<<<<< HEAD
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+var ColorpickerDialog = require('wysiwyg.widgets.ColorpickerDialog');
+=======
+var ColorpickerDialog = require('web.colorpicker');
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var Dialog = require('web.Dialog');
+<<<<<<< HEAD
 var Widget = require('web.Widget');
 var weWidgets = require('wysiwyg.widgets');
 var ColorpickerDialog = require('web.ColorpickerDialog');
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+var weContext = require('web_editor.context');
+var widgets = require('wysiwyg.widgets');
+=======
+var widgets = require('web_editor.widget');
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var websiteNavbarData = require('website.navbar');
 
 var _t = core._t;
@@ -601,11 +614,52 @@ var ThemeCustomizeDialog = Dialog.extend({
                     value = parseFloat(value) / self.PX_BY_REM + 'rem';
                 }
 
+<<<<<<< HEAD
                 var values = {};
                 values[$inputData.data('variable')] = value;
                 self._makeSCSSCusto('/website/static/src/scss/options/user_values.scss', values)
                     .then(resolve)
                     .guardedCatch(resolve);
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        editor.on('save', this, function (media) { // TODO use scss customization instead (like for user colors)
+            var src = $(media).attr('src');
+            self._rpc({
+                model: 'ir.model.data',
+                method: 'get_object_reference',
+                args: ['website', bodyCustomImageXMLID],
+            }).then(function (data) {
+                return self._rpc({
+                    model: 'ir.ui.view',
+                    method: 'save',
+                    args: [
+                        data[1],
+                        '#wrapwrap { background-image: url("' + src + '"); }',
+                        '//style',
+                        weContext.get(),
+                    ],
+                });
+            }).then(function () {
+                def.resolve();
+=======
+        editor.on('save', this, function (media) { // TODO use scss customization instead (like for user colors)
+            var src = $(media).attr('src');
+            self._rpc({
+                model: 'ir.model.data',
+                method: 'get_object_reference',
+                args: ['website', bodyCustomImageXMLID],
+            }).then(function (data) {
+                return self._rpc({
+                    model: 'ir.ui.view',
+                    method: 'save',
+                    args: [
+                        data[1],
+                        '#wrapwrap { background-image: url("' + src + '"); }',
+                        '//style',
+                    ],
+                });
+            }).then(function () {
+                def.resolve();
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             });
             qEdit.appendTo($inputData.closest('.o_theme_customize_option'));
         });
@@ -914,6 +968,66 @@ var ThemeCustomizeDialog = Dialog.extend({
                 values[variable] = value - 1;
             }
         });
+<<<<<<< HEAD
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        colorpicker.on('colorpicker:saved', this, function (ev) {
+            ev.stopPropagation();
+
+            // TODO improve to be more efficient
+            self._rpc({
+                route: '/web_editor/get_assets_editor_resources',
+                params: {
+                    key: 'website.layout',
+                    get_views: false,
+                    get_scss: true,
+                    bundles: false,
+                    bundles_restriction: [],
+                },
+            }).then(function (data) {
+                var files = data.scss[0][1];
+                var file = _.find(files, function (file) {
+                    var baseURL = '/website/static/src/scss/options/colors/';
+                    return file.url === _.str.sprintf('%suser_%scolor_palette.scss', baseURL, (colorType ? (colorType + '_') : ''));
+                });
+
+                var colors = {};
+                colors[colorName] = ev.data.hex;
+                if (colorName === 'alpha') {
+                    colors['beta'] = 'null';
+                    colors['gamma'] = 'null';
+                    colors['delta'] = 'null';
+                    colors['epsilon'] = 'null';
+                }
+=======
+        colorpicker.on('colorpicker:saved', this, function (ev) {
+            ev.stopPropagation();
+
+            // TODO improve to be more efficient
+            self._rpc({
+                route: '/web_editor/get_assets_editor_resources',
+                params: {
+                    key: 'website.layout',
+                    get_views: false,
+                    get_scss: true,
+                    bundles: false,
+                    bundles_restriction: [],
+                },
+            }).then(function (data) {
+                var files = data.scss[0][1];
+                var file = _.find(files, function (file) {
+                    var baseURL = '/website/static/src/scss/options/colors/';
+                    return file.url === _.str.sprintf('%suser_%scolor_palette.scss', baseURL, (colorType ? (colorType + '_') : ''));
+                });
+
+                var colors = {};
+                colors[colorName] = ev.data.cssColor;
+                if (colorName === 'alpha') {
+                    colors['beta'] = 'null';
+                    colors['gamma'] = 'null';
+                    colors['delta'] = 'null';
+                    colors['epsilon'] = 'null';
+                }
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
         return this._makeGoogleFontsCusto(values);
     },

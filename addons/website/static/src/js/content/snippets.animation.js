@@ -424,7 +424,21 @@ var Animation = publicWidget.Widget.extend({
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+<<<<<<< HEAD
 var registry = publicWidget.registry;
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+/**
+ * The registry object contains the list of available animations.
+ */
+var Registry = require('web.Registry');
+var registryObject = new Registry();
+var registry = registryObject.map;
+=======
+/**
+ * The registry object contains the list of available animations.
+ */
+var registry = {};
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
 registry.slider = publicWidget.Widget.extend({
     selector: '.carousel',
@@ -1037,7 +1051,12 @@ return {
     Widget: publicWidget.Widget,
     Animation: Animation,
     registry: registry,
+<<<<<<< HEAD
 
     Class: Animation, // Deprecated
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+    registryObject: registryObject,
+=======
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 };
 });

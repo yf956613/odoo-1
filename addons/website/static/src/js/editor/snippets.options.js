@@ -1,9 +1,9 @@
-odoo.define('website.editor.snippets.options', function (require) {
+odoo.define('website.snippets.options', function (require) {
 'use strict';
 
 var core = require('web.core');
 var Dialog = require('web.Dialog');
-var weWidgets = require('wysiwyg.widgets');
+var weWidgets = require('web_editor.widget');
 var options = require('web_editor.snippets.options');
 
 var _t = core._t;
@@ -811,8 +811,8 @@ options.registry.ul = options.Class.extend({
         this._super();
         if (!this.$target.hasClass('o_ul_folded')) {
             this.$target.find('.o_close').removeClass('o_close');
-            this.$target.find('li').css('list-style', '');
         }
+        this.$target.find('li:not(:has(>ul))').css('list-style', '');
     },
 
     //--------------------------------------------------------------------------
@@ -841,12 +841,22 @@ options.registry.ul = options.Class.extend({
         })
         .prepend('<a href="#" class="o_ul_toggle_self fa" />');
         var $li = this.$target.find('li:has(+li:not(>.o_ul_toggle_self)>ul, +li:not(>.o_ul_toggle_self)>ol)');
-        $li.css('list-style', this.$target.hasClass('o_ul_folded') ? 'none' : '');
         $li.map(function () { return $(this).children()[0] || this; })
             .prepend('<a href="#" class="o_ul_toggle_next fa" />');
         $li.removeClass('o_open').next().addClass('o_close');
+<<<<<<< HEAD
         this.$target.find('li').removeClass('o_open');
         this._refreshPublicWidgets();
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        this.$target.find('li').removeClass('o_open');
+        this._refreshAnimations();
+=======
+        this.$target.find('li').removeClass('o_open').css('list-style', '');
+        this.$target.find('li:has(.o_ul_toggle_self, .o_ul_toggle_next), li:has(>ul,>ol):not(:has(>li))').css('list-style', 'none');
+
+        this.$target.find('li:not(:has(>ul))').css('list-style', '');
+        this._refreshAnimations();
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     },
 });
 
@@ -938,7 +948,7 @@ options.registry.gallery = options.Class.extend({
         var self = this;
 
         // The snippet should not be editable
-        this.$target.addClass('o_fake_not_editable').attr('contentEditable', false);
+        this.$target.attr('contentEditable', false);
 
         // Make sure image previews are updated if images are changed
         this.$target.on('save', 'img', function (ev) {
@@ -954,21 +964,6 @@ options.registry.gallery = options.Class.extend({
             e.stopImmediatePropagation();
             self.addImages(false);
         });
-
-        this.$target.on('dropped', 'img', function (ev) {
-            self.mode(null, self.getMode());
-            if (!ev.target.height) {
-                $(ev.target).one('load', function () {
-                    setTimeout(function () {
-                        self.trigger_up('cover_update');
-                    });
-                });
-            }
-        });
-
-        if (this.$('.container:first > *:not(div)').length) {
-            self.mode(null, self.getMode());
-        }
 
         return this._super.apply(this, arguments);
     },
@@ -1028,24 +1023,6 @@ options.registry.gallery = options.Class.extend({
 
         var $activeMode = this.$el.find('.active[data-mode]');
         this.mode(null, $activeMode.data('mode'), $activeMode);
-    },
-    /**
-     * Get the image target's layout mode (slideshow, masonry, grid or nomode).
-     *
-     * @returns {String('slideshow'|'masonry'|'grid'|'nomode')}
-     */
-    getMode: function () {
-        var mode = 'slideshow';
-        if (this.$target.hasClass('o_masonry')) {
-            mode = 'masonry';
-        }
-        if (this.$target.hasClass('o_grid')) {
-            mode = 'grid';
-        }
-        if (this.$target.hasClass('o_nomode')) {
-            mode = 'nomode';
-        }
-        return mode;
     },
     /**
      * Displays the images with the "grid" layout.
@@ -1122,7 +1099,6 @@ options.registry.gallery = options.Class.extend({
         this.$target
             .removeClass('o_nomode o_masonry o_grid o_slideshow')
             .addClass('o_' + value);
-        this.trigger_up('cover_update');
     },
     /**
      * Displays the images with the standard layout: floating images.

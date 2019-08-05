@@ -5,6 +5,13 @@ require('web.dom_ready');
 var core = require('web.core');
 var time = require('web.time');
 var ajax = require('web.ajax');
+<<<<<<< HEAD
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+var base = require('web_editor.base');
+=======
+var base = require('web_editor.base');
+var context = require('web_editor.context');
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var field_utils = require('web.field_utils');
 
 var _t = core._t;
@@ -174,7 +181,7 @@ if(!the_form.length) {
     });
 
     function load_locale(){
-        var url = "/web/webclient/locale/" + (document.documentElement.getAttribute('lang') || 'en_US').replace('-', '_');
+        var url = "/web/webclient/locale/" + context.get().lang || 'en_US';
         return ajax.loadJS(url);
     }
 

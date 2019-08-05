@@ -659,7 +659,7 @@ class Contact(models.AbstractModel):
             'object': value,
             'options': options
         }
-        return self.env['ir.qweb'].render('base.contact', val, **options.get('template_options', dict()))
+        return self.env['ir.qweb'].render('base.contact', val, **options.get('template_options'))
 
 
 class QwebView(models.AbstractModel):

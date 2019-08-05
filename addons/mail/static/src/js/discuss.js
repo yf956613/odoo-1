@@ -370,7 +370,7 @@ var Discuss = AbstractAction.extend({
      */
     destroy: function () {
         if (this.$buttons) {
-            this.$buttons.off().remove();
+            this.$buttons.off().destroy();
         }
         this._super.apply(this, arguments);
     },

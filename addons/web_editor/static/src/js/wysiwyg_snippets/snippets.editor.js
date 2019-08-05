@@ -5,7 +5,6 @@ var core = require('web.core');
 var dom = require('web.dom');
 var Widget = require('web.Widget');
 var options = require('web_editor.snippets.options');
-var Wysiwyg = require('web_editor.wysiwyg');
 
 var _t = core._t;
 
@@ -25,7 +24,6 @@ var SnippetEditor = Widget.extend({
         'click .oe_snippet_parent': '_onParentButtonClick',
         'click .oe_snippet_clone': '_onCloneClick',
         'click .oe_snippet_remove': '_onRemoveClick',
-        'mousedown .oe_options [data-toggle="dropdown"]:first': '_onOpenCusomize',
     },
     custom_events: {
         cover_update: '_onCoverUpdate',
@@ -37,15 +35,9 @@ var SnippetEditor = Widget.extend({
      * @param {Widget} parent
      * @param {Element} target
      * @param templateOptions
-     * @param {jQuery} $editable
-     * @param {Object} options
      */
-    init: function (parent, target, templateOptions, $editable, options) {
+    init: function (parent, target, templateOptions) {
         this._super.apply(this, arguments);
-        this.options = options;
-        this.$editable = $editable;
-        this.ownerDocument = this.$editable[0].ownerDocument;
-        this.$body = $(this.ownerDocument.body);
         this.$target = $(target);
         this.$target.data('snippet-editor', this);
         this.templateOptions = templateOptions;
@@ -67,13 +59,13 @@ var SnippetEditor = Widget.extend({
         defs.push(this._initializeOptions());
 
         // Initialize move/clone/remove buttons
-        if (!this.options.isEditableNode(this.$target[0])) {
+        if (!this.$target.parent().is(':o_editable')) {
             this.$el.find('.oe_snippet_move, .oe_snippet_clone, .oe_snippet_remove').remove();
         } else {
             this.dropped = false;
             this.$el.draggable({
                 greedy: true,
-                appendTo: this.$body,
+                appendTo: 'body',
                 cursor: 'move',
                 handle: '.oe_snippet_move',
                 cursorAt: {
@@ -84,7 +76,7 @@ var SnippetEditor = Widget.extend({
                     var $clone = $(this).clone().css({width: '24px', height: '24px', border: 0});
                     $clone.find('.oe_overlay_options >:not(:contains(.oe_snippet_move)), .o_handle').remove();
                     $clone.find(':not(.glyphicon)').css({position: 'absolute', top: 0, left: 0});
-                    $clone.appendTo(self.$body).removeClass('d-none');
+                    $clone.appendTo('body').removeClass('d-none');
                     return $clone;
                 },
                 start: _.bind(self._onDragAndDropStart, self),
@@ -158,7 +150,7 @@ var SnippetEditor = Widget.extend({
             top: offset.top,
         });
         this.$('.o_handles').css('height', this.$target.outerHeight());
-        this.$el.toggleClass('o_top_cover', offset.top < this.$editable.offset().top);
+        this.$el.toggleClass('o_top_cover', offset.top < 15);
     },
     /**
      * Removes the associated snippet from the DOM and destroys the associated
@@ -183,6 +175,7 @@ var SnippetEditor = Widget.extend({
 
         var node = $parent[0];
         if (node && node.firstChild) {
+            $.summernote.core.dom.removeSpace(node, node.firstChild, 0, node.lastChild, 1);
             if (!node.firstChild.tagName && node.firstChild.textContent === ' ') {
                 node.removeChild(node.firstChild);
             }
@@ -204,12 +197,11 @@ var SnippetEditor = Widget.extend({
         }
 
         // clean editor if they are image or table in deleted content
-        this.$body.find('.note-control-selection').hide();
-        this.$body.find('.o_table_handler').remove();
+        $('.note-control-selection').hide();
+        $('.o_table_handler').remove();
 
         this.trigger_up('snippet_removed');
         this.destroy();
-        $parent.trigger('content_changed');
     },
     /**
      * Displays/Hides the editor overlay and notifies the associated snippet
@@ -219,9 +211,6 @@ var SnippetEditor = Widget.extend({
      * @param {boolean} focus - true to display, false to hide
      */
     toggleFocus: function (focus) {
-        if (!this.$el) {
-            return;
-        }
         var do_action = (focus ? _do_action_focus : _do_action_blur);
 
         // Attach own and parent options on the current overlay
@@ -248,10 +237,6 @@ var SnippetEditor = Widget.extend({
         $style_button.toggleClass('d-none', $ul.children(':not(.o_main_header):not(.dropdown-divider):not(.d-none)').length === 0);
         this.cover();
         this.$el.toggleClass('oe_active', !!focus);
-
-        if (focus) {
-            this.trigger_up('snippet_focused');
-        }
 
         function _do_action_focus(style, $dest) {
             style.$el.insertAfter($dest);
@@ -313,8 +298,7 @@ var SnippetEditor = Widget.extend({
                 self,
                 val.base_target ? self.$target.find(val.base_target).eq(0) : self.$target,
                 self.$el,
-                val.data,
-                self.options
+                val.data
             );
             self.styles[optionName || _.uniqueId('option')] = option;
             option.__order = i++;
@@ -356,13 +340,20 @@ var SnippetEditor = Widget.extend({
      */
     _onCloneClick: function (ev) {
         ev.preventDefault();
+<<<<<<< HEAD
         this.trigger_up('cover_will_change');
 
         this.trigger_up('snippet_will_be_cloned', {$target: this.$target});
 
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        this.trigger_up('cover_will_change');
+
+=======
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         var $clone = this.$target.clone(false);
 
         this.trigger_up('request_history_undo_record', {$target: this.$target});
+
         this.$target.after($clone);
         this.trigger_up('call_for_each_child_snippet', {
             $snippet: $clone,
@@ -374,8 +365,15 @@ var SnippetEditor = Widget.extend({
                 }
             },
         });
+<<<<<<< HEAD
         this.trigger_up('snippet_cloned', {$target: $clone, $origin: this.$target});
         $clone.trigger('content_changed');
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        this.trigger_up('snippet_cloned', {$target: $clone});
+        $clone.trigger('content_changed');
+=======
+        this.trigger_up('snippet_cloned', {$target: $clone});
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     },
     /**
      * Called when the overlay dimensions/positions should be recomputed.
@@ -383,7 +381,6 @@ var SnippetEditor = Widget.extend({
      * @private
      */
     _onCoverUpdate: function () {
-        this.trigger_up('cover_will_change');
         this.cover();
     },
     /**
@@ -420,11 +417,11 @@ var SnippetEditor = Widget.extend({
             $selectorChildren: $selectorChildren,
         });
 
-        this.$body.addClass('move-important');
+        $('body').addClass('move-important');
 
-        this.$editable.find('.oe_drop_zone').droppable({
+        $('.oe_drop_zone').droppable({
             over: function () {
-                self.$editable.find('.oe_drop_zone.hide').removeClass('hide');
+                $('.oe_drop_zone.hide').removeClass('hide');
                 $(this).addClass('hide').first().after(self.$target);
                 self.dropped = true;
             },
@@ -434,8 +431,6 @@ var SnippetEditor = Widget.extend({
                 self.dropped = false;
             },
         });
-
-        this.trigger_up('cover_will_change');
     },
     /**
      * Called when the snippet is dropped after being dragged thanks to the
@@ -445,8 +440,18 @@ var SnippetEditor = Widget.extend({
      * @param {Event} ev
      * @param {Object} ui
      */
+<<<<<<< HEAD
     _onDragAndDropStop: function (ev, ui) {
         this.$editable.find('.oe_drop_zone').droppable('destroy').remove();
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+    _onDragAndDropStop: function () {
+        this.$editable.find('.oe_drop_zone').droppable('destroy').remove();
+=======
+    _onDragAndDropStop: function () {
+        var self = this;
+
+        $('.oe_drop_zone').droppable('destroy').remove();
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
         // TODO lot of this is duplicated code of the d&d feature of snippets
         if (!this.dropped) {
@@ -461,17 +466,16 @@ var SnippetEditor = Widget.extend({
         var next = this.$target.last()[0].nextSibling;
         var $parent = this.$target.parent();
 
-        var $clone = this.$editable.find('.oe_drop_clone');
+        var $clone = $('.oe_drop_clone');
         if (prev === $clone[0]) {
             prev = $clone[0].previousSibling;
         } else if (next === $clone[0]) {
             next = $clone[0].nextSibling;
         }
         $clone.after(this.$target);
-        var $from = $clone.parent();
 
         this.$el.removeClass('d-none');
-        this.$body.removeClass('move-important');
+        $('body').removeClass('move-important');
         $clone.remove();
 
         if (this.dropped) {
@@ -488,13 +492,10 @@ var SnippetEditor = Widget.extend({
             for (var i in this.styles) {
                 this.styles[i].onMove();
             }
-
-            this.$target.trigger('content_changed');
-            $from.trigger('content_changed');
         }
 
-        this.trigger_up('drag_and_drop_stop', {
-            $snippet: this.$target,
+        self.trigger_up('drag_and_drop_stop', {
+            $snippet: self.$target,
         });
     },
     /**
@@ -505,7 +506,6 @@ var SnippetEditor = Widget.extend({
      * @param {OdooEvent} ev
      */
     _onOptionUpdate: function (ev) {
-        this.trigger_up('cover_will_change');
         // If multiple option names are given, we suppose it should not be
         // propagated to parent editor
         if (ev.data.optionNames) {
@@ -529,16 +529,6 @@ var SnippetEditor = Widget.extend({
         }
     },
     /**
-     * Called when the user opens the customize menu.
-     *
-     * @private
-     * @param {OdooEvent} ev
-     */
-    _onOpenCusomize: function (ev) {
-        this.trigger_up('request_history_undo_record', {$target: this.$target});
-    },
-
-    /**
      * Called when the 'parent' button is clicked.
      *
      * @private
@@ -558,7 +548,6 @@ var SnippetEditor = Widget.extend({
      */
     _onRemoveClick: function (ev) {
         ev.preventDefault();
-        this.trigger_up('cover_will_change');
         this.trigger_up('request_history_undo_record', {$target: this.$target});
         this.removeSnippet();
     },
@@ -569,7 +558,6 @@ var SnippetEditor = Widget.extend({
  */
 var SnippetsMenu = Widget.extend({
     id: 'oe_snippets',
-    cacheSnippetTemplate: {},
     activeSnippets: [],
     custom_events: {
         activate_insertion_zones: '_onActivateInsertionZones',
@@ -579,34 +567,15 @@ var SnippetsMenu = Widget.extend({
         go_to_parent: '_onGoToParent',
         remove_snippet: '_onRemoveSnippet',
         snippet_removed: '_onSnippetRemoved',
-        reload_snippet_dropzones: '_disableUndroppableSnippets',
     },
 
     /**
-     * @param {Widget} parent
-     * @param {Object} [options]
-     * @param {string} [options.snippets]
-     *      URL of the snippets template. This URL might have been set
-     *      in the global 'snippets' variable, otherwise this function
-     *      assigns a default one.
-     *      default: 'web_editor.snippets'
-     *
      * @constructor
      */
-    init: function (parent, options) {
+    init: function (parent, $editable) {
         this._super.apply(this, arguments);
-        options = options || {};
-        this.trigger_up('getRecordInfo', {
-            recordInfo: options,
-            callback: function (recordInfo) {
-                _.defaults(options, recordInfo);
-            },
-        });
 
-        this.options = options;
-        if (!this.options.snippets) {
-            this.options.snippets = 'web_editor.snippets';
-        }
+        this.$editable = $editable;
         this.$activeSnippet = false;
         this.snippetEditors = [];
     },
@@ -616,14 +585,12 @@ var SnippetsMenu = Widget.extend({
     start: function () {
         var self = this;
         var defs = [this._super.apply(this, arguments)];
-        this.ownerDocument = this.$el[0].ownerDocument;
-        this.$document = $(this.ownerDocument);
-        this.window = this.ownerDocument.defaultView;
-        this.$window = $(this.window);
+        var $document = $(document);
+        var $window = $(window);
 
         // Fetch snippet templates and compute it
-
-        defs.push(this.loadSnippets().then(function (html) {
+        var url = this._getSnippetURL();
+        defs.push(this._rpc({route: url}).then(function (html) {
             return self._computeSnippetTemplates(html);
         }));
 
@@ -634,8 +601,16 @@ var SnippetsMenu = Widget.extend({
 
         // Active snippet editor on click in the page
         var lastClickedElement;
+<<<<<<< HEAD
         this.$document.on('click.snippets_menu', '*', function (ev) {
             var srcElement = ev.target || (ev.originalEvent && (ev.originalEvent.target || ev.originalEvent.originalTarget)) || ev.srcElement;
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        this.$document.on('click.snippets_menu', '*', function (ev) {
+            var srcElement = ev.srcElement || (ev.originalEvent && (ev.originalEvent.originalTarget || ev.originalEvent.target) || ev.target);
+=======
+        $document.on('click.snippets_menu', '*', function (ev) {
+            var srcElement = ev.srcElement || (ev.originalEvent && (ev.originalEvent.originalTarget || ev.originalEvent.target) || ev.target);
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             if (lastClickedElement === srcElement || !srcElement) {
                 return;
             }
@@ -654,21 +629,27 @@ var SnippetsMenu = Widget.extend({
         core.bus.on('deactivate_snippet', this, this._onDeactivateSnippet);
         core.bus.on('snippet_editor_clean_for_save', this, this._onCleanForSaveDemand);
 
+        // Some summernote customization
+        var _isNotBreakable = $.summernote.core.dom.isNotBreakable;
+        $.summernote.core.dom.isNotBreakable = function (node) {
+            return _isNotBreakable(node) || $(node).is('div') || globalSelector.is($(node));
+        };
+
         // Adapt overlay covering when the window is resized / content changes
         var debouncedCoverUpdate = _.debounce(function () {
-            self.updateCurrentSnippetEditorOverlay();
+            self._updateCurrentSnippetEditorOverlay();
         }, 200);
-        this.$window.on('resize.snippets_menu', debouncedCoverUpdate);
-        this.$window.on('content_changed.snippets_menu', debouncedCoverUpdate);
+        $window.on('resize.snippets_menu', debouncedCoverUpdate);
+        $window.on('content_changed.snippets_menu', debouncedCoverUpdate);
 
         // On keydown add a class on the active overlay to hide it and show it
         // again when the mouse moves
-        this.$document.on('keydown.snippets_menu', function () {
+        $document.on('keydown.snippets_menu', function () {
             if (self.$activeSnippet && self.$activeSnippet.data('snippet-editor')) {
                 self.$activeSnippet.data('snippet-editor').$el.addClass('o_keypress');
             }
         });
-        this.$document.on('mousemove.snippets_menu, mousedown.snippets_menu', function () {
+        $document.on('mousemove.snippets_menu', function () {
             if (self.$activeSnippet && self.$activeSnippet.data('snippet-editor')) {
                 self.$activeSnippet.data('snippet-editor').$el.removeClass('o_keypress');
             }
@@ -676,12 +657,12 @@ var SnippetsMenu = Widget.extend({
 
         // Auto-selects text elements with a specific class and remove this
         // on text changes
-        this.$document.on('click.snippets_menu', '.o_default_snippet_text', function (ev) {
+        $document.on('click.snippets_menu', '.o_default_snippet_text', function (ev) {
             $(ev.target).selectContent();
         });
-        this.$document.on('keyup.snippets_menu', function () {
-            var range = Wysiwyg.getRange(this);
-            $(range && range.sc).closest('.o_default_snippet_text').removeClass('o_default_snippet_text');
+        $document.on('keyup.snippets_menu', function () {
+            var r = $.summernote.core.range.create();
+            $(r && r.sc).closest('.o_default_snippet_text').removeClass('o_default_snippet_text');
         });
 
         return Promise.all(defs).then(function () {
@@ -689,7 +670,7 @@ var SnippetsMenu = Widget.extend({
             // menu will take part of the screen width (delayed because of
             // animation). (TODO wait for real animation end)
             setTimeout(function () {
-                self.$window.trigger('resize');
+                $window.trigger('resize');
             }, 1000);
         });
     },
@@ -698,14 +679,19 @@ var SnippetsMenu = Widget.extend({
      */
     destroy: function () {
         this._super.apply(this, arguments);
-        if (this.$window) {
-            this.$snippetEditorArea.remove();
-            this.$window.off('.snippets_menu');
-            this.$document.off('.snippets_menu');
-        }
+        this.$snippetEditorArea.remove();
+        $(window).off('.snippets_menu');
+        $(document).off('.snippets_menu');
         core.bus.off('deactivate_snippet', this, this._onDeactivateSnippet);
         core.bus.off('snippet_editor_clean_for_save', this, this._onCleanForSaveDemand);
+<<<<<<< HEAD
         delete this.cacheSnippetTemplate[this.options.snippets];
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        if (this._defLoadSnippets.state() === "pending") {
+            delete this.cacheSnippetTemplate[this.options.snippets];
+        }
+=======
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     },
 
     //--------------------------------------------------------------------------
@@ -718,17 +704,17 @@ var SnippetsMenu = Widget.extend({
      * - Remove the 'contentEditable' attributes
      */
     cleanForSave: function () {
-        this._activateSnippet(false);
         this.trigger_up('ready_to_clean_for_save');
         this._destroyEditors();
 
-        this.getEditableArea().find('[contentEditable]')
+        this.$editable.find('[contentEditable]')
             .removeAttr('contentEditable')
             .removeProp('contentEditable');
 
-        this.getEditableArea().find('.o_we_selected_image')
+        this.$editable.find('.o_we_selected_image')
             .removeClass('o_we_selected_image');
     },
+<<<<<<< HEAD
     /**
      * Load snippets.
      */
@@ -780,6 +766,60 @@ var SnippetsMenu = Widget.extend({
             snippetEditor.destroy();
         });
     },
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+    /**
+     * Load snippets.
+     */
+    loadSnippets: function () {
+        if (this.cacheSnippetTemplate[this.options.snippets]) {
+            this._defLoadSnippets = this.cacheSnippetTemplate[this.options.snippets];
+            return this._defLoadSnippets;
+        }
+        this._defLoadSnippets = this._rpc({
+            model: 'ir.ui.view',
+            method: 'render_template',
+            args: [this.options.snippets, {}],
+            kwargs: {
+                context: this.options.context,
+            },
+        });
+        this.cacheSnippetTemplate[this.options.snippets] = this._defLoadSnippets;
+    },
+    /**
+     * Sets the instance variables $editor, $body and selectorEditableArea.
+     *
+     * @param {JQuery} $editor 
+     * @param {String} selectorEditableArea 
+     */
+    setSelectorEditableArea: function ($editor, selectorEditableArea) {
+        this.selectorEditableArea = selectorEditableArea;
+        this.$editor = $editor;
+        this.$body = $editor.closest('body');
+    },
+    /**
+     * Get the editable area.
+     *
+     * @returns {JQuery}
+     */
+    getEditableArea: function () {
+        return this.$editor.find(this.selectorEditableArea);
+    },
+    /**
+     * Updates the cover dimensions of the current snippet editor.
+     */
+    updateCurrentSnippetEditorOverlay: function () {
+        if (this.$activeSnippet && this.$activeSnippet.data('snippet-editor')) {
+            this.$activeSnippet.data('snippet-editor').cover();
+        }
+        this.snippetEditors = _.filter(this.snippetEditors, function (snippetEditor) {
+            if (snippetEditor.$target.closest('body').length) {
+                return true;
+            }
+            snippetEditor.destroy();
+        });
+    },
+=======
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
     //--------------------------------------------------------------------------
     // Private
@@ -797,7 +837,6 @@ var SnippetsMenu = Widget.extend({
      *        child
      */
     _activateInsertionZones: function ($selectorSiblings, $selectorChildren) {
-        var self = this;
         var zone_template = $('<div/>', {
             class: 'oe_drop_zone oe_insert',
         });
@@ -809,8 +848,8 @@ var SnippetsMenu = Widget.extend({
         if ($selectorChildren) {
             $selectorChildren.each(function () {
                 var $zone = $(this);
-                var css = self.window.getComputedStyle(this);
-                var parentCss = self.window.getComputedStyle($zone.parent()[0]);
+                var css = window.getComputedStyle(this);
+                var parentCss = window.getComputedStyle($zone.parent()[0]);
                 var float = css.float || css.cssFloat;
                 var parentDisplay = parentCss.display;
                 var parentFlex = parentCss.flexDirection;
@@ -821,7 +860,7 @@ var SnippetsMenu = Widget.extend({
                 var test = !!(node && ((!node.tagName && node.textContent.match(/\S/)) ||  node.tagName === 'BR'));
                 if (test) {
                     $drop.addClass('oe_vertical').css({
-                        height: parseInt(self.window.getComputedStyle($zone[0]).lineHeight),
+                        height: parseInt(window.getComputedStyle($zone[0]).lineHeight),
                         float: 'none',
                         display: 'inline-block',
                     });
@@ -839,7 +878,7 @@ var SnippetsMenu = Widget.extend({
                 test = !!(node && ((!node.tagName && node.textContent.match(/\S/)) ||  node.tagName === 'BR'));
                 if (test) {
                     $drop.addClass('oe_vertical').css({
-                        height: parseInt(self.window.getComputedStyle($zone[0]).lineHeight),
+                        height: parseInt(window.getComputedStyle($zone[0]).lineHeight),
                         float: 'none',
                         display: 'inline-block'
                     });
@@ -862,8 +901,8 @@ var SnippetsMenu = Widget.extend({
             $selectorSiblings.filter(':not(.oe_drop_zone):not(.oe_drop_clone)').each(function () {
                 var $zone = $(this);
                 var $drop;
-                var css = self.window.getComputedStyle(this);
-                var parentCss = self.window.getComputedStyle($zone.parent()[0]);
+                var css = window.getComputedStyle(this);
+                var parentCss = window.getComputedStyle($zone.parent()[0]);
                 var float = css.float || css.cssFloat;
                 var parentDisplay = parentCss.display;
                 var parentFlex = parentCss.flexDirection;
@@ -895,14 +934,14 @@ var SnippetsMenu = Widget.extend({
         var $zones;
         do {
             count = 0;
-            $zones = this.getEditableArea().find('.oe_drop_zone > .oe_drop_zone').remove(); // no recursive zones
+            $zones = this.$editable.find('.oe_drop_zone > .oe_drop_zone').remove(); // no recursive zones
             count += $zones.length;
             $zones.remove();
         } while (count > 0);
 
         // Cleaning consecutive zone and up zones placed between floating or
         // inline elements. We do not like these kind of zones.
-        $zones = this.getEditableArea().find('.oe_drop_zone:not(.oe_vertical)');
+        $zones = this.$editable.find('.oe_drop_zone:not(.oe_vertical)');
         $zones.each(function () {
             var zone = $(this);
             var prev = zone.prev();
@@ -958,7 +997,6 @@ var SnippetsMenu = Widget.extend({
         }
         if ($snippet && $snippet.length) {
             var self = this;
-            this.trigger_up('activate_snippet', $snippet);
             return this._createSnippetEditor($snippet).then(function (editor) {
                 self.$activeSnippet = $snippet;
                 editor.toggleFocus(true);
@@ -974,6 +1012,16 @@ var SnippetsMenu = Widget.extend({
         _.each(this.snippetEditors, function (snippetEditor) {
             snippetEditor.destroy();
         });
+    },
+    /**
+     * Updates the cover dimensions of the current snippet editor.
+     *
+     * @private
+     */
+    _updateCurrentSnippetEditorOverlay: function () {
+        if (this.$activeSnippet && this.$activeSnippet.data('snippet-editor')) {
+            this.$activeSnippet.data('snippet-editor').cover();
+        }
     },
     /**
      * Calls a given callback 'on' the given snippet and all its child ones if
@@ -1054,7 +1102,7 @@ var SnippetsMenu = Widget.extend({
             selectorConditions += ':has(' + target + ')';
         }
         if (!noCheck) {
-            selectorConditions = (this.options.addDropSelector || '') + selectorConditions;
+            selectorConditions = ':o_editable' + selectorConditions;
         }
 
         // (Re)join the subselectors
@@ -1077,7 +1125,7 @@ var SnippetsMenu = Widget.extend({
             };
         } else {
             functions.closest = function ($from, parentNode) {
-                var parents = self.getEditableArea().get();
+                var parents = self.$editable.get();
                 return $from.closest(selector, parentNode).filter(function () {
                     var node = this;
                     while (node.parentNode) {
@@ -1090,9 +1138,9 @@ var SnippetsMenu = Widget.extend({
                 });
             };
             functions.all = isChildren ? function ($from) {
-                return dom.cssFind($from || self.getEditableArea(), selector);
+                return dom.cssFind($from || self.$editable, selector);
             } : function ($from) {
-                $from = $from || self.getEditableArea();
+                $from = $from || self.$editable;
                 return $from.filter(selector).add(dom.cssFind($from, selector));
             };
         }
@@ -1219,6 +1267,7 @@ var SnippetsMenu = Widget.extend({
         if (!this.$snippets.length) {
             this.$el.detach();
         }
+        $('body').toggleClass('editor_has_snippets', this.$snippets.length > 0);
 
         // Register the text nodes that needs to be auto-selected on click
         this._registerDefaultTexts();
@@ -1265,8 +1314,16 @@ var SnippetsMenu = Widget.extend({
             def = this._createSnippetEditor($parent);
         }
 
+<<<<<<< HEAD
         return Promise.resolve(def).then(function (parentEditor) {
             snippetEditor = new SnippetEditor(parentEditor || self, $snippet, self.templateOptions, self.getEditableArea(), self.options);
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        return $.when(def).then(function (parentEditor) {
+            snippetEditor = new SnippetEditor(parentEditor || self, $snippet, self.templateOptions, self.getEditableArea(), self.options);
+=======
+        return $.when(def).then(function (parentEditor) {
+            snippetEditor = new SnippetEditor(parentEditor || self, $snippet, self.templateOptions);
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             self.snippetEditors.push(snippetEditor);
             return snippetEditor.appendTo(self.$snippetEditorArea);
         }).then(function () {
@@ -1302,6 +1359,17 @@ var SnippetsMenu = Widget.extend({
         });
     },
     /**
+     * Returns the URL where to find the snippets template. This URL might have
+     * been set in the global 'snippetsURL' variable, otherwise this function
+     * returns a default one.
+     *
+     * @private
+     * @returns {string}
+     */
+    _getSnippetURL: function () {
+        return odoo.snippetsURL || '/web_editor/snippets';
+    },
+    /**
      * Make given snippets be draggable/droppable thanks to their thumbnail.
      *
      * @private
@@ -1317,7 +1385,8 @@ var SnippetsMenu = Widget.extend({
         $snippets.draggable({
             greedy: true,
             helper: 'clone',
-            appendTo: this.$body,
+            zIndex: '1000',
+            appendTo: 'body',
             cursor: 'move',
             handle: '.oe_snippet_thumbnail',
             distance: 30,
@@ -1335,10 +1404,12 @@ var SnippetsMenu = Widget.extend({
                 for (var k in temp) {
                     if ($base_body.is(temp[k].base_selector) && !$base_body.is(temp[k].base_exclude)) {
                         if (temp[k]['drop-near']) {
-                            $selectorSiblings = $selectorSiblings.add(temp[k]['drop-near'].all());
+                            if (!$selectorSiblings) $selectorSiblings = temp[k]['drop-near'].all();
+                            else $selectorSiblings = $selectorSiblings.add(temp[k]['drop-near'].all());
                         }
                         if (temp[k]['drop-in']) {
-                            $selectorChildren = $selectorChildren.add(temp[k]['drop-in'].all());
+                            if (!$selectorChildren) $selectorChildren = temp[k]['drop-in'].all();
+                            else $selectorChildren = $selectorChildren.add(temp[k]['drop-in'].all());
                         }
                     }
                 }
@@ -1353,7 +1424,7 @@ var SnippetsMenu = Widget.extend({
                 self._activateSnippet(false);
                 self._activateInsertionZones($selectorSiblings, $selectorChildren);
 
-                self.getEditableArea().find('.oe_drop_zone').droppable({
+                $('.oe_drop_zone').droppable({
                     over: function () {
                         if (!dropped) {
                             dropped = true;
@@ -1369,8 +1440,6 @@ var SnippetsMenu = Widget.extend({
                         }
                     },
                 });
-
-                self.trigger_up('cover_will_change');
             },
             stop: function (ev, ui) {
                 $toInsert.removeClass('oe_snippet_body');
@@ -1383,7 +1452,7 @@ var SnippetsMenu = Widget.extend({
                     }
                 }
 
-                self.getEditableArea().find('.oe_drop_zone').droppable('destroy').remove();
+                self.$editable.find('.oe_drop_zone').droppable('destroy').remove();
 
                 if (dropped) {
                     var prev = $toInsert.first()[0].previousSibling;
@@ -1404,6 +1473,8 @@ var SnippetsMenu = Widget.extend({
                         $parent.prepend($toInsert);
                     }
 
+                    $toInsert.closest('.o_editable').trigger('content_changed');
+
                     var $target = $toInsert;
 
                     _.defer(function () {
@@ -1411,12 +1482,12 @@ var SnippetsMenu = Widget.extend({
                         self._disableUndroppableSnippets();
 
                         self._callForEachChildSnippet($target, function (editor, $snippet) {
-                            editor.buildSnippet();
+                            _.defer(function () {
+                                editor.buildSnippet();
+                            });
                         }).then(function () {
-                            $target.trigger('content_changed');
-                            if ($target.closest('body').length) { // can be destroyed (eg in test)
-                                self._activateSnippet($target);
-                            }
+                            $target.closest('.o_editable').trigger('content_changed');
+                            self._activateSnippet($target);
                         });
                     });
                 } else {

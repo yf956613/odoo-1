@@ -2,7 +2,15 @@ odoo.define('website.editMenu', function (require) {
 'use strict';
 
 var core = require('web.core');
+<<<<<<< HEAD
 var EditorMenu = require('website.editor.menu');
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+var weContext = require('web_editor.context');
+var EditorMenu = require('website.editor.menu');
+=======
+var weContext = require('web_editor.context');
+var editor = require('web_editor.editor');
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var websiteNavbarData = require('website.navbar');
 
 var _t = core._t;
@@ -24,8 +32,6 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         snippet_will_be_cloned: '_onSnippetWillBeCloned',
         snippet_cloned: '_onSnippetCloned',
         snippet_dropped: '_onSnippetDropped',
-        edition_will_stopped: '_onEditionWillStop',
-        edition_was_stopped: '_onEditionWasStopped',
     }),
 
     /**
@@ -52,6 +58,7 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
     start: function () {
         var def = this._super.apply(this, arguments);
 
+<<<<<<< HEAD
         // If we auto start the editor, do not show a welcome message
         if (this._editorAutoStart) {
             return Promise.all([def, this._startEditMode()]);
@@ -59,14 +66,28 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
 
         // Check that the page is empty
         var $wrap = this._targetForEdition().filter('#wrapwrap.homepage').find('#wrap');
-
-        if ($wrap.length && $wrap.html().trim() === '') {
-            // If readonly empty page, show the welcome message
-            this.$welcomeMessage = $(core.qweb.render('website.homepage_editor_welcome_message'));
-            this.$welcomeMessage.addClass('o_homepage_editor_welcome_message');
-            this.$welcomeMessage.css('min-height', $wrap.parent('main').height() - ($wrap.outerHeight(true) - $wrap.height()));
-            $wrap.empty().append(this.$welcomeMessage);
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        // Check that the page is empty
+        var $wrap = this._targetForEdition().find('#wrap');
+        this.$wrap = $wrap;
+=======
+        // If we auto start the editor, do not show a welcome message
+        if (this._editorAutoStart) {
+            this._startEditMode();
+            return def;
         }
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+
+        // Check that the page is empty
+        var $wrap = $('#wrapwrap.homepage #wrap'); // TODO find this element another way
+        if (!$wrap.length || $wrap.html().trim() !== '') {
+            return def;
+        }
+
+        // If readonly empty page, show the welcome message
+        this.$welcomeMessage = $(core.qweb.render('website.homepage_editor_welcome_message'));
+        this.$welcomeMessage.css('min-height', $wrap.parent('main').height() - ($wrap.outerHeight(true) - $wrap.height()));
+        $wrap.empty().append(this.$welcomeMessage);
 
         setTimeout(function () {
             if ($('.o_tooltip.o_animated').length) {
@@ -90,6 +111,7 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
      */
     _startEditMode: function () {
         var self = this;
+<<<<<<< HEAD
         if (this.editModeEnable) {
             return;
         }
@@ -103,9 +125,27 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         }
         this.editModeEnable = true;
         return new EditorMenu(this).prependTo(document.body).then(function () {
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+        this.trigger_up('animation_stop_demand', {
+            $target: this._targetForEdition(),
+        });
+        if (this.$welcomeMessage) {
+            this.$welcomeMessage.detach(); // detach from the readonly rendering before the clone by summernote
+        }
+        return new EditorMenu(this).prependTo(document.body).then(function () {
+=======
+        return (new (editor.Class)(this)).prependTo(document.body).then(function () {
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             if (self.$welcomeMessage) {
+<<<<<<< HEAD
                 $welcomeMessageParent.append(self.$welcomeMessage); // reappend if the user cancel the edition
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+                self.$wrap.append(self.$welcomeMessage); // reappend if the user cancel the edition
+=======
+                self.$welcomeMessage.remove();
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             }
+<<<<<<< HEAD
 
             var $target = self._targetForEdition();
             self.$editorMessageElements = $target
@@ -118,6 +158,25 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
                     onSuccess: resolve,
                     onFailure: reject,
                 });
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+            var $wrapwrap = self._targetForEdition();
+            var $htmlEditable = $wrapwrap.find('.oe_structure.oe_empty, [data-oe-type="html"]').not('[data-editor-message]');
+            $htmlEditable.attr('data-editor-message', _t('DRAG BUILDING BLOCKS HERE'));
+            var def = $.Deferred();
+            self.trigger_up('animation_start_demand', {
+                editableMode: true,
+                onSuccess: def.resolve.bind(def),
+                onFailure: def.reject.bind(def),
+=======
+            var $wrapwrap = $('#wrapwrap'); // TODO find this element another way
+            var $htmlEditable = $wrapwrap.find('.oe_structure.oe_empty, [data-oe-type="html"]').not('[data-editor-message]');
+            $htmlEditable.attr('data-editor-message', _t('DRAG BUILDING BLOCKS HERE'));
+            var def = $.Deferred();
+            self.trigger_up('animation_start_demand', {
+                editableMode: true,
+                onSuccess: def.resolve.bind(def),
+                onFailure: def.reject.bind(def),
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             });
         });
     },
@@ -136,6 +195,7 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
     _onSave: function () {},
 
     //--------------------------------------------------------------------------
+<<<<<<< HEAD
     // Private
     //--------------------------------------------------------------------------
 
@@ -150,6 +210,24 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
     },
 
     //--------------------------------------------------------------------------
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * Returns the target for edition.
+     *
+     * @private
+     * @returns {JQuery}
+     */
+    _targetForEdition: function () {
+        // in edit mode, we have .note-editable className
+        return $('#wrapwrap:not(.note-editable), #wrapwrap.note-editable');
+    },
+
+    //--------------------------------------------------------------------------
+=======
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     // Handlers
     //--------------------------------------------------------------------------
 
@@ -166,8 +244,16 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         });
     },
     /**
+<<<<<<< HEAD
      * Called when content was recreated in the page. Notifies the
      * WebsiteRoot that is should start the public widgets.
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+     * Called when content was recreated in the page. Notifies the
+     * WebsiteRoot that is should start the animations.
+=======
+     * Called when content will be recreated in the page. Notifies the
+     * WebsiteRoot that is should start the animations.
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
      *
      * @private
      * @param {OdooEvent} ev
@@ -179,6 +265,7 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         });
     },
     /**
+<<<<<<< HEAD
      * Called when edition will stop. Notifies the
      * WebsiteRoot that is should stop the public widgets.
      *
@@ -217,6 +304,36 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         });
     },
     /**
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+     * Called when edition will stop. Notifies the
+     * WebsiteRoot that is should stop the animations.
+     *
+     * @private
+     * @param {OdooEvent} ev
+     */
+    _onEditionWillStop: function (ev) {
+        var $target = this._targetForEdition();
+        $target.find('[data-editor-message]').removeAttr('data-editor-message');
+        this.trigger_up('animation_stop_demand', {
+            $target: $target,
+        });
+    },
+    /**
+     * Called when edition was stopped. Notifies the
+     * WebsiteRoot that is should start the animations.
+     *
+     * @private
+     * @param {OdooEvent} ev
+     */
+    _onEditionWasStopped: function (ev) {
+        var $target = this._targetForEdition();
+        this.trigger_up('animation_start_demand', {
+            $target: $target,
+        });
+    },
+    /**
+=======
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
      * Called when a snippet is cloned in the page. Notifies the WebsiteRoot
      * that is should start the public widgets for this snippet and the snippet it
      * was cloned from.

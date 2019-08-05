@@ -7,7 +7,15 @@ var Dialog = require('web.Dialog');
 var mixins = require('web.mixins');
 var rpc = require('web.rpc');
 var Widget = require('web.Widget');
+<<<<<<< HEAD
 var weWidgets = require('wysiwyg.widgets');
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+var weContext = require('web_editor.context');
+var weWidgets = require('wysiwyg.widgets');
+=======
+var weContext = require('web_editor.context');
+var weWidgets = require('web_editor.widget');
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var websiteNavbarData = require('website.navbar');
 
 var _t = core._t;

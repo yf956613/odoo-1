@@ -5,15 +5,46 @@ var ajax = require('web.ajax');
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var Widget = require('web.Widget');
+<<<<<<< HEAD
 var WysiwygTranslate = require('web_editor.wysiwyg.multizone.translate');
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+var weContext = require('web_editor.context');
+var WysiwygTranslate = require('web_editor.wysiwyg.multizone.translate');
+=======
+var weContext = require('web_editor.context');
+require('web_editor.editor');
+var translate = require('web_editor.translate');
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
 var qweb = core.qweb;
 var _t = core._t;
 
+<<<<<<< HEAD
 WysiwygTranslate.include({
     xmlDependencies: (WysiwygTranslate.prototype.xmlDependencies || [])
         .concat(['/website_gengo/static/src/xml/website.gengo.xml']),
     events: _.extend({}, WysiwygTranslate.prototype.events, {
+||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+if (!weContext.getExtra().edit_translations) {
+    // Temporary hack until the editor bar is moved to the web client
+    return;
+}
+
+ajax.loadXML('/website_gengo/static/src/xml/website.gengo.xml', qweb);
+
+WysiwygTranslate.include({
+    events: _.extend({}, WysiwygTranslate.prototype.events, {
+=======
+if (!weContext.getExtra().edit_translations) {
+    // Temporary hack until the editor bar is moved to the web client
+    return;
+}
+
+ajax.loadXML('/website_gengo/static/src/xml/website.gengo.xml', qweb);
+
+translate.Class.include({
+    events: _.extend({}, translate.Class.prototype.events, {
+>>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         'click a[data-action=translation_gengo_post]': 'translation_gengo_post',
         'click a[data-action=translation_gengo_info]': 'translation_gengo_info',
     }),

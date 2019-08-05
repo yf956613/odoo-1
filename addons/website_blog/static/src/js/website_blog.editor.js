@@ -59,15 +59,15 @@ odoo.define('website_blog.editor', function (require) {
 'use strict';
 
 require('web.dom_ready');
-var weWidgets = require('wysiwyg.widgets');
+var weWidgets = require('web_editor.widget');
 var options = require('web_editor.snippets.options');
-var WysiwygMultizone = require('web_editor.wysiwyg.multizone');
+var rte = require('web_editor.rte');
 
 if (!$('.website_blog').length) {
     return Promise.reject("DOM doesn't contain '.website_blog'");
 }
 
-WysiwygMultizone.include({
+rte.Class.include({
     /**
      * @override
      */
@@ -83,14 +83,14 @@ WysiwygMultizone.include({
     /**
      * @override
      */
-    _saveElement: function (outerHTML, recordInfo, editable) {
+    _saveElement: function ($el, context) {
         var defs = [this._super.apply(this, arguments)];
         // TODO the o_dirty class is not put on the right element for blog cover
         // edition. For some strange reason, it was forcly put (even if not
         // dirty) in <= saas-16 but this is not the case anymore.
-        var $blogContainer = $(editable).closest('.o_blog_cover_container');
+        var $blogContainer = $el.closest('.o_blog_cover_container');
         if (!this.__blogCoverSaved && $blogContainer.length) {
-            var $el = $blogContainer;
+            $el = $blogContainer;
             this.__blogCoverSaved = true;
             defs.push(this._rpc({
                 route: '/blog/post_change_background',
@@ -98,9 +98,9 @@ WysiwygMultizone.include({
                     post_id: parseInt($el.closest('[name="blog_post"], .website_blog').find('[data-oe-model="blog.post"]').first().data('oe-id'), 10),
                     cover_properties: {
                         'background-image': $el.children('.o_blog_cover_image').css('background-image').replace(/"/g, '').replace(window.location.protocol + "//" + window.location.host, ''),
-                        'background-color': $el.attr('data-filterColor'),
-                        'opacity': $el.attr('data-filterValue'),
-                        'resize_class': $el.attr('data-coverClass'),
+                        'background-color': $el.data('filterColor'),
+                        'opacity': $el.data('filterValue'),
+                        'resize_class': $el.data('coverClass'),
                     },
                 },
             }));
@@ -246,9 +246,9 @@ options.registry.blog_cover = options.Class.extend({
                 return self.$filter.hasClass($(this).data('filterColor'));
             }).addClass('active').data('filterColor');
 
-        this.$target.attr('data-coverClass', this.$el.find('.active[data-select-class]').data('selectClass') || '');
-        this.$target.attr('data-filterValue', activeFilterValue || 0.0);
-        this.$target.attr('data-filterColor', activeFilterColor || '');
+        this.$target.data('coverClass', this.$el.find('.active[data-select-class]').data('selectClass') || '');
+        this.$target.data('filterValue', activeFilterValue || 0.0);
+        this.$target.data('filterColor', activeFilterColor || '');
     },
 });
 });
