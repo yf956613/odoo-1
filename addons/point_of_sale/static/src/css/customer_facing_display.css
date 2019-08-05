@@ -451,16 +451,10 @@ body.editor_enable .pos-hidden {
     top: 35px;
   }
 }
-<<<<<<< HEAD
-body.editor_enable #oe_manipulators .oe_overlay > .oe_overlay_options > .btn-group > .dropdown.oe_options.btn-group.snippet-option-pos_palette > .dropdown-menu {
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-body.editor_enable #oe_manipulators .oe_overlay > .oe_overlay_options > .btn-group > .dropdown.oe_options.btn-group.snippet-option-pos_palette > ul {
-=======
 body.editor_enable #web_editor-toolbars .btn-group:not(.note-history) {
   display: none;
 }
-body.editor_enable #oe_manipulators .oe_overlay > .oe_overlay_options > .btn-group > .dropdown.oe_options.btn-group.snippet-option-pos_palette > ul {
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+body.editor_enable #oe_manipulators .oe_overlay > .oe_overlay_options > .btn-group > .dropdown.oe_options.btn-group.snippet-option-pos_palette > .dropdown-menu {
   min-width: 100px;
   max-width: 100px;
 }
