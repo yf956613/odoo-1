@@ -1,45 +1,18 @@
 odoo.define('web_editor.translate', function (require) {
 'use strict';
 
-<<<<<<< HEAD
-require('web.dom_ready');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-require('web_editor.ready');
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var localStorage = require('web.local_storage');
-<<<<<<< HEAD
-var Wysiwyg = require('web_editor.wysiwyg.root');
-var EditorMenu = require('website.editor.menu');
-
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var weContext = require('web_editor.context');
-var WysiwygTranslate = require('web_editor.wysiwyg.multizone.translate');
-var EditorMenu = require('website.editor.menu');
-
-var lang = $('html').attr('lang').replace('-', '_');
-if ($('.js_change_lang[data-lang="' + lang + '"]').data('default-lang')) {
-    return $.Deferred().reject("It's the default language");
-}
-
-=======
 var Widget = require('web.Widget');
 var weContext = require('web_editor.context');
 var rte = require('web_editor.rte');
 var weWidgets = require('web_editor.widget');
-var Dialog = require('web.Dialog');
 
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var _t = core._t;
 
 var localStorageNoDialogKey = 'website_translator_nodialog';
 
-<<<<<<< HEAD
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-
-=======
 var RTETranslatorWidget = rte.Class.extend({
 
     //--------------------------------------------------------------------------
@@ -107,7 +80,6 @@ var AttributeTranslateDialog = weWidgets.Dialog.extend({
     }
 });
 
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var TranslatorInfoDialog = Dialog.extend({
     template: 'web_editor.TranslatorInfoDialog',
     xmlDependencies: Dialog.prototype.xmlDependencies.concat(
@@ -142,19 +114,6 @@ var TranslatorInfoDialog = Dialog.extend({
     },
 });
 
-<<<<<<< HEAD
-var WysiwygTranslate = Wysiwyg.extend({
-    assetLibs: Wysiwyg.prototype.assetLibs.concat(['website.compiled_assets_wysiwyg']),
-    _getWysiwygContructor: function () {
-        return odoo.__DEBUG__.services['web_editor.wysiwyg.multizone.translate'];
-    }
-});
-
-var TranslatorMenu = EditorMenu.extend({
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var TranslatorMenu = EditorMenu.extend({
-    LOCATION_SEARCH: 'edit_translations',
-=======
 var TranslatorMenuBar = Widget.extend({
     template: 'web_editor.editorbar',
     xmlDependencies: ['/web_editor/static/src/xml/editor.xml'],
@@ -202,18 +161,12 @@ var TranslatorMenuBar = Widget.extend({
         this.$target_attribute = $('.o_editable_translatable_attribute');
 
         this.lang = lang || weContext.get().lang;
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
         this.rte = new RTETranslatorWidget(this, this._getRTEConfig);
     },
     /**
      * @override
      */
-<<<<<<< HEAD
-    start: function () {
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    start: function () {    	
-=======
     start: function () {
         this.$('#web_editor-toolbars').remove();
 
@@ -234,7 +187,6 @@ var TranslatorMenuBar = Widget.extend({
         this.$el.show(); // TODO seems useless
         this.trigger('edit');
 
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         if (!localStorage.getItem(localStorageNoDialogKey)) {
             new TranslatorInfoDialog(this).open();
         }
@@ -397,19 +349,6 @@ var TranslatorMenuBar = Widget.extend({
      * @private
      * @param {OdooEvent} ev
      */
-<<<<<<< HEAD
-    _wysiwygInstance: function () {
-        var context;
-        this.trigger_up('context_get', {
-            callback: function (ctx) {
-                context = ctx;
-            },
-        });
-        return new WysiwygTranslate(this, {lang: context.lang});
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    _wysiwygInstance: function () {
-    	return new WysiwygTranslate(this, {lang: lang || weContext.get().lang});
-=======
     _onRTEChange: function (ev) {
         var $node = $(ev.data.target);
         $node.find('p').each(function () { // remove <p/> element which might have been inserted because of copy-paste
@@ -426,18 +365,10 @@ var TranslatorMenuBar = Widget.extend({
      */
     _onSaveClick: function () {
         this._save();
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     },
 });
 
-<<<<<<< HEAD
-return TranslatorMenu;
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-return TranslatorMenu;
-
-=======
 return {
     Class: TranslatorMenuBar,
 };
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 });
