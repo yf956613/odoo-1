@@ -2,35 +2,14 @@ odoo.define('website_forum.website_forum', function (require) {
 'use strict';
 
 var core = require('web.core');
-<<<<<<< HEAD
-var Wysiwyg = require('web_editor.wysiwyg.root');
-var publicWidget = require('web.public.widget');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var weContext = require('web_editor.context');
-var Wysiwyg = require('web_editor.wysiwyg');
-var rootWidget = require('root.widget');
 var sAnimations = require('website.content.snippets.animation');
-=======
-var sAnimations = require('website.content.snippets.animation');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var session = require('web.session');
 var utils = require('web.utils');
 var qweb = core.qweb;
 
 var _t = core._t;
 
-<<<<<<< HEAD
-publicWidget.registry.websiteForum = publicWidget.Widget.extend({
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-
-if (!$('.website_forum').length) {
-    return $.Deferred().reject("DOM doesn't contain '.website_forum'");
-}
-
-sAnimations.registryObject.add('websiteForum', sAnimations.Class.extend({
-=======
 sAnimations.registry.websiteForum = sAnimations.Class.extend({
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     selector: '.website_forum',
     xmlDependencies: ['/website_forum/static/src/xml/website_forum_share_templates.xml'],
     events: {
@@ -148,49 +127,6 @@ sAnimations.registry.websiteForum = sAnimations.Class.extend({
             $textarea.summernote({
                 height: 150,
                 toolbar: toolbar,
-<<<<<<< HEAD
-                styleWithSpan: false,
-                recordInfo: {
-                    context: self._getContext(),
-                    res_model: 'forum.post',
-                    res_id: +window.location.pathname.split('-').pop(),
-                },
-            };
-            if (!hasFullEdit) {
-                options.plugins = {
-                    LinkPlugin: false,
-                    MediaPlugin: false,
-                };
-            }
-            var wysiwyg = new Wysiwyg(self, options);
-            wysiwyg.attachTo($textarea).then(function () {
-                // float-left class messes up the post layout OPW 769721
-                $form.find('.note-editable').find('img.float-left').removeClass('float-left');
-                $form.on('click', 'button, .a-submit', function () {
-                    $form.find('textarea').data('wysiwyg').save();
-                });
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-                styleWithSpan: false,
-                recordInfo: {
-                    context: weContext.get(),
-                    res_model: 'forum.post',
-                    res_id: +window.location.pathname.split('-').pop(),
-                },
-            };
-            if (!hasFullEdit) {
-                options.plugins = {
-                    LinkPlugin: false,
-                    MediaPlugin: false,
-                };
-            }
-            var wysiwyg = new Wysiwyg(rootWidget, options);
-            wysiwyg.attachTo($textarea).then(function () {
-                // float-left class messes up the post layout OPW 769721
-                $form.find('.note-editable').find('img.float-left').removeClass('float-left');
-                $form.on('click', 'button, .a-submit', function () {
-                    $form.find('textarea').data('wysiwyg').save();
-                });
-=======
                 styleWithSpan: false
             });
 
@@ -198,7 +134,6 @@ sAnimations.registry.websiteForum = sAnimations.Class.extend({
             $form.find('.note-editable').find('img.float-left').removeClass('float-left');
             $form.on('click', 'button, .a-submit', function () {
                 $textarea.html($form.find('.note-editable').code());
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
             });
         });
 
