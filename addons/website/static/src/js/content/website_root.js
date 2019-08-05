@@ -23,39 +23,6 @@ var WebsiteRoot = publicRootData.PublicRoot.extend({
     }),
 
     /**
-<<<<<<< HEAD
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-     * @constructor
-     */
-    init: function () {
-        this._super.apply(this, arguments);
-        this.animations = [];
-        sAnimation.registryObject.onAdd(this._startMissingAnimations.bind(this));
-    },
-    /**
-     * @override
-     */
-    willStart: function () {
-        // TODO would be even greater to wait for localeDef only when necessary
-        return $.when(this._super.apply(this, arguments), localeDef);
-    },
-    /**
-=======
-     * @constructor
-     */
-    init: function () {
-        this._super.apply(this, arguments);
-        this.animations = [];
-    },
-    /**
-     * @override
-     */
-    willStart: function () {
-        // TODO would be even greater to wait for localeDef only when necessary
-        return $.when(this._super.apply(this, arguments), localeDef);
-    },
-    /**
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
      * @override
      */
     start: function () {
@@ -95,7 +62,6 @@ var WebsiteRoot = publicRootData.PublicRoot.extend({
     /**
      * @override
      */
-<<<<<<< HEAD
     _getExtraContext: function (context) {
         var html = document.documentElement;
         return _.extend({
@@ -104,60 +70,6 @@ var WebsiteRoot = publicRootData.PublicRoot.extend({
             'edit_translations': !!html.dataset.edit_translations,
         }, this._super.apply(this, arguments));
     },
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    _startAnimations: function (editableMode, $from) {
-        var self = this;
-
-        this.startInEditableMode = editableMode || false;
-        if ($from === undefined) {
-            $from = this.$('#wrapwrap');
-        }
-
-        this._stopAnimations($from);
-
-        var defs = _.map(sAnimation.registry, function (Animation, animationName) {
-            var selector = Animation.prototype.selector || '';
-            var $target = $from.find(selector).addBack(selector);
-
-            var defs = _.map($target, function (el) {
-                var animation = new Animation(self, self.startInEditableMode);
-                self.animations.push(animation);
-                return animation.attachTo($(el));
-            });
-            return $.when.apply($, defs);
-        });
-        return $.when.apply($, defs);
-    },
-    _startMissingAnimations: function () {
-        if (this.animations.length) {
-            this._startAnimations(this.startInEditableMode);
-        }
-    },
-=======
-    _startAnimations: function (editableMode, $from) {
-        var self = this;
-
-        editableMode = editableMode || false;
-        if ($from === undefined) {
-            $from = this.$('#wrapwrap');
-        }
-
-        this._stopAnimations($from);
-
-        var defs = _.map(sAnimation.registry, function (Animation, animationName) {
-            var selector = Animation.prototype.selector || '';
-            var $target = $from.find(selector).addBack(selector);
-
-            var defs = _.map($target, function (el) {
-                var animation = new Animation(self, editableMode);
-                self.animations.push(animation);
-                return animation.attachTo($(el));
-            });
-            return $.when.apply($, defs);
-        });
-        return $.when.apply($, defs);
-    },
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     /**
      * @override
      */
