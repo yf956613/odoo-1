@@ -2,14 +2,8 @@ odoo.define('website_forum.editor', function (require) {
 "use strict";
 
 var core = require('web.core');
-<<<<<<< HEAD
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var Widget = require('web.Widget');
-var Wysiwyg = require('web_editor.wysiwyg');
-=======
 var Widget = require('web.Widget');
 var SummernoteManager = require('web_editor.rte.summernote');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var WebsiteNewMenu = require('website.newMenu');
 var Dialog = require('web.Dialog');
 
@@ -92,10 +86,6 @@ WebsiteNewMenu.include({
         return def;
     },
 });
-<<<<<<< HEAD
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-
-=======
 
 var WebsiteForumManager = Widget.extend({
     /**
@@ -107,5 +97,4 @@ var WebsiteForumManager = Widget.extend({
     },
 });
 websiteRootData.websiteRootRegistry.add(WebsiteForumManager, '#wrapwrap');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 });
