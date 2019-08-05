@@ -1,167 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<<<<<<< HEAD
-
-<template id="wysiwyg_iframe_css_assets" name="CSS assets for wysiwyg iframe content">
-    <t t-call-assets="web.assets_common" t-js="false"/>
-    <t t-call-assets="web.assets_backend" t-js="false"/>
-</template>
-
-<template id="compiled_assets_wysiwyg" name="Wysiwyg Editor">
-    <t t-call-assets="web_editor.assets_wysiwyg"/>
-</template>
-
-<template id="assets_wysiwyg" name="Wysiwyg Editor Assets">
-    <!-- lib -->
-
-    <link rel="stylesheet" type="text/css" href="/web_editor/static/lib/summernote/summernote.css"/>
-    <link rel="stylesheet" type="text/css" href="/web_editor/static/lib/cropper/css/cropper.css"/>
-
-    <script type="text/javascript" src="/web_editor/static/lib/summernote/summernote.js"/>
-    <script type="text/javascript" src="/web_editor/static/lib/cropper/js/cropper.js"/>
-    <script type="text/javascript" src="/web_editor/static/lib/jQuery.transfo.js"/>
-
-    <!-- odoo utils -->
-
-    <t t-call="web._assets_helpers">
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/bootstrap_overridden.scss"/>
-    </t>
-
-    <!-- integration -->
-
-    <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg.scss"/>
-    <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_iframe.scss"/>
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/wysiwyg.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/wysiwyg_iframe.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin_registry.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/options.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/translation.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/fonts.js"/>
-
-    <!-- widgets & plugins -->
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/image_optimize_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/media.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/alt_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/crop_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/link_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/media_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/widgets.js"/>
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/abstract.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/plugins.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/helper.js"/>
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/toolbar.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/dropzone.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/history.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/table.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/text.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/editor.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/media.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/buttons.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/link.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/font.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/font_buttons.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/keyboard.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/unbreakable.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/transform.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/hint.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/bullet.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/codeview.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/help_dialog.js"/>
-</template>
-
-<template id="wysiwyg_snippets" inherit_id="web_editor.assets_wysiwyg" name="Wysiwyg Editor additional snippets">
-    <xpath expr="." position="inside">
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_variables.scss"/>
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_snippets.scss"/>
-
-        <script type="text/javascript" src="/web_editor/static/lib/nearest/jquery.nearest.js"/>
-
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg_snippets/wysiwyg_snippets.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg_snippets/snippets.editor.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg_snippets/snippets.options.js"/>
-    </xpath>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-
-<template id="wysiwyg_iframe_css_assets" name="CSS assets for wysiwyg iframe content">
-    <t t-call-assets="web.assets_common" t-js="false"/>
-    <t t-call-assets="web.assets_backend" t-js="false"/>
-</template>
-
-<template id="wysiwyg" name="Wysiwyg Editor">
-    <!-- lib -->
-
-    <link rel="stylesheet" type="text/css" href="/web_editor/static/lib/summernote/summernote.css"/>
-    <link rel="stylesheet" type="text/css" href="/web_editor/static/lib/cropper/css/cropper.css"/>
-
-    <script type="text/javascript" src="/web_editor/static/lib/summernote/summernote.js"/>
-    <script type="text/javascript" src="/web_editor/static/lib/cropper/js/cropper.js"/>
-    <script type="text/javascript" src="/web_editor/static/lib/jQuery.transfo.js"/>
-
-    <!-- integration -->
-
-    <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_variables.scss"/>
-    <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg.scss"/>
-    <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_iframe.scss"/>
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/wysiwyg.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/wysiwyg_iframe.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin_registry.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/options.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/translation.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/fonts.js"/>
-
-    <!-- widgets & plugins -->
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/media.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/alt_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/colorpicker_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/crop_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/link_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/media_dialog.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/widgets/widgets.js"/>
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/abstract.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/plugins.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/helper.js"/>
-
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/toolbar.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/dropzone.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/history.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/table.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/text.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/editor.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/media.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/buttons.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/link.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/font.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/font_buttons.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/keyboard.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/unbreakable.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/transform.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/hint.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/bullet.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/codeview.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/plugin/help_dialog.js"/>
-</template>
-
-<template id="wysiwyg_snippets" inherit_id="web_editor.wysiwyg" name="Wysiwyg Editor additional snippets">
-    <xpath expr="." position="inside">
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_variables.scss"/>
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_snippets.scss"/>
-
-        <script type="text/javascript" src="/web_editor/static/lib/nearest/jquery.nearest.js"/>
-
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg_snippets/wysiwyg_snippets.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg_snippets/snippets.editor.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg_snippets/snippets.options.js"/>
-    </xpath>
-=======
 <template id="summernote" name="Summernote">
     <script type="text/javascript">
         (function () {
@@ -212,13 +50,11 @@
         delete odoo.website_next_define;
     </script>
     <link rel="stylesheet" type="text/css" href="/web_editor/static/lib/summernote/src/css/summernote.css"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 </template>
 
 <template id="_assets_primary_variables" inherit_id="web._assets_primary_variables">
     <xpath expr="//link[last()]" position="after">
         <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.variables.scss"/>
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_variables.scss"/>
     </xpath>
 </template>
 
@@ -230,19 +66,9 @@
 
 <template id="assets_common" inherit_id="web.assets_common" name="Web Editor Common Assets (used in backend interface and website)">
     <xpath expr="script[last()]" position="after">
-<<<<<<< HEAD
-        <script type="text/javascript" src="/web_editor/static/lib/vkbeautify/vkbeautify.0.99.00.beta.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/common/ace.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/wysiwyg/root.js"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        <script type="text/javascript" src="/web_editor/static/lib/vkbeautify/vkbeautify.0.99.00.beta.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/common/ace.js"/>
-        <t t-call="web_editor.wysiwyg"/>
-=======
         <script type="text/javascript" src="/web_editor/static/lib/vkbeautify/vkbeautify.0.99.00.beta.js"></script>
         <script type="text/javascript" src="/web_editor/static/src/js/base.js"/>
         <script type="text/javascript" src="/web_editor/static/src/js/widgets/ace.js"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     </xpath>
 </template>
 
@@ -272,18 +98,10 @@
 <template id="assets_frontend" inherit_id="web.assets_frontend" name="Web Editor Frontend Assets (used in public odoo)" priority="15">
     <xpath expr="//link[last()]" position="after">
         <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.common.scss"/> <!-- not in common because compiled differently with context -->
-<<<<<<< HEAD
-        <link rel="stylesheet" type ="text/scss" href="/web_editor/static/src/scss/web_editor.frontend.scss"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    </xpath>
-    <xpath expr="//script[last()]" position="after">
-        <script type="text/javascript" src="/web_editor/static/src/js/root_widget.js"/>
-=======
     </xpath>
     <xpath expr="//script[last()]" position="after">
         <script type="text/javascript" src="/web_editor/static/src/js/content/body_manager.js"/>
         <script type="text/javascript" src="/web_editor/static/src/js/root_widget.js"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     </xpath>
 </template>
 
@@ -321,35 +139,8 @@
     </xpath>
 </template>
 <template id="qunit_suite" inherit_id="web.qunit_suite">
-<<<<<<< HEAD
-    <xpath expr="//script[last()]" position="after">
-        <script type="text/javascript">
-            odoo.define('web_editor.wysiwyg.root.test', function (require) {
-                'use strict';
-                var WysiwygRoot = require('web_editor.wysiwyg.root');
-                WysiwygRoot.include({
-                    assetLibs: null // We need to add the asset because tests performed overwrites (Dialog, Unbreakable...)
-                });
-            });
-        </script>
-        <t t-call="web_editor.compiled_assets_wysiwyg"/>
-
-        <script type="text/javascript" src="/web_editor/static/tests/test_utils.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/field_html_tests.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/wysiwyg_tests.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/wysiwyg_keyboard_tests.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/wysiwyg_snippets_tests.js"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    <xpath expr="." position="inside">
-        <script type="text/javascript" src="/web_editor/static/tests/test_utils.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/field_html_tests.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/wysiwyg_tests.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/wysiwyg_keyboard_tests.js"/>
-        <script type="text/javascript" src="/web_editor/static/tests/wysiwyg_snippets_tests.js"/>
-=======
     <xpath expr="." position="inside">
         <script type="text/javascript" src="/web_editor/static/tests/web_editor_tests.js"></script>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     </xpath>
 </template>
 

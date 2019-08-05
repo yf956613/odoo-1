@@ -1,15 +1,4 @@
-<<<<<<< HEAD
-.oe_form_field_html {
-    position: relative;
-    word-wrap: break-word;
-
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-.oe_form_field_html {
-    position: relative;
-
-=======
 .oe_form_field_html_text {
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     .note-editable {
         min-height: 180px;
         font: initial !important;
@@ -33,6 +22,7 @@
         margin: 0;
         padding: 0;
         border: 0;
+        word-wrap: break-word;
         ul > li > p {
             margin: 0px;
         }
