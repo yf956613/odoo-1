@@ -2,15 +2,7 @@ odoo.define('website.translateMenu', function (require) {
 'use strict';
 
 var utils = require('web.utils');
-<<<<<<< HEAD
-var TranslatorMenu = require('website.editor.menu.translate');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var weContext = require('web_editor.context');
-var TranslatorMenu = require('website.editor.menu.translate');
-=======
-var weContext = require('web_editor.context');
 var translate = require('web_editor.translate');
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var websiteNavbarData = require('website.navbar');
 
 var TranslatePageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
@@ -82,14 +74,7 @@ var TranslatePageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
             window.location.search += '&edit_translations';
             return new Promise(function () {});
         }
-<<<<<<< HEAD
-
-        var translator = new TranslatorMenu(this);
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        var translator = new TranslatorMenu(this);
-=======
         var translator = new (translate.Class)(this, $('#wrapwrap'));
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         return translator.prependTo(document.body);
     },
 });
