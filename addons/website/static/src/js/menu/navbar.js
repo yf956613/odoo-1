@@ -15,24 +15,10 @@ var WebsiteNavbar = publicWidget.RootWidget.extend({
         'mouseover > ul > li.dropdown:not(.show)': '_onMenuHovered',
         'click .o_mobile_menu_toggle': '_onMobileMenuToggleClick',
     }),
-<<<<<<< HEAD
     custom_events: _.extend({}, publicWidget.RootWidget.prototype.custom_events || {}, {
         'action_demand': '_onActionDemand',
         'edit_mode': '_onEditMode',
-        'readonly_mode': '_onReadonlyMode',
         'ready_to_save': '_onSave',
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    custom_events: _.extend({}, rootWidget.RootWidget.prototype.custom_events || {}, {
-        action_demand: '_onActionDemand',
-        edit_mode: '_onEditMode',
-        readonly_mode: '_onReadonlyMode',
-        ready_to_save: '_onSave',
-=======
-    custom_events: _.extend({}, rootWidget.RootWidget.prototype.custom_events || {}, {
-        action_demand: '_onActionDemand',
-        edit_mode: '_onEditMode',
-        ready_to_save: '_onSave',
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     }),
 
     /**
