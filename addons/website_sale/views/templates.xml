@@ -12,12 +12,6 @@
             <script type="text/javascript" src="/website_sale/static/src/js/website_sale_backend.js"></script>
             <link rel="stylesheet" type="text/scss" href="/website_sale/static/src/scss/website_sale_dashboard.scss"/>
             <link rel="stylesheet" type="text/scss" href="/website_sale/static/src/scss/website_sale_backend.scss"/>
-<<<<<<< HEAD
-            <script type="text/javascript" src="/website_sale/static/src/js/tours/website_sale_shop_backend.js"></script>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-            <script type="text/javascript" src="/website_sale/static/src/js/website_sale_tour_shop_backend.js"></script>
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         </xpath>
     </template>
 
