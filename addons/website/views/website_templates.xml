@@ -59,29 +59,13 @@
         <!-- Custom empty file for user custom rules -->
         <link rel="stylesheet" type="text/scss" href="/website/static/src/scss/user_custom_rules.scss"/>
     </xpath>
-<<<<<<< HEAD
     <xpath expr="//script[@src='/web/static/src/js/public/public_root_instance.js']" position="replace">
         <script type="text/javascript" src="/website/static/src/js/content/website_root_instance.js"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    <xpath expr="//script[@src='/web/static/src/js/chrome/public_root_widget.js']" position="replace">
-        <script type="text/javascript" src="/website/static/src/js/content/body_manager.js"/>
-        <script type="text/javascript" src="/website/static/src/js/content/website_root.js"/>
-=======
-    <xpath expr="//script[@src='/web/static/src/js/chrome/public_root_widget.js']" position="replace">
-        <script type="text/javascript" src="/website/static/src/js/content/website_root.js"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     </xpath>
     <xpath expr="//script[last()]" position="after">
         <script type="text/javascript" src="/website/static/src/js/utils.js"/>
 
-<<<<<<< HEAD
         <script type="text/javascript" src="/website/static/src/js/content/website_root.js"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-        <script type="text/javascript" src="/website/static/src/js/content/base.js"/>
-        <script type="text/javascript" src="/website/static/src/js/content/ready.js"/>
-        <script type="text/javascript" src="/website/static/src/js/content/context.js"/>
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
         <script type="text/javascript" src="/website/static/src/js/content/compatibility.js"/>
         <script type="text/javascript" src="/website/static/src/js/content/lazy_template_call.js"/>
         <script type="text/javascript" src="/website/static/src/js/content/menu.js"/>
@@ -122,23 +106,10 @@
 
     <link rel="stylesheet" type="text/scss" href="/website/static/src/scss/website.edit_mode.scss"/>
 
-<<<<<<< HEAD
-    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu_translate.js"/>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu_translate.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/widget_link.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/snippets.options.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/wysiwyg_multizone.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/wysiwyg_multizone_translate.js"/>
-=======
     <script type="text/javascript" src="/website/static/lib/jQuery.transfo.js"/>
-
-    <script type="text/javascript" src="/website/static/src/js/editor/editor.js"/>
+    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu.js"/>
+    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu_translate.js"/>
     <script type="text/javascript" src="/website/static/src/js/editor/rte.summernote.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/snippets.options.js"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
     <script type="text/javascript" src="/website/static/src/js/menu/content.js"/>
     <script type="text/javascript" src="/website/static/src/js/menu/customize.js"/>
@@ -248,71 +219,27 @@
             </t>
         </t>
 
-<<<<<<< HEAD
         <t t-set="languages" t-value="website.get_languages() if website else None"/>
         <t t-if="request and request.is_frontend_multilang and website">
             <t t-foreach="website.get_alternate_languages(request.httprequest)" t-as="lg">
                 <link rel="alternate" t-att-hreflang="lg['hreflang']" t-att-href="lg['href']"/>
             </t>
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-            <script type="text/javascript">
-                odoo.session_info = {
-                    is_admin: <t t-esc="json.dumps(request.env.user._is_admin())"/>,
-                    is_system: <t t-esc="json.dumps(request.env.user._is_system())"/>,
-                    is_frontend: true,
-                    translationURL: '/website/translations',
-                    is_website_user: <t t-esc="json.dumps(request.env.user.id == request.website.user_id.id)" />,
-                    user_id: <t t-esc="json.dumps(request.env.user.id)" />
-                };
-                <t groups="website.group_website_publisher">
-                    odoo.session_info.website_id = <t t-esc="json.dumps(request.website.id)" />;
-                    odoo.session_info.website_company_id = <t t-esc="json.dumps(request.website.company_id.id)" />;
-                </t>
-            </script>
-
-            <t t-call-assets="web.assets_common" t-js="false"/>
-            <t t-call-assets="web.assets_frontend" t-js="false"/>
-            <t t-call-assets="website.assets_editor" t-js="false" groups="website.group_website_publisher"/>
-
-            <t t-call-assets="web.assets_common" t-css="false"/>
-            <t t-call-assets="web.assets_frontend" t-css="false"/>
-            <t t-call-assets="website.assets_editor" t-css="false" groups="website.group_website_publisher"/>
-=======
-            <script type="text/javascript">
-                odoo.session_info = {
-                    is_admin: <t t-esc="json.dumps(request.env.user._is_admin())"/>,
-                    is_system: <t t-esc="json.dumps(request.env.user._is_system())"/>,
-                    is_frontend: true,
-                    translationURL: '/website/translations',
-                    is_website_user: <t t-esc="json.dumps(request.env.user.id == request.website.user_id.id)" />,
-                    user_id: <t t-esc="json.dumps(request.env.user.id)" />
-                };
-                <t groups="website.group_website_publisher">
+            <t groups="website.group_website_publisher">
+                <script type="text/javascript">
                     odoo.snippetsURL = '/website/snippets';
-                    odoo.session_info.website_id = <t t-esc="json.dumps(request.website.id)" />;
-                    odoo.session_info.website_company_id = <t t-esc="json.dumps(request.website.company_id.id)" />;
-                </t>
-            </script>
-
-            <t t-call-assets="web.assets_common" t-js="false"/>
-            <t t-call-assets="web.assets_frontend" t-js="false"/>
-            <t t-call-assets="web_editor.summernote" t-js="false" groups="website.group_website_publisher"/>
-            <t t-call-assets="web_editor.assets_editor" t-js="false" groups="website.group_website_publisher"/>
-            <t t-call-assets="website.assets_editor" t-js="false" groups="website.group_website_publisher"/>
-
-            <t t-call-assets="web.assets_common" t-css="false"/>
-            <t t-call-assets="web.assets_frontend" t-css="false"/>
-            <t t-call-assets="web_editor.summernote" t-css="false" groups="website.group_website_publisher"/>
-            <t t-call-assets="web_editor.assets_editor" t-css="false" groups="website.group_website_publisher"/>
-            <t t-call-assets="website.assets_editor" t-css="false" groups="website.group_website_publisher"/>
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+                </script>
+            </t>
         </t>
     </xpath>
 
     <xpath expr="//head/t[@t-js='false'][last()]" position="after">
+        <t t-call-assets="web_editor.summernote" t-js="false" groups="website.group_website_publisher"/>
+        <t t-call-assets="web_editor.assets_editor" t-js="false" groups="website.group_website_publisher"/>
         <t t-call-assets="website.assets_editor" t-js="false" groups="website.group_website_publisher"/>
     </xpath>
     <xpath expr="//head/t[@t-css='false'][last()]" position="after">
+        <t t-call-assets="web_editor.summernote" t-css="false" groups="website.group_website_publisher"/>
+        <t t-call-assets="web_editor.assets_editor" t-css="false" groups="website.group_website_publisher"/>
         <t t-call-assets="website.assets_editor" t-css="false" groups="website.group_website_publisher" lazy_load="True"/>
     </xpath>
 
