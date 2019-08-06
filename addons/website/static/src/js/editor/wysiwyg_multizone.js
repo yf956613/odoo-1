@@ -2,72 +2,12 @@ odoo.define('web_editor.wysiwyg.multizone', function (require) {
 'use strict';
 var concurrency = require('web.concurrency');
 var core = require('web.core');
-var DropzonePlugin = require('web_editor.wysiwyg.plugin.dropzone');
-var HelperPlugin = require('web_editor.wysiwyg.plugin.helper');
-var TextPlugin = require('web_editor.wysiwyg.plugin.text');
-var HistoryPlugin = require('web_editor.wysiwyg.plugin.history');
-var Wysiwyg = require('web_editor.wysiwyg.snippets');
-
+var rte = require('web_editor.rte');
+var Wysiwyg = require('web_editor.wysiwyg');
 var _t = core._t;
 
-HistoryPlugin.include({
-    /**
-     * @override
-     */
-    applySnapshot: function () {
-        this.trigger_up('content_will_be_destroyed', {
-            $target: this.$editable,
-        });
-        this._super.apply(this, arguments);
-        this.trigger_up('content_was_recreated', {
-            $target: this.$editable,
-        });
-        $('.oe_overlay').remove();
-        $('.note-control-selection').hide();
-        this.$editable.trigger('content_changed');
-    },
-});
 
-HelperPlugin.include({
-    /**
-     * Returns true if range is on or within a field that is not of type 'html'.
-     *
-     * @returns {Boolean}
-     */
-    isOnNonHTMLField: function () {
-        var range = this.context.invoke('editor.createRange');
-        return !!$.summernote.dom.ancestor(range.sc, function (node) {
-            return $(node).data('oe-type') && $(node).data('oe-type') !== 'html';
-        });
-    },
-});
-
-TextPlugin.include({
-    /**
-     * Paste text only if on non-HTML field.
-     *
-     * @override
-     */
-    pasteNodes: function (nodes, textOnly) {
-        textOnly = textOnly || this.context.invoke('HelperPlugin.isOnNonHTMLField');
-        this._super.apply(this, [nodes, textOnly]);
-    },
-});
-
-DropzonePlugin.include({
-    /**
-     * Prevent dropping images in non-HTML fields.
-     *
-     * @override
-     */
-    _canDropHere: function (dataTransfer) {
-        if (this.context.invoke('HelperPlugin.isOnNonHTMLField') && dataTransfer.files.length) {
-            return false;
-        }
-        return this._super();
-    },
-});
-
+        this.rte = new rte.Class(this);
 
 
 /**
@@ -191,9 +131,9 @@ var WysiwygMultizone = Wysiwyg.extend({
             $('.note-editor, .note-popover').filter('[data-wysiwyg-id="' + self.id + '"]').addClass('wysiwyg_multizone');
             $('.note-editable .note-editor, .note-editable .note-editable').attr('contenteditable', false);
 
-            self._summernote.isDisabled = function () {
-                return false;
-            };
+            // self._summernote.isDisabled = function () {
+            //     return false;
+            // };
 
             self.$('.note-editable').addClass('o_not_editable').attr('contenteditable', false);
             self._getEditableArea().attr('contenteditable', true);
@@ -282,7 +222,7 @@ var WysiwygMultizone = Wysiwyg.extend({
         var blockquote = options.styleTags.indexOf('blockquote');
         if (blockquote !== -1) options.styleTags.splice(blockquote, 1);
 
-        options.popover.image[4] = ['editImage', ['cropImage', 'transform']];
+        // options.popover.image[4] = ['editImage', ['cropImage', 'transform']];
         return _.extend(options, {
             styleWithSpan: false,
             followingToolbar: false,

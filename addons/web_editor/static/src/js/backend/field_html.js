@@ -179,7 +179,7 @@ var FieldHtml = basic_fields.DebouncedField.extend(TranslatableFieldMixin, {
      * @returns {Object}
      */
     _getWysiwygOptions: function () {
-        return {
+        return Object.assign({}, this.nodeOptions, {
             recordInfo: {
                 context: this.record.getContext(this.recordParams),
                 res_model: this.model,
@@ -208,7 +208,7 @@ var FieldHtml = basic_fields.DebouncedField.extend(TranslatableFieldMixin, {
                 para[1].splice(2, 0, 'checklist');
                 return options;
             },
-        };
+        });
     },
     /**
      * trigger_up 'field_changed' add record into the "ir.attachment" field found in the view.

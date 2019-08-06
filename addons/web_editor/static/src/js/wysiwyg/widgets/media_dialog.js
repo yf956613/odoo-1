@@ -38,6 +38,7 @@ var MediaDialog = Dialog.extend({
      */
     init: function (parent, options, media) {
         var $media = $(media);
+        media = $media[0];
 
         options = _.extend({}, options);
         options.noDocuments = options.onlyImages || options.noDocuments;
