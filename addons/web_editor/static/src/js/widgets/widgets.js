@@ -109,18 +109,17 @@ var AltDialog = Dialog.extend({
 
 var MediaWidget = Widget.extend({
     xmlDependencies: ['/web_editor/static/src/xml/editor.xml'],
-    events: {
-        'input input.o_we_search': '_onSearchInput',
-    },
 
     /**
      * @constructor
+     * @param {Element} media: the target Element for which we select a media
+     * @param {Object} options: useful parameters such as res_id, res_model,
+     *  context, user_id, ...
      */
     init: function (parent, media, options) {
         this._super.apply(this, arguments);
         this.media = media;
         this.$media = $(media);
-        this._onSearchInput = _.debounce(this._onSearchInput, 500);
     },
 
     //--------------------------------------------------------------------------
@@ -137,14 +136,10 @@ var MediaWidget = Widget.extend({
         this._clear();
     },
     /**
+     * Saves the currently configured media on the target media.
+     *
      * @abstract
-     * @param {string} needle
-     * @returns {Deferred}
-     */
-    search: function (needle) {},
-    /**
-     * @abstract
-     * @returns {*}
+     * @returns {Promise}
      */
     save: function () {},
 
@@ -156,6 +151,7 @@ var MediaWidget = Widget.extend({
      * @abstract
      */
     _clear: function () {},
+
     /**
      * @private
      */
@@ -164,6 +160,33 @@ var MediaWidget = Widget.extend({
         this.$media = $media;
         this.media = $media[0];
     },
+});
+
+var SearchableMediaWidget = MediaWidget.extend({
+    events: _.extend({}, MediaWidget.prototype.events || {}, {
+        'input .o_we_search': '_onSearchInput',
+    }),
+
+    /**
+     * @constructor
+     */
+    init: function () {
+        this._super.apply(this, arguments);
+        this._onSearchInput = _.debounce(this._onSearchInput, 500);
+    },
+
+    //--------------------------------------------------------------------------
+    // Public
+    //--------------------------------------------------------------------------
+
+    /**
+     * Finds and displays existing attachments related to the target media.
+     *
+     * @abstract
+     * @param {string} needle: only return attachments matching this parameter
+     * @returns {Promise}
+     */
+    search: function (needle) {},
 
     //--------------------------------------------------------------------------
     // Handlers
@@ -179,22 +202,23 @@ var MediaWidget = Widget.extend({
 });
 
 /**
- * Let users choose an image, including uploading a new image in odoo.
+ * Let users choose a file, including uploading a new file in odoo.
  */
-var ImageWidget = MediaWidget.extend({
-    template: 'web_editor.dialog.image',
-    events: _.extend({}, MediaWidget.prototype.events || {}, {
+var FileWidget = SearchableMediaWidget.extend({
+    events: _.extend({}, SearchableMediaWidget.prototype.events || {}, {
         'click .o_upload_media_button': '_onUploadButtonClick',
         'click .o_upload_media_button_no_optimization': '_onUploadButtonNoOptimizationClick',
-        'change input[type=file]': '_onImageSelection',
+        'change .o_file_input': '_onImageSelection',
         'click .o_upload_media_url_button': '_onUploadURLButtonClick',
-        'input input.o_we_url_input': '_onURLInputChange',
-        'click .existing-attachments [data-src]': '_onImageClick',
-        'dblclick .existing-attachments [data-src]': '_onImageDblClick',
+        'input .o_we_url_input': '_onURLInputChange',
+        'click .o_existing_attachment_cell [data-src]': '_onImageClick',
+        'dblclick .o_existing_attachment_cell [data-src]': '_onImageDblClick',
         'click .o_existing_attachment_remove': '_onRemoveClick',
         'click .o_load_more': '_onLoadMoreClick',
     }),
+    existingAttachmentsTemplate: undefined,
 
+    IMAGE_MIMETYPES: ['image/gif', 'image/jpe', 'image/jpeg', 'image/jpg', 'image/gif', 'image/png'],
     IMAGES_PER_ROW: 6,
     IMAGES_ROWS: 5,
 
@@ -207,8 +231,11 @@ var ImageWidget = MediaWidget.extend({
         this.imagesRows = this.IMAGES_ROWS;
         this.IMAGES_DISPLAYED_TOTAL = this.IMAGES_PER_ROW * this.imagesRows;
 
-        this.options = options;
-        this.accept = options.accept || (options.document ? '*/*' : 'image/*');
+        this.options = _.extend({
+            firstFilters: [],
+            lastFilters: [],
+        }, options || {});
+
         if (options.domain) {
             this.domain = typeof options.domain === 'function' ? options.domain() : options.domain;
         } else if (options.res_id) {
@@ -218,11 +245,6 @@ var ImageWidget = MediaWidget.extend({
         } else {
             this.domain = [['res_model', '=', 'ir.ui.view']];
         }
-
-        this.multiImages = options.multiImages;
-
-        this.firstFilters = options.firstFilters || [];
-        this.lastFilters = options.lastFilters || [];
 
         this.images = [];
     },
@@ -241,6 +263,15 @@ var ImageWidget = MediaWidget.extend({
     start: function () {
         var def = this._super.apply(this, arguments);
         var self = this;
+        this.$urlInput = this.$('.o_we_url_input');
+        this.$form = this.$('form');
+        this.$fileInput = this.$('.o_file_input');
+        this.$uploadButton = this.$('.o_upload_media_button');
+        this.$addUrlButton = this.$('.o_upload_media_url_button');
+        this.$urlSuccess = this.$('.o_we_url_success');
+        this.$urlWarning = this.$('.o_we_url_warning');
+        this.$urlError = this.$('.o_we_url_error');
+        this.$errorText = this.$('.o_we_error_text');
 
         this._renderImages(true);
 
@@ -266,17 +297,21 @@ var ImageWidget = MediaWidget.extend({
     //--------------------------------------------------------------------------
 
     /**
+     * Saves the currently selected image on the target media. If new files are
+     * currently being added, delays the save until all files have been added.
+     *
      * @override
      */
     save: function () {
         var self = this;
-        if (this.multiImages) {
-            return this.images;
+
+        if (this.options.multiImages) {
+            return Promise.resolve(this.images);
         }
 
         var img = this.images[0];
         if (!img) {
-            return this.media;
+            return Promise.resolve(this.media);
         }
 
         var def = $.when();
@@ -323,11 +358,6 @@ var ImageWidget = MediaWidget.extend({
                 self.$media.css(style);
             }
 
-            if (self.options.onUpload) {
-                // We consider that when selecting an image it is as if we upload it in the html content.
-                self.options.onUpload([img]);
-            }
-
             // Remove crop related attributes
             if (self.$media.attr('data-aspect-ratio')) {
                 var attrs = ['aspect-ratio', 'x', 'y', 'width', 'height', 'rotate', 'scale-x', 'scale-y'];
@@ -345,10 +375,10 @@ var ImageWidget = MediaWidget.extend({
     search: function (needle, noRender) {
         var self = this;
         if (!noRender) {
-            this.$('input.o_we_url_input').val('').trigger('input').trigger('change');
+            this.$urlInput.val('').trigger('input').trigger('change');
         }
         // TODO: Expand this for adding SVG
-        var domain = this.domain.concat(['|', ['mimetype', '=', false], ['mimetype', this.options.document ? 'not in' : 'in', ['image/gif', 'image/jpe', 'image/jpeg', 'image/jpg', 'image/gif', 'image/png']]]);
+        var domain = this.domain.concat(this.options.mimetypeDomain);
         if (needle && needle.length) {
             domain.push('|', ['datas_fname', 'ilike', needle], ['name', 'ilike', needle]);
         }
@@ -361,7 +391,7 @@ var ImageWidget = MediaWidget.extend({
                 domain: domain,
                 fields: ['name', 'datas_fname', 'mimetype', 'checksum', 'url', 'type', 'res_id', 'res_model', 'access_token'],
                 order: [{name: 'id', asc: false}],
-                context: weContext.get(),
+                context: this.options.context,
             },
         }).then(function (records) {
             self.records = _.chain(records)
@@ -372,13 +402,13 @@ var ImageWidget = MediaWidget.extend({
                     return (r.url || r.id);
                 })
                 .sortBy(function (r) {
-                    if (_.any(self.firstFilters, function (filter) {
+                    if (_.any(self.options.firstFilters, function (filter) {
                         var regex = new RegExp(filter, 'i');
                         return r.name.match(regex) || r.datas_fname && r.datas_fname.match(regex);
                     })) {
                         return -1;
                     }
-                    if (_.any(self.lastFilters, function (filter) {
+                    if (_.any(self.options.lastFilters, function (filter) {
                         var regex = new RegExp(filter, 'i');
                         return r.name.match(regex) || r.datas_fname && r.datas_fname.match(regex);
                     })) {
@@ -446,6 +476,20 @@ var ImageWidget = MediaWidget.extend({
         }
     },
     /**
+     * Renders the existing attachments and returns the result as a string.
+     *
+     * @param {Object[]} rows
+     * @param {boolean} withEffect
+     * @returns {string}
+     */
+    _renderExisting: function (rows, withEffect) {
+        return QWeb.render(this.existingAttachmentsTemplate, {
+            rows: rows,
+            widget: this,
+            withEffect: withEffect,
+        });
+    },
+    /**
      * @private
      */
     _renderImages: function (withEffect) {
@@ -456,15 +500,11 @@ var ImageWidget = MediaWidget.extend({
             .values()
             .value();
 
-        this.$('.form-text').empty();
+        this.$errorText.empty();
 
         // Render menu & content
         this.$('.existing-attachments').replaceWith(
-            QWeb.render('web_editor.dialog.files.existing.content', {
-                rows: rows,
-                isDocument: this.options.document,
-                withEffect: withEffect,
-            })
+            this._renderExisting(rows, withEffect)
         );
 
         var $divs = this.$('.o_image');
@@ -494,7 +534,7 @@ var ImageWidget = MediaWidget.extend({
      * @private
      */
     _toggleImage: function (attachment, clearSearch, forceSelect) {
-        if (this.multiImages) {
+        if (this.options.multiImages) {
             var img = _.select(this.images, function (v) { return v.id === attachment.id; });
             if (img.length) {
                 if (!forceSelect) {
@@ -511,6 +551,22 @@ var ImageWidget = MediaWidget.extend({
         if (clearSearch) {
             this.search('');
         }
+    },
+    /**
+     * Updates the add by URL UI.
+     *
+     * @private
+     * @param {boolean} emptyValue
+     * @param {boolean} isURL
+     * @param {boolean} isImage
+     */
+    _updateAddUrlUi(emptyValue, isURL, isImage) {
+        this.$addUrlButton.toggleClass('btn-secondary', emptyValue)
+            .toggleClass('btn-primary', !emptyValue)
+            .prop('disabled', !isURL);
+
+        this.$urlSuccess.toggleClass('d-none', !isURL);
+        this.$urlError.toggleClass('d-none', emptyValue || isURL);
     },
     /**
      * @private
@@ -551,14 +607,14 @@ var ImageWidget = MediaWidget.extend({
                     self._toggleImage(attachment, true);
                 } else {
                     self.$el.addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
-                    self.$el.find('.form-text').text(error);
+                    self.$errorText.text(error);
                 }
             }
         });
         this.$el.submit();
 
         // Empty file input
-        this.$('.o_file_input').val('');
+        self.$fileInput.val('');
     },
 
     //--------------------------------------------------------------------------
@@ -586,11 +642,10 @@ var ImageWidget = MediaWidget.extend({
      * @private
      */
     _onImageSelection: function () {
-        var $form = this.$('form');
         this.$el.addClass('nosave');
-        $form.removeClass('o_has_error').find('.form-control, .custom-select').removeClass('is-invalid');
-        $form.find('.form-text').empty();
-        this.$('.o_upload_media_button').removeClass('btn-danger btn-success');
+        this.$form.removeClass('o_has_error').find('.form-control, .custom-select').removeClass('is-invalid');
+        this.$errorText.empty();
+        this.$uploadButton.removeClass('btn-danger btn-success');
         this._uploadFile();
     },
     /**
@@ -600,7 +655,7 @@ var ImageWidget = MediaWidget.extend({
         var self = this;
         DialogBase.confirm(this, _t("Are you sure you want to delete this file ?"), {
             confirm_callback: function () {
-                var $helpBlock = this.$('.form-text').empty();
+                var $helpBlock = self.$errorText.empty();
                 var $a = $(ev.currentTarget);
                 var id = parseInt($a.data('id'), 10);
                 var attachment = _.findWhere(this.records, {id: id});
@@ -618,6 +673,7 @@ var ImageWidget = MediaWidget.extend({
                     }
                     $helpBlock.replaceWith(QWeb.render('web_editor.dialog.image.existing.error', {
                         views: prevented[id],
+                        widget: self,
                     }));
                 });
             }
@@ -628,10 +684,6 @@ var ImageWidget = MediaWidget.extend({
      */
     _onURLInputChange: function (ev) {
         var $input = $(ev.currentTarget);
-        var $button = this.$('.o_upload_media_url_button');
-        var $success = this.$('.o_we_url_success');
-        var $warning = this.$('.o_we_url_warning');
-        var $error = this.$('.o_we_url_error');
 
         var inputValue = $input.val();
         var emptyValue = (inputValue === '');
@@ -641,27 +693,20 @@ var ImageWidget = MediaWidget.extend({
             return inputValue.endsWith(format);
         });
 
-        $button.toggleClass('btn-secondary', emptyValue).toggleClass('btn-primary', !emptyValue)
-               .prop('disabled', !isURL);
-        if (!this.options.document) {
-            $button.text((isURL && !isImage) ? _t("Add as document") : _t("Add image"));
-        }
-        $success.toggleClass('d-none', !isURL);
-        $warning.toggleClass('d-none', !isURL || this.options.document || isImage);
-        $error.toggleClass('d-none', emptyValue || isURL);
+        this._updateAddUrlUi(emptyValue, isURL, isImage);
     },
     /**
      * @private
      */
     _onUploadButtonClick: function () {
-        this.$('input[type=file]').click();
+        this.$fileInput.click();
     },
     /**
      * @private
      */
     _onUploadButtonNoOptimizationClick: function () {
         this.$('input[name="disable_optimization"]').val('1');
-        this.$('.o_upload_media_button').click();
+        this.$uploadButton.click();
     },
     /**
      * @private
@@ -686,12 +731,77 @@ var ImageWidget = MediaWidget.extend({
 });
 
 /**
+ * Let users choose an image, including uploading a new image in odoo.
+ */
+var ImageWidget = FileWidget.extend({
+    template: 'web_editor.dialog.image',
+    existingAttachmentsTemplate: 'web_editor.dialog.image.existing.attachments',
+
+    /**
+     * @constructor
+     */
+    init: function (parent, media, options) {
+        options = _.extend({
+            accept: 'image/*',
+            mimetypeDomain: [['mimetype', 'in', this.IMAGE_MIMETYPES]],
+        }, options || {});
+        this._super(parent, media, options);
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * @override
+     */
+    _updateAddUrlUi: function (emptyValue, isURL, isImage) {
+        this._super.apply(this, arguments);
+        this.$addUrlButton.text((isURL && !isImage) ? _t("Add as document") : _t("Add image"));
+        this.$urlWarning.toggleClass('d-none', !isURL || isImage);
+    },
+});
+
+
+/**
+ * Let users choose a document, including uploading a new document in odoo.
+ */
+var DocumentWidget = FileWidget.extend({
+    template: 'web_editor.dialog.document',
+    existingAttachmentsTemplate: 'web_editor.dialog.document.existing.attachments',
+
+    /**
+     * @constructor
+     */
+    init: function (parent, media, options) {
+        options = _.extend({
+            accept: '*/*',
+            mimetypeDomain: [['mimetype', 'not in', this.IMAGE_MIMETYPES]],
+        }, options || {});
+        this._super(parent, media, options);
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * @override
+     */
+    _updateAddUrlUi: function (emptyValue, isURL, isImage) {
+        this._super.apply(this, arguments);
+        this.$addUrlButton.text((isURL && isImage) ? _t("Add as image") : _t("Add document"));
+        this.$urlWarning.toggleClass('d-none', !isURL || !isImage);
+    },
+});
+
+/**
  * Let users choose a font awesome icon, support all font awesome loaded in the
  * css files.
  */
-var IconWidget = MediaWidget.extend({
+var IconWidget = SearchableMediaWidget.extend({
     template: 'web_editor.dialog.font-icons',
-    events: _.extend({}, MediaWidget.prototype.events || {}, {
+    events: _.extend({}, SearchableMediaWidget.prototype.events || {}, {
         'click .font-icons-icon': '_onIconClick',
         'dblclick .font-icons-icon': '_onIconDblClick',
     }),
@@ -747,7 +857,7 @@ var IconWidget = MediaWidget.extend({
             class: _.compact(finalClasses).join(' '),
             style: style,
         });
-        return this.media;
+        return Promise.resolve(this.media);
     },
     /**
      * @override
@@ -771,9 +881,9 @@ var IconWidget = MediaWidget.extend({
             });
         }
         this.$('div.font-icons-icons').html(
-            QWeb.render('web_editor.dialog.font-icons.icons', {iconsParser: iconsParser})
+            QWeb.render('web_editor.dialog.font-icons.icons', {iconsParser: iconsParser, widget: this})
         );
-        return $.when();
+        return Promise.resolve(this.media);
     },
 
     //--------------------------------------------------------------------------
@@ -1125,9 +1235,12 @@ var VideoWidget = MediaWidget.extend({
 });
 
 /**
- * MediaDialog widget. Lets users change a media, including uploading a
- * new image, font awsome or video and can change a media into an other
- * media.
+ * Lets the user select a media. The media can be existing or newly uploaded.
+ *
+ * The media can be one of the following types: image, document, video or
+ * font awesome icon (only existing icons).
+ *
+ * The user may change a media into another one depending on the given options.
  */
 var MediaDialog = Dialog.extend({
     template: 'web_editor.dialog.media',
@@ -1135,7 +1248,10 @@ var MediaDialog = Dialog.extend({
         ['/web_editor/static/src/xml/editor.xml']
     ),
     events: _.extend({}, Dialog.prototype.events, {
-        'shown.bs.tab a[data-toggle="tab"]': '_onTabChange',
+        'click #editor-media-image-tab': '_onClickImageTab',
+        'click #editor-media-document-tab': '_onClickDocumentTab',
+        'click #editor-media-icon-tab': '_onClickIconTab',
+        'click #editor-media-video-tab': '_onClickVideoTab',
     }),
     custom_events: _.extend({}, Dialog.prototype.custom_events || {}, {
         save_request: '_onSaveRequest',
@@ -1143,84 +1259,89 @@ var MediaDialog = Dialog.extend({
 
     /**
      * @constructor
+     * @param {Element} media
      */
     init: function (parent, options, $editable, media) {
-        var self = this;
+        var $media = $(media);
+
+        options = _.extend({}, options);
+        options.noDocuments = options.onlyImages || options.noDocuments;
+        options.noIcons = options.onlyImages || options.noIcons;
+        options.noVideos = options.onlyImages || options.noVideos;
+
         this._super(parent, _.extend({}, {
             title: _t("Select a Media"),
             save_text: _t("Add"),
         }, options));
+
+        if (!options.noImages) {
+            this.imageWidget = new MediaModules.ImageWidget(this, media, options);
+        }
+        if (!options.noDocuments) {
+            this.documentWidget = new MediaModules.DocumentWidget(this, media, options);
+        }
+        if (!options.noIcons) {
+            this.iconWidget = new MediaModules.IconWidget(this, media, options);
+        }
+        if (!options.noVideos) {
+            this.videoWidget = new MediaModules.VideoWidget(this, media, options);
+        }
+
+        if (this.imageWidget && $media.is('img')) {
+            this.activeWidget = this.imageWidget;
+        } else if (this.documentWidget && $media.is('a.o_image')) {
+            this.activeWidget = this.documentWidget;
+        } else if (this.videoWidget && $media.hasClass('media_iframe_video')) {
+            this.activeWidget = this.videoWidget;
+        } else if (this.iconWidget && $media.is('span, i')) {
+            this.activeWidget = this.iconWidget;
+        } else if (this.imageWidget) {
+            this.activeWidget = this.imageWidget;
+        }
 
         if ($editable) {
             this.$editable = $editable;
             this.rte = this.$editable.rte || this.$editable.data('rte');
         }
 
-        this.media = media;
-        this.$media = $(media);
         this.range = range.create();
-
-        this.multiImages = options.multiImages;
-        var onlyImages = options.onlyImages || this.multiImages || (this.media && (this.$media.parent().data('oeField') === 'image' || this.$media.parent().data('oeType') === 'image'));
-        this.noImages = options.noImages;
-        this.noDocuments = onlyImages || options.noDocuments;
-        this.noIcons = onlyImages || options.noIcons;
-        this.noVideos = onlyImages || options.noVideos;
-
-        if (!this.noImages) {
-            this.imageDialog = new ImageWidget(this, this.media, options);
-        }
-        if (!this.noDocuments) {
-            this.documentDialog = new ImageWidget(this, this.media, _.extend({}, options, {document: true}));
-        }
-        if (!this.noIcons) {
-            this.iconDialog = new IconWidget(this, this.media, options);
-        }
-        if (!this.noVideos) {
-            this.videoDialog = new VideoWidget(this, this.media, options);
-        }
-
-        this.opened(function () {
-            var tabToShow = 'icon';
-            if (!self.media || self.$media.is('img')) {
-                tabToShow = 'image';
-            } else if (self.$media.is('a.o_image')) {
-                tabToShow = 'document';
-            } else if (self.$media.attr('class').match(/(^|\s)media_iframe_video($|\s)/)) {
-                tabToShow = 'video';
-            } else if (self.$media.parent().attr('class').match(/(^|\s)media_iframe_video($|\s)/)) {
-                self.$media = self.$media.parent();
-                self.media = self.$media[0];
-                tabToShow = 'video';
-            }
-            self.$('[href="#editor-media-' + tabToShow + '"]').tab('show');
-        });
     },
     /**
+     * Adds the appropriate class to the current modal and appends the media
+     * widgets to their respective tabs.
+     *
      * @override
      */
     start: function () {
-        var self = this;
-        var defs = [this._super.apply(this, arguments)];
-        this.$modal.addClass('note-image-dialog');
+        var promises = [this._super.apply(this, arguments)];
         this.$modal.find('.modal-dialog').addClass('o_select_media_dialog');
 
-        if (this.imageDialog) {
-            defs.push(this.imageDialog.appendTo(this.$("#editor-media-image")));
+        if (this.imageWidget) {
+            this.imageWidget.clear();
         }
-        if (this.documentDialog) {
-            defs.push(this.documentDialog.appendTo(this.$("#editor-media-document")));
+        if (this.documentWidget) {
+            this.documentWidget.clear();
         }
-        if (this.iconDialog) {
-            defs.push(this.iconDialog.appendTo(this.$("#editor-media-icon")));
+        if (this.iconWidget) {
+            this.iconWidget.clear();
         }
-        if (this.videoDialog) {
-            defs.push(this.videoDialog.appendTo(this.$("#editor-media-video")));
+        if (this.videoWidget) {
+            this.videoWidget.clear();
+        }
+        if (this.imageWidget) {
+            promises.push(this.imageWidget.appendTo(this.$("#editor-media-image")));
+        }
+        if (this.documentWidget) {
+            promises.push(this.documentWidget.appendTo(this.$("#editor-media-document")));
+        }
+        if (this.iconWidget) {
+            promises.push(this.iconWidget.appendTo(this.$("#editor-media-icon")));
+        }
+        if (this.videoWidget) {
+            promises.push(this.videoWidget.appendTo(this.$("#editor-media-video")));
         }
 
-        return $.when.apply($, defs).then(function () {
-            self._setActive(self.imageDialog);
-        });
+        return Promise.all(promises);
     },
 
     //--------------------------------------------------------------------------
@@ -1228,13 +1349,50 @@ var MediaDialog = Dialog.extend({
     //--------------------------------------------------------------------------
 
     /**
+     * Returns whether the document widget is currently active.
+     *
+     * @returns {boolean}
+     */
+    isDocumentActive: function () {
+        return this.activeWidget === this.documentWidget;
+    },
+    /**
+     * Returns whether the icon widget is currently active.
+     *
+     * @returns {boolean}
+     */
+    isIconActive: function () {
+        return this.activeWidget === this.iconWidget;
+    },
+    /**
+     * Returns whether the image widget is currently active.
+     *
+     * @returns {boolean}
+     */
+    isImageActive: function () {
+        return this.activeWidget === this.imageWidget;
+    },
+    /**
+     * Returns whether the video widget is currently active.
+     *
+     * @returns {boolean}
+     */
+    isVideoActive: function () {
+        return this.activeWidget === this.videoWidget;
+    },
+    /**
+     * Saves the currently selected media from the currently active widget.
+     *
+     * The save event data `final_data` will be one Element in general, but it
+     * will be an Array of Element if `multiImages` is set.
+     *
      * @override
      */
     save: function () {
         var self = this;
         var args = arguments;
         var _super = this._super;
-        if (this.multiImages) {
+        if (this.options.multiImages) {
             // In the case of multi images selection we suppose this was not to
             // replace an old media, so we only retrieve the images and save.
             return $.when(this.active.save()).then(function (data) {
@@ -1258,7 +1416,7 @@ var MediaDialog = Dialog.extend({
             });
         }
 
-        return $.when(this.active.save()).then(function (media) {
+        return this.activeWidget.save().then(function (data) {
             if (!self.media && media) {
                 self.range.insertNode(media, true);
             }
@@ -1283,14 +1441,16 @@ var MediaDialog = Dialog.extend({
     },
 
     //--------------------------------------------------------------------------
-    //
+    // Handlers
     //--------------------------------------------------------------------------
 
     /**
+     * Sets the document widget as the active widget.
+     *
      * @private
      */
-    _setActive: function (widget) {
-        this.active = widget;
+    _onClickDocumentTab: function () {
+        this.activeWidget = this.documentWidget;
     },
 
     //--------------------------------------------------------------------------
@@ -1298,26 +1458,41 @@ var MediaDialog = Dialog.extend({
     //--------------------------------------------------------------------------
 
     /**
+     * Sets the icon widget as the active widget.
+     *
      * @private
+     */
+    _onClickIconTab: function () {
+        this.activeWidget = this.iconWidget;
+    },
+    /**
+     * Sets the image widget as the active widget.
+     *
+     * @private
+     */
+    _onClickImageTab: function () {
+        this.activeWidget = this.imageWidget;
+    },
+    /**
+     * Sets the video widget as the active widget.
+     *
+     * @private
+     */
+    _onClickVideoTab: function () {
+        this.activeWidget = this.videoWidget;
+    },
+    /**
+     * Handles save request from the child widgets.
+     *
+     * This is for usability, to allow the user to save from other ways than
+     * click on the modal button, such as double clicking a media to select it.
+     *
+     * @private
+     * @param {OdooEvent} ev
      */
     _onSaveRequest: function (ev) {
         ev.stopPropagation();
         this.save();
-    },
-    /**
-     * @private
-     */
-    _onTabChange: function (ev) {
-        var $target = $(ev.target);
-        if ($target.is('[href="#editor-media-image"]')) {
-            this._setActive(this.imageDialog);
-        } else if ($target.is('[href="#editor-media-document"]')) {
-            this._setActive(this.documentDialog);
-        } else if ($target.is('[href="#editor-media-icon"]')) {
-            this._setActive(this.active = this.iconDialog);
-        } else if ($target.is('[href="#editor-media-video"]')) {
-            this._setActive(this.active = this.videoDialog);
-        }
     },
 });
 
@@ -1792,5 +1967,10 @@ return {
     LinkDialog: LinkDialog,
     CropImageDialog: CropImageDialog,
     ImageWidget: ImageWidget,
+    SearchableMediaWidget: SearchableMediaWidget,
+    FileWidget: FileWidget,
+    DocumentWidget: DocumentWidget,
+    VideoWidget: VideoWidget,
+    IconWidget: IconWidget,
 };
 });

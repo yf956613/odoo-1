@@ -852,8 +852,8 @@ registry.background = SnippetOption.extend({
             res_id: $editable.data('oe-id'),
         }, null, $image[0]).open();
 
-        _editor.on('save', this, function () {
-            this._setCustomBackground($image.attr('src'));
+        _editor.on('save', this, function (image) {
+            this._setCustomBackground(image.src);
         });
         _editor.on('closed', this, function () {
             $image.remove();
