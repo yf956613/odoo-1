@@ -101,7 +101,6 @@
     </xpath>
     <xpath expr="//script[last()]" position="after">
         <script type="text/javascript" src="/web_editor/static/src/js/content/body_manager.js"/>
-        <script type="text/javascript" src="/web_editor/static/src/js/root_widget.js"/>
     </xpath>
 </template>
 
