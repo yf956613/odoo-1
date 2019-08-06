@@ -226,7 +226,6 @@ class Company(models.Model):
         })
         vals['partner_id'] = partner.id
         self.clear_caches()
-        self.pool.signal_changes()
         company = super(Company, self).create(vals)
         # The write is made on the user to set it automatically in the multi company group.
         self.env.user.write({'company_ids': [(4, company.id)]})
@@ -237,6 +236,7 @@ class Company(models.Model):
             currency = self.env['res.currency'].browse(vals['currency_id'])
             if not currency.active:
                 currency.write({'active': True})
+        self.env['ir.rule'].clear_caches()
         return company
 
     def write(self, values):
