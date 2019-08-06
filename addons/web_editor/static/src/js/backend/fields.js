@@ -519,7 +519,11 @@ var FieldTextHtml = AbstractField.extend({
                 var $el = $(el);
                 $el.attr('style', ancestorsStyle.pop());
             });
-            self._setValue(self.$content.html());
+            var value = self.$content.html();
+            if (self.get('value') === false && value === '<p><br></p>') {
+                value = false;
+            }
+            self._setValue(value);
         });
     },
 });
