@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates id="template" xml:space="preserve">
 
-<<<<<<< HEAD
-<t t-extend="wysiwyg.widgets.file">
-    <t t-jquery=".o_we_existing_attachments" t-operation="after">
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-<t t-extend="wysiwyg.widgets.image">
-    <t t-jquery=".existing-attachments" t-operation="after">
-=======
 <t t-extend="web_editor.dialog.image">
-    <t t-jquery=".existing-attachments" t-operation="after">
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
+    <t t-jquery=".o_we_existing_attachments" t-operation="after">
         <div class="unsplash_img_container"></div>
     </t>
 </t>
