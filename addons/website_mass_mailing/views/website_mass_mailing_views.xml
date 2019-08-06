@@ -11,11 +11,7 @@
                         <field name="website_id" groups="website.group_multi_website"/>
                     </group>
                     <label for="popup_content"/>
-                    <field name="popup_content" widget="html" options="{
-                            'snippets': 'website.snippets',
-                            'cssEdit': 'website_mass_mailing.iframe_css_assets_edit',
-                            'wrapper': 'website_mass_mailing.edition.wrapper',
-                        }"/>
+                    <field name="popup_content" widget="mass_mailing_html_frame" options="{'editor_url': '/website_mass_mailing/field/popup_content'}"/>
                 </sheet>
             </form>
         </field>
