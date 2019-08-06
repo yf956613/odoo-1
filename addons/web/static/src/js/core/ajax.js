@@ -1,13 +1,8 @@
 odoo.define('web.ajax', function (require) {
 "use strict";
 
-<<<<<<< HEAD
 var config = require('web.config');
 var concurrency = require('web.concurrency');
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-var config = require('web.config');
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 var core = require('web.core');
 var time = require('web.time');
 var download = require('web.download');
@@ -428,7 +423,6 @@ var loadXML = (function () {
     };
 })();
 
-<<<<<<< HEAD
 /**
  * Loads a template file according to the given xmlId.
  *
@@ -478,65 +472,12 @@ var loadAsset = (function () {
 
     return load;
 })();
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-/**
- * Loads a template file according to the given xmlId.
- *
- * @param {string} [xmlId] - the template xmlId
- * @returns {Deferred} resolved with an object
- *          cssLibs: list of css files
- *          cssContents: list of style tag contents
- *          jsLibs: list of JS files
- *          jsContents: list of script tag contents
- */
-var loadAsset = (function () {
-    var cache = {};
-
-    var load = function loadAsset(xmlId) {
-        if (cache[xmlId]) {
-            return $.when(cache[xmlId]);
-        }
-        var params = {
-            args: [xmlId, {
-                debug: config.debug
-            }],
-            kwargs: {
-                context: odoo.session_info.user_context,
-            },
-            method: 'render_template',
-            model: 'ir.ui.view',
-        };
-        return rpc('/web/dataset/call_kw/ir.ui.view/render_template', params).then(function (xml) {
-            var $xml = $(xml);
-            cache[xmlId] = {
-                cssLibs: $xml.filter('link[href]:not([type="image/x-icon"])').map(function () {
-                    return $(this).attr('href');
-                }).get(),
-                cssContents: $xml.filter('style').map(function () {
-                    return $(this).html();
-                }).get(),
-                jsLibs: $xml.filter('script[src]').map(function () {
-                    return $(this).attr('src');
-                }).get(),
-                jsContents: $xml.filter('script:not([src])').map(function () {
-                    return $(this).html();
-                }).get(),
-            };
-            return cache[xmlId];
-        });
-    };
-
-    return load;
-})();
-=======
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 
 /**
  * Loads the given js/css libraries and asset bundles. Note that no library or
  * asset will be loaded if it was already done before.
  *
  * @param {Object} libs
-<<<<<<< HEAD
  * @param {Array<string|string[]>} [libs.assetLibs=[]]
  *      The list of assets to load. Each list item may be a string (the xmlID
  *      of the asset to load) or a list of strings. The first level is loaded
@@ -557,23 +498,6 @@ var loadAsset = (function () {
  *      List of inline styles to add after loading the CSS files.
  * @param {string[]} [libs.jsContents=[]]
  *      List of inline scripts to add after loading the JS files.
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
- * @Param {Array | Array<Array>} [libs.jsLibs=[]] The list of JS files that we want to
- *   load. The list may contain strings (the files to load), or lists of strings. The
- *   first level is loaded sequentially, and files listed in inner lists are loaded in
- *   parallel.
- * @param {Array<string>} [libs.cssLibs=[]] A list of css files, to be loaded in
- *   parallel
- * @param {Array<string>} [libs.assetLibs=[]] A list of xmlId. The loaded template
- *   contains the script and link to be loaded
-=======
- * @Param {Array | Array<Array>} [libs.jsLibs=[]] The list of JS files that we want to
- *   load. The list may contain strings (the files to load), or lists of strings. The
- *   first level is loaded sequentially, and files listed in inner lists are loaded in
- *   parallel.
- * @param {Array<string>} [libs.cssLibs=[]] A list of css files, to be loaded in
- *   parallel
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
  *
  * @returns {Promise}
  */
@@ -589,7 +513,6 @@ function loadLibs(libs) {
                 }));
             }
         }));
-<<<<<<< HEAD
         defs.push(_loadArray(libs.jsLibs || [], ajax.loadJS).then(function () {
             if (libs.jsContents && libs.jsContents.length) {
                 $('head').append($('<script/>', {
@@ -621,24 +544,6 @@ function loadLibs(libs) {
     }
 
     return mutex.getUnlockedDef();
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    });
-    _.each(libs.cssLibs || [], function (url) {
-        defs.push(ajax.loadCSS(url));
-    });
-    _.each(libs.assetLibs || [], function (xmlId) {
-        defs.push(loadAsset(xmlId).then(function (asset) {
-            return loadLibs(asset);
-        }));
-    });
-    return $.when.apply($, defs);
-=======
-    });
-    _.each(libs.cssLibs || [], function (url) {
-        defs.push(ajax.loadCSS(url));
-    });
-    return $.when.apply($, defs);
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
 }
 
 _.extend(ajax, {
@@ -647,6 +552,7 @@ _.extend(ajax, {
     loadCSS: loadCSS,
     loadJS: loadJS,
     loadXML: loadXML,
+    loadAsset: loadAsset,
     loadLibs: loadLibs,
     get_file: get_file,
     post: post,
