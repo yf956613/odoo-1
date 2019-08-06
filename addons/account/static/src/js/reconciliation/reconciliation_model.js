@@ -425,9 +425,9 @@ var StatementModel = BasicModel.extend({
         if (self.context && self.context.company_ids) {
             domainReconcile.push(['company_id', 'in', self.context.company_ids]);
         }
-        if (self.context && self.context.active_model === 'account.journal' && self.context.active_ids) {
-            domainReconcile.push(['journal_id', 'in', [false].concat(self.context.active_ids)]);
-        }
+        // if (self.context && self.context.active_model === 'account.journal' && self.context.active_ids) {
+        //     domainReconcile.push(['journal_id', 'in', [false].concat(self.context.active_ids)]);
+        // }
         var def_reconcileModel = this._loadReconciliationModel({domainReconcile: domainReconcile});
         var def_account = this._rpc({
                 model: 'account.account',
@@ -520,8 +520,8 @@ var StatementModel = BasicModel.extend({
     },
     /**
      * Add lines into the propositions from the reconcile model
-     * Can add 2 lines, and each with its taxes. The second line become editable
-     * in the create mode.
+     * Can add multiple lines, and each with its taxes. The last line become
+     * editable in the create mode.
      *
      * @see 'updateProposition' method for more informations about the
      * 'amount_type'
@@ -531,25 +531,18 @@ var StatementModel = BasicModel.extend({
      * @returns {Promise}
      */
     quickCreateProposition: function (handle, reconcileModelId) {
+        var self = this;
         var line = this.getLine(handle);
-        var reconcileModel = _.find(this.reconcileModels, function (r) {return r.id === reconcileModelId;});
-        var fields = ['account_id', 'amount', 'amount_type', 'analytic_account_id', 'journal_id', 'label', 'force_tax_included', 'tax_ids', 'analytic_tag_ids', 'to_check'];
-        this._blurProposition(handle);
-        var focus = this._formatQuickCreate(line, _.pick(reconcileModel, fields));
-        focus.reconcileModelId = reconcileModelId;
-        line.reconciliation_proposition.push(focus);
-        if (reconcileModel.has_second_line) {
-            var second = {};
-            _.each(fields, function (key) {
-                second[key] = ("second_"+key) in reconcileModel ? reconcileModel["second_"+key] : reconcileModel[key];
-            });
-            focus = this._formatQuickCreate(line, second);
-            focus.reconcileModelId = reconcileModelId;
-            line.reconciliation_proposition.push(focus);
-            this._computeReconcileModels(handle, reconcileModelId);
-        }
-        line.createForm = _.pick(focus, this.quickCreateFields);
-        return this._computeLine(line);
+        return this._rpc({
+            model: 'account.reconcile.model',
+            method: 'get_reconciliation_dict_for_widget',
+            args: [reconcileModelId, line.st_line.id, -line.balance.amount],
+        }).then(function(result) {
+            line.reconciliation_proposition.push(...result);
+            var editable = result.filter(x => !x.is_tax)
+            line.createForm = _.pick(editable[editable.length-1], self.quickCreateFields);
+            return self._computeLine(line);
+        })
     },
     /**
      * Remove a proposition and switch to an active mode ('create' or 'match')
@@ -642,12 +635,6 @@ var StatementModel = BasicModel.extend({
     /**
      * Change the value of the editable proposition line or create a new one.
      *
-     * If the editable line comes from a reconcile model with 2 lines
-     * and their 'amount_type' is "percent"
-     * and their total equals 100% (this doesn't take into account the taxes
-     * who can be included or not)
-     * Then the total is recomputed to have 100%.
-     *
      * @param {string} handle
      * @param {*} values
      * @returns {Promise}
@@ -709,9 +696,6 @@ var StatementModel = BasicModel.extend({
         }
         if ('amount' in values) {
             prop.base_amount = values.amount;
-            if (prop.reconcileModelId) {
-                this._computeReconcileModels(handle, prop.reconcileModelId);
-            }
         }
         if ('force_tax_included' in values || 'amount' in values || 'account_id' in values) {
             prop.__tax_to_recompute = true;
@@ -899,6 +883,7 @@ var StatementModel = BasicModel.extend({
                 if (!_.find(line.reconciliation_proposition, {'id': prop.link}).__tax_to_recompute) {
                     reconciliation_proposition.push(prop);
                 }
+                prop.amount_str = field_utils.format.monetary(Math.abs(prop.amount), {}, formatOptions);
                 return;
             }
             if (!prop.already_paid && parseInt(prop.id)) {
@@ -992,24 +977,6 @@ var StatementModel = BasicModel.extend({
             line.balance.show_balance = line.balance.amount_currency != 0;
             line.balance.type = line.balance.amount_currency ? (line.st_line.partner_id ? 0 : -1) : 1;
         });
-    },
-    /**
-     *
-     *
-     * @private
-     * @param {string} handle
-     * @param {integer} reconcileModelId
-     */
-    _computeReconcileModels: function (handle, reconcileModelId) {
-        var line = this.getLine(handle);
-        // if quick create with 2 lines who use 100%, change the both values in same time
-        var props = _.filter(line.reconciliation_proposition, {'reconcileModelId': reconcileModelId, '__focus': true});
-        if (props.length === 2 && props[0].percent && props[1].percent) {
-            if (props[0].percent + props[1].percent === 100) {
-                props[0].base_amount = props[0].amount = line.st_line.amount - props[1].base_amount;
-                props[0].__tax_to_recompute = true;
-            }
-        }
     },
     /**
      * format a name_get into an object {id, display_name}, idempotent
@@ -1179,9 +1146,7 @@ var StatementModel = BasicModel.extend({
             'credit': 0,
             'date': values.date ? values.date : field_utils.parse.date(today, {}, {isUTC: true}),
             'force_tax_included': values.force_tax_included || false,
-            'base_amount': values.amount_type !== "percentage" ?
-                (amount) : line.balance.amount * values.amount / 100,
-            'percent': values.amount_type === "percentage" ? values.amount : null,
+            'base_amount': amount,
             'link': values.link,
             'display': true,
             'invalid': true,

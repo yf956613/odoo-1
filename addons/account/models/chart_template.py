@@ -1137,27 +1137,20 @@ class AccountReconcileModelTemplate(models.Model):
     match_partner_category_ids = fields.Many2many('res.partner.category', string='Restrict Partner Categories to',
         help='The reconciliation model will only be applied to the selected customer/vendor categories.')
 
-    # First part fields.
+    line_ids = fields.One2many('account.reconcile.model.line', 'model_id')
+
+
+class AccountReconcileModelTemplate(models.Model):
+    _name = "account.reconcile.model.line.template"
+    _description = 'Reconcile Model Line Template'
+
+    model_id = fields.Many2one('account.reconcile.model')
     account_id = fields.Many2one('account.account.template', string='Account', ondelete='cascade', domain=[('deprecated', '=', False)])
     label = fields.Char(string='Journal Item Label')
     amount_type = fields.Selection([
         ('fixed', 'Fixed'),
         ('percentage', 'Percentage of balance')
-        ], required=True, default='percentage')
+    ], required=True, default='percentage')
     amount = fields.Float(string='Write-off Amount', digits=0, required=True, default=100.0, help="Fixed amount will count as a debit if it is negative, as a credit if it is positive.")
-    force_tax_included = fields.Boolean(string='Tax Included in Price',
-        help='Force the tax to be managed as a price included tax.')
-    # Second part fields.
-    has_second_line = fields.Boolean(string='Add a second line', default=False)
+    force_tax_included = fields.Boolean(string='Tax Included in Price', help='Force the tax to be managed as a price included tax.')
     tax_ids = fields.Many2many('account.tax.template', string='Taxes', ondelete='restrict')
-    second_account_id = fields.Many2one('account.account.template', string='Second Account', ondelete='cascade', domain=[('deprecated', '=', False)])
-    second_label = fields.Char(string='Second Journal Item Label')
-    second_amount_type = fields.Selection([
-        ('fixed', 'Fixed'),
-        ('percentage', 'Percentage of amount')
-        ], string="Second Amount type",required=True, default='percentage')
-    second_amount = fields.Float(string='Second Write-off Amount', digits=0, required=True, default=100.0, help="Fixed amount will count as a debit if it is negative, as a credit if it is positive.")
-    force_second_tax_included = fields.Boolean(string='Second Tax Included in Price',
-        help='Force the second tax to be managed as a price included tax.')
-    number_entries = fields.Integer(string='Number of entries related to this model', compute='_compute_number_entries')
-    second_tax_ids = fields.Many2many('account.tax.template', relation='account_reconcile_model_tmpl_account_tax_bis_rel', string='Second Taxes', ondelete='restrict')

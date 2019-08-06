@@ -57,7 +57,7 @@ class TestReconciliationMatchingRules(AccountingTestCase):
             'rule_type': 'writeoff_suggestion',
             'match_partner': True,
             'match_partner_ids': [6, 0, (self.partner_1 + self.partner_2).ids],
-            'account_id': current_assets_account.id,
+            'line_ids': [(0, 0, {'account_id': current_assets_account.id})],
         })
 
         invoice_number = self.invoice_line_1.move_id.name
