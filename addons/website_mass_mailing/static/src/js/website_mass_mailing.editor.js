@@ -4,7 +4,7 @@ odoo.define('website_mass_mailing.editor', function (require) {
 var core = require('web.core');
 var rpc = require('web.rpc');
 var weContext = require('web_editor.context');
-var web_editor = require('web_editor.editor');
+var rte = require('web_editor.rte');
 var options = require('web_editor.snippets.options');
 var wUtils = require('website.utils');
 var _t = core._t;
@@ -95,7 +95,6 @@ options.registry.newsletter_popup = options.registry.mailing_list_subscribe.exte
         }
         this._super.apply(this, arguments);
     },
-<<<<<<< HEAD
     /**
      * @override
      */
@@ -121,7 +120,7 @@ options.registry.newsletter_popup = options.registry.mailing_list_subscribe.exte
     },
 });
 
-WysiwygMultizone.include({
+rte.Class.include({
 
     //--------------------------------------------------------------------------
     // Private
@@ -130,10 +129,10 @@ WysiwygMultizone.include({
     /**
      * @override
      */
-    _saveElement: function (outerHTML, recordInfo, editable) {
+    _saveElement: function ($el, context) {
         var self = this;
         var defs = [this._super.apply(this, arguments)];
-        var $popups = $(editable).find('.o_newsletter_popup');
+        var $popups = $el.find('.o_newsletter_popup');
         _.each($popups, function (popup) {
             var $popup = $(popup);
             var content = $popup.data('content');
@@ -148,29 +147,6 @@ WysiwygMultizone.include({
             }
         });
         return Promise.all(defs);
-||||||| f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
-    destroy: function () {
-        this.close_dialog();
-        this._super();
-    },
-
-    //--------------------------------------------------------------------------
-    // Handler
-    //--------------------------------------------------------------------------
-
-    close_dialog: function () {
-        $('#wrapwrap').find('#o_newsletter_popup').modal('hide');
-    },
-    edit_dialog: function (ev) {
-        $('#wrapwrap').find('#o_newsletter_popup').modal('show');
-        $('.o_popup_bounce_small').hide();
-        $('.modal-backdrop').css("z-index", "0");
-=======
-    edit_dialog: function () {
-        $('#wrapwrap').find('#o_newsletter_popup').modal('show');
-        $('.o_popup_bounce_small').hide();
-        $('.modal-backdrop').css("z-index", "0");
->>>>>>> parent of f296992317e... [IMP] web_editor,*: Refactoring the wysiwyg editor and 'html' field
     },
 });
 });
