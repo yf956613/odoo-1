@@ -48,16 +48,20 @@
         <div class="alert alert-warning alert-dismissible fade show css_non_editable_mode_hidden o_not_editable" role="status">
             <strong>Newsletter Popup!</strong> The newsletter popup snippet effect is active on this page. Click <a id="edit_dialog" href="#">Here To Edit Dialog Content</a>
         </div>
-        <div role="dialog" class="modal modal-dialog modal-md fade fade-custom" id="o_newsletter_popup" tabindex="-1">
-            <div class="modal-content o_popup_modal_content">
-                <a role="button" href="#" class="o_popup_btn_close o_not_editable" data-dismiss="modal">&amp;times;</a>
+        <div class="modal fade show d-block o_newsletter_modal">
+            <div role="dialog" class="modal-dialog modal-dialog-centered" id="o_newsletter_popup">
+                <div class="modal-content">
+                    <header>
+                        <button type="button" class="close" aria-label="Close" tabindex="-1">×</button>
+                    </header>
 
-                <div class="o_popup_modal_body text-center">
-                    <div class="o_popup_content_dev" data-oe-placeholder="Type Here ..."/>
-                    <div class="input-group o_not_editable o_popup_animated o_popup_bounce_del500ms o_popup_bounce_small" >
-                        <input type="email" name="email" class="popup_subscribe_email form-control" placeholder="your email..." autofocus="autofocus"/>
-                        <div class="input-group-append">
-                            <a role="button" href="#" class="btn btn-success popup_subscribe_btn">Subscribe</a>
+                    <div class="o_popup_modal_body text-center">
+                        <div class="o_popup_content_dev" data-oe-placeholder="Type Here ..."/>
+                        <div class="input-group o_not_editable o_popup_animated o_popup_bounce_del500ms o_popup_bounce_small" >
+                            <input type="email" name="email" class="popup_subscribe_email form-control" placeholder="your email..." autofocus="autofocus"/>
+                            <div class="input-group-append">
+                                <a role="button" href="#" class="btn btn-success popup_subscribe_btn">Subscribe</a>
+                            </div>
                         </div>
                     </div>
                 </div>

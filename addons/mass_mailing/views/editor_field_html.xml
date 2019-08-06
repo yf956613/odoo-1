@@ -30,9 +30,12 @@
         <t t-set="head">
             <link rel="stylesheet" href="/mass_mailing/static/src/css/mass_mailing_popup.css" type="text/css"/>
         </t>
-        <div role="dialog" class="modal-dialog modal-md d-block" id="o_newsletter_popup">
-            <div class="modal-content o_popup_modal_content">
-                <div class="o_popup_modal_body text-center">
+        <div class="modal fade show d-block o_newsletter_modal">
+            <div role="dialog" class="modal-dialog modal-dialog-centered" id="o_newsletter_popup">
+                <div class="modal-content">
+                    <header>
+                        <button type="button" class="close" aria-label="Close" tabindex="-1">×</button>
+                    </header>
                     <div class="o_popup_content_dev">
                         <div id="editable_area" class="o_editable o_mail_area" t-att-data-oe-model="model" t-att-data-oe-field="field" t-att-data-oe-id="res_id" data-oe-type="html">
                             <!-- Can be removed once default values are ok for the editor -->
