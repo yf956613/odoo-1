@@ -109,7 +109,7 @@ QUnit.test('field html translatable', function (assert) {
         res_id: 1,
         mockRPC: function (route, args) {
             if (route === '/web/dataset/call_button' && args.method === 'translate_fields') {
-                assert.deepEqual(args.args, ['mass.mailing',1,'body',{}], "should call 'call_button' route");
+                assert.deepEqual(args.args, ['note.note', 1, 'body'], "should call 'call_button' route");
                 return $.when();
             }
             return this._super.apply(this, arguments);
