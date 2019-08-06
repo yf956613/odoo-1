@@ -826,7 +826,8 @@ class WebsiteSlides(WebsiteProfile):
                     values['badge_id'] = request.env['gamification.badge'].create({
                         'name': post['badge_id'][1]['title'],
                         'description': 'Congratulation, you succeeded this certification',
-                        'website_published': True,
+                        'rule_auth': 'nobody',
+                        'is_published': True,
                         }).id
                 else:
                     values['badge_id'] = post['badge_id'][0]
