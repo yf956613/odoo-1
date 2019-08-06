@@ -44,10 +44,10 @@ class HolidaysAllocation(models.Model):
         ('validate1', 'Second Approval'),
         ('validate', 'Approved')
         ], string='Status', readonly=True, tracking=True, copy=False, default='confirm',
-        help="The status is set to 'To Submit', when a time off request is created." +
-        "\nThe status is 'To Approve', when time off request is confirmed by user." +
-        "\nThe status is 'Refused', when time off request is refused by manager." +
-        "\nThe status is 'Approved', when time off request is approved by manager.")
+        help="The status is set to 'To Submit', when an allocation request is created." +
+        "\nThe status is 'To Approve', when an allocation request is confirmed by user." +
+        "\nThe status is 'Refused', when an allocation request is refused by manager." +
+        "\nThe status is 'Approved', when an allocation request is approved by manager.")
     date_from = fields.Datetime(
         'Start Date', readonly=True, index=True, copy=False,
         states={'draft': [('readonly', False)], 'confirm': [('readonly', False)]}, tracking=True)
@@ -81,10 +81,10 @@ class HolidaysAllocation(models.Model):
     linked_request_ids = fields.One2many('hr.leave.allocation', 'parent_id', string='Linked Requests')
     first_approver_id = fields.Many2one(
         'hr.employee', string='First Approval', readonly=True, copy=False,
-        help='This area is automatically filled by the user who validate the time off')
+        help='This area is automatically filled by the user who validates the allocation')
     second_approver_id = fields.Many2one(
         'hr.employee', string='Second Approval', readonly=True, copy=False,
-        help='This area is automaticly filled by the user who validate the time off with second level (If time off type need second validation)')
+        help='This area is automaticly filled by the user who validates the allocation with second level (If time off type need second validation)')
     validation_type = fields.Selection('Validation Type', related='holiday_status_id.allocation_validation_type', readonly=True)
     can_reset = fields.Boolean('Can reset', compute='_compute_can_reset')
     can_approve = fields.Boolean('Can Approve', compute='_compute_can_approve')
@@ -387,11 +387,11 @@ class HolidaysAllocation(models.Model):
 
     def unlink(self):
         for holiday in self.filtered(lambda holiday: holiday.state not in ['draft', 'cancel', 'confirm']):
-            raise UserError(_('You cannot delete a time off which is in %s state.') % (holiday.state,))
+            raise UserError(_('You cannot delete an allocation which is in %s state.') % (holiday.state,))
         return super(HolidaysAllocation, self).unlink()
 
     def copy_data(self, default=None):
-        raise UserError(_('A time off cannot be duplicated.'))
+        raise UserError(_('An allocation cannot be duplicated.'))
 
     def _get_mail_redirect_suggested_company(self):
         return self.holiday_status_id.company_id
@@ -422,7 +422,7 @@ class HolidaysAllocation(models.Model):
     def action_draft(self):
         for holiday in self:
             if holiday.state not in ['confirm', 'refuse']:
-                raise UserError(_('Time off request state must be "Refused" or "To Approve" in order to reset to Draft.'))
+                raise UserError(_('Allocation request state must be "Refused" or "To Approve" in order to reset to Draft.'))
             holiday.write({
                 'state': 'draft',
                 'first_approver_id': False,
@@ -437,7 +437,7 @@ class HolidaysAllocation(models.Model):
 
     def action_confirm(self):
         if self.filtered(lambda holiday: holiday.state != 'draft'):
-            raise UserError(_('Time off request must be in Draft state ("To Submit") in order to confirm it.'))
+            raise UserError(_('Allocation request must be in Draft state ("To Submit") in order to confirm it.'))
         res = self.write({'state': 'confirm'})
         self.activity_update()
         return res
@@ -446,7 +446,7 @@ class HolidaysAllocation(models.Model):
         # if validation_type == 'both': this method is the first approval approval
         # if validation_type != 'both': this method calls action_validate() below
         if any(holiday.state != 'confirm' for holiday in self):
-            raise UserError(_('Time off request must be confirmed ("To Approve") in order to approve it.'))
+            raise UserError(_('Allocation request must be confirmed ("To Approve") in order to approve it.'))
 
         current_employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
 
@@ -458,7 +458,7 @@ class HolidaysAllocation(models.Model):
         current_employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
         for holiday in self:
             if holiday.state not in ['confirm', 'validate1']:
-                raise UserError(_('Time off request must be confirmed in order to approve it.'))
+                raise UserError(_('Allocation request must be confirmed in order to approve it.'))
 
             holiday.write({'state': 'validate'})
             if holiday.validation_type == 'both':
@@ -495,7 +495,7 @@ class HolidaysAllocation(models.Model):
         current_employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
         for holiday in self:
             if holiday.state not in ['confirm', 'validate', 'validate1']:
-                raise UserError(_('Time off request must be confirmed or validated in order to refuse it.'))
+                raise UserError(_('Allocation request must be confirmed or validated in order to refuse it.'))
 
             if holiday.state == 'validate1':
                 holiday.write({'state': 'refuse', 'first_approver_id': current_employee.id})
@@ -521,7 +521,7 @@ class HolidaysAllocation(models.Model):
             if not is_manager and state != 'confirm':
                 if state == 'draft':
                     if allocation.employee_id != current_employee:
-                        raise UserError(_('Only a Time Off Manager can reset other people leaves.'))
+                        raise UserError(_('Only a Time Off Manager can reset other people allocations.'))
                 else:
                     if val_type == 'no_validation' and current_employee == allocation.employee_id:
                         continue
