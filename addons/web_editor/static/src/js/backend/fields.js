@@ -14,6 +14,7 @@ var TranslatableFieldMixin = basic_fields.TranslatableFieldMixin;
 
 var QWeb = core.qweb;
 var _t = core._t;
+var _lt = core._lt;
 
 
 /**
@@ -23,6 +24,7 @@ var _t = core._t;
  *
  */
 var FieldTextHtmlSimple = basic_fields.DebouncedField.extend(TranslatableFieldMixin, {
+    description: "",
     className: 'oe_form_field oe_form_field_html_text',
     supportedFieldTypes: ['html'],
 
@@ -309,6 +311,7 @@ var FieldTextHtmlSimple = basic_fields.DebouncedField.extend(TranslatableFieldMi
 });
 
 var FieldTextHtml = AbstractField.extend({
+    description: _lt("Html"),
     template: 'web_editor.FieldTextHtml',
     supportedFieldTypes: ['html'],
 
