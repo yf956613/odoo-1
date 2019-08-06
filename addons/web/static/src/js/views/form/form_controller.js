@@ -681,6 +681,7 @@ var FormController = BasicController.extend({
      * @param {OdooEvent} ev
      */
     _onOpenOne2ManyRecord: function (ev) {
+        var self = this;
         ev.stopPropagation();
         var data = ev.data;
         var record;
@@ -688,22 +689,25 @@ var FormController = BasicController.extend({
             record = this.model.get(data.id, {raw: true});
         }
 
-        new dialogs.FormViewDialog(this, {
-            context: data.context,
-            domain: data.domain,
-            fields_view: data.fields_view,
-            model: this.model,
-            on_saved: data.on_saved,
-            on_remove: data.on_remove,
-            parentID: data.parentID,
-            readonly: data.readonly,
-            deletable: record ? data.deletable : false,
-            recordID: record && record.id,
-            res_id: record && record.res_id,
-            res_model: data.field.relation,
-            shouldSaveLocally: true,
-            title: (record ? _t("Open: ") : _t("Create ")) + (ev.target.string || data.field.string),
-        }).open();
+        this.model.mutex.getUnlockedDef()
+            .then(function () {
+                new dialogs.FormViewDialog(self, {
+                    context: data.context,
+                    domain: data.domain,
+                    fields_view: data.fields_view,
+                    model: self.model,
+                    on_saved: data.on_saved,
+                    on_remove: data.on_remove,
+                    parentID: data.parentID,
+                    readonly: data.readonly,
+                    deletable: record ? data.deletable : false,
+                    recordID: record && record.id,
+                    res_id: record && record.res_id,
+                    res_model: data.field.relation,
+                    shouldSaveLocally: true,
+                    title: (record ? _t("Open: ") : _t("Create ")) + (ev.target.string || data.field.string),
+                }).open();
+            });
     },
     /**
      * Open an existing record in a form view dialog

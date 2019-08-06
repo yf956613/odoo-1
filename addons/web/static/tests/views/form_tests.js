@@ -3257,6 +3257,100 @@ QUnit.module('Views', {
         form.destroy();
     });
 
+    // QUnit.test('properly apply onchange on one2many fields direct click', async function (assert) {
+    //     assert.expect(5);
+    //     this.data.partner.records[0].p = [2, 4];
+
+    //     this.data.partner.onchanges = {
+    //         int_field: function (obj) {
+    //             // debugger
+    //             obj.p = [
+    //                 [5],
+    //                 [1, 2, {display_name: "updated record 1", int_field: obj.int_field}],
+    //                 [1, 4, {display_name: "updated record 2", int_field: obj.int_field * 2}],
+    //             ];
+    //         },
+    //     };
+    //     var form = await createView({
+    //         View: FormView,
+    //         model: 'partner',
+    //         data: this.data,
+    //         arch: '<form string="Partners">' +
+    //                 '<group>' +
+    //                     '<field name="foo"/>' +
+    //                     '<field name="int_field"/>' +
+    //                 '</group>' +
+    //                 '<field name="p">' +
+    //                     '<tree>' +
+    //                         '<field name="display_name"/>' +
+    //                         '<field name="int_field"/>' +
+    //                     '</tree>' +
+    //                 '</field>' +
+    //             '</form>',
+    //         res_id: 1,
+    //         debug: true,
+    //         mockRPC: function (route, args) {
+    //             if (args.method === 'onchange') {
+    //                 debugger
+    //                 var self = this;
+    //                 var my_args = arguments;
+    //                 var my_super = this._super;
+    //                 return (new Promise(resolve => {
+    //                     setTimeout((resolve), 200);
+    //                 })).then(() => {
+    //                     return my_super.apply(self, my_args)
+    //                 });
+    //             }
+    //             return this._super.apply(this, arguments);
+    //         },
+    //         archs: {
+    //             'partner,false,form': '<form><group><field name="display_name"/><field name="int_field"/></group></form>'
+    //         },
+    //     });
+    //     debugger;
+    //     // await testUtils.form.clickEdit(form);
+
+    //     // debugger
+    //     // this.data.partner.records[0].p = [1, 2];
+    //     // this.data.partner.records[1].p = [2];
+    //     // debugger
+
+    //     // assert.containsOnce(form, '.o_field_one2many .o_data_row',
+    //     //     "there should be one one2many record linked at first");
+    //     // assert.strictEqual(form.$('.o_field_one2many .o_data_row td:first').text(), 'second record',
+    //     //     "the 'display_name' of the one2many record should be correct");
+    //     var $o2m = form.$('.o_field_one2many');
+
+    //     // switch to edit mode
+    //     await testUtils.form.clickEdit(form);
+    //     testUtils.fields.editInput(form.$('input[name=int_field]'), '2');
+    //     // form.$('input[name=int_field]').focus();
+    //     // form.$('input[name=int_field]').val(2);
+    //     // domUtils.triggerEvents(form.$('input[name=int_field]'), ['input']);
+    //     // // debugger
+    //     // form.$('.o_data_row:first').focus();
+        
+    //     testUtils.dom.click(form.$('.o_data_row:first'));
+    //     debugger
+    //     // await testUtils.dom.click($($o2m.find('.o_data_row:first td:first')));
+    //     // form.$('.o_field_one2many input:last').focus();
+    //     debugger
+    //     await testUtils.nextTick();
+    //     debugger
+    //     // await testUtils.fields.many2one.searchAndClickItem('owner_id', {search: 'De Bruyne'});
+
+    //     var $o2m = form.$('.o_field_one2many');
+    //     assert.strictEqual($o2m.find('.o_data_row').length, 2,
+    //         "there should be two linked record");
+    //     assert.strictEqual($o2m.find('.o_data_row:first td:first').text(), 'updated record',
+    //         "the 'display_name' of the first one2many record should have been updated");
+    //     assert.strictEqual($o2m.find('.o_data_row:nth(1) td:first').text(), 'created record',
+    //         "the 'display_name' of the second one2many record should be correct");
+
+    //     debugger
+    //     form.destroy();
+    // });
+
     QUnit.test('update many2many value in one2many after onchange', async function (assert) {
         assert.expect(2);
 
