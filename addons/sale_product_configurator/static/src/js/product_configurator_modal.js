@@ -5,6 +5,7 @@ var ajax = require('web.ajax');
 var Dialog = require('web.Dialog');
 var ServicesMixin = require('web.ServicesMixin');
 var VariantMixin = require('sale.VariantMixin');
+var weContext = require('web_editor.context');
 
 var optionalProductsMap = {};
 
@@ -54,7 +55,6 @@ var OptionalProductsModal = Dialog.extend(ServicesMixin, VariantMixin, {
 
         this._super(parent, options);
 
-        this.context = params.context;
         this.rootProduct = params.rootProduct;
         this.container = parent;
         this.pricelistId = params.pricelistId;
@@ -85,7 +85,7 @@ var OptionalProductsModal = Dialog.extend(ServicesMixin, VariantMixin, {
             kwargs: {
                 context: _.extend({
                     'quantity': self.rootProduct.quantity
-                }, this.context),
+                }, weContext.get()),
             }
         })
         .then(function (modalContent) {
