@@ -37,6 +37,9 @@ var Wysiwyg = Widget.extend({
     init: function (parent, params) {
         this._super.apply(this, arguments);
         this.params = params;
+        this.params.isEditableNode = function (node) {
+            return $(node).is(':o_editable');
+        };
     },
     /**
      * Load assets and color picker template then call summernote API
@@ -46,13 +49,7 @@ var Wysiwyg = Widget.extend({
      **/
     willStart: function () {
         new SummernoteManager(this);
-
         this.$target = this.$el;
-        this.$target.wrap('<odoo-wysiwyg-container>');
-        this.$el = this.$target.parent();
-        var s = this.$target.summernote(this._editorOptions());
-        this.$editor = this.$('.note-editable:first');
-        this.$editor.data('wysiwyg', this);
         return this._super.apply(this, arguments);
     },
 
@@ -61,6 +58,12 @@ var Wysiwyg = Widget.extend({
      * @override
      */
     start: function () {
+        this.$target.wrap('<odoo-wysiwyg-container>');
+        this.$el = this.$target.parent();
+        this.$target.summernote(this._editorOptions());
+        this.$editor = this.$('.note-editable:first');
+        this.$editor.data('wysiwyg', this);
+
         this._value = this.$target.html() || this.$target.val();
         return this._super.apply(this, arguments);
     },
@@ -213,5 +216,6 @@ odoo.define('web_editor.widget', function (require) {
     return {
         Dialog: require('wysiwyg.widgets.Dialog'),
         MediaDialog: require('wysiwyg.widgets.MediaDialog'),
+        LinkDialog: require('wysiwyg.widgets.LinkDialog'),
     };
 });

@@ -37,7 +37,13 @@ var EditorMenuBar = Widget.extend({
         // Snippets edition
         var $editable = this.rte.editable();
         window.__EditorMenuBar_$editable = $editable; // TODO remove this hack asap
-        this.snippetsMenu = new snippetsEditor.Class(this, $editable);
+
+
+        var options = this.getParent().params;
+        this.snippetsMenu = new snippetsEditor.Class(this, Object.assign({
+            $el: $editable,
+            selectorEditableArea: '.o_editable',
+        }, options));
 
         return res;
     },
