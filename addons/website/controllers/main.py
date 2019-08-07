@@ -291,19 +291,6 @@ class Website(Home):
     def toggle_switchable_view(self, view_key):
         request.website.viewref(view_key).toggle()
 
-    @http.route('/website/reset_template', type='http', auth='user', methods=['POST'], website=True, csrf=False)
-    def reset_template(self, view_id, mode='soft', redirect='/', **kwargs):
-        """ This method will try to reset a broken view.
-        Given the mode, the view can either be:
-        - Soft reset: restore to previous architeture.
-        - Hard reset: it will read the original `arch` from the XML file if the
-        view comes from an XML file (arch_fs).
-        """
-        view = request.env['ir.ui.view'].browse(int(view_id))
-        # Deactivate COW to not fix a generic view by creating a specific
-        view.with_context(website_id=None).reset_arch(mode)
-        return request.redirect(redirect)
-
     @http.route(['/website/publish'], type='json', auth="public", website=True)
     def publish(self, id, object):
         Model = request.env[object]
