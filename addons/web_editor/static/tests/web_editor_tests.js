@@ -14,8 +14,14 @@ QUnit.module('web_editor', {
         this.data = {
             'mass.mailing': {
                 fields: {
-                    display_name: { string: "Displayed name", type: "char" },
-                    body: {string: "Message Body", type: "html"},
+                    display_name: {
+                        string: "Displayed name",
+                        type: "char"
+                    },
+                    body: {
+                        string: "Message Body",
+                        type: "html"
+                    },
                 },
                 records: [{
                     id: 1,
@@ -90,6 +96,47 @@ QUnit.test('field html widget (with options inline-style)', function (assert) {
         form.destroy();
         done();
     }, 0);
+});
+
+QUnit.test('save immediately before iframe is rendered in edit mode', function (assert) {
+    var done = assert.async();
+    assert.expect(1);
+
+    testUtils.createAsyncView({
+        View: FormView,
+        model: 'note.note',
+        data: this.data,
+        arch: '<form>' +
+            '<field name="body" widget="html" style="height: 100px" options="{\'cssEdit\': \'template.assets\'}"/>' +
+            '</form>',
+        res_id: 1,
+    }).then(function (form) {
+        testUtils.form.clickEdit(form);
+        testUtils.form.clickSave(form);
+        assert.ok(true, "No traceback encountered. The wysiwyg was cut while not loaded.");
+        form.destroy();
+        done();
+    });
+});
+
+QUnit.test('save immediately before iframe is rendered in edit mode with style-inline', async function (assert) {
+    assert.expect(1);
+
+    var form = await testUtils.createAsyncView({
+        View: FormView,
+        model: 'note.note',
+        data: this.data,
+        arch: '<form>' +
+            '<field name="body" widget="html" style="height: 100px" options="{\'cssEdit\': \'template.assets\', \'style-inline\': true}"/>' +
+            '</form>',
+        res_id: 1,
+    });
+    testUtils.form.clickEdit(form);
+    await testUtils.nextTick();
+    testUtils.form.clickSave(form);
+    await testUtils.nextTick();
+    assert.ok(true, "No traceback encountered. The wysiwyg was cut while not loaded.");
+    form.destroy();
 });
 
 QUnit.test('field html translatable', function (assert) {

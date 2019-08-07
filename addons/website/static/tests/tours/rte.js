@@ -1,20 +1,10 @@
 odoo.define('website.tour.rte', function (require) {
 'use strict';
 
-var ajax = require('web.ajax');
-var session = require('web.session');
 var tour = require('web_tour.tour');
-var Wysiwyg = require('web_editor.wysiwyg.root');
-
-var domReady = new Promise(function (resolve) {
-    $(resolve);
-});
-var ready = Promise.all([domReady, session.is_bound, ajax.loadXML()]);
 
 tour.register('rte_translator', {
     test: true,
-    url: '/',
-    wait_for: ready,
     url: '/',
 }, [{
     content: "click on Add a language",
@@ -71,7 +61,6 @@ tour.register('rte_translator', {
 }, {
     content : "click language dropdown",
     trigger : '.js_language_selector .dropdown-toggle',
-    extra_trigger: 'body:not(.o_wait_reload):not(:has(.note-editor))',
 }, {
     content: "click on french version",
     trigger: '.js_language_selector a[data-lang="fr_BE"]',
@@ -90,17 +79,14 @@ tour.register('rte_translator', {
     trigger: '#wrap p font:first',
     run: function (action_helper) {
         action_helper.text('translated french text');
-        Wysiwyg.setRange(this.$anchor.contents()[0], 22);
-        this.$anchor.trigger($.Event( "keyup", {key: '_', keyCode: 95}));
+        this.$anchor.trigger('keydown');
     },
 }, {
     content: "translate text with special char",
     trigger: '#wrap input + p span:first',
     run: function (action_helper) {
         action_helper.click();
-        this.$anchor.prepend('&lt;{translated}&gt;');
-        Wysiwyg.setRange(this.$anchor.contents()[0], 0);
-        this.$anchor.trigger($.Event( "keyup", {key: '_', keyCode: 95}));
+        this.$anchor.prepend('&lt;{translated}&gt;').trigger('keydown');
     },
 }, {
     content: "click on input",
@@ -137,12 +123,9 @@ tour.register('rte_translator', {
     trigger : '.js_language_selector .dropdown-toggle',
 
 }, {
-    content: "open language selector",
-    trigger: '.js_language_selector button:first',
-    extra_trigger: 'html[lang*="fr"]:not(:has(#wrap p span))',
-}, {
     content: "return to english version",
     trigger: '.js_language_selector a[data-lang="en_US"]',
+    extra_trigger: 'html[lang*="fr"]:not(:has(#wrap p span))',
 }, {
     content: "edit english version",
     trigger: 'a[data-action=edit]',
@@ -154,25 +137,25 @@ tour.register('rte_translator', {
     run: function (action_helper) {
         action_helper.click();
         var el = this.$anchor[0];
-        this.$anchor.trigger('mousedown');
-        Wysiwyg.setRange(el.childNodes[2], 6, el.childNodes[2], 13);
-        this.$anchor.trigger('mouseup');
+        var evt = document.createEvent("MouseEvents");
+        $.summernote.core.range.create(el.childNodes[2], 6, el.childNodes[2], 13).select();
+        evt.initMouseEvent('mouseup', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, el);
+        el.dispatchEvent(evt);
     },
 }, {
     content: "underline",
-    trigger: 'button.note-btn-underline',
+    trigger: '.note-air-popover button[data-event="underline"]',
 }, {
     content: "save new change",
     trigger: 'button[data-action=save]',
     extra_trigger: '#wrap.o_dirty p u',
-
-    }, {
+}, {
     content : "click language dropdown",
     trigger : '.js_language_selector .dropdown-toggle',
-    extra_trigger: '#wrap p u',
 }, {
     content: "return in french",
-    trigger : 'html[lang="en-US"] .js_language_selector .js_change_lang[data-lang="fr_BE"]',
+    trigger: 'html[lang="en-US"] .js_language_selector a[data-lang="fr_BE"]',
+    extra_trigger: 'html[lang*="en"]:not(:has(button[data-action=save]))',
 }, {
     content: "check bis: content is translated",
     trigger: '#wrap p font:first:contains(translated french text)',
