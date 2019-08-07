@@ -69,7 +69,6 @@ function removeSrcAttribute(el, widget) {
             if (widget) {
                 widget._rpc({ route: src });
             }
-            $(node).trigger('load');
         }
     }
 }
@@ -235,7 +234,6 @@ function addMockEnvironment(widget, params) {
         }
 
         $('body').off('DOMNodeInserted.removeSRC');
-        $('body').removeClass('debug');
         $('.blockUI').remove();
 
         widgetDestroy.call(this);
