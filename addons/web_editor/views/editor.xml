@@ -55,6 +55,7 @@
 <template id="_assets_primary_variables" inherit_id="web._assets_primary_variables">
     <xpath expr="//link[last()]" position="after">
         <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.variables.scss"/>
+        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.ui.scss"/>
     </xpath>
 </template>
 
@@ -106,8 +107,6 @@
 
 <template id="assets_editor" name="Web Editor Assets (used in private and public editor)">
     <t t-call="web._assets_helpers"/>
-
-    <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.ui.scss"/>
 
     <script type="text/javascript" src="/web_editor/static/lib/nearest/jquery.nearest.js"/>
     <script type="text/javascript" src="/web_editor/static/src/js/editor/editor.js"/>
