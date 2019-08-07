@@ -287,7 +287,7 @@ var FileWidget = SearchableMediaWidget.extend({
             o.isDocument = true;
         }
         if (o.url) {
-            self._toggleImage(_.find(self.records, function (record) { return record.src === o.url;}) || o, true);
+            self._toggleImage(_.find(self.attachments, function (record) { return record.src === o.url;}) || o, true);
         }
 
         return def;
@@ -395,7 +395,7 @@ var FileWidget = SearchableMediaWidget.extend({
                 context: this.options.context,
             },
         }).then(function (records) {
-            self.records = _.chain(records)
+            self.attachments = _.chain(records)
                 .filter(function (r) {
                     return (r.type === "binary" || r.url && r.url.length > 0);
                 })
@@ -419,7 +419,7 @@ var FileWidget = SearchableMediaWidget.extend({
                 })
                 .value();
 
-            _.each(self.records, function (record) {
+            _.each(self.attachments, function (record) {
                 record.src = record.url || _.str.sprintf('/web/image/%s/%s', record.id, encodeURI(record.name));  // Name is added for SEO purposes
                 record.isDocument = !(/gif|jpe|jpg|png/.test(record.mimetype));
             });
@@ -438,9 +438,10 @@ var FileWidget = SearchableMediaWidget.extend({
      * @private
      */
     _adaptLoadMore: function () {
-        var noMoreImgToLoad = this.IMAGES_DISPLAYED_TOTAL >= this.records.length;
+        var noLoadMoreButton = this.NUMBER_OF_ATTACHMENTS_TO_DISPLAY >= this.attachments.length;
+        var noMoreImgToLoad = this.IMAGES_DISPLAYED_TOTAL >= this.attachments.length;
+        this.$('.o_load_done_msg').toggleClass('d-none', noLoadMoreButton || !noMoreImgToLoad);
         this.$('.o_load_more').toggleClass('d-none', noMoreImgToLoad);
-        this.$('.o_load_done_msg').toggleClass('d-none', !noMoreImgToLoad);
     },
     /**
      * @override
@@ -495,7 +496,7 @@ var FileWidget = SearchableMediaWidget.extend({
      */
     _renderImages: function (withEffect) {
         var self = this;
-        var rows = _(this.records).chain()
+        var rows = _(this.attachments).chain()
             .slice(0, this.IMAGES_DISPLAYED_TOTAL)
             .groupBy(function (a, index) { return Math.floor(index / self.IMAGES_PER_ROW); })
             .values()
@@ -627,7 +628,7 @@ var FileWidget = SearchableMediaWidget.extend({
      */
     _onImageClick: function (ev, forceSelect) {
         var $img = $(ev.currentTarget);
-        var attachment = _.find(this.records, function (record) {
+        var attachment = _.find(this.attachments, function (record) {
             return record.id === $img.data('id');
         });
         this._toggleImage(attachment, false, forceSelect);
@@ -659,7 +660,7 @@ var FileWidget = SearchableMediaWidget.extend({
                 var $helpBlock = self.$errorText.empty();
                 var $a = $(ev.currentTarget);
                 var id = parseInt($a.data('id'), 10);
-                var attachment = _.findWhere(this.records, {id: id});
+                var attachment = _.findWhere(this.attachments, {id: id});
 
                 return self._rpc({
                     route: '/web_editor/attachment/remove',
@@ -668,8 +669,11 @@ var FileWidget = SearchableMediaWidget.extend({
                     },
                 }).then(function (prevented) {
                     if (_.isEmpty(prevented)) {
-                        self.records = _.without(self.records, attachment);
+                        self.attachments = _.without(self.attachments, attachment);
                         self.search('');
+                        if (!self.attachments.length) {
+                            self._renderImages(); // render the message and image if empty
+                        }
                         return;
                     }
                     $helpBlock.replaceWith(QWeb.render('web_editor.dialog.image.existing.error', {
