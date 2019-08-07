@@ -276,7 +276,7 @@ html[lang] > body.editor_enable [data-oe-translation-state] {
         }
 
         &.oe_vertical {
-            border: @odoo-dropzone-border;
+            border: 2px dashed $o-brand-odoo;
             border-left: none;
             border-right: none;
 
