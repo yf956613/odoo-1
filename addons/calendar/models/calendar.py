@@ -154,7 +154,6 @@ class Attendee(models.Model):
                 values['common_name'] = values.get("common_name")
         return super(Attendee, self).create(vals_list)
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         raise UserError(_('You cannot duplicate a calendar attendee.'))
 
@@ -1446,7 +1445,6 @@ class Meeting(models.Model):
             event.message_needaction_counter = rec.message_needaction_counter
             event.message_needaction = rec.message_needaction
 
-    @api.returns('mail.message', lambda value: value.id)
     def message_post(self, **kwargs):
         thread_id = self.id
         if isinstance(self.id, str):
@@ -1745,7 +1743,6 @@ class Meeting(models.Model):
             return events[offset: offset + limit].ids
         return events.ids
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         self.ensure_one()
         default = default or {}

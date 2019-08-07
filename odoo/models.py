@@ -1510,9 +1510,6 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         return res if isinstance(res, int) else len(res)
 
     @api.model
-    @api.returns('self',
-        upgrade=lambda self, value, args, offset=0, limit=None, order=None, count=False: value if count else self.browse(value),
-        downgrade=lambda self, value, args, offset=0, limit=None, order=None, count=False: value if count else value.ids)
     def search(self, args, offset=0, limit=None, order=None, count=False):
         """ search(args[, offset=0][, limit=None][, order=None][, count=False])
 
@@ -3502,7 +3499,6 @@ Fields:
         return True
 
     @api.model_create_multi
-    @api.returns('self', lambda value: value.id)
     def create(self, vals_list):
         """ create(vals_list) -> records
 
@@ -4171,7 +4167,6 @@ Fields:
 
         return _uniquify_list([x[0] for x in res])
 
-    @api.returns(None, lambda value: value[0])
     def copy_data(self, default=None):
         """
         Copy given record's data with all its fields values
@@ -4314,7 +4309,6 @@ Fields:
                     vals_list.append(vals)
                 Translation._upsert_translations(vals_list)
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         """ copy(default=None)
 
@@ -4332,7 +4326,6 @@ Fields:
         self.with_context(from_copy_translation=True).copy_translations(new, excluded=default or ())
         return new
 
-    @api.returns('self')
     def exists(self):
         """  exists() -> records
 

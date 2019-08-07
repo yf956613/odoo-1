@@ -317,7 +317,7 @@ QUnit.test('@ mention in channel', async function (assert) {
                 var notification = [[false, 'mail.channel', 1], data];
                 objectDiscuss.call('bus_service', 'trigger', 'notification', [notification]);
                 receiveMessageDef.resolve();
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
             return this._super.apply(this, arguments);
         },
@@ -479,7 +479,7 @@ QUnit.test('@ mention with special chars', async function (assert) {
                 var notification = [[false, 'mail.channel', 1], data];
                 objectDiscuss.call('bus_service', 'trigger', 'notification', [notification]);
                 receiveMessageDef.resolve();
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
             return this._super.apply(this, arguments);
         },
@@ -572,7 +572,7 @@ QUnit.test('@ mention with removed space', async function (assert) {
                 var notification = [[false, 'mail.channel', 1], data];
                 objectDiscuss.call('bus_service', 'trigger', 'notification', [notification]);
                 receiveMessageDef.resolve();
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
             return this._super.apply(this, arguments);
         },
@@ -943,7 +943,7 @@ QUnit.test('convert emoji sources to unicodes on message_post', async function (
                 var notification = [[false, 'mail.channel', 1], data];
                 objectDiscuss.call('bus_service', 'trigger', 'notification', [notification]);
                 receiveMessageDef.resolve();
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
             return this._super.apply(this, arguments);
         },
@@ -1159,7 +1159,7 @@ QUnit.test('reply to message from inbox', async function (assert) {
                     model: 'some.document',
                     record_name: 'SomeDocument',
                 });
-                return Promise.resolve(2);
+                return Promise.resolve([2]);
             }
             return this._super.apply(this, arguments);
         },
@@ -1234,7 +1234,7 @@ QUnit.test('discard replying to message from inbox', async function (assert) {
                     model: 'some.document',
                     record_name: 'SomeDocument',
                 });
-                return Promise.resolve(2);
+                return Promise.resolve([2]);
             }
             return this._super.apply(this, arguments);
         },

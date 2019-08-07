@@ -363,7 +363,6 @@ class Channel(models.Model):
             self._add_groups_members()
         return res
 
-    @api.returns('mail.message', lambda value: value.id)
     def message_post(self, parent_id=False, subtype=None, **kwargs):
         """ Temporary workaround to avoid spam. If someone replies on a channel
         through the 'Presentation Published' email, it should be considered as a

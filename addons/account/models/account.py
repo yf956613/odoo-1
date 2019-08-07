@@ -346,7 +346,6 @@ class AccountAccount(models.Model):
             result.append((account.id, name))
         return result
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {})
         if default.get('code', False):
@@ -712,7 +711,6 @@ class AccountJournal(models.Model):
         bank_accounts.unlink()
         return ret
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {})
         default.update(
@@ -1140,7 +1138,6 @@ class AccountTax(models.Model):
             if not all(child.type_tax_use in ('none', tax.type_tax_use) for child in tax.children_tax_ids):
                 raise ValidationError(_('The application scope of taxes in a group must be either the same as the group or left empty.'))
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {}, name=_("%s (Copy)") % self.name)
         return super(AccountTax, self).copy(default=default)

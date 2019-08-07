@@ -80,7 +80,6 @@ class SMSTemplate(models.Model):
             expression += "}"
         return expression
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {},
                        name=_("%s (copy)") % self.name)

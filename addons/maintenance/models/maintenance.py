@@ -254,7 +254,6 @@ class MaintenanceRequest(models.Model):
     _description = 'Maintenance Request'
     _order = "id desc"
 
-    @api.returns('self')
     def _default_stage(self):
         return self.env['maintenance.stage'].search([], limit=1)
 

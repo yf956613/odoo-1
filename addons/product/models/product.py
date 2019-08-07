@@ -427,7 +427,6 @@ class ProductProduct(models.Model):
                     # This is the case from existing stock reordering rules.
                     self.write({'active': False})
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         # TDE FIXME: clean context / variant brol
         if default is None:

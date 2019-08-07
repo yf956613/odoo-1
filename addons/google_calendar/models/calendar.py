@@ -23,7 +23,6 @@ class Meeting(models.Model):
             values['oe_update_date'] = fields.Datetime.now()
         return super(Meeting, self).write(values)
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = default or {}
         if default.get('write_type', False):

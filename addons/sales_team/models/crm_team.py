@@ -20,7 +20,6 @@ class CrmTeam(models.Model):
     _order = "sequence"
 
     @api.model
-    @api.returns('self', lambda value: value.id if value else False)
     def _get_default_team_id(self, user_id=None, domain=None):
         if not user_id:
             user_id = self.env.uid

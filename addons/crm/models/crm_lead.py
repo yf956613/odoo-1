@@ -441,7 +441,6 @@ class Lead(models.Model):
                 super(Lead, lead).write(proba_vals)
         return
 
-    @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         self.ensure_one()
         # set default value in context, if not already set (Put stage to 'new' stage)

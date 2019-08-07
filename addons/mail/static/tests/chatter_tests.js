@@ -939,7 +939,7 @@ QUnit.test('chatter: post, receive and star messages', async function (assert) {
                     model: 'partner',
                     res_id: 2,
                 });
-                return Promise.resolve(messageID);
+                return Promise.resolve([messageID]);
             }
             if (args.method === 'toggle_message_starred') {
                 assert.ok(_.contains(args.args[0], 2),
@@ -1063,7 +1063,7 @@ QUnit.test('chatter: post a message disable the send button', async function(ass
             if (args.method === 'message_post') {
                 assert.ok(form.$('.o_composer_button_send').prop("disabled"),
                     "Send button should be disabled when a message is being sent");
-                return Promise.resolve(57923);
+                return Promise.resolve([57923]);
             }
             if (args.method === 'message_format') {
                 return Promise.resolve([{
@@ -1268,7 +1268,7 @@ QUnit.test('chatter: post a message and switch in edit mode', async function (as
                     model: 'partner',
                     res_id: 2,
                 });
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
 
             return this._super(route, args);
@@ -1390,7 +1390,7 @@ QUnit.test('chatter: discard changes on message post without post_refresh', asyn
                     model: 'partner',
                     res_id: 2,
                 });
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
             return this._super(route, args);
         },
@@ -1472,7 +1472,7 @@ QUnit.test('chatter: discard changes on message post with post_refresh "recipien
                     model: 'partner',
                     res_id: 2,
                 });
-                return Promise.resolve(42);
+                return Promise.resolve([42]);
             }
             return this._super(route, args);
         },
@@ -1749,7 +1749,7 @@ QUnit.test('chatter: keep context when sending a message', async function(assert
                         mail_post_autofollow: true,
                     },
                     "the context is incorrect");
-                return Promise.resolve(57923);
+                return Promise.resolve([57923]);
             }
             if (args.method === 'message_format') {
                 return Promise.resolve([{
@@ -2893,7 +2893,7 @@ QUnit.test('chatter: suggested partner auto-follow on message post', async funct
                     model: 'partner',
                     res_id: 2,
                 });
-                return Promise.resolve(messageID);
+                return Promise.resolve([messageID]);
             }
             if (route === '/mail/read_followers') {
                 return Promise.resolve({
