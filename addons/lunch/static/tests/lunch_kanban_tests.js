@@ -590,15 +590,15 @@ QUnit.module('LunchKanbanView', {
                 }),
                 intercepts: {
                     do_action: function (ev) {
+                        debugger;
                         assert.deepEqual(ev.data.action, {
                             name: "Configure Your Order",
-                            res_model: 'lunch.order.temp',
+                            res_model: 'lunch.order',
                             type: 'ir.actions.act_window',
                             views: [[false, 'form']],
                             target: 'new',
                             context: {
                                 default_product_id: undefined,
-                                line_id: false,
                             },
                         },
                         "should open the wizard");
