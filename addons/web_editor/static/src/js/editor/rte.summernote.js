@@ -110,13 +110,27 @@ renderer.createPalette = function ($container, options) {
 
     $palettes.push.apply($palettes, $customColorPalettes);
 
-    var $fore = $palettes.filter(":even").find("button:not(.note-color-btn)").addClass("note-color-btn");
-    var $bg = $palettes.filter(":odd").find("button:not(.note-color-btn)").addClass("note-color-btn");
+    var $forePalette = $palettes.filter(":even").closest('li').addClass('note-palette');
+    var $bgPalette = $palettes.filter(":odd").closest('li').addClass('note-palette');
+
+    $forePalette.add($bgPalette).find('.note-color-reset').remove();
+    $forePalette.children().each(function () {
+        var $reset = $('<div class="note-color-reset" data-event="foreColor" data-value="inherit"></div>').text(_t('Reset to default'));
+        $(this).prepend($reset);
+    })
+    $bgPalette.children().each(function () {
+        var $reset = $('<div class="note-color-reset" data-event="backColor" data-value="inherit"></div>').text(_t('Reset to default'));
+        $(this).prepend($reset);
+    })
+
+    var $fore = $forePalette.find("button:not(.note-color-btn)").addClass("note-color-btn");
     $fore.each(function () {
         var $el = $(this);
         var className = $el.hasClass('o_custom_color') ? $el.data('color') : 'text-' + $el.data('color');
         $el.attr('data-event', 'foreColor').attr('data-value', className).addClass($el.hasClass('o_custom_color') ? '' : 'bg-' + $el.data('color'));
     });
+
+    var $bg = $bgPalette.find("button:not(.note-color-btn)").addClass("note-color-btn");
     $bg.each(function () {
         var $el = $(this);
         var className = $el.hasClass('o_custom_color') ? $el.data('color') : 'bg-' + $el.data('color');
