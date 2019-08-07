@@ -106,7 +106,7 @@ var ReportAction = AbstractAction.extend({
     _update_control_panel_buttons: function () {
         this.$buttons.filter('div.o_report_edit_mode').toggle(this.in_edit_mode);
         this.$buttons.filter('div.o_report_no_edit_mode').toggle(! this.in_edit_mode);
-        this.$buttons.filter('div.o_edit_mode_available').toggle(config.debug && this.edit_mode_available && ! this.in_edit_mode);
+        this.$buttons.filter('div.o_edit_mode_available').toggle(config.isDebug() && this.edit_mode_available && ! this.in_edit_mode);
     },
 
     /**

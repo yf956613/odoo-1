@@ -49,7 +49,7 @@ var FieldTextHtmlSimple = basic_fields.DebouncedField.extend(TranslatableFieldMi
      */
     commitChanges: function () {
         // switch to WYSIWYG mode if currently in code mode to get all changes
-        if (config.debug && this.mode === 'edit') {
+        if (config.isDebug() && this.mode === 'edit') {
             var layoutInfo = this.$textarea.data('layoutInfo');
             $.summernote.pluginEvents.codeview(undefined, undefined, layoutInfo, false);
         }
@@ -171,7 +171,7 @@ var FieldTextHtmlSimple = basic_fields.DebouncedField.extend(TranslatableFieldMi
         summernoteConfig.getMediaDomain = this._getAttachmentsDomain.bind(this);
 
 
-        if (config.debug) {
+        if (config.isDebug()) {
             summernoteConfig.toolbar.splice(7, 0, ['view', ['codeview']]);
         }
         return summernoteConfig;
@@ -385,8 +385,8 @@ var FieldTextHtml = AbstractField.extend({
         if (this.mode === "edit") {
             attr.enable_editor = 1;
         }
-        if (session.debug) {
-            attr.debug = session.debug;
+        if (config.isDebug()) {
+            attr.debug = odoo.debug;
         }
 
         for (k in _attr) {
@@ -502,7 +502,7 @@ var FieldTextHtml = AbstractField.extend({
         }
         return $.when(this.contentLoadedDeferred, this.editorLoadedDeferred, result).then(function () {
             // switch to WYSIWYG mode if currently in code mode to get all changes
-            if (config.debug && self.editor.rte) {
+            if (config.isDebug() && self.editor.rte) {
                 var layoutInfo = self.editor.rte.editable().data('layoutInfo');
                 $.summernote.pluginEvents.codeview(undefined, undefined, layoutInfo, false);
             }
