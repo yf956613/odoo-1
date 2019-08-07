@@ -56,8 +56,7 @@ tour.register('shop_mail', {
                 'method': 'sale_get_order',
                 'args': [[$('html').data('website-id')]],
             }).then(function (data) {
-                var orderId = parseInt(data.match(/sale\.order\((\d+),\)/)[1]);
-                window.location.href = "/web#action=sale.action_orders&view_type=form&id=" + orderId;
+                window.location.href = "/web#action=sale.action_orders&view_type=form&id=" + data[0];
             });
         },
     },

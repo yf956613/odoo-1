@@ -31,8 +31,7 @@ tour.register('shop_cart_recovery', {
                 'method': 'sale_get_order',
                 'args': [[$('html').data('website-id')]],
             }).then(function (data) {
-                var orderId = parseInt(data.match(/sale\.order\((\d+),\)/)[1]); 
-                localStorage.setItem(orderIdKey, orderId);
+                localStorage.setItem(orderIdKey, data[0]);
                 window.location.href = "/web/session/logout?redirect=/web/login";
             });
         },
