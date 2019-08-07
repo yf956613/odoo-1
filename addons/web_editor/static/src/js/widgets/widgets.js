@@ -381,16 +381,16 @@ var FileWidget = SearchableMediaWidget.extend({
         // TODO: Expand this for adding SVG
         var domain = this.domain.concat(this.options.mimetypeDomain);
         if (needle && needle.length) {
-            domain.push('|', ['datas_fname', 'ilike', needle], ['name', 'ilike', needle]);
+            domain.push(['name', 'ilike', needle]);
         }
-        domain.push('|', ['datas_fname', '=', false], '!', ['datas_fname', '=like', '%.crop'], '!', ['name', '=like', '%.crop']);
+        domain.push('!', ['name', '=like', '%.crop']);
         return this._rpc({
             model: 'ir.attachment',
             method: 'search_read',
             args: [],
             kwargs: {
                 domain: domain,
-                fields: ['name', 'datas_fname', 'mimetype', 'checksum', 'url', 'type', 'res_id', 'res_model', 'access_token'],
+                fields: ['name', 'mimetype', 'checksum', 'url', 'type', 'res_id', 'res_model', 'access_token'],
                 order: [{name: 'id', asc: false}],
                 context: this.options.context,
             },
@@ -405,13 +405,13 @@ var FileWidget = SearchableMediaWidget.extend({
                 .sortBy(function (r) {
                     if (_.any(self.options.firstFilters, function (filter) {
                         var regex = new RegExp(filter, 'i');
-                        return r.name.match(regex) || r.datas_fname && r.datas_fname.match(regex);
+                        return r.name && r.name.match(regex);
                     })) {
                         return -1;
                     }
                     if (_.any(self.options.lastFilters, function (filter) {
                         var regex = new RegExp(filter, 'i');
-                        return r.name.match(regex) || r.datas_fname && r.datas_fname.match(regex);
+                        return r.name && r.name.match(regex);
                     })) {
                         return 1;
                     }
