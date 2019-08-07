@@ -39,7 +39,6 @@ var EditorMenu = Widget.extend({
                 $wrapwrap.removeClass('o_editable'); // clean the dom before edition
                 self.editable($wrapwrap).addClass('o_editable');
                 self.wysiwyg = self._wysiwygInstance();
-                return self.wysiwyg.attachTo($wrapwrap);
             });
     },
     /**
@@ -48,7 +47,7 @@ var EditorMenu = Widget.extend({
     start: function () {
         var self = this;
         this.$el.css({width: '100%'});
-        return this._super().then(function () {
+        return this.wysiwyg.attachTo($('#wrapwrap')).then(function () {
             self.trigger_up('edit_mode');
             self.$el.css({width: ''});
         });

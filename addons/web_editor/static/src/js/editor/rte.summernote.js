@@ -22,7 +22,7 @@ ajax.jsonRpc('/web/dataset/call', 'call', {
         'context': weContext.get(),
     }
 }).then(function (data) {
-    QWeb.add_template(data);
+    QWeb.add_template('<templates>' + data + '</templates>');
 });
 
 // Summernote Lib (neek change to make accessible: method and object)

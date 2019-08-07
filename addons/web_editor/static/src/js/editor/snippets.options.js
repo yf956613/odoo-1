@@ -5,6 +5,7 @@ var core = require('web.core');
 var Dialog = require('web.Dialog');
 var Widget = require('web.Widget');
 var weWidgets = require('wysiwyg.widgets');
+var summernoteCustomColors = require('web_editor.rte.summernote_custom_colors');
 
 var qweb = core.qweb;
 var _t = core._t;

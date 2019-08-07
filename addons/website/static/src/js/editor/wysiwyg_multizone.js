@@ -26,6 +26,7 @@ var WysiwygMultizone = Wysiwyg.extend({
         return this.editor.prependTo(document.body);
     },
     start: function () {
+        $('#web_editor-toolbars').prependTo('#web_editor-top-edit');
     }
 });
 
