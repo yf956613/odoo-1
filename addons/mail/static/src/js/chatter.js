@@ -106,6 +106,12 @@ var Chatter = Widget.extend({
         var def = this._dp.add(Promise.all(fieldDefs));
         this._render(def).then(this._updateMentionSuggestions.bind(this));
 
+        // Drag-Drop files
+        // Allowing body to detect dragenter and dragleave for display
+        var $body = $('body');
+        $body.on('dragleave', this._onBodyFileDragLeave.bind(this));
+        $body.on("dragover", this._onBodyFileDragover.bind(this));
+        $body.on("drop", this._onBodyFileDrop.bind(this));
         return this._super.apply(this, arguments);
     },
 
@@ -486,11 +492,37 @@ var Chatter = Widget.extend({
         });
     },
 
-
     //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
 
+    _onBodyFileDragover: function (ev) {
+        ev.preventDefault();
+        if (!this._isAttachmentBoxOpen && !this._dragOverAttachmentOpening) {
+            this._dragOverAttachmentOpening = true;
+            this._onClickAttachmentButton();
+        }
+        this.$(".o_attachments_file_drop_zone").removeClass("d-none");
+    },
+    _onBodyFileDragLeave: function (ev) {
+        // On every dragenter chain created with parent child element
+        // That's why dragleave is fired every time when a child elemnt is hovered
+        // so here we hide dropzone based on mouse position
+        if (ev.originalEvent.clientX <= 0
+            || ev.originalEvent.clientY <= 0
+            || ev.originalEvent.clientX >= window.innerWidth
+            || ev.originalEvent.clientY >= window.innerHeight
+        ) {
+            this.$(".o_attachments_file_drop_zone").addClass("d-none");
+            this._dragOverAttachmentOpening = false;
+        }
+    },
+    _onBodyFileDrop: function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.$(".o_attachments_file_drop_zone").addClass("d-none");
+        this._dragOverAttachmentOpening = false;
+    },
     /**
      * @private
      * @param {OdooEvent} ev
