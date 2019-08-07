@@ -91,13 +91,10 @@
 <template id="website.assets_wysiwyg" name="Website Editor Assets (used in website editor)">
     <t t-call="web._assets_helpers">
         <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/bootstrap_overridden.scss"/>
-        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/wysiwyg_variables.scss"/>
+        <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.ui.scss"/>
     </t>
-    <link rel="stylesheet" type="text/scss" href="/website/static/src/scss/website.wysiwyg.scss"/>
 
     <script type="text/javascript" src="/website/static/src/js/editor/snippets.options.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/wysiwyg_multizone.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/wysiwyg_multizone_translate.js"/>
     <script type="text/javascript" src="/website/static/src/js/editor/widget_link.js"/>
 </template>
 
@@ -107,7 +104,6 @@
     <link rel="stylesheet" type="text/scss" href="/website/static/src/scss/website.edit_mode.scss"/>
 
     <script type="text/javascript" src="/website/static/lib/jQuery.transfo.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu.js"/>
     <script type="text/javascript" src="/website/static/src/js/editor/editor_menu_translate.js"/>
     <script type="text/javascript" src="/website/static/src/js/editor/rte.summernote.js"/>
 
@@ -226,7 +222,7 @@
             </t>
             <t groups="website.group_website_publisher">
                 <script type="text/javascript">
-                    odoo.snippetsURL = '/website/snippets';
+                    <!-- odoo.snippetsURL = '/website/snippets'; -->
                 </script>
             </t>
         </t>

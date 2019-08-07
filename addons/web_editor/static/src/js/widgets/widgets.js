@@ -489,6 +489,7 @@ var FileWidget = SearchableMediaWidget.extend({
             rows: rows,
             widget: this,
             withEffect: withEffect,
+            attachments: this.attachments,
         });
     },
     /**
@@ -1278,7 +1279,7 @@ var MediaDialog = Dialog.extend({
     init: function (parent, options, $editable, media) {
         var $media = $(media);
 
-        options = _.extend({}, options);
+        this.options = _.extend({}, options);
         options.noDocuments = options.onlyImages || options.noDocuments;
         options.noIcons = options.onlyImages || options.noIcons;
         options.noVideos = options.onlyImages || options.noVideos;
@@ -1289,16 +1290,16 @@ var MediaDialog = Dialog.extend({
         }, options));
 
         if (!options.noImages) {
-            this.imageWidget = new MediaModules.ImageWidget(this, media, options);
+            this.imageWidget = new ImageWidget(this, media, options);
         }
         if (!options.noDocuments) {
-            this.documentWidget = new MediaModules.DocumentWidget(this, media, options);
+            this.documentWidget = new DocumentWidget(this, media, options);
         }
         if (!options.noIcons) {
-            this.iconWidget = new MediaModules.IconWidget(this, media, options);
+            this.iconWidget = new IconWidget(this, media, options);
         }
         if (!options.noVideos) {
-            this.videoWidget = new MediaModules.VideoWidget(this, media, options);
+            this.videoWidget = new VideoWidget(this, media, options);
         }
 
         if (this.imageWidget && $media.is('img')) {

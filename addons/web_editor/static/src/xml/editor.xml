@@ -164,13 +164,15 @@
                 <p class="o_empty_folder_image">No record found.</p>
                 <p class="o_empty_folder_subtitle">You can upload records with the button located on the top left of the screen.</p>
             </div>
-            <div t-else="" t-foreach="rows" t-as="row" class="row mt-2">
-                <div t-foreach="row" t-as="attachment" class="col-2 o_existing_attachment_cell">
-                    <i t-if="attachment.res_model === 'ir.ui.view'" class="fa fa-trash o_existing_attachment_remove" title="This file is a public view attachment" role="img" aria-label="This file is a public view attachment" t-att-data-id="attachment.id"/>
-                    <i t-else="" class="fa fa-trash o_existing_attachment_remove" title="This file is attached to the current record" role="img" aria-label="This file is attached to the current record" t-att-data-id="attachment.id"/>
-                    <div class="o_attachment_border" t-att-style="attachment.res_model === 'ir.ui.view' ? null : 'border: 1px solid #5cb85c;'"><div t-att-data-src="attachment.src" t-att-data-url="attachment.url" role="img" t-att-aria-label="attachment.name" t-att-title="attachment.name" t-att-data-id="attachment.id" t-att-data-mimetype="attachment.mimetype" t-attf-class="o_image #{withEffect ? 'o_image_loading' : ''}"/></div>
+            <t t-else="">
+                <div t-foreach="rows" t-as="row" class="row mt-2">
+                    <div t-foreach="row" t-as="attachment" class="col-2 o_existing_attachment_cell">
+                        <i t-if="attachment.res_model === 'ir.ui.view'" class="fa fa-trash o_existing_attachment_remove" title="This file is a public view attachment" role="img" aria-label="This file is a public view attachment" t-att-data-id="attachment.id"/>
+                        <i t-else="" class="fa fa-trash o_existing_attachment_remove" title="This file is attached to the current record" role="img" aria-label="This file is attached to the current record" t-att-data-id="attachment.id"/>
+                        <div class="o_attachment_border" t-att-style="attachment.res_model === 'ir.ui.view' ? null : 'border: 1px solid #5cb85c;'"><div t-att-data-src="attachment.src" t-att-data-url="attachment.url" role="img" t-att-aria-label="attachment.name" t-att-title="attachment.name" t-att-data-id="attachment.id" t-att-data-mimetype="attachment.mimetype" t-attf-class="o_image #{withEffect ? 'o_image_loading' : ''}"/></div>
+                    </div>
                 </div>
-            </div>
+            </t>
         </div>
     </t>
     <t t-name="web_editor.dialog.document.existing.attachments" t-extend="web_editor.dialog.image.existing.attachments">

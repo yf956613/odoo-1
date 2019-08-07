@@ -19,6 +19,7 @@ var EditorMenuBar = Widget.extend({
     custom_events: {
         request_history_undo_record: '_onHistoryUndoRecordRequest',
         request_save: '_onSaveRequest',
+        get_clean_html: '_onGetCleanHTML',
     },
 
     /**
@@ -119,15 +120,16 @@ var EditorMenuBar = Widget.extend({
      */
     cancel: function (reload) {
         var self = this;
-        var def = $.Deferred();
-        if (!rte.history.getEditableHasUndo().length) {
-            def.resolve();
-        } else {
-            var confirm = Dialog.confirm(this, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
-                confirm_callback: def.resolve.bind(def),
-            });
-            confirm.on('closed', def, def.reject);
-        }
+        var def = new Promise(function (resolve, reject) {
+            if (!rte.history.getEditableHasUndo().length) {
+                resolve();
+            } else {
+                var confirm = Dialog.confirm(self, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
+                    confirm_callback: resolve,
+                });
+                confirm.on('closed', self, reject);
+            }
+        });
         return def.then(function () {
             if (reload !== false) {
                 window.onbeforeunload = null;
@@ -147,7 +149,7 @@ var EditorMenuBar = Widget.extend({
         var self = this;
         var defs = [];
         this.trigger_up('ready_to_save', {defs: defs});
-        return $.when.apply($, defs).then(function () {
+        return Promise.all(defs).then(function () {
             self.snippetsMenu.cleanForSave();
             return self._saveCroppedImages();
         }).then(function () {
@@ -172,11 +174,11 @@ var EditorMenuBar = Widget.extend({
     _reload: function () {
         window.location.hash = 'scrollTop=' + window.document.body.scrollTop;
         if (window.location.search.indexOf('enable_editor') >= 0) {
-            window.location.href = window.location.href.replace(/&?enable_editor(=[^&]*)?/g, '');
+            window.location.href = window.location.href.replace(/[&?]enable_editor(=[^&]*)?/g, '');
         } else {
             window.location.reload(true);
         }
-        return $.Deferred();
+        return new Promise(function () {});
     },
     /**
      * @private
@@ -239,6 +241,15 @@ var EditorMenuBar = Widget.extend({
      */
     _onCancelClick: function () {
         this.cancel();
+    },
+    /**
+     * Get the cleaned value of the editable element.
+     *
+     * @private
+     * @param {OdooEvent} ev
+     */
+    _onGetCleanHTML: function (ev) {
+        ev.data.callback(this.wysiwyg.getValue({$layout: ev.data.$layout}));
     },
     /**
      * Called when an element askes to record an history undo -> records it.
