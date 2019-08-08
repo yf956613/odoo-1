@@ -1293,7 +1293,12 @@ var SnippetsMenu = Widget.extend({
                 $toInsert.removeClass('oe_snippet_body');
 
                 if (!dropped && ui.position.top > 3 && ui.position.left + 50 > self.$el.outerWidth()) {
-                    var $el = $.nearest({x: ui.position.left, y: ui.position.top}, '.oe_drop_zone').first();
+                    var $el = $.nearest({
+                        x: ui.position.left,
+                        y: ui.position.top,
+                    }, '.oe_drop_zone', {
+                        container: document.body,
+                    }).first();
                     if ($el.length) {
                         $el.after($toInsert);
                         dropped = true;

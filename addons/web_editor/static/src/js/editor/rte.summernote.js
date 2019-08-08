@@ -18,7 +18,7 @@ ajax.jsonRpc('/web/dataset/call', 'call', {
     'method': 'read_template',
     'args': ['web_editor.colorpicker']
 }).then(function (data) {
-    QWeb.add_template(data);
+    QWeb.add_template('<templates>' + data + '</templates>');
 });
 
 // Summernote Lib (neek change to make accessible: method and object)
@@ -457,7 +457,7 @@ eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
             noVideos: $editable.data('oe-model') === "mail.compose.message",
         },
     });
-    return new Promise.reject();
+    return Promise.reject();
 };
 $.summernote.pluginEvents.alt = function (event, editor, layoutInfo, sorted) {
     var $editable = layoutInfo.editable();
