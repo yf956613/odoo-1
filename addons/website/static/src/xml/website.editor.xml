@@ -77,7 +77,7 @@
         </div>
     </t>
 
-    <t t-extend="wysiwyg.widgets.link">
+    <t t-extend="web_editor.dialog.link">
         <t t-jquery="#o_link_dialog_url_input" t-operation="after">
             <small class="form-text text-muted">Hint: Type '/' to link to an existing page and '#' to an anchor.</small>
         </t>

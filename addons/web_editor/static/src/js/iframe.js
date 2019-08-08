@@ -102,7 +102,7 @@ odoo.define('web_editor.IframeRoot', function (require) {
 var BodyManager = require('web_editor.BodyManager');
 var weContext = require('web_editor.context');
 var editor = require('web_editor.editor');
-var rootWidget = require('web_editor.root_widget');
+var rootWidget = require('web.public.widget');
 var translate = require('web_editor.translate');
 
 var iframeRootRegistry = new rootWidget.RootWidgetRegistry();

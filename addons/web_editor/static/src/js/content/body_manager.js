@@ -2,7 +2,7 @@ odoo.define('web_editor.BodyManager', function (require) {
 'use strict';
 
 var weContext = require('web_editor.context');
-var rootWidget = require('web_editor.root_widget');
+var rootWidget = require('web.public.widget');
 var ServiceProviderMixin = require('web.ServiceProviderMixin');
 var session = require('web.session');
 
