@@ -19,8 +19,34 @@ var WysiwygMultizone = Wysiwyg.extend({
     },
     start: function () {
         this.options.toolbarHandler = $('#web_editor-top-edit');
-        this._super();
-    }
+        return this._super();
+    },
+
+    /**
+     * @override
+     * @returns {Promise}
+     */
+    save: function () {
+        return this._super().then(function(res) {
+            if (this.isDirty()) {
+                return this.editor.save().then(function() {
+                    return {isDirty: true};
+                });
+            } else {
+                return {isDirty: false};
+            }
+        }.bind(this));
+    },
+
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    _getEditableArea: function() {
+        return $(':o_editable');
+    },
+
 });
 
 return WysiwygMultizone;
