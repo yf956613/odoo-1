@@ -38,7 +38,7 @@ SlidesUpload.SlideUploadDialog.include({
                 return self._rpc({
                     route: '/slides_survey/certification/search_read',
                     params: {
-                        fields: ['title'],
+                        fields: ['title','certification_badge_id'],
                     }
                 });
             }, 'title')

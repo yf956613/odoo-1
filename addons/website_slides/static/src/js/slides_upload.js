@@ -47,8 +47,6 @@ var SlideUploadDialog = Dialog.extend({
         this.set('can_submit_form', false);
         this.on('change:can_submit_form', this, this._onChangeCanSubmitForm);
 
-        this.numberNew = 0;
-
         this.file = {};
         this.isValidUrl = true;
     },
@@ -311,7 +309,12 @@ var SlideUploadDialog = Dialog.extend({
                     $select2Container.removeClass('is-invalid is-valid');
                     $('#warning-no-certif').addClass('o_hidden');
                     _.each(data, function (obj) {
-                        if (that.matcher(query.term, obj[nameKey])) {
+                        if (typeof obj.certification_badge_id !== 'undefined') {
+                            if (that.matcher(query.term, obj[nameKey])) {
+                                tags.results.push({id: obj.id, text: obj[nameKey], badge_id: obj.certification_badge_id});
+                            }
+                        }
+                        else if (that.matcher(query.term, obj[nameKey])) {
                             tags.results.push({id: obj.id, text: obj[nameKey]});
                         }
                     });
@@ -335,7 +338,7 @@ var SlideUploadDialog = Dialog.extend({
 
         if (multi) {
             values['multiple'] = true;
-        }
+        };
 
         return values;
     },
@@ -407,8 +410,7 @@ var SlideUploadDialog = Dialog.extend({
             tmpl = this.slide_type_data[currentType]['template'];
         }
         this.$('.o_w_slide_upload_modal_container').empty();
-        var test = QWeb.render(tmpl, {widget: this});
-        this.$('.o_w_slide_upload_modal_container').append(test);
+        this.$('.o_w_slide_upload_modal_container').append(QWeb.render(tmpl, {widget: this}));
         this._resetModalButton();
 
         if (currentType === '_import') {
@@ -601,9 +603,18 @@ var SlideUploadDialog = Dialog.extend({
             return;
         }
         var certificationName = ev.added.text;
-        if($("#name").val() === ""){
-            $("#name").val(certificationName);
-        };
+        $("#name").val(certificationName);
+        if(ev.added.badge_id){
+            $("#certification_badge_id_readonly").val(ev.added.badge_id[1]);
+            $(".readonly").removeClass("d-none");
+            $(".no_badge").addClass( "d-none");
+        }
+        else{
+            $('#certification_badge_id').select2('data', {id: 0, text: certificationName, create: true,});
+            $(".no_badge").removeClass("d-none");
+            $(".readonly").addClass( "d-none");
+        }
+        
     },
     _onClickGoBack: function (ev) {
         this.set('state', '_select');

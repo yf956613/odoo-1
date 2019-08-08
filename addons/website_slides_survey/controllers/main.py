@@ -18,6 +18,6 @@ class WebsiteSlidesSurvey(http.Controller):
     def slides_badge_search_read(self, fields):
         can_create = request.env['survey.survey'].check_access_rights('create', raise_exception=False)
         return {
-            'read_results': request.env['gamification.badge'].search_read([('rule_auth', '=', 'nobody')], fields),
+            'read_results': False,
             'can_create': can_create,
         }

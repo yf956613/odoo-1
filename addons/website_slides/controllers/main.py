@@ -820,8 +820,8 @@ class WebsiteSlides(WebsiteProfile):
             _logger.error(e)
             return {'error': e.name}
 
-        try:
-            if post.get('badge_id'):
+        if post.get('badge_id'):
+            try:
                 if post['badge_id'][0] == 0:
                     values['badge_id'] = request.env['gamification.badge'].create({
                         'name': post['badge_id'][1]['title'],
@@ -831,13 +831,13 @@ class WebsiteSlides(WebsiteProfile):
                         }).id
                 else:
                     values['badge_id'] = post['badge_id'][0]
-        except (UserError, AccessError) as e:
-            _logger.error(e)
-            return {'error': e.name}
+            except (UserError, AccessError) as e:
+                _logger.error(e)
+                return {'error': e.name}
 
         new_certification = False
-        try:
-            if post.get('survey_id'):
+        if post.get('survey_id'):           
+            try:
                 if post['survey_id'][0] == 0:
                     survey_id = request.env['survey.survey'].create({
                         'title': post['survey_id'][1]['title'],
@@ -869,9 +869,9 @@ class WebsiteSlides(WebsiteProfile):
                             'certification_badge_id': values['badge_id'],
                         })
 
-        except (UserError, AccessError) as e:
-            _logger.error(e)
-            return {'error': e.name}
+            except (UserError, AccessError) as e:
+                _logger.error(e)
+                return {'error': e.name}
                 
         # handle exception during creation of slide and sent error notification to the client
         # otherwise client slide create dialog box continue processing even server fail to create a slide
