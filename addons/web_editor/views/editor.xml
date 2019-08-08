@@ -66,6 +66,9 @@
 </template>
 
 <template id="assets_common" inherit_id="web.assets_common" name="Web Editor Common Assets (used in backend interface and website)">
+    <xpath expr="//link" position="before">
+        <link rel="stylesheet" type="text/scss" href="/web/static/lib/bootstrap/scss/_variables.scss"/>
+    </xpath>
     <xpath expr="script[last()]" position="after">
         <script type="text/javascript" src="/web_editor/static/lib/vkbeautify/vkbeautify.0.99.00.beta.js"></script>
         <script type="text/javascript" src="/web_editor/static/src/js/base.js"/>
