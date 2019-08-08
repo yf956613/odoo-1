@@ -26,7 +26,7 @@ var EditorMenuBar = Widget.extend({
      *
      * @constructor
      */
-    init: function (parent) {
+    init: function (parent, options) {
         var self = this;
         var res = this._super.apply(this, arguments);
         this.rte = new rte.Class(this);
@@ -39,7 +39,6 @@ var EditorMenuBar = Widget.extend({
         window.__EditorMenuBar_$editable = $editable; // TODO remove this hack asap
 
 
-        var options = this.getParent().params;
         this.snippetsMenu = new snippetsEditor.Class(this, Object.assign({
             $el: $editable,
             selectorEditableArea: '.o_editable',

@@ -3,7 +3,7 @@ odoo.define('web_editor.wysiwyg', function (require) {
 
 var Widget = require('web.Widget');
 var SummernoteManager = require('web_editor.rte.summernote');
-var transcoder = require('web_editor.transcoder');
+var id = 0;
 
 // core.bus
 // media_dialog_demand
@@ -18,26 +18,27 @@ var Wysiwyg = Widget.extend({
     },
 
     /**
-     * @params {Object} params
-     * @params {Object} params.recordInfo
-     * @params {Object} params.recordInfo.context
-     * @params {String} [params.recordInfo.context]
-     * @params {integer} [params.recordInfo.res_id]
-     * @params {String} [params.recordInfo.data_res_model]
-     * @params {integer} [params.recordInfo.data_res_id]
+     * @options {Object} options
+     * @options {Object} options.recordInfo
+     * @options {Object} options.recordInfo.context
+     * @options {String} [options.recordInfo.context]
+     * @options {integer} [options.recordInfo.res_id]
+     * @options {String} [options.recordInfo.data_res_model]
+     * @options {integer} [options.recordInfo.data_res_id]
      *   @see _onGetRecordInfo
      *   @see _getAttachmentsDomain in /wysiwyg/widgets/media.js
-     * @params {Object} params.attachments
+     * @options {Object} options.attachments
      *   @see _onGetRecordInfo
      *   @see _getAttachmentsDomain in /wysiwyg/widgets/media.js (for attachmentIDs)
-     * @params {function} params.generateOptions
+     * @options {function} options.generateOptions
      *   called with the summernote configuration object used before sending to summernote
      *   @see _editorOptions
      **/
-    init: function (parent, params) {
+    init: function (parent, options) {
         this._super.apply(this, arguments);
-        this.params = params;
-        this.params.isEditableNode = function (node) {
+        this.id = ++id;
+        this.options = options;
+        this.options.isEditableNode = function (node) {
             return $(node).is(':o_editable');
         };
     },
@@ -50,7 +51,7 @@ var Wysiwyg = Widget.extend({
     willStart: function () {
         new SummernoteManager(this);
         this.$target = this.$el;
-        return this._super.apply(this, arguments);
+        return this._super();
     },
 
     /**
@@ -65,7 +66,7 @@ var Wysiwyg = Widget.extend({
         this.$editor.data('wysiwyg', this);
 
         this._value = this.$target.html() || this.$target.val();
-        return this._super.apply(this, arguments);
+        return this._super();
     },
     /**
      * @override
@@ -90,7 +91,7 @@ var Wysiwyg = Widget.extend({
      * @returns {jQuery}
      */
     getEditable: function () {
-        console.log('getEditable');
+        return this.$editor;
     },
     /**
      * Perform undo or redo in the editor.
@@ -145,11 +146,6 @@ var Wysiwyg = Widget.extend({
      */
     getValue: function (options) {
         console.log('getValue ???', options);
-        if (this.params['style-inline']) {
-            transcoder.attachmentThumbnailToLinkImg(this.$editor);
-            transcoder.fontToImg(this.$editor);
-            transcoder.classToStyle(this.$editor);
-        }
         return this.$editor.html();
     },
     /**
@@ -178,13 +174,13 @@ var Wysiwyg = Widget.extend({
      */
     setValue: function (value, options) {
         console.log('setValue ???', options);
-        this.$editor.html(value);
-        if (this.params['style-inline']) {
-            transcoder.styleToClass(this.$editor);
-            transcoder.imgToFont(this.$editor);
-            transcoder.linkImgToAttachmentThumbnail(this.$editor);
+        this._value = value;
+        if (this.$editor.is('textarea')) {
+            this.$target.val(value);
+        } else {
+            this.$target.html(value);
         }
-        this._value = (this.$target.html() || this.$target.val());
+        this.$editor.html(value);
     },
 
     //--------------------------------------------------------------------------
@@ -192,20 +188,72 @@ var Wysiwyg = Widget.extend({
     //--------------------------------------------------------------------------
 
     _editorOptions: function () {
-        return Object.assign({}, $.summernote.options, this.defaultOptions, this.params);
+        return Object.assign({}, $.summernote.options, this.defaultOptions, this.options);
     },
 });
 
+//--------------------------------------------------------------------------
+// Public helper
+//--------------------------------------------------------------------------
 
-Wysiwyg.getRange = function () {
-    console.log('getRange');
+/**
+ * @param {Node} node (editable or node inside)
+ * @returns {Object}
+ * @returns {Node} sc - start container
+ * @returns {Number} so - start offset
+ * @returns {Node} ec - end container
+ * @returns {Number} eo - end offset
+ */
+Wysiwyg.getRange = function (node) {
+    var range = $.summernote.range.create();
+    return range && {
+        sc: range.sc,
+        so: range.so,
+        ec: range.ec,
+        eo: range.eo,
+    };
 };
-Wysiwyg.setRange = function () {
-    console.log('setRange');
+/**
+ * @param {Node} startNode
+ * @param {Number} startOffset
+ * @param {Node} endNode
+ * @param {Number} endOffset
+ */
+Wysiwyg.setRange = function (startNode, startOffset, endNode, endOffset) {
+    $(startNode).focus();
+    if (endNode) {
+        $.summernote.range.create(startNode, startOffset, endNode, endOffset).select();
+    } else {
+        $.summernote.range.create(startNode, startOffset).select();
+    }
+    // trigger for Unbreakable
+    $(startNode.tagName ? startNode : startNode.parentNode).trigger('wysiwyg.range');
 };
-Wysiwyg.setRangeFromNode = function () {
-    console.log('setRangeFromNode');
+/**
+ * @param {Node} node - dom node
+ * @param {Object} [options]
+ * @param {Boolean} options.begin move the range to the beginning of the first node.
+ * @param {Boolean} options.end move the range to the end of the last node.
+ */
+Wysiwyg.setRangeFromNode = function (node, options) {
+    var last = node;
+    while (last.lastChild) {
+        last = last.lastChild;
+    }
+    var first = node;
+    while (first.firstChild) {
+        first = first.firstChild;
+    }
+
+    if (options && options.begin && !options.end) {
+        Wysiwyg.setRange(first, 0);
+    } else if (options && !options.begin && options.end) {
+        Wysiwyg.setRange(last, last.textContent.length);
+    } else {
+        Wysiwyg.setRange(first, 0, last, last.tagName ? last.childNodes.length : last.textContent.length);
+    }
 };
+
 
 return Wysiwyg;
 });
