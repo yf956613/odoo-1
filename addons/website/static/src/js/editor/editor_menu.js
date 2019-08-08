@@ -195,7 +195,7 @@ var EditorMenu = Widget.extend({
      * @private
      */
     _onCancelClick: function () {
-        this.cancel(false);
+        this.cancel(true);
     },
     /**
      * Get the cleaned value of the editable element.
