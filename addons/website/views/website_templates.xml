@@ -219,11 +219,6 @@
             <t t-foreach="website.get_alternate_languages(request.httprequest)" t-as="lg">
                 <link rel="alternate" t-att-hreflang="lg['hreflang']" t-att-href="lg['href']"/>
             </t>
-            <t groups="website.group_website_publisher">
-                <script type="text/javascript">
-                    <!-- odoo.snippetsURL = '/website/snippets'; -->
-                </script>
-            </t>
         </t>
     </xpath>
 
@@ -233,6 +228,11 @@
         <t t-call-assets="website.assets_editor" t-js="false" groups="website.group_website_publisher"/>
     </xpath>
     <xpath expr="//head/t[@t-css='false'][last()]" position="after">
+        <t groups="website.group_website_publisher">
+            <script type="text/javascript">
+                odoo.snippetsURL = '/website/snippets';
+            </script>
+        </t>
         <t t-call-assets="web_editor.summernote" t-css="false" groups="website.group_website_publisher"/>
         <t t-call-assets="web_editor.assets_editor" t-css="false" groups="website.group_website_publisher"/>
         <t t-call-assets="website.assets_editor" t-css="false" groups="website.group_website_publisher" lazy_load="True"/>
