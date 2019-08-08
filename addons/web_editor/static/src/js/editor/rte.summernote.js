@@ -7,7 +7,6 @@ var core = require('web.core');
 var ColorpickerDialog = require('web.ColorpickerDialog');
 var mixins = require('web.mixins');
 var base = require('web_editor.base');
-var weContext = require('web_editor.context');
 var rte = require('web_editor.rte');
 var weWidgets = require('web_editor.widget');
 
@@ -17,7 +16,7 @@ var _t = core._t;
 ajax.jsonRpc('/web/dataset/call', 'call', {
     'model': 'ir.ui.view',
     'method': 'read_template',
-    'args': ['web_editor.colorpicker', weContext.get()]
+    'args': ['web_editor.colorpicker']
 }).then(function (data) {
     QWeb.add_template(data);
 });
