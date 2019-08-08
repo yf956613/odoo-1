@@ -36,7 +36,7 @@ var RTETranslatorWidget = rte.Class.extend({
                     self._getEscapedElement($el).html()
                 ],
                 context: context,
-            }).fail(function (error) {
+            }).guardedCatch(function (error) {
                 Dialog.alert(null, error.data.message);
             });
         }

@@ -118,7 +118,7 @@ define([
         handler.invoke('editor.createLink', $editable, linkInfo, options);
         // hide popover after creating link
         handler.invoke('popover.hide', $popover);
-      }).fail(function () {
+      }).guardedCatch(function () {
         handler.invoke('editor.restoreRange', $editable);
       });
     };

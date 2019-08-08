@@ -553,10 +553,10 @@ var ViewEditor = Widget.extend({
      *                    error occured.
      */
     _saveSCSSorJS: function (session) {
+        var self = this;
         return new Promise(function (resolve, reject){
-            var self = this;
             var sessionIdEndsWithJS = _.string.endsWith(session.id, '.js');
-            var bundleXmlID = sessionIdEndsWithJS ? this.js[session.id].bundle_xmlid : this.scss[session.id].bundle_xmlid;
+            var bundleXmlID = sessionIdEndsWithJS ? self.js[session.id].bundle_xmlid : self.scss[session.id].bundle_xmlid;
             var fileType = sessionIdEndsWithJS ? 'js' : 'scss';
             self._rpc({
                 route: '/web_editor/save_asset',
@@ -644,7 +644,7 @@ var ViewEditor = Widget.extend({
     _saveView: function (session) {
         var self = this;
         return new Promise(function(resolve, reject) {
-            this._rpc({
+            self._rpc({
                 model: 'ir.ui.view',
                 method: 'write',
                 args: [[session.id], {arch: session.text}],

@@ -44,7 +44,7 @@ define([
           // array of files
           handler.insertImages(layoutInfo, data);
         }
-      }).fail(function () {
+      }).guardedCatch(function () {
         handler.invoke('editor.restoreRange', $editable);
       });
     };

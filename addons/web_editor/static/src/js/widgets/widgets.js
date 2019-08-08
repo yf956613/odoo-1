@@ -317,7 +317,7 @@ var FileWidget = SearchableMediaWidget.extend({
 
         var def = new Promise(function(resolve){
             if (!img.access_token) {
-                this._rpc({
+                self._rpc({
                     model: 'ir.attachment',
                     method: 'generate_access_token',
                     args: [[img.id]]
@@ -1433,7 +1433,7 @@ var MediaDialog = Dialog.extend({
             });
         }
 
-        return this.activeWidget.save().then(function (data) {
+        return this.activeWidget.save().then(function (media) {
             if (!self.media && media) {
                 self.range.insertNode(media, true);
             }

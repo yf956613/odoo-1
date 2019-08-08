@@ -124,7 +124,7 @@ define([
           } else {
             async.readFileAsDataURL(file).then(function (sDataURL) {
               modules.editor.insertImage($editable, sDataURL, filename);
-            }).fail(function () {
+            }).guardedCatch(function () {
               bindCustomEvent($holder, callbacks, 'image.upload.error')(options.langInfo.image.maximumFileSizeError);
             });
           }

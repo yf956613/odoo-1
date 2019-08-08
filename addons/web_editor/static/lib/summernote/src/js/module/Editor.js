@@ -425,7 +425,7 @@ define([
         range.create().insertNode($image[0]);
         range.createFromNodeAfter($image[0]).select();
         afterCommand($editable);
-      }).fail(function () {
+      }).guardedCatch(function () {
         var $holder = dom.makeLayoutInfo($editable).holder();
         handler.bindCustomEvent(
           $holder, $editable.data('callbacks'), 'image.upload.error'
