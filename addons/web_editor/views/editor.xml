@@ -54,6 +54,7 @@
 
 <template id="_assets_primary_variables" inherit_id="web._assets_primary_variables">
     <xpath expr="//link[last()]" position="after">
+        <link rel="stylesheet" type="text/scss" href="/web/static/lib/bootstrap/scss/_variables.scss"/>
         <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.variables.scss"/>
         <link rel="stylesheet" type="text/scss" href="/web_editor/static/src/scss/web_editor.ui.scss"/>
     </xpath>
