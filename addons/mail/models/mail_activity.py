@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 import logging
 import pytz
 
-from odoo import api, exceptions, fields, models, _
+from odoo import api, exceptions, fields, models, _, SUPERUSER_ID
 
 from odoo.tools.misc import clean_context
 
@@ -356,6 +356,10 @@ class MailActivity(models.Model):
         return res
 
     def unlink(self):
+        if self.env.user.id != SUPERUSER_ID:
+            records = self.filtered(lambda record: self.env.user.id not in [record.create_uid.id, record.user_id.id])
+            if records:
+                raise exceptions.UserError(_("you can't delete activities."))
         for activity in self:
             if activity.date_deadline <= fields.Date.today():
                 self.env['bus.bus'].sendone(

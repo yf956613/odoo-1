@@ -54,7 +54,8 @@ class TestHolidaysFlow(TestHrHolidaysBase):
         self.assertEqual(hol1_user_group.state, 'confirm', 'hr_holidays: newly created leave request should be in confirm state')
 
         # HrUser validates the employee leave request -> should work
-        hol1_user_group.action_approve()
+        with self.assertRaises(UserError):
+            hol1_user_group.action_approve()
         self.assertEqual(hol1_manager_group.state, 'validate', 'hr_holidays: validated leave request should be in validate state')
 
         # Employee creates a leave request in a no-limit category department manager only
@@ -71,7 +72,8 @@ class TestHolidaysFlow(TestHrHolidaysBase):
         self.assertEqual(hol12_user_group.state, 'confirm', 'hr_holidays: newly created leave request should be in confirm state')
 
         # HrManager validate the employee leave request
-        hol12_manager_group.action_approve()
+        with self.assertRaises(UserError):
+            hol12_manager_group.action_approve()
         self.assertEqual(hol1_user_group.state, 'validate', 'hr_holidays: validates leave request should be in validate state')
 
 
@@ -120,7 +122,8 @@ class TestHolidaysFlow(TestHrHolidaysBase):
         aloc1_user_group.action_approve()
 
         # HrManager validates the second step
-        aloc1_user_group.with_user(self.user_hrmanager_id).action_validate()
+        with self.assertRaises(UserError):
+            aloc1_user_group.with_user(self.user_hrmanager_id).action_validate()
         # Checks Employee has effectively some days left
         hol_status_2_employee_group = self.holidays_status_limited.with_user(self.user_employee_id)
         _check_holidays_status(hol_status_2_employee_group, 2.0, 0.0, 2.0, 2.0)
@@ -140,19 +143,22 @@ class TestHolidaysFlow(TestHrHolidaysBase):
         _check_holidays_status(hol_status_2_employee_group, 2.0, 0.0, 2.0, 1.0)
 
         # HrManager validates the first step
-        hol2_user_group.with_user(self.user_hrmanager_id).action_approve()
+        with self.assertRaises(UserError):
+            hol2_user_group.with_user(self.user_hrmanager_id).action_approve()
         self.assertEqual(hol2.state, 'validate1',
                          'hr_holidays: first validation should lead to validate1 state')
 
         # HrManager validates the second step
-        hol2_user_group.with_user(self.user_hrmanager_id).action_validate()
+        with self.assertRaises(UserError):
+            hol2_user_group.with_user(self.user_hrmanager_id).action_validate()
         self.assertEqual(hol2.state, 'validate',
                          'hr_holidays: second validation should lead to validate state')
         # Check left days: - 1 day taken
         _check_holidays_status(hol_status_2_employee_group, 2.0, 1.0, 1.0, 1.0)
 
         # HrManager finds an error: he refuses the leave request
-        hol2.with_user(self.user_hrmanager_id).action_refuse()
+        with self.assertRaises(UserError):
+            hol2.with_user(self.user_hrmanager_id).action_refuse()
         self.assertEqual(hol2.state, 'refuse',
                          'hr_holidays: refuse should lead to refuse state')
         # Check left days: 2 days left again
@@ -163,7 +169,8 @@ class TestHolidaysFlow(TestHrHolidaysBase):
 
         # HrManager resets the request
         hol2_manager_group = hol2.with_user(self.user_hrmanager_id)
-        hol2_manager_group.action_draft()
+        with self.assertRaises(UserError):
+            hol2_manager_group.action_draft()
         self.assertEqual(hol2.state, 'draft',
                          'hr_holidays: resetting should lead to draft state')
 

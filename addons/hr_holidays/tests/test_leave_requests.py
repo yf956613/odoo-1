@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 from odoo.tools import mute_logger
 from odoo.tests.common import Form
 
@@ -124,8 +124,8 @@ class TestLeaveRequests(TestHrHolidaysBase):
 
         holiday_status.invalidate_cache()
         self._check_holidays_status(holiday_status, 2.0, 0.0, 2.0, 0.0)
-
-        hol.with_user(self.user_hrmanager_id).action_approve()
+        with self.assertRaises(UserError):
+            hol.with_user(self.user_hrmanager_id).action_approve()
 
         self._check_holidays_status(holiday_status, 2.0, 2.0, 0.0, 0.0)
 

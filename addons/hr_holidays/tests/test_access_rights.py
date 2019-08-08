@@ -125,7 +125,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_employee.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_employee.id).action_draft()
 
     def test_base_user_draft_other_employee_leave(self):
         """
@@ -173,7 +174,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_employee.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_employee.id).action_draft()
 
     def test_holiday_user_draft_his_leave(self):
         """
@@ -187,7 +189,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_hruser.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_hruser.id).action_draft()
 
     def test_holiday_user_draft_other_employee_leave(self):
         """
@@ -235,7 +238,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_hruser.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_hruser.id).action_draft()
 
     def test_holiday_manager_draft_his_leave(self):
         """
@@ -248,7 +252,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_hrmanager.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_hrmanager.id).action_draft()
 
     def test_holiday_manager_draft_other_employee_leave(self):
         """
@@ -261,7 +266,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_hrmanager.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_hrmanager.id).action_draft()
 
     def test_holiday_manager_draft_other_employee_leave_and_is_leave_manager_id(self):
         """
@@ -275,7 +281,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_hrmanager.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_hrmanager.id).action_draft()
 
     def test_holiday_manager_draft_self_and_is_manager_id(self):
         """
@@ -289,7 +296,8 @@ class TestAcessRightsStates(TestLeavesRights):
                 'holiday_status_id': status.id,
             }
             leave = self.request_leave(1, datetime.today() + relativedelta(days=5 + i), 1, values)
-            leave.with_user(self.user_hrmanager.id).action_draft()
+            with self.assertRaises(UserError):
+                leave.with_user(self.user_hrmanager.id).action_draft()
 
 @tests.tagged('access_rights', 'access_rights_create')
 class TestAccessRightsCreate(TestLeavesRights):
@@ -526,7 +534,8 @@ class TestAccessRightsWrite(TestLeavesRights):
             message_type='comment'
         )
 
-        self.employee_leave.with_user(self.user_hrmanager_id).action_approve()
+        with self.assertRaises(UserError):
+            self.employee_leave.with_user(self.user_hrmanager_id).action_approve()
 
         self.employee_leave.with_user(self.user_employee_id).message_post(
             body='I still haz messaging',
@@ -555,7 +564,8 @@ class TestAccessRightsWrite(TestLeavesRights):
     def test_leave_hr_to_validate_by_holiday_user(self):
         """ Manager can validate leaves in HR mode """
         self.assertEqual(self.employee_leave.state, 'confirm')
-        self.employee_leave.with_user(self.user_hrmanager_id).action_approve()
+        with self.assertRaises(UserError):
+            self.employee_leave.with_user(self.user_hrmanager_id).action_approve()
         self.assertEqual(self.employee_leave.state, 'validate')
 
     # hr_holidays.group_hr_holidays_manager
@@ -595,7 +605,8 @@ class TestAccessRightsWrite(TestLeavesRights):
         with self.assertRaises(AccessError):
             hr_leave.with_user(self.user_employee_id).action_approve()
         self.employee_hruser.write({'leave_manager_id': self.user_employee_id})
-        hr_leave.with_user(self.user_employee_id).action_approve()
+        with self.assertRaises(UserError):
+            hr_leave.with_user(self.user_employee_id).action_approve()
 
     # hr_holidays.group_hr_holidays_user
 
@@ -758,7 +769,8 @@ class TestMultiCompany(TestHrHolidaysBase):
         employee_leave_hruser = self.employee_leave.with_user(self.user_hruser)
 
         employee_leave_hruser.name
-        employee_leave_hruser.action_approve()
+        with self.assertRaises(UserError):
+            employee_leave_hruser.action_approve()
         self.assertEqual(employee_leave_hruser.state, 'validate')
 
     @mute_logger('odoo.models.unlink', 'odoo.addons.mail.models.mail_mail')
@@ -767,5 +779,6 @@ class TestMultiCompany(TestHrHolidaysBase):
         employee_leave_hrmanager = self.employee_leave.with_user(self.user_hrmanager)
 
         employee_leave_hrmanager.name
-        employee_leave_hrmanager.action_approve()
+        with self.assertRaises(UserError):
+            employee_leave_hrmanager.action_approve()
         self.assertEqual(employee_leave_hrmanager.state, 'validate')
