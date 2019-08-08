@@ -578,26 +578,6 @@ The decorators take care of converting the argument to one form or the other::
     def create(self, vals_list):
         ...
 
-Because new-style APIs tend to return recordsets and old-style APIs tend to
-return lists of ids, there is also a decorator managing this:
-
-:func:`~odoo.api.returns`
-    the function is assumed to return a recordset, the first parameter should
-    be the name of the recordset's model or ``self`` (for the current model).
-
-    No effect if the method is called in new API style, but transforms the
-    recordset into a list of ids when called from the old API style::
-
-        >>> @api.returns('self')
-        ... def some_method(self):
-        ...     return self
-        >>> new_style_model = env['a.model'].browse(1, 2, 3)
-        >>> new_style_model.some_method()
-        a.model(1, 2, 3)
-        >>> old_style_model = pool['a.model']
-        >>> old_style_model.some_method(cr, uid, [1, 2, 3], context=context)
-        [1, 2, 3]
-
 .. _reference/orm/model:
 
 Model Reference
