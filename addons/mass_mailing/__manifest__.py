@@ -38,6 +38,7 @@
         'report/mailing_trace_report_views.xml',
         'views/assets.xml',
         'views/mass_mailing_templates_portal.xml',
+        'views/editor_field_html.xml',
         'views/themes_templates.xml',
         'views/snippets_themes.xml',
     ],
