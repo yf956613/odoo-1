@@ -104,7 +104,6 @@
     <link rel="stylesheet" type="text/scss" href="/website/static/src/scss/website.edit_mode.scss"/>
 
     <script type="text/javascript" src="/website/static/lib/jQuery.transfo.js"/>
-    <script type="text/javascript" src="/website/static/src/js/editor/editor_menu_translate.js"/>
     <script type="text/javascript" src="/website/static/src/js/editor/rte.summernote.js"/>
 
     <script type="text/javascript" src="/website/static/src/js/menu/content.js"/>

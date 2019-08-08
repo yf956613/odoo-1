@@ -8,7 +8,6 @@ var Widget = require('web.Widget');
 var weContext = require('web_editor.context');
 var rte = require('web_editor.rte');
 var weWidgets = require('web_editor.widget');
-var Dialog = require('web.Dialog');
 
 var _t = core._t;
 
@@ -34,7 +33,7 @@ var RTETranslatorWidget = rte.Class.extend({
                 method: 'save_html',
                 args: [
                     [+$el.data('oe-translation-id')],
-                    this._getEscapedElement($el).html()
+                    self._getEscapedElement($el).html()
                 ],
                 context: context,
             }).fail(function (error) {
