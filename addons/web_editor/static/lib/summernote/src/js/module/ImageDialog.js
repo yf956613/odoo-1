@@ -57,18 +57,17 @@ define([
      * @return {Promise}
      */
     this.showImageDialog = function ($editable, $dialog) {
-      return $.Deferred(function (deferred) {
-        var $imageDialog = $dialog.find('.note-image-dialog');
+      var $imageDialog = $dialog.find('.note-image-dialog');
 
-        var $imageInput = $dialog.find('.note-image-input'),
-            $imageUrl = $dialog.find('.note-image-url'),
-            $imageBtn = $dialog.find('.note-image-btn');
-
+      var $imageInput = $dialog.find('.note-image-input'),
+        $imageUrl = $dialog.find('.note-image-url'),
+        $imageBtn = $dialog.find('.note-image-btn');
+      return new Promise(function (resolve, reject) {
         $imageDialog.one('shown.bs.modal', function () {
           // Cloning imageInput to clear element.
           $imageInput.replaceWith($imageInput.clone()
             .on('change', function () {
-              deferred.resolve(this.files || this.value);
+              resolve(this.files || this.value);
               $imageDialog.modal('hide');
             })
             .val('')
@@ -77,19 +76,19 @@ define([
           $imageBtn.click(function (event) {
             event.preventDefault();
 
-            deferred.resolve($imageUrl.val());
+            resolve($imageUrl.val());
             $imageDialog.modal('hide');
           });
 
           $imageUrl.on('keyup paste', function (event) {
             var url;
-            
+
             if (event.type === 'paste') {
               url = event.originalEvent.clipboardData.getData('text');
             } else {
               url = $imageUrl.val();
             }
-            
+
             toggleBtn($imageBtn, url);
           }).val('').trigger('focus');
           bindEnterKey($imageUrl, $imageBtn);
@@ -98,9 +97,8 @@ define([
           $imageUrl.off('keyup paste keypress');
           $imageBtn.off('click');
 
-          if (deferred.state() === 'pending') {
-            deferred.reject();
-          }
+          // If the promise was already resolved, this will have no effect
+          reject();
         }).modal('show');
       });
     };

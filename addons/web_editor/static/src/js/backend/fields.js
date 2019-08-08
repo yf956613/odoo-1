@@ -84,7 +84,7 @@ var FieldTextHtmlSimple = basic_fields.DebouncedField.extend(TranslatableFieldMi
                 this._renderReadonly();
             }
         }
-        return $.when();
+        return Promise.resolve();
     },
 
     //--------------------------------------------------------------------------
@@ -315,11 +315,18 @@ var FieldTextHtml = AbstractField.extend({
     template: 'web_editor.FieldTextHtml',
     supportedFieldTypes: ['html'],
 
+    _editorLoadedDeferredResolve: undefined,
+    _contentLoadedDeferredResolve: undefined,
+
     start: function () {
         var self = this;
 
-        this.editorLoadedDeferred = $.Deferred();
-        this.contentLoadedDeferred = $.Deferred();
+        this.editorLoadedDeferred = new Promise(function (resolve) {
+            self._editorLoadedDeferredResolve = resolve;
+        });
+        this.contentLoadedDeferred = new Promise(function(resolve) {
+            self._contentLoadedDeferredResolve = resolve;
+        });
         this.callback = _.uniqueId('FieldTextHtml_');
         window.odoo[this.callback+"_editor"] = function (EditorBar) {
             setTimeout(function () {
@@ -424,7 +431,7 @@ var FieldTextHtml = AbstractField.extend({
         this.$content = this.$body.find("#editable_area");
         this.render();
         this.add_button();
-        this.contentLoadedDeferred.resolve();
+        this._contentLoadedDeferredResolve();
         setTimeout(self.resize, 0);
     },
     on_editor_loaded: function (EditorBar) {
@@ -433,7 +440,7 @@ var FieldTextHtml = AbstractField.extend({
         if (this.value && window.odoo[self.callback+"_updown"] && !(this.$content.html()||"").length) {
             this.render();
         }
-        this.editorLoadedDeferred.resolve();
+        this._editorLoadedDeferredResolve();
         setTimeout(function () {
             setTimeout(self.resize,0);
         }, 0);
@@ -500,7 +507,7 @@ var FieldTextHtml = AbstractField.extend({
         if (this.mode === 'readonly') {
             return;
         }
-        return $.when(this.contentLoadedDeferred, this.editorLoadedDeferred, result).then(function () {
+        return Promise.all([this.contentLoadedDeferred, this.editorLoadedDeferred, result]).then(function () {
             // switch to WYSIWYG mode if currently in code mode to get all changes
             if (config.isDebug() && self.editor.rte) {
                 var layoutInfo = self.editor.rte.editable().data('layoutInfo');

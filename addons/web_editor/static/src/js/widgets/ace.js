@@ -188,11 +188,11 @@ var ViewEditor = Widget.extend({
      * @override
      */
     willStart: function () {
-        return $.when(
+        return Promise.all([
             this._super.apply(this, arguments),
             ajax.loadLibs(this),
             this._loadResources()
-        );
+        ]);
     },
     /**
      * Initializes the library and initial view once the DOM is ready. It also
@@ -432,7 +432,7 @@ var ViewEditor = Widget.extend({
      * is loading the activate views, index them and build their hierarchy.
      *
      * @private
-     * @returns {Deferred}
+     * @returns {Promise}
      */
     _loadResources: function () {
         // Reset resources
@@ -524,7 +524,7 @@ var ViewEditor = Widget.extend({
      * @private
      * @param {integer|string} [resID] (default to the currently selected one)
      * @param {string} [type] (default to the currently selected one)
-     * @returns {Deferred}
+     * @returns {Promise}
      */
     _resetResource: function (resID, type) {
         resID = resID || this._getSelectedResource();
@@ -549,39 +549,37 @@ var ViewEditor = Widget.extend({
      * @private
      * @param {Object} session - contains the 'id' (url) and the 'text' of the
      *                         SCSS or JS file to save.
-     * @return {Deferred} status indicates if the save is finished or if an
+     * @return {Promise} status indicates if the save is finished or if an
      *                    error occured.
      */
     _saveSCSSorJS: function (session) {
-        var def = $.Deferred();
-
-        var self = this;
-        var sessionIdEndsWithJS = _.string.endsWith(session.id, '.js');
-        var bundleXmlID = sessionIdEndsWithJS ? this.js[session.id].bundle_xmlid : this.scss[session.id].bundle_xmlid;
-        var fileType = sessionIdEndsWithJS ? 'js' : 'scss';
-        self._rpc({
-            route: '/web_editor/save_asset',
-            params: {
-                url: session.id,
-                bundle_xmlid: bundleXmlID,
-                content: session.text,
-                file_type: fileType,
-            },
-        }).then(function () {
-            self._toggleDirtyInfo(session.id, fileType, false);
-            def.resolve();
-        }, function (source, error) {
-            def.reject(session, error);
+        return new Promise(function (resolve, reject){
+            var self = this;
+            var sessionIdEndsWithJS = _.string.endsWith(session.id, '.js');
+            var bundleXmlID = sessionIdEndsWithJS ? this.js[session.id].bundle_xmlid : this.scss[session.id].bundle_xmlid;
+            var fileType = sessionIdEndsWithJS ? 'js' : 'scss';
+            self._rpc({
+                route: '/web_editor/save_asset',
+                params: {
+                    url: session.id,
+                    bundle_xmlid: bundleXmlID,
+                    content: session.text,
+                    file_type: fileType,
+                },
+            }).then(function () {
+                self._toggleDirtyInfo(session.id, fileType, false);
+                resolve();
+            }, function (source, error) {
+                reject(error);
+            });
         });
-
-        return def;
     },
     /**
      * Saves every resource that has been modified. If one cannot be saved, none
      * is saved and an error message is displayed.
      *
      * @private
-     * @return {Deferred} status indicates if the save is finished or if an
+     * @return {})} status indicates if the save is finished or if an
      *                    error occured.
      */
     _saveResources: function () {
@@ -610,7 +608,7 @@ var ViewEditor = Widget.extend({
                 }
             }
         }).bind(this));
-        if (errorFound) return $.Deferred().reject(errorFound);
+        if (errorFound) return Promise.reject(errorFound);
 
         var defs = [];
         var mutex = new concurrency.Mutex();
@@ -624,7 +622,7 @@ var ViewEditor = Widget.extend({
             });
         }).bind(this));
 
-        return $.when.apply($, defs).fail((function (session, error) {
+        return Promise.all(defs).guardedCatch((function (error) {
             Dialog.alert(this, '', {
                 title: _t("Server error"),
                 $content: $('<div/>').html(
@@ -640,27 +638,25 @@ var ViewEditor = Widget.extend({
      *
      * @private
      * @param {Object} session - the 'id' and the 'text' of the view to save.
-     * @returns {Deferred} status indicates if the save is finished or if an
+     * @returns {})} status indicates if the save is finished or if an
      *                     error occured.
      */
     _saveView: function (session) {
-        var def = $.Deferred();
-
         var self = this;
-        this._rpc({
-            model: 'ir.ui.view',
-            method: 'write',
-            args: [[session.id], {arch: session.text}],
-        }, {
-            noContextKeys: 'lang',
-        }).then(function () {
-            self._toggleDirtyInfo(session.id, 'xml', false);
-            def.resolve();
-        }, function (source, error) {
-            def.reject(session, error);
+        return new Promise(function(resolve, reject) {
+            this._rpc({
+                model: 'ir.ui.view',
+                method: 'write',
+                args: [[session.id], {arch: session.text}],
+            }, {
+                noContextKeys: 'lang',
+            }).then(function () {
+                self._toggleDirtyInfo(session.id, 'xml', false);
+                resolve();
+            }, function (source, error) {
+                reject(error);
+            });
         });
-
-        return def;
     },
     /**
      * Shows a line which produced an error. Red color is added to the editor,

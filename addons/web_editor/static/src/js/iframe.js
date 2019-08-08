@@ -127,7 +127,7 @@ var IframeRoot = BodyManager.extend({
             defs.push(translator.prependTo(this.$el));
         }
 
-        return $.when.apply($, defs);
+        return Promise.all(defs);
     },
 
     //--------------------------------------------------------------------------

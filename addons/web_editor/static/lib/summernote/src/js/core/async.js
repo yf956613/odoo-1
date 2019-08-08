@@ -17,19 +17,19 @@ define('summernote/core/async', function () {
      * @return {Promise} - then: sDataUrl
      */
     var readFileAsDataURL = function (file) {
-      return $.Deferred(function (deferred) {
+      return new Promise(function (resolve, reject) {
         $.extend(new FileReader(), {
           onload: function (e) {
             var sDataURL = e.target.result;
-            deferred.resolve(sDataURL);
+            resolve(sDataURL);
           },
           onerror: function () {
-            deferred.reject(this);
+            reject(this);
           }
         }).readAsDataURL(file);
       }).promise();
     };
-  
+
     /**
      * @method createImage
      *
@@ -40,15 +40,15 @@ define('summernote/core/async', function () {
      * @return {Promise} - then: $image
      */
     var createImage = function (sUrl, filename) {
-      return $.Deferred(function (deferred) {
+      return new Promise(function (resolve, reject) {
         var $img = $('<img>');
 
         $img.one('load', function () {
           $img.off('error abort');
-          deferred.resolve($img);
+          resolve($img);
         }).one('error abort', function () {
           $img.off('load').detach();
-          deferred.reject($img);
+          reject($img);
         }).css({
           display: 'none'
         }).appendTo(document.body).attr({

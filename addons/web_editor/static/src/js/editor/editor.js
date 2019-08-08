@@ -92,7 +92,7 @@ var EditorMenuBar = Widget.extend({
         defs.push(this.snippetsMenu.insertAfter(this.$el));
         this.rte.editable().find('*').off('mousedown mouseup click');
 
-        return $.when.apply($, defs).then(function () {
+        return Promise.all(defs).then(function () {
             self.trigger_up('edit_mode');
         });
     },
@@ -116,7 +116,7 @@ var EditorMenuBar = Widget.extend({
      * @param {boolean} [reload=true]
      *        true if the page has to be reloaded when the user answers yes
      *        (do nothing otherwise but add this to allow class extension)
-     * @returns {Deferred}
+     * @returns {Promise}
      */
     cancel: function (reload) {
         var self = this;
@@ -143,7 +143,7 @@ var EditorMenuBar = Widget.extend({
      *
      * @param {boolean} [reload=true]
      *        true if the page has to be reloaded after the save
-     * @returns {Deferred}
+     * @returns {Promise}
      */
     save: function (reload) {
         var self = this;
@@ -169,7 +169,7 @@ var EditorMenuBar = Widget.extend({
      * Reloads the page in non-editable mode, with the right scrolling.
      *
      * @private
-     * @returns {Deferred} (never resolved, the page is reloading anyway)
+     * @returns {Promise} (never resolved, the page is reloading anyway)
      */
     _reload: function () {
         window.location.hash = 'scrollTop=' + window.document.body.scrollTop;
@@ -227,7 +227,7 @@ var EditorMenuBar = Widget.extend({
                 });
             }
         });
-        return $.when.apply($, defs);
+        return Promise.all(defs);
     },
 
     //--------------------------------------------------------------------------

@@ -440,7 +440,7 @@ var RTEWidget = Widget.extend({
      *
      * @param {Object} [context] - the context to use for saving rpc, default to
      *                           the editor context found on the page
-     * @return {Deferred} rejected if the save cannot be done
+     * @return {Promise} rejected if the save cannot be done
      */
     save: function (context) {
         var self = this;
@@ -494,7 +494,7 @@ var RTEWidget = Widget.extend({
             });
         });
 
-        return $.when.apply($, defs).then(function () {
+        return Promise.all(defs).then(function () {
             window.onbeforeunload = null;
         }, function (failed) {
             // If there were errors, re-enable edition

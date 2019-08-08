@@ -158,7 +158,7 @@ QUnit.test('field html translatable', function (assert) {
         mockRPC: function (route, args) {
             if (route === '/web/dataset/call_button' && args.method === 'translate_fields') {
                 assert.deepEqual(args.args, ['note.note', 1, 'body'], "should call 'call_button' route");
-                return $.when();
+                return Promise.resolve();
             }
             return this._super.apply(this, arguments);
         },
@@ -195,7 +195,7 @@ QUnit.test('field html_frame widget', function (assert) {
                     "the route should specify the correct model");
                 assert.ok(route.search('res_id=1') > 0,
                     "the route should specify the correct id");
-                return $.when();
+                return Promise.resolve();
             }
             return this._super.apply(this, arguments);
         },
@@ -260,7 +260,7 @@ QUnit.test('html_frame does not crash when saving in readonly', function (assert
                 // manually call the callback to simulate that the iframe has
                 // been loaded (note: just the content, not the editor)
                 window.odoo[$.deparam(route).callback + '_content'].call();
-                return $.when();
+                return Promise.resolve();
             }
             return this._super.apply(this, arguments);
         },
@@ -297,7 +297,7 @@ QUnit.test('html_frame does not crash when saving in edit mode (editor not loade
                 // manually call the callback to simulate that the iframe has
                 // been partially loaded (just the content, not the editor)
                 window.odoo[$.deparam(route).callback + '_content']();
-                return $.when();
+                return Promise.resolve();
             }
             return this._super.apply(this, arguments);
         },
@@ -317,8 +317,8 @@ QUnit.test('html_frame saving in edit mode (editor and content fully loaded)', f
     assert.expect(4);
 
     var editorBar = new web_editor.Class();
-    var loadDeferred = $.Deferred();
-    var writeDeferred = $.Deferred();
+    var loadDeferred = testUtils.makeTestPromise();
+    var writeDeferred = testUtils.makeTestPromise();
 
     var form = testUtils.createView({
         View: FormView,
@@ -405,12 +405,13 @@ QUnit.test('discard on link dialog should select content of link in web_editor',
     assert.strictEqual(content.startOffset, 0, "selection starts at index 0");
     assert.strictEqual(content.endOffset, 3, "selection ends at index 3");
 
-    var defLinkDialog = $.Deferred();
-    testUtils.patch(LinkDialog, {
-        init: function () {
-            this._super.apply(this, arguments);
-            this.opened(defLinkDialog.resolve.bind(defLinkDialog));
-        }
+    var defLinkDialog = new Promise(function (resolve) {
+        testUtils.patch(LinkDialog, {
+            init: function () {
+                this._super.apply(this, arguments);
+                this.opened(resolve);
+            }
+        });
     });
 
     // click on 'link' button

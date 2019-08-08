@@ -39,7 +39,7 @@ define([
      * @return {Promise}
      */
     this.showLinkDialog = function ($editable, $dialog, linkInfo) {
-      return $.Deferred(function (deferred) {
+      return new Promise(function (resolve, reject) {
         var $linkDialog = $dialog.find('.note-link-dialog');
 
         var $linkText = $linkDialog.find('.note-link-text'),
@@ -80,7 +80,7 @@ define([
           $linkBtn.one('click', function (event) {
             event.preventDefault();
 
-            deferred.resolve({
+            resolve({
               range: linkInfo.range,
               url: $linkUrl.val(),
               text: $linkText.val(),
@@ -94,9 +94,8 @@ define([
           $linkUrl.off('input keypress');
           $linkBtn.off('click');
 
-          if (deferred.state() === 'pending') {
-            deferred.reject();
-          }
+          // If the promise was already resolved, this will have no effect
+          reject();
         }).modal('show');
       }).promise();
     };

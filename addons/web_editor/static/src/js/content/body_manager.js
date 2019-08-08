@@ -24,10 +24,10 @@ var BodyManager = rootWidget.RootWidget.extend(ServiceProviderMixin, {
      * @override
      */
     willStart: function () {
-        return $.when(
+        return Promise.all([
             this._super.apply(this, arguments),
             session.is_bound
-        );
+        ]);
     },
 
     //--------------------------------------------------------------------------

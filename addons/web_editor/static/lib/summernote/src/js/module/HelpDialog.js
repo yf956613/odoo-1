@@ -8,11 +8,11 @@ define([], function () { // ODOO: remove error from Odoo define
      * @return {Promise}
      */
     this.showHelpDialog = function ($editable, $dialog) {
-      return $.Deferred(function (deferred) {
+      return new Promise(function (resolve) {
         var $helpDialog = $dialog.find('.note-help-dialog');
 
         $helpDialog.one('hidden.bs.modal', function () {
-          deferred.resolve();
+          resolve();
         }).modal('show');
       }).promise();
     };

@@ -426,20 +426,20 @@ eventHandler.modules.linkDialog.showLinkDialog = function ($editable, $dialog, l
     $editable.data('range').select();
     $editable.data('NoteHistory').recordUndo();
 
-    var def = new $.Deferred();
-    core.bus.trigger('link_dialog_demand', {
-        $editable: $editable,
-        linkInfo: linkInfo,
-        onSave: function (linkInfo) {
-            linkInfo.range.select();
-            $editable.data('range', linkInfo.range);
-            def.resolve(linkInfo);
-            $editable.trigger('keyup');
-            $('.note-popover .note-link-popover').show();
-        },
-        onCancel: def.reject.bind(def),
+    return new Promise(function (resolve, reject) {
+        core.bus.trigger('link_dialog_demand', {
+            $editable: $editable,
+            linkInfo: linkInfo,
+            onSave: function (linkInfo) {
+                linkInfo.range.select();
+                $editable.data('range', linkInfo.range);
+                resolve(linkInfo);
+                $editable.trigger('keyup');
+                $('.note-popover .note-link-popover').show();
+            },
+            onCancel: reject(),
+        });
     });
-    return def;
 };
 eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
     var r = $editable.data('range');
@@ -458,7 +458,7 @@ eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
             noVideos: $editable.data('oe-model') === "mail.compose.message",
         },
     });
-    return new $.Deferred().reject();
+    return new Promise.reject();
 };
 $.summernote.pluginEvents.alt = function (event, editor, layoutInfo, sorted) {
     var $editable = layoutInfo.editable();
