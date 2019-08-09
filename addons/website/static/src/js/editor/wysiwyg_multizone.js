@@ -27,13 +27,13 @@ var WysiwygMultizone = Wysiwyg.extend({
      * @returns {Promise}
      */
     save: function () {
-            if (this.isDirty()) {
-                return this.editor.save().then(function() {
-                    return {isDirty: true};
-                });
-            } else {
-                return {isDirty: false};
-            }
+        if (this.isDirty()) {
+            return this.editor.save().then(function() {
+                return {isDirty: true};
+            });
+        } else {
+            return {isDirty: false};
+        }
     },
 
 
