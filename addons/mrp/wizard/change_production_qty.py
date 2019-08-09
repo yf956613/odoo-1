@@ -35,7 +35,7 @@ class ChangeProductionQty(models.TransientModel):
         modification = {}
         for move in production.move_finished_ids.filtered(lambda m: m.state not in ('done', 'cancel')):
             qty = (old_qty - qty) * move.unit_factor
-            modification[move] = (move.product_uom_qty - qty, move.product_uom_qty)
+            modification[move] = (qty, move.product_uom_qty)
             move[0].write({'product_uom_qty': move.product_uom_qty - qty})
         return modification
 
@@ -43,6 +43,7 @@ class ChangeProductionQty(models.TransientModel):
         precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         for wizard in self:
             production = wizard.mo_id
+            all_moves = production._get_moves_raw_values()
             produced = sum(production.move_finished_ids.filtered(lambda m: m.product_id == production.product_id).mapped('quantity_done'))
             if wizard.product_qty < produced:
                 format_qty = '%.{precision}f'.format(precision=precision)
@@ -55,6 +56,7 @@ class ChangeProductionQty(models.TransientModel):
             boms, lines = production.bom_id.explode(production.product_id, factor, picking_type=production.bom_id.picking_type_id)
             documents = {}
             for line, line_data in lines:
+                new_line = list(filter(lambda prev_line: prev_line['bom_line_id'] == line.id, all_moves))[0]
                 if line.child_bom_id and line.child_bom_id.type == 'phantom' or\
                         line.product_id.type not in ['product', 'consu']:
                     continue
@@ -65,7 +67,7 @@ class ChangeProductionQty(models.TransientModel):
                     old_qty = 0
                 iterate_key = production._get_document_iterate_key(move)
                 if iterate_key:
-                    document = self.env['stock.picking']._log_activity_get_documents({move: (line_data['qty'], old_qty)}, iterate_key, 'UP')
+                    document = self.env['stock.picking']._log_activity_get_documents({move: (new_line['product_uom_qty'] - line_data['qty'], old_qty)}, iterate_key, 'UP')
                     for key, value in document.items():
                         if documents.get(key):
                             documents[key] += [value]
