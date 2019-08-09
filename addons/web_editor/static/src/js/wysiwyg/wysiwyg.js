@@ -38,9 +38,6 @@ var Wysiwyg = Widget.extend({
         this._super.apply(this, arguments);
         this.id = ++id;
         this.options = options;
-        this.options.isEditableNode = function (node) {
-            return $(node).is(':o_editable');
-        };
     },
     /**
      * Load assets and color picker template then call summernote API
@@ -108,27 +105,6 @@ var Wysiwyg = Widget.extend({
      */
     isDirty: function () {
         return this._value !== (this.$target.html() || this.$target.val());
-    },
-    /**
-     * Return true if the current node is unbreakable.
-     * An unbreakable node can be removed or added but can't by split into
-     * different nodes (for keypress and selection).
-     * An unbreakable node can contain nodes that can be edited.
-     *
-     * @param {Node} node
-     * @returns {Boolean}
-     */
-    isUnbreakableNode: function (node) {
-        console.log('isUnbreakableNode');
-    },
-    /**
-     * Return true if the current node is editable (for keypress and selection).
-     *
-     * @param {Node} node
-     * @returns {Boolean}
-     */
-    isEditableNode: function (node) {
-        console.log('isEditableNode');
     },
     /**
      * Set the focus on the element.

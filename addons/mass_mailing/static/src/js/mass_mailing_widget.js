@@ -93,35 +93,6 @@ var MassMailingFieldHtml = FieldHtml.extend({
     //--------------------------------------------------------------------------
 
     /**
-     * Add generateOptions options to change wysiwyg configuration:
-     * - Remove table menu in toolbar
-     * - Remove table popover
-     * - Add rules for isEditableNode, the TD must content a not TABLE node as
-     *   children to be editable.
-     *
-     * @override
-     */
-    _getWysiwygOptions: function () {
-        var options = this._super();
-        options.generateOptions = function (options) {
-            options.toolbar = _.filter(options.toolbar, function (item) {
-                return item[0] !== 'table';
-            });
-            delete options.popover.table;
-
-            var isEditableNode = options.isEditableNode;
-            options.isEditableNode = function (node) {
-                if (node.tagName === "TD" && !$(node).children('*:not(table):first').length) {
-                    return false;
-                }
-                return isEditableNode.call(this, node);
-            };
-
-            return options;
-        };
-        return options;
-    },
-    /**
      * Returns true if must force the user to choose a theme.
      *
      * @private

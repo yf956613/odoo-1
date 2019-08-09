@@ -202,10 +202,11 @@ var FieldHtml = basic_fields.DebouncedField.extend(TranslatableFieldMixin, {
                 },
             },
             generateOptions: function (options) {
-                var para = _.find(options.toolbar, function (item) {
+                var para = _.find(options.airPopover, function (item) {
                     return item[0] === 'para';
                 });
-                para[1].splice(2, 0, 'checklist');
+                console.warn('todo');
+                // para[1].splice(2, 0, 'checklist');
                 return options;
             },
         });

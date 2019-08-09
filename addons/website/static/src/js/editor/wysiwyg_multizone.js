@@ -13,15 +13,14 @@ var Wysiwyg = require('web_editor.wysiwyg');
  *
  */
 var WysiwygMultizone = Wysiwyg.extend({
-    init: function (parent, options) {
-        this._super.apply(this, arguments);
-        this.options = options;
-    },
+
+    /**
+     * @override
+     */
     start: function () {
         this.options.toolbarHandler = $('#web_editor-top-edit');
         return this._super();
     },
-
     /**
      * @override
      * @returns {Promise}

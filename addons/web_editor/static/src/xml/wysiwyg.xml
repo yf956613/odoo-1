@@ -23,12 +23,6 @@
                     <script type="text/javascript" t-raw="jsContent"/>
                 </t>
             </t>
-        </head>
-        <body id="iframe_target" class="o_in_iframe">
-            <div id="web_editor-top-edit"></div>
-            <div id="wrapwrap">
-                <div data-oe-model="model" class="o_editable"></div>
-            </div>
             <script type="text/javascript">
                 odoo.define('web.session', function () {
                     return window.top.odoo.__DEBUG__.services['web.session'];
@@ -41,6 +35,19 @@
                     widget.appendTo(document.body);
                     return widget;
                 });
+
+                odoo.define('web.core.top', function (require) {
+                    var core = require('web.core');
+                    core.qweb.templates = window.top.odoo.__DEBUG__.services['web.core'].qweb.templates;
+                });
+            </script>
+        </head>
+        <body id="iframe_target" class="o_in_iframe">
+            <div id="web_editor-top-edit"></div>
+            <div id="wrapwrap">
+                <div data-oe-model="model" class="o_editable"></div>
+            </div>
+            <script type="text/javascript">
                 odoo.define('web_editor.wysiwyg.iniframe', function (require) {
                     'use strict';
                     var editor = require('web_editor.editor');
