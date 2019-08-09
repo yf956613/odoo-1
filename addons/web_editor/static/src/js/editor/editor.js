@@ -249,7 +249,19 @@ var EditorMenuBar = Widget.extend({
      * @param {OdooEvent} ev
      */
     _onGetCleanHTML: function (ev) {
-        ev.data.callback(this.wysiwyg.getValue({$layout: ev.data.$layout}));
+        var $editable = ev.data.$layout;
+        $editable.find('.o_wysiwyg_to_remove').remove();
+        $editable.find('[contenteditable]').removeAttr('contenteditable');
+        $editable.find('.o_fake_not_editable').removeClass('o_fake_not_editable');
+        $editable.find('.o_fake_editable').removeClass('o_fake_editable');
+        $editable.find('[class=""]').removeAttr('class');
+        $editable.find('[style=""]').removeAttr('style');
+        $editable.find('[title=""]').removeAttr('title');
+        $editable.find('[alt=""]').removeAttr('alt');
+        $editable.find('[data-original-title=""]').removeAttr('data-original-title');
+        $editable.find('a.o_image, span.fa, i.fa').html('');
+        $editable.find('[aria-describedby]').removeAttr('aria-describedby').removeAttr('data-original-title');
+        ev.data.callback($editable.html() || $editable.val());
     },
     /**
      * Called when an element askes to record an history undo -> records it.
