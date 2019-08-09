@@ -172,7 +172,8 @@ var MediaDialog = Dialog.extend({
         var args = arguments;
         return this.activeWidget.save().then(function (data) {
             self.final_data = data;
-            return _super.apply(self, args);
+            _super.apply(self, args);
+            $(data).trigger('content_changed');
         });
     },
 
