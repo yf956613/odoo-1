@@ -1932,7 +1932,7 @@ class AccountMove(models.Model):
             excluded_move_ids = AccountMoveLine.search(AccountMoveLine._get_suspense_moves_domain() + [('move_id', 'in', self.ids)]).mapped('move_id').ids
 
         for move in self:
-            if not move.journal_id.update_posted and move.id not in excluded_move_ids:
+            if not move.journal_id.update_posted and not move.state == 'draft' and move.id not in excluded_move_ids:
                 raise UserError(_('You cannot modify a posted entry of this journal.\nFirst you should set the journal to allow cancelling entries.'))
             # We remove all the analytics entries for this journal
             move.mapped('line_ids.analytic_line_ids').unlink()
