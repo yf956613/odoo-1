@@ -6,7 +6,6 @@ var base = require('web_editor.base');
 var core = require('web.core');
 var DialogBase = require('web.Dialog');
 var Widget = require('web.Widget');
-var weContext = require("web_editor.context");
 
 var QWeb = core.qweb;
 var range = $.summernote.core.range;
@@ -1442,7 +1441,6 @@ var MediaDialog = Dialog.extend({
 
             self.final_data = self.media;
             $(self.final_data).trigger('input').trigger('save');
-            $(document.body).trigger("media-saved", self.final_data); // TODO get rid of this
 
             // Update editor bar after image edition (in case the image change to icon or other)
             _.defer(function () {

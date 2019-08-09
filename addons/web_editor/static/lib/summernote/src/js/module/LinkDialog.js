@@ -113,7 +113,8 @@ define([
       var options = $editor.data('options');
 
       handler.invoke('editor.saveRange', $editable);
-      this.showLinkDialog($editable, $dialog, linkInfo).then(function (linkInfo) {
+      var a = this.showLinkDialog($editable, $dialog, linkInfo);
+      a.then(function (linkInfo) {
         handler.invoke('editor.restoreRange', $editable);
         handler.invoke('editor.createLink', $editable, linkInfo, options);
         // hide popover after creating link

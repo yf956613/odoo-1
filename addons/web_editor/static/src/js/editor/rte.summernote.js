@@ -436,7 +436,7 @@ eventHandler.modules.linkDialog.showLinkDialog = function ($editable, $dialog, l
                 $editable.trigger('keyup');
                 $('.note-popover .note-link-popover').show();
             },
-            onCancel: reject(),
+            onCancel: reject,
         });
     });
 };
