@@ -1247,6 +1247,7 @@ var SnippetsMenu = Widget.extend({
         this._disableUndroppableSnippets();
 
         this.$el.addClass('o_loaded');
+        this.trigger_up('snippets_loaded', self.$el);
     },
     /**
      * Creates a snippet editor to associated to the given snippet. If the given

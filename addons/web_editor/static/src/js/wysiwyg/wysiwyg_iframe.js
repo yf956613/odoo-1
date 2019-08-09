@@ -108,8 +108,6 @@ Wysiwyg.include({
                     return;
                 }
 
-                console.log(assets);
-
                 var iframeContent = qweb.render('wysiwyg.iframeContent', {
                     assets: assets,
                     updateIframeId: self._onUpdateIframeId,

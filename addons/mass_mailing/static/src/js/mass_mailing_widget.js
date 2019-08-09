@@ -297,6 +297,9 @@ var MassMailingFieldHtml = FieldHtml.extend({
         if (this._isFromInline) {
             this._fromInline();
         }
+        if (this.snippetsLoaded) {
+            this._onSnippetsLoaded(this.snippetsLoaded);
+        }
         this._super();
     },
     /**
@@ -305,6 +308,10 @@ var MassMailingFieldHtml = FieldHtml.extend({
      */
     _onSnippetsLoaded: function (ev) {
         var self = this;
+        if (!this.$content) {
+            this.snippetsLoaded = ev;
+            return;
+        }
         var $snippetsSideBar = ev.data;
         var $themes = $snippetsSideBar.find("#email_designer_themes").children();
         var $snippets = $snippetsSideBar.find(".oe_snippet");
@@ -312,7 +319,6 @@ var MassMailingFieldHtml = FieldHtml.extend({
 
         if (config.device.isMobile) {
             $snippetsSideBar.hide();
-            console.log(this.$content[0]);
             this.$content.attr('style', 'padding-left: 0px !important');
         }
 
