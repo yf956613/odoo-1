@@ -27,7 +27,6 @@ var WysiwygMultizone = Wysiwyg.extend({
      * @returns {Promise}
      */
     save: function () {
-        return this._super().then(function(res) {
             if (this.isDirty()) {
                 return this.editor.save().then(function() {
                     return {isDirty: true};
@@ -35,7 +34,6 @@ var WysiwygMultizone = Wysiwyg.extend({
             } else {
                 return {isDirty: false};
             }
-        }.bind(this));
     },
 
 
