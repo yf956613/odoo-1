@@ -72,6 +72,7 @@
     </xpath>
     <xpath expr="script[last()]" position="after">
         <script type="text/javascript" src="/web_editor/static/lib/vkbeautify/vkbeautify.0.99.00.beta.js"></script>
+        <script type="text/javascript" src="/web/static/src/js/public/public_widget.js"/>
         <script type="text/javascript" src="/web_editor/static/src/js/base.js"/>
         <script type="text/javascript" src="/web_editor/static/src/js/widgets/ace.js"/>
     </xpath>
