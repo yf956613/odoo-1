@@ -679,6 +679,7 @@ var SnippetsMenu = Widget.extend({
         // Auto-selects text elements with a specific class and remove this
         // on text changes
         this.$document.on('click.snippets_menu', '.o_default_snippet_text', function (ev) {
+            $(ev.target).closest('.o_default_snippet_text').removeClass('o_default_snippet_text');
             $(ev.target).selectContent();
         });
         this.$document.on('keyup.snippets_menu', function () {
