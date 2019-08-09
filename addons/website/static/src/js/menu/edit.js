@@ -103,10 +103,6 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         }
         this.editModeEnable = true;
         return new EditorMenu(this).prependTo(document.body).then(function () {
-            if (self.$welcomeMessage) {
-                $welcomeMessageParent.append(self.$welcomeMessage); // reappend if the user cancel the edition
-            }
-
             var $target = self._targetForEdition();
             self.$editorMessageElements = $target
                 .find('.oe_structure.oe_empty, [data-oe-type="html"]')
