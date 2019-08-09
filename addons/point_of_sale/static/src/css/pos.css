@@ -605,7 +605,7 @@ td {
 .pos .control-button.highlight,
 .pos .button.highlight {
     background: #6EC89B !important;
-    border: solid 1px #64AF8A !important; 
+    /* border: solid 1px #6EC89B !important;  */
     color: white !important;
 }
 .pos .control-button.altlight,
@@ -1318,24 +1318,39 @@ td {
 }
 .pos .paymentline.selected {
     font-size: 22px;
-    background: #6EC89B;
-    color: white;
+    background: white;
 }
-.pos .paymentline.selected .edit {
+.pos .paymentline.selected {
     background: white;
     color: #6EC89B;
     outline: 3px blue;
-    box-shadow: 0px 0px 0px 3px #6EC89B;
+    /* box-shadow: 0px 0px 0px 3px #6EC89B; */
     position: relative;
-    border-radius: 3px;
+    /* border-radius: 3px; */
+    /* border: solid 3px #6EC89B; */
 }
 .pos .paymentline > *{
     padding: 8px 12px;
+}
+.pos .paymentline.selected .col-tendered {
+    border-top: solid 3px #6EC89B;
+    border-bottom: solid 3px #6EC89B;
+    border-left: solid 3px #6EC89B;
+}
+.pos .paymentline.selected .col-name {
+    border-top: solid 3px #6EC89B;
+    border-bottom: solid 3px #6EC89B;
+}
+.pos .paymentline.selected .delete-button {
+    border-top: solid 3px #6EC89B;
+    border-bottom: solid 3px #6EC89B;
+    border-right: solid 3px #6EC89B;
 }
 .pos .paymentline .col-due,
 .pos .paymentline .col-tendered,
 .pos .paymentline .col-change {
     min-width: 90px;
+    z-index: 1;
 }
 .pos .paymentline.extra .col-due {
     border-radius: 0 0 6px 6px;
@@ -1428,6 +1443,28 @@ td {
     text-align: center;
 }
 
+.payment-status-container {
+    display: flex;
+    justify-content: space-between;
+    font-size: 25px;
+    padding-top: 15px;
+}
+
+.payment-status-total-due {
+    font-size: 17px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    color: #5c5c5cd1;
+}
+
+.payment-status-container .amount.highlight {
+    font-weight: bold;
+    color: #6EC89B;
+}
+
+.payment-status-container .label {
+    padding-right: 7px;
+}
 
 /* c) The receipt screen */
 

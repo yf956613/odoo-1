@@ -2802,6 +2802,10 @@ exports.Order = Backbone.Model.extend({
         }
         return round_pr(due, this.pos.currency.rounding);
     },
+    get_remaining: function() {
+        var due = this.get_due();
+        return due > 0 ? due : 0
+    },
     is_paid: function(){
         return this.get_due() <= 0;
     },
