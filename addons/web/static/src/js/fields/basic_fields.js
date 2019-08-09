@@ -3243,6 +3243,9 @@ var FieldColor = AbstractField.extend({
     * @param {MouseEvent} ev
     */
     _onColorClick: function (ev) {
+        if (this.mode !== 'edit') {
+            return;
+        }
         new ColorpickerDialog(this, {
             defaultColor: this.value,
             noTransparency: true,

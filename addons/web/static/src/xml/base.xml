@@ -1549,7 +1549,8 @@
 
 <t t-name="FieldColor">
     <div>
-        <button class="o_field_color"></button>
+        <span t-if="widget.mode !== 'edit'" class="o_field_color"></span>
+        <button t-else="" class="o_field_color"></button>
     </div>
 </t>
 
