@@ -5,3 +5,14 @@
         }
     }
 }
+
+.o_livechat_layout_colors {
+    vertical-align: middle;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .o_field_widget {
+        width: 30px !important;
+        margin: 0 5px 0 0;
+    }
+}

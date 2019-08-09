@@ -287,7 +287,7 @@ var LivechatButton = Widget.extend({
         var options = {
             displayStars: false,
             headerBackgroundColor: this.options.header_background_color,
-            TitleColor: this.options.title_color,
+            titleColor: this.options.title_color,
             placeholder: this.options.input_placeholder || "",
         };
         this._chatWindow = new WebsiteLivechatWindow(this, this._livechat, options);

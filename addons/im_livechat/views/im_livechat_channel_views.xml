@@ -122,13 +122,23 @@
                         </page>
                         <page string="Options">
                             <group>
-                                <field name="header_background_color"/>
-                                <field name="title_color"/>
-                                <field name="button_text"/>
-                                <field name="default_message" placeholder="e.g. Hello, how may I help you?"/>
-                                <field name="input_placeholder"/>
-                                <field name="button_background_color"/>
-                                <field name="button_text_color"/>
+                                <group string="Livechat Button">
+                                    <field name="button_text"/>
+                                    <label for="button_background_color" string="Livechat Button Color" />
+                                    <div class="o_livechat_layout_colors">
+                                        <field name="button_background_color" widget="color" class="mb-4"/>
+                                        <field name="button_text_color" widget="color" class="mb-4"/>
+                                    </div>
+                                </group>
+                                <group string="Livechat Window">
+                                    <field name="default_message" placeholder="e.g. Hello, how may I help you?"/>
+                                    <field name="input_placeholder"/>
+                                    <label for="header_background_color" string="Channel Header Color" />
+                                    <div class="o_livechat_layout_colors">
+                                        <field name="header_background_color" widget="color" class="mb-4"/>
+                                        <field name="title_color" widget="color" class="mb-4"/>
+                                    </div>
+                                </group>
                             </group>
                         </page>
                         <page string="Channel Rules">
