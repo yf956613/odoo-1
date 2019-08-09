@@ -205,7 +205,7 @@ var Wysiwyg = Widget.extend({
  * @returns {Number} eo - end offset
  */
 Wysiwyg.getRange = function (node) {
-    var range = $.summernote.range.create();
+    var range = $.summernote.core.range.create();
     return range && {
         sc: range.sc,
         so: range.so,
@@ -222,9 +222,9 @@ Wysiwyg.getRange = function (node) {
 Wysiwyg.setRange = function (startNode, startOffset, endNode, endOffset) {
     $(startNode).focus();
     if (endNode) {
-        $.summernote.range.create(startNode, startOffset, endNode, endOffset).select();
+        $.summernote.core.range.create(startNode, startOffset, endNode, endOffset).select();
     } else {
-        $.summernote.range.create(startNode, startOffset).select();
+        $.summernote.core.range.create(startNode, startOffset).select();
     }
     // trigger for Unbreakable
     $(startNode.tagName ? startNode : startNode.parentNode).trigger('wysiwyg.range');

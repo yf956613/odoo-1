@@ -127,42 +127,4 @@ Wysiwyg.include({
     },
 });
 
-//--------------------------------------------------------------------------
-// Public helper
-//--------------------------------------------------------------------------
-
-/**
- * Get the current range from Summernote.
- *
- * @param {Node} [DOM]
- * @returns {Object}
-*/
-Wysiwyg.getRange = function (DOM) {
-    var summernote = (DOM.defaultView || DOM.ownerDocument.defaultView)._summernoteSlave || window.top.$.summernote;
-    var range = summernote.range.create();
-    return range && {
-        sc: range.sc,
-        so: range.so,
-        ec: range.ec,
-        eo: range.eo,
-    };
-};
-/**
- * @param {Node} sc - start container
- * @param {Number} so - start offset
- * @param {Node} ec - end container
- * @param {Number} eo - end offset
-*/
-Wysiwyg.setRange = function (sc, so, ec, eo) {
-    var summernote = sc.ownerDocument.defaultView._summernoteSlave || window.top.$.summernote;
-    $(sc).focus();
-    if (ec) {
-        summernote.range.create(sc, so, ec, eo).select();
-    } else {
-        summernote.range.create(sc, so).select();
-    }
-    // trigger for Unbreakable
-    $(sc.tagName ? sc : sc.parentNode).trigger('wysiwyg.range');
-};
-
 });
