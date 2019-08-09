@@ -12,6 +12,23 @@ var _t = core._t;
 QUnit.module('web_editor', {
     beforeEach: function() {
         this.data = {
+            'note.note': {
+                fields: {
+                    display_name: {
+                        string: "Displayed name",
+                        type: "char",
+                    },
+                    body: {
+                        string: "Message",
+                        type: "html"
+                    },
+                },
+                records: [{
+                    id: 1,
+                    display_name: "first record",
+                    body: "<p>toto toto toto</p><p>tata</p>",
+                }],
+            },
             'mass.mailing': {
                 fields: {
                     display_name: {
@@ -34,11 +51,10 @@ QUnit.module('web_editor', {
     }
 });
 
-QUnit.test('field html widget', function (assert) {
-    var done = assert.async();
+QUnit.test('field html widget', async function (assert) {
     assert.expect(3);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -47,30 +63,27 @@ QUnit.test('field html widget', function (assert) {
             '</form>',
         res_id: 1,
     });
-
     assert.strictEqual(form.$('.field_body').text(), 'yep',
         "should have rendered a div with correct content in readonly");
     assert.hasAttrValue(form.$('div[name=body]'), 'style', 'height: 100px',
         "should have applied the style correctly");
 
     testUtils.form.clickEdit(form);
-
+    await testUtils.nextTick();
     assert.strictEqual(form.$('.note-editable').html(), '<div class="field_body">yep</div>',
-            "should have rendered the field correctly in edit");
+    "should have rendered the field correctly in edit");
 
     // summernote invokes handlers after a setTimeout, so we must wait as well
     // before destroying the widget (otherwise we'll have a crash later on)
     setTimeout(function () {
         form.destroy();
-        done();
     }, 0);
 });
 
-QUnit.test('field html widget (with options inline-style)', function (assert) {
-    var done = assert.async();
+QUnit.test('field html widget (with options inline-style)', async function (assert) {
     assert.expect(3);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -79,30 +92,27 @@ QUnit.test('field html widget (with options inline-style)', function (assert) {
             '</form>',
         res_id: 1,
     });
-
     assert.containsOnce(form, 'iframe',
         "should have rendered an iframe without crashing in readonly");
     assert.hasAttrValue(form.$('div[name=body]'), 'style', 'height: 100px',
         "should have applied the style correctly");
 
     testUtils.form.clickEdit(form);
-
+    await testUtils.nextTick();
     assert.strictEqual(form.$('.note-editable').html(), '<div class="field_body">yep</div>',
-            "should have rendered the field correctly in edit");
+    "should have rendered the field correctly in edit");
 
     // summernote invokes handlers after a setTimeout, so we must wait as well
     // before destroying the widget (otherwise we'll have a crash later on)
     setTimeout(function () {
         form.destroy();
-        done();
     }, 0);
 });
 
-QUnit.test('save immediately before iframe is rendered in edit mode', function (assert) {
-    var done = assert.async();
+QUnit.test('save immediately before iframe is rendered in edit mode', async function (assert) {
     assert.expect(1);
 
-    testUtils.createAsyncView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'note.note',
         data: this.data,
@@ -110,13 +120,13 @@ QUnit.test('save immediately before iframe is rendered in edit mode', function (
             '<field name="body" widget="html" style="height: 100px" options="{\'cssEdit\': \'template.assets\'}"/>' +
             '</form>',
         res_id: 1,
-    }).then(function (form) {
-        testUtils.form.clickEdit(form);
-        testUtils.form.clickSave(form);
-        assert.ok(true, "No traceback encountered. The wysiwyg was cut while not loaded.");
-        form.destroy();
-        done();
     });
+    testUtils.form.clickEdit(form);
+    await testUtils.nextTick();
+    testUtils.form.clickSave(form);
+    await testUtils.nextTick();
+    assert.ok(true, "No traceback encountered. The wysiwyg was cut while not loaded.");
+    form.destroy();
 });
 
 QUnit.test('save immediately before iframe is rendered in edit mode with style-inline', async function (assert) {
@@ -139,7 +149,7 @@ QUnit.test('save immediately before iframe is rendered in edit mode with style-i
     form.destroy();
 });
 
-QUnit.test('field html translatable', function (assert) {
+QUnit.test('field html translatable', async function (assert) {
     assert.expect(3);
 
     var multiLang = _t.database.multi_lang;
@@ -147,7 +157,7 @@ QUnit.test('field html translatable', function (assert) {
 
     this.data['mass.mailing'].fields.body.translate = true;
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -157,7 +167,7 @@ QUnit.test('field html translatable', function (assert) {
         res_id: 1,
         mockRPC: function (route, args) {
             if (route === '/web/dataset/call_button' && args.method === 'translate_fields') {
-                assert.deepEqual(args.args, ['note.note', 1, 'body'], "should call 'call_button' route");
+                assert.deepEqual(args.args, ['mass.mailing', 1, 'body'], "should call 'call_button' route");
                 return Promise.resolve();
             }
             return this._super.apply(this, arguments);
@@ -168,6 +178,7 @@ QUnit.test('field html translatable', function (assert) {
         "should not have a translate button in readonly mode");
 
     testUtils.form.clickEdit(form);
+    await testUtils.nextTick();
     var $button = form.$('.oe_form_field_html_text .o_field_translate');
     assert.strictEqual($button.length, 1, "should have a translate button");
     testUtils.dom.click($button);
@@ -176,10 +187,10 @@ QUnit.test('field html translatable', function (assert) {
     _t.database.multi_lang = multiLang;
 });
 
-QUnit.test('field html_frame widget', function (assert) {
+QUnit.test('field html_frame widget', async function (assert) {
     assert.expect(6);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -204,16 +215,17 @@ QUnit.test('field html_frame widget', function (assert) {
     assert.containsOnce(form, 'iframe', "should have rendered an iframe without crashing");
 
     testUtils.form.clickEdit(form);
+    await testUtils.nextTick();
 
     assert.containsOnce(form, 'iframe', "should have rendered an iframe without crashing");
 
     form.destroy();
 });
 
-QUnit.test('field htmlsimple does not crash when commitChanges is called in mode=readonly', function (assert) {
-    assert.expect(1);
+QUnit.test('field html simple does not crash when commitChanges is called in mode=readonly', async function (assert) {
+    assert.expect(2);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -233,16 +245,17 @@ QUnit.test('field htmlsimple does not crash when commitChanges is called in mode
         },
     });
 
-    testUtils.dom.click(form.$('button:contains(Do it)'));
+    await testUtils.dom.click(form.$('button:contains(Do it)'));
+    assert.verifySteps(['execute_action']);
     form.destroy();
 });
 
-QUnit.test('html_frame does not crash when saving in readonly', function (assert) {
+QUnit.test('html_frame does not crash when saving in readonly', async function (assert) {
     // The 'Save' action may be triggered even in readonly (e.g. when clicking
     // on a button in the form view)
     assert.expect(2);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -273,12 +286,12 @@ QUnit.test('html_frame does not crash when saving in readonly', function (assert
     form.destroy();
 });
 
-QUnit.test('html_frame does not crash when saving in edit mode (editor not loaded)', function (assert) {
+QUnit.test('html_frame does not crash when saving in edit mode (editor not loaded)', async function (assert) {
     // The 'Save' action may be triggered when saving in edit mode very fast
     // so that the editor may be not loaded, even though the content is!
     assert.expect(2);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -304,23 +317,24 @@ QUnit.test('html_frame does not crash when saving in edit mode (editor not loade
     });
 
     testUtils.form.clickEdit(form);
+    await testUtils.nextTick();
     testUtils.fields.editInput(form.$('input.o_input.o_field_char'), 'trululu');
     testUtils.form.clickSave(form); // crash without editor fully loaded
+    await testUtils.nextTick();
 
     assert.verifySteps(['read']);
 
     form.destroy();
 });
 
-QUnit.test('html_frame saving in edit mode (editor and content fully loaded)', function (assert) {
-    var done = assert.async();
+QUnit.test('html_frame saving in edit mode (editor and content fully loaded)', async function (assert) {
     assert.expect(4);
 
     var editorBar = new web_editor.Class();
     var loadDeferred = testUtils.makeTestPromise();
     var writeDeferred = testUtils.makeTestPromise();
 
-    var form = testUtils.createView({
+    var form = await testUtils.createAsyncView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -356,8 +370,10 @@ QUnit.test('html_frame saving in edit mode (editor and content fully loaded)', f
     });
 
     testUtils.form.clickEdit(form);
+    await testUtils.nextTick();
     testUtils.fields.editInput(form.$('input.o_input.o_field_char'), 'trululu');
     testUtils.form.clickSave(form);
+    await testUtils.nextTick();
 
     loadDeferred.resolve(); // simulate late loading of html frame
 
@@ -367,16 +383,14 @@ QUnit.test('html_frame saving in edit mode (editor and content fully loaded)', f
     writeDeferred.then( function () { // html_frame is async with write
         assert.verifySteps(['read', 'write']);
         form.destroy();
-        done();
     });
 
 });
 
-QUnit.test('discard on link dialog should select content of link in web_editor', function (assert) {
-    var done = assert.async();
+QUnit.test('discard on link dialog should select content of link in web_editor', async function (assert) {
     assert.expect(5);
 
-    var form = testUtils.createView({
+    var form = await testUtils.createView({
         View: FormView,
         model: 'mass.mailing',
         data: this.data,
@@ -386,7 +400,7 @@ QUnit.test('discard on link dialog should select content of link in web_editor',
         res_id: 1,
     });
 
-    form.$buttons.find('.o_form_button_edit').click();
+    await testUtils.dom.click(form.$buttons.find('.o_form_button_edit'));
 
     assert.strictEqual(form.$('.note-editable').html(), '<div class="field_body">yep</div>',
             "should have rendered the field correctly in edit");
@@ -428,7 +442,6 @@ QUnit.test('discard on link dialog should select content of link in web_editor',
 
         testUtils.unpatch(LinkDialog);
         form.destroy();
-        done();
     });
 
 });
