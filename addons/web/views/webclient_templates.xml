@@ -391,7 +391,6 @@
         <script type="text/javascript" src="/web/static/src/js/public/public_notification.js"/>
         <script type="text/javascript" src="/web/static/src/js/public/public_root.js"/>
         <script type="text/javascript" src="/web/static/src/js/public/public_root_instance.js"/>
-        <script type="text/javascript" src="/web/static/src/js/public/public_widget.js"/>
     </template>
 
     <template id="assets_frontend_lazy" inherit_id="web.assets_frontend" primary="True">

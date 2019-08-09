@@ -2,9 +2,9 @@ odoo.define('website_forum.website_forum', function (require) {
 'use strict';
 
 var core = require('web.core');
+var publicWidget = require('web.public.widget');
 var sAnimations = require('website.content.snippets.animation');
 var session = require('web.session');
-var utils = require('web.utils');
 var qweb = core.qweb;
 
 var _t = core._t;

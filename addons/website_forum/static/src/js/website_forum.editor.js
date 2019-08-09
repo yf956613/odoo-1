@@ -5,6 +5,7 @@ var core = require('web.core');
 var Widget = require('web.Widget');
 var SummernoteManager = require('web_editor.rte.summernote');
 var WebsiteNewMenu = require('website.newMenu');
+var websiteRootData = require('website.root');
 var Dialog = require('web.Dialog');
 
 var _t = core._t;
