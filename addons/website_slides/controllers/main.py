@@ -823,12 +823,21 @@ class WebsiteSlides(WebsiteProfile):
         if post.get('badge_id'):
             try:
                 if post['badge_id'][0] == 0:
-                    values['badge_id'] = request.env['gamification.badge'].create({
-                        'name': post['badge_id'][1]['title'],
-                        'description': 'Congratulation, you succeeded this certification',
-                        'rule_auth': 'nobody',
-                        'is_published': True,
-                        }).id
+                    if 'image_badge_1920' in values:
+                        values['badge_id'] = request.env['gamification.badge'].create({
+                            'name': post['badge_id'][1]['title'],
+                            'description': 'Congratulation, you succeeded this certification',
+                            'rule_auth': 'nobody',
+                            'image_1920': values['image_badge_1920'],
+                            'is_published': True,
+                            }).id
+                    else:
+                         values['badge_id'] = request.env['gamification.badge'].create({
+                            'name': post['badge_id'][1]['title'],
+                            'description': 'Congratulation, you succeeded this certification',
+                            'rule_auth': 'nobody',
+                            'is_published': True,
+                            }).id
                 else:
                     values['badge_id'] = post['badge_id'][0]
             except (UserError, AccessError) as e:
@@ -849,9 +858,10 @@ class WebsiteSlides(WebsiteProfile):
                         'scoring_type': 'scoring_without_answers',
                         'certificate': True,
                         'passing_score': 70.0,
+                        'image_1920': values['image_1920'],
                         'certification_mail_template_id': request.env['mail.template'].search([('name','=','Certification: Send by email')]).id,
                         })
-                    if 'give_badge' in values:
+                    if 'badge_id' in values:
                         survey_id.write({
                             'users_login_required': True,
                             'certification_give_badge': True,
@@ -861,7 +871,7 @@ class WebsiteSlides(WebsiteProfile):
                     new_certification = True
                 else:
                     values['survey_id'] = post['survey_id'][0]
-                    if 'give_badge' in values:
+                    if 'badge_id' in values:
                         survey = request.env['survey.survey'].search([('id','=',values['survey_id'])])
                         survey.write({
                             'users_login_required': True,
@@ -936,7 +946,8 @@ class WebsiteSlides(WebsiteProfile):
 
     def _get_valid_slide_post_values(self):
         return ['name', 'url', 'tag_ids', 'slide_type', 'channel_id', 'is_preview',
-                'mime_type', 'datas', 'description', 'image_1920', 'index_content', 'is_published', 'survey_id', 'give_badge', 'badge_id']
+                'mime_type', 'datas', 'description', 'image_1920', 
+                'image_badge_1920', 'index_content', 'is_published', 'survey_id', 'give_badge', 'badge_id']
     @http.route(['/slides/tag/search_read'], type='json', auth='user', methods=['POST'], website=True)
     def slide_tag_search_read(self, fields, domain):
         can_create = request.env['slide.tag'].check_access_rights('create', raise_exception=False)

@@ -14,7 +14,8 @@ var SlideUploadDialog = Dialog.extend({
     events: _.extend({}, Dialog.prototype.events, {
         'click .o_wslides_js_upload_install_button': '_onClickInstallModule',
         'click .o_wslides_select_type': '_onClickSlideTypeIcon',
-        'change input#upload': '_onChangeSlideUpload',
+        'change input#slide-upload': '_onChangeSlideUpload',
+        'change input#badge-upload': '_onChangeBadgeUpload',
         'change input#url': '_onChangeSlideUrl',
         'change input#certification_give_badge': '_toggleCertificationBadge',
         'change input#certification_id': '_populateWithCertificationName'
@@ -48,6 +49,7 @@ var SlideUploadDialog = Dialog.extend({
         this.on('change:can_submit_form', this, this._onChangeCanSubmitForm);
 
         this.file = {};
+        this.fileBadge = {};
         this.isValidUrl = true;
     },
     start: function () {
@@ -139,7 +141,7 @@ var SlideUploadDialog = Dialog.extend({
             'duration': this._formGetFieldValue('duration'),
             'is_published': forcePublished,
         }, this._getSelect2DropdownValues()); // add tags and category
-
+ 
         // default slide_type (for webpage for instance)
         if (_.contains(this.slide_type_data), this.get('state')) {
             values['slide_type'] = this.get('state');
@@ -166,8 +168,14 @@ var SlideUploadDialog = Dialog.extend({
                 });
             } else{
                 _.extend(values, {
-                    'image': this.file.type === 'image/svg+xml' ? this._svgToPng() : this.file.data,
+                    'image_1920': this.file.type === 'image/svg+xml' ? this._svgToPng() : this.file.data,
                 });
+                if (!isEmptyObj(this.fileBadge)){
+                    _.extend(values, {
+                        'image_badge_1920': this.fileBadge.type === 'image/svg+xml' ? this._svgToPng() : this.fileBadge.data,
+                    });
+                }
+
             }
         }
         return values;
@@ -428,19 +436,44 @@ var SlideUploadDialog = Dialog.extend({
             this.$('.o_w_slide_upload').button('loading');
         }
     },
-    _onChangeSlideUpload: function (ev) {
-        var self = this;
-        this._alertRemove();
 
+    _onChangeSlideUpload: function (ev){
+        return this._onChangeImageUpload(ev, "slide-upload")
+    },
+
+    _onChangeBadgeUpload: function (ev){
+        return this._onChangeImageUpload(ev, "badge-upload")
+    },
+
+    _onChangeImageUpload: function (ev, type) {
+        var self = this
+        this._alertRemove();
+        var preview;
+        var selfFile;
         var $input = $(ev.currentTarget);
         var preventOnchange = $input.data('preventOnchange');
+        if (type === "slide-upload"){
+            selfFile = this.file;
+            preview = '#slide-image';
+        }
+        else if (type === "badge-upload"){
+            selfFile = this.fileBadge
+            preview = '#badge-image';
+        }
+        else{
+            return;
+        }
 
         var file = ev.target.files[0];
+        if (file === undefined) {
+            $(preview).attr('src',"/website_slides/static/src/img/document.png");
+            return;
+        }
         var isImage = /^image\/.*/.test(file.type);
         var loaded = false;
-        this.file.name = file.name;
-        this.file.type = file.type;
-        if (!(isImage || this.file.type === 'application/pdf')) {
+        selfFile.name = file.name;
+        selfFile.type = file.type;
+        if (!(isImage || selfFile.type === 'application/pdf')) {
             this._alertDisplay(_t("Invalid file type. Please select pdf or image file"));
             this._fileReset();
             return;
@@ -453,7 +486,7 @@ var SlideUploadDialog = Dialog.extend({
 
         utils.getDataURLFromFile(file).then(function (buffer) {
             if (isImage) {
-                self.$('#slide-image').attr('src', buffer);
+                self.$(preview).attr('src', buffer);
             }
             buffer = buffer.split(',')[1];
             self.file.data = buffer;
@@ -505,7 +538,7 @@ var SlideUploadDialog = Dialog.extend({
                             viewport: viewport
                         }).then(function () {
                             var imageData = self.$('#data_canvas')[0].toDataURL();
-                            self.$('#slide-image').attr('src', imageData);
+                            self.$(preview).attr('src', imageData);
                             if (loaded) {
                                 self.set('can_submit_form', true);
                             }
@@ -606,11 +639,13 @@ var SlideUploadDialog = Dialog.extend({
         $("#name").val(certificationName);
         if(ev.added.badge_id){
             $("#certification_badge_id_readonly").val(ev.added.badge_id[1]);
+            $('#certification_badge_id').removeAttr("required")
             $(".readonly").removeClass("d-none");
             $(".no_badge").addClass( "d-none");
         }
         else{
             $('#certification_badge_id').select2('data', {id: 0, text: certificationName, create: true,});
+            $('#certification_badge_id').attr("required",'required')
             $(".no_badge").removeClass("d-none");
             $(".readonly").addClass( "d-none");
         }
