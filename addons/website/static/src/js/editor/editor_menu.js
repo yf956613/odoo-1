@@ -91,6 +91,7 @@ var EditorMenu = Widget.extend({
             var $wrapwrap = $('#wrapwrap');
             self.editable($wrapwrap).removeClass('o_editable');
             if (reload !== false) {
+                window.onbeforeunload = null;
                 self.wysiwyg.destroy();
                 return self._reload();
             } else {
