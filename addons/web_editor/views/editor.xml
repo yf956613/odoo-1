@@ -41,7 +41,6 @@
     <script type="text/javascript" src="/web_editor/static/src/js/editor/editor.js"/>
     <script type="text/javascript" src="/web_editor/static/src/js/editor/rte.js"/>
     <script type="text/javascript" src="/web_editor/static/src/js/editor/rte.summernote.js"/>
-    <script type="text/javascript" src="/web_editor/static/src/js/editor/translator.js"/>
     <script type="text/javascript" src="/web_editor/static/src/js/tours/rte.js"/>
 
     <!-- widgets & plugins -->

@@ -7,10 +7,10 @@ var Wysiwyg = require('web_editor.wysiwyg');
 Wysiwyg.include({
     init: function (parent, options) {
         this._super.apply(this, arguments);
-        if (this.options.snippets) {
-            this.options.toolbarHandler = document.body;
-        }
         this.Editor = editor.Class;
+        if (!this.options.toolbarHandler) {
+            this.options.toolbarHandler = $('#web_editor-top-edit');
+        }
     },
     start: async function () {
         if (this.options.snippets) {
@@ -19,7 +19,7 @@ Wysiwyg.include({
             await this.editor.prependTo(this.$editor[0].ownerDocument.body);
             this.options.toolbarHandler.append(this.editor.$el);
         } else {
-            return this._super();
+            await this._super();
         }
     }
 });

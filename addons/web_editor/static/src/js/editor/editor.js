@@ -30,7 +30,8 @@ var EditorMenuBar = Widget.extend({
     init: function (parent, options) {
         var self = this;
         var res = this._super.apply(this, arguments);
-        this.rte = new rte.Class(this, function getConfig ($editable) {
+        var Editor = options.Editor || rte.Class;
+        this.rte = new Editor(this, function getConfig ($editable) {
             var param = self._getDefaultConfig($editable);
             if (options.generateOptions) {
                 param = options.generateOptions(param);
@@ -45,11 +46,12 @@ var EditorMenuBar = Widget.extend({
         var $editable = this.rte.editable();
         window.__EditorMenuBar_$editable = $editable; // TODO remove this hack asap
 
-
-        this.snippetsMenu = new snippetsEditor.Class(this, Object.assign({
-            $el: $editable,
-            selectorEditableArea: '.o_editable',
-        }, options));
+        if (options.snippets) {
+            this.snippetsMenu = new snippetsEditor.Class(this, Object.assign({
+                $el: $editable,
+                selectorEditableArea: '.o_editable',
+            }, options));
+        }
 
         return res;
     },
@@ -100,7 +102,9 @@ var EditorMenuBar = Widget.extend({
         };
 
         // Snippets menu
-        defs.push(this.snippetsMenu.insertAfter(this.$el));
+        if (self.snippetsMenu) {
+            defs.push(this.snippetsMenu.insertAfter(this.$el));
+        }
         this.rte.editable().find('*').off('mousedown mouseup click');
 
         return Promise.all(defs).then(function () {
@@ -160,7 +164,9 @@ var EditorMenuBar = Widget.extend({
         var defs = [];
         this.trigger_up('ready_to_save', {defs: defs});
         return Promise.all(defs).then(function () {
-            self.snippetsMenu.cleanForSave();
+            if (self.snippetsMenu) {
+                self.snippetsMenu.cleanForSave();
+            }
             return self._saveCroppedImages();
         }).then(function () {
             return self.rte.save();
