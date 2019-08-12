@@ -146,6 +146,18 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         });
     },
     /**
+     * Called when a snippet is about to be cloned in the page. Notifies the
+     * WebsiteRoot that is should destroy the animations for this snippet.
+     *
+     * @private
+     * @param {OdooEvent} ev
+     */
+    _onSnippetWillBeCloned: function (ev) {
+        this.trigger_up('animation_stop_demand', {
+            $target: ev.data.$target,
+        });
+    },
+    /**
      * Called when a snippet is cloned in the page. Notifies the WebsiteRoot
      * that is should start the public widgets for this snippet and the snippet it
      * was cloned from.
