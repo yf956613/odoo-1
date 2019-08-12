@@ -604,7 +604,7 @@ var MetaImageSelector = Widget.extend({
         var mediaDialog = new weWidgets.MediaDialog(this, {
             onlyImages: true,
             res_model: 'ir.ui.view',
-        }, $image[0]);
+        }, null, $image[0]);
         mediaDialog.open();
         mediaDialog.on('save', this, function (image) {
             self.activeMetaImg = image.src;

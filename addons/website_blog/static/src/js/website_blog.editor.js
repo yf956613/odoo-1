@@ -182,7 +182,7 @@ options.registry.blog_cover = options.Class.extend({
             mediaWidth: 1920,
             onlyImages: true,
             firstFilters: ['background']
-        }, $image[0]).open();
+        }, null, $image[0]).open();
         editor.on('save', this, function (image) {
             var src = image.src;
             this.$image.css('background-image', src ? ('url(' + src + ')') : '');
