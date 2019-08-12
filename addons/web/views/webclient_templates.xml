@@ -705,7 +705,7 @@
                 <script type="text/javascript" src="/web/static/tests/widgets/rainbow_man_tests.js"/>
 
                 <script type="text/javascript" src="/web/static/tests/tools/debug_manager_tests.js"/>
-                
+
                 <script type="text/javascript" src="/web/static/tests/helpers/test_utils_tests.js"></script>
             </t>
 
