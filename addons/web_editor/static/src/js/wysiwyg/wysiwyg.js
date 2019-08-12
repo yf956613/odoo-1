@@ -106,7 +106,7 @@ var Wysiwyg = Widget.extend({
      * @returns {Boolean}
      */
     isDirty: function () {
-        return this._value !== (this.$target.html() || this.$target.val());
+        return this._value !== (this.$editor.html() || this.$editor.val());
     },
     /**
      * Set the focus on the element.
