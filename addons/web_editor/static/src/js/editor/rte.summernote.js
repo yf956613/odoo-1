@@ -443,20 +443,20 @@ eventHandler.modules.linkDialog.showLinkDialog = function ($editable, $dialog, l
     $editable.data('range').select();
     $editable.data('NoteHistory').recordUndo();
 
-    return new Promise(function (resolve, reject) {
-        core.bus.trigger('link_dialog_demand', {
-            $editable: $editable,
-            linkInfo: linkInfo,
-            onSave: function (linkInfo) {
-                linkInfo.range.select();
-                $editable.data('range', linkInfo.range);
-                resolve(linkInfo);
-                $editable.trigger('keyup');
-                $('.note-popover .note-link-popover').show();
-            },
-            onCancel: reject,
-        });
+    var def = new $.Deferred();
+    core.bus.trigger('link_dialog_demand', {
+        $editable: $editable,
+        linkInfo: linkInfo,
+        onSave: function (linkInfo) {
+            linkInfo.range.select();
+            $editable.data('range', linkInfo.range);
+            def.resolve(linkInfo);
+            $editable.trigger('keyup');
+            $('.note-popover .note-link-popover').show();
+        },
+        onCancel: def.reject.bind(def),
     });
+    return def;
 };
 eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
     var r = $editable.data('range');
@@ -478,7 +478,7 @@ eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
             r.insertNode(media);
         },
     });
-    return Promise.reject();
+    return new $.Deferred().reject();
 };
 $.summernote.pluginEvents.alt = function (event, editor, layoutInfo, sorted) {
     var $editable = layoutInfo.editable();
