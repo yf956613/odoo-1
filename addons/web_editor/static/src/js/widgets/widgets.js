@@ -471,7 +471,7 @@ var ImageWidget = MediaWidget.extend({
                 return new Promise(function(resolve, reject) {
                     $img[0].onload = resolve;
                     $div.addClass('o_webimage').append($img);
-                };
+                });
             }
         });
         Promise.all(imageDefs).then(function () {
