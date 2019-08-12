@@ -317,7 +317,7 @@ var TranslatorMenuBar = Widget.extend({
     _save: function () {
         return this.rte.save(weContext.get({lang: this.lang})).then(function () {
             window.location.href = window.location.href.replace(/&?edit_translations(=[^&]*)?/g, '');
-            return new Promise.resolve();
+            return Promise.resolve();
         });
     },
     /**
