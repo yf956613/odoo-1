@@ -500,7 +500,6 @@ var ViewEditor = Widget.extend({
 
         function _processJSorSCSS(data, type) {
             // The received scss or js data is already sorted by bundle and DOM order
-            this.sortedSCSS = scss;
             if (type === 'scss') {
                 this.sortedSCSS = data;
             } else {
