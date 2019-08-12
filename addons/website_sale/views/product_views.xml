@@ -179,9 +179,11 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='pricelist_availability']" position="after">
                 <group name="pricelist_website" string="Website">
-                    <field name="website_id" options="{'no_create': True}"/>
-                    <field name="selectable"/>
-                    <field name="code"/>
+                    <field name="website_published"/>
+                    <field name="website_id" options="{'no_create': True}"
+                      attrs="{'invisible': [('website_published', '=', False)]}"/>
+                    <field name="selectable" attrs="{'invisible': [('website_published', '=', False)]}"/>
+                    <field name="code" attrs="{'invisible': [('website_published', '=', False)]}"/>
                 </group>
             </xpath>
           </field>
@@ -193,8 +195,10 @@
         <field name="inherit_id" ref="product.product_pricelist_view_tree"/>
         <field name="arch" type="xml">
             <field name="currency_id" position="after">
-                <field name="selectable" />
-                <field name="website_id" groups="website.group_multi_website"/>
+                <field name="selectable"/>
+                <field name="website_published"/>
+                <field name="website_id" groups="website.group_multi_website"
+                  attrs="{'invisible': [('website_published', '=', False)]}"/>
             </field>
         </field>
     </record>

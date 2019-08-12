@@ -31,6 +31,7 @@ class ProductPricelist(models.Model):
         return self.env['website'].search(domain, limit=1)
 
     website_id = fields.Many2one('website', string="Website", default=_default_website)
+    website_published = fields.Boolean("Use in website", default=True) # TODO migration explanation
     code = fields.Char(string='E-commerce Promotional Code', groups="base.group_user")
     selectable = fields.Boolean(help="Allow the end user to choose this price list")
 
@@ -80,32 +81,32 @@ class ProductPricelist(models.Model):
         return res
 
     def _check_website_pricelist(self):
-        for website in self.env['website'].search([]):
-            if not website.pricelist_ids:
-                raise UserError(_("With this action, '%s' website would not have any pricelist available.") % (website.name))
+        multi_website_pricelists = self.search([('website_published', '=', True), ('website_id', '=', False)])
+        if not multi_website_pricelists:
+            for website in self.env['website'].search([]):
+                if not website.pricelist_ids:
+                    raise UserError(_("With this action, '%s' website would not have any pricelist available.") % (website.name))
 
     def _is_available_on_website(self, website_id):
-        """ To be able to be used on a website, a pricelist should either:
+        """ To be able to be used on a website, a pricelist should be website_published AND:
         - Have its `website_id` set to current website (specific pricelist).
-        - Have no `website_id` set and should be `selectable` (generic pricelist)
-          or should have a `code` (generic promotion).
-
-        Note: A pricelist without a website_id, not selectable and without a
-              code is a backend pricelist.
+        OR
+        - Have no `website_id` set.
 
         Change in this method should be reflected in `_get_website_pricelists_domain`.
         """
         self.ensure_one()
-        return self.website_id.id == website_id or (not self.website_id and (self.selectable or self.sudo().code))
+        return self.website_published and (self.website_id.id == website_id or not self.website_id)
 
     def _get_website_pricelists_domain(self, website_id):
         ''' Check above `_is_available_on_website` for explanation.
         Change in this method should be reflected in `_is_available_on_website`.
         '''
         return [
-            '|', ('website_id', '=', website_id),
-            '&', ('website_id', '=', False),
-            '|', ('selectable', '=', True), ('code', '!=', False),
+            ('website_published', '=', True),
+            '|',
+            ('website_id', '=', website_id),
+            ('website_id', '=', False),
         ]
 
     def _get_partner_pricelist_multi(self, partner_ids, company_id=None):

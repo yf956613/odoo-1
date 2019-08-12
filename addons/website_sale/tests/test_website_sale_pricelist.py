@@ -56,6 +56,7 @@ class TestWebsitePriceList(TransactionCase):
             'name': 'Canada',
             'selectable': True,
             'website_id': self.website.id,
+            'website_published': True,
             'country_group_ids': [(6, 0, [ca_group.id])],
             'sequence': 10
         })
@@ -186,47 +187,55 @@ class TestWebsitePriceListAvailable(TransactionCase):
         existing_pricelists = Pricelist.search([])
         self.backend_pl = Pricelist.create({
             'name': 'Backend Pricelist',
-            'website_id': False,
+            'website_published': False,
         })
         self.generic_pl_select = Pricelist.create({
             'name': 'Generic Selectable Pricelist',
             'selectable': True,
             'website_id': False,
+            'website_published': True,
         })
         self.generic_pl_code = Pricelist.create({
             'name': 'Generic Code Pricelist',
             'code': 'GENERICCODE',
+            'website_published': True,
             'website_id': False,
         })
         self.generic_pl_code_select = Pricelist.create({
             'name': 'Generic Code Selectable Pricelist',
             'code': 'GENERICCODESELECT',
             'selectable': True,
+            'website_published': True,
             'website_id': False,
         })
         self.w1_pl = Pricelist.create({
             'name': 'Website 1 Pricelist',
             'website_id': self.website.id,
+            'website_published': True,
         })
         self.w1_pl_select = Pricelist.create({
             'name': 'Website 1 Pricelist Selectable',
             'website_id': self.website.id,
             'selectable': True,
+            'website_published': True,
         })
         self.w1_pl_code_select = Pricelist.create({
             'name': 'Website 1 Pricelist Code Selectable',
             'website_id': self.website.id,
             'code': 'W1CODESELECT',
             'selectable': True,
+            'website_published': True,
         })
         self.w1_pl_code = Pricelist.create({
             'name': 'Website 1 Pricelist Code',
             'website_id': self.website.id,
             'code': 'W1CODE',
+            'website_published': True,
         })
         self.w2_pl = Pricelist.create({
             'name': 'Website 2 Pricelist',
             'website_id': self.website2.id,
+            'website_published': True,
         })
         existing_pricelists.write({'active': False})
 
