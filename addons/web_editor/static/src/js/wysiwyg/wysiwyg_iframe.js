@@ -92,6 +92,14 @@ Wysiwyg.include({
                 var $iframeTarget = self.$iframe.contents().find('#iframe_target');
                 $iframeTarget.find('.o_editable').html(self.$target.val());
                 self.options.toolbarHandler = $('#web_editor-top-edit', self.$iframe[0].contentWindow.document);
+                $(qweb.render('web_editor.FieldTextHtml.fullscreen'))
+                    .appendTo(self.options.toolbarHandler)
+                    .on('click', '.o_fullscreen', function () {
+                        $("body").toggleClass("o_field_widgetTextHtml_fullscreen");
+                        var full = $("body").hasClass("o_field_widgetTextHtml_fullscreen");
+                        self.$iframe.parents().toggleClass('o_form_fullscreen_ancestor', full);
+                        $(window).trigger("resize"); // induce a resize() call and let other backend elements know (the navbar extra items management relies on this)
+                    });
                 self.Editor = Editor;
                 resolve();
             };
