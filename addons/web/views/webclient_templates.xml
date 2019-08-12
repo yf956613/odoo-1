@@ -439,11 +439,11 @@
             <script type="text/javascript">
                 odoo.session_info = <t t-raw="json.dumps(request.env['ir.http'].get_frontend_session_info())"/>;
             </script>
-            <t t-call-assets="web.assets_common_minimal_js" t-css="false" defer_load="True"/>
-            <t t-call-assets="web.assets_frontend_minimal_js" t-css="false" defer_load="True"/>
+            <t t-call-assets="web.assets_common_minimal_js" t-css="false"/>
+            <t t-call-assets="web.assets_frontend_minimal_js" t-css="false"/>
             <t t-call="web.conditional_assets_tests"/>
-            <t t-call-assets="web.assets_common_lazy" t-css="false" lazy_load="True"/>
-            <t t-call-assets="web.assets_frontend_lazy" t-css="false" lazy_load="True"/>
+            <t t-call-assets="web.assets_common_lazy" t-css="false"/>
+            <t t-call-assets="web.assets_frontend_lazy" t-css="false"/>
         </xpath>
         <xpath expr="//t[@t-raw='0']" position="replace">
             <div id="wrapwrap" t-attf-class="#{pageName or ''}">
