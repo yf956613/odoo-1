@@ -264,12 +264,12 @@ var MassMailingFieldHtml = FieldHtml.extend({
         } else if ($old_layout.length) {
             $contents = ($old_layout.hasClass('oe_structure') ? $old_layout : $old_layout.find('.oe_structure').first()).contents();
         } else {
-            $contents = this.$content.find('.note-editable').contents();
+            $contents = this.$content.find('.o_editable').contents();
         }
 
         $newWrapperContent.append($contents);
         this._switchImages(themeParams, $newWrapperContent);
-        this.$content.find('.note-editable').empty().append($newLayout);
+        this.$content.find('.o_editable').empty().append($newLayout);
         $old_layout.remove();
 
         if (firstChoice) {

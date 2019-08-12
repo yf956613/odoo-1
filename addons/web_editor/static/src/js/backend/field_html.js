@@ -167,7 +167,7 @@ var FieldHtml = basic_fields.DebouncedField.extend(TranslatableFieldMixin, {
         // by default this is synchronous because the assets are already loaded in willStart
         // but it can be async in the case of options such as iframe, snippets...
         return this.wysiwyg.attachTo(this.$target).then(function () {
-            self.$content = self.wysiwyg.$editor;
+            self.$content = self.wysiwyg.$editor.closest('body');
             self._onLoadWysiwyg();
             self.isRendered = true;
         });
