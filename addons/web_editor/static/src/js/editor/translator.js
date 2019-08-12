@@ -313,12 +313,12 @@ var TranslatorMenuBar = Widget.extend({
      * Saves the translation and reloads the page to leave edit mode.
      *
      * @private
-     * @returns {Deferred} (never resolved as the page is reloading anyway)
+     * @returns {Promise} (never resolved as the page is reloading anyway)
      */
     _save: function () {
         return this.rte.save(weContext.get({lang: this.lang})).then(function () {
             window.location.href = window.location.href.replace(/&?edit_translations(=[^&]*)?/g, '');
-            return $.Deferred();
+            return new Promise(function(){});
         });
     },
     /**

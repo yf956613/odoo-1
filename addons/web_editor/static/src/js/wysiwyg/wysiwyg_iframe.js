@@ -81,7 +81,7 @@ Wysiwyg.include({
         });
         var avoidDoubleLoad = 0; // this bug only appears on some configurations.
 
-        // resolve deferred on load
+        // resolve promise on load
         var def = new Promise(function (resolve) {
             window.top[self._onUpdateIframeId] = function (Editor, _avoidDoubleLoad) {
                 if (_avoidDoubleLoad !== avoidDoubleLoad) {

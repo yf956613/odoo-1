@@ -153,7 +153,7 @@ var MediaWidget = Widget.extend({
     /**
      * @abstract
      * @param {string} needle
-     * @returns {Deferred}
+     * @returns {Promise}
      */
     search: function (needle) {},
     /**
@@ -230,10 +230,10 @@ var ImageWidget = MediaWidget.extend({
      * @override
      */
     willStart: function () {
-        return $.when(
+        return Promise.all([
             this._super.apply(this, arguments),
             this.search('', true)
-        );
+        ]);
     },
     /**
      * @override
@@ -296,16 +296,20 @@ var ImageWidget = MediaWidget.extend({
             return this.media;
         }
 
-        var def = $.when();
-        if (!img.access_token) {
-            def = this._rpc({
-                model: 'ir.attachment',
-                method: 'generate_access_token',
-                args: [[img.id]]
-            }).then(function (access_token) {
-                img.access_token = access_token[0];
-            });
-        }
+        var def = new Promise(function(resolve, reject) {
+            if (!img.access_token) {
+                this._rpc({
+                    model: 'ir.attachment',
+                    method: 'generate_access_token',
+                    args: [[img.id]]
+                }).then(function (access_token) {
+                    img.access_token = access_token[0];
+                    resolve();
+                }).guardedCatch(reject);
+            } else {
+                resolve();
+            }
+        });
 
         return def.then(function () {
             if (!img.isDocument) {
@@ -464,13 +468,13 @@ var ImageWidget = MediaWidget.extend({
                     class: 'img-fluid',
                     src: $div.data('url') || $div.data('src'),
                 });
-                var def = $.Deferred();
-                $img[0].onload = def.resolve.bind(def);
-                $div.addClass('o_webimage').append($img);
-                return def;
+                return new Promise(function(resolve, reject) {
+                    $img[0].onload = resolve;
+                    $div.addClass('o_webimage').append($img);
+                };
             }
         });
-        $.when.apply($, imageDefs).then(function () {
+        Promise.all(imageDefs).then(function () {
             _.delay(function () {
                 $divs.removeClass('o_image_loading');
             }, 400);
@@ -737,7 +741,7 @@ var IconWidget = MediaWidget.extend({
         this.$('div.font-icons-icons').html(
             QWeb.render('wysiwyg.widgets.font-icons.icons', {iconsParser: iconsParser})
         );
-        return $.when();
+        return Promise.resolve();
     },
 
     //--------------------------------------------------------------------------
@@ -1196,7 +1200,7 @@ var MediaDialog = Dialog.extend({
             defs.push(this.videoDialog.appendTo(this.$("#editor-media-video")));
         }
 
-        return $.when.apply($, defs).then(function () {
+        return Promise.all(defs).then(function () {
             self._setActive(self.imageDialog);
         });
     },
@@ -1215,7 +1219,7 @@ var MediaDialog = Dialog.extend({
         if (this.multiImages) {
             // In the case of multi images selection we suppose this was not to
             // replace an old media, so we only retrieve the images and save.
-            return $.when(this.active.save()).then(function (data) {
+            return Promise.resolve(this.active.save()).then(function (data) {
                 self.final_data = data;
                 return _super.apply(self, args);
             });
@@ -1236,7 +1240,7 @@ var MediaDialog = Dialog.extend({
             });
         }
 
-        return $.when(this.active.save()).then(function (media) {
+        return Promise.resolve(this.active.save()).then(function (media) {
             if (!self.media && media) {
                 self.range.insertNode(media, true);
             }
@@ -1530,7 +1534,7 @@ var LinkDialog = Dialog.extend({
             var $url = this.$('input[name="url"]');
             $url.closest('.form-group').addClass('o_has_error').find('.form-control, .custom-select').addClass('is-invalid');
             $url.focus();
-            return $.Deferred().reject();
+            return Promise.reject();
         }
         this.data.text = data.label;
         this.data.url = data.url;
@@ -1710,7 +1714,7 @@ var CropImageDialog = Dialog.extend({
                 _.extend(self.imageData, res);
             }));
         }
-        return $.when.apply($, defs);
+        return Promise.all(defs);
     },
     /**
      * @override
