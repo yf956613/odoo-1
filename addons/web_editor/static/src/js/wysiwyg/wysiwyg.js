@@ -63,7 +63,9 @@ var Wysiwyg = Widget.extend({
         this.$editor.data('wysiwyg', this);
 
         this._value = this.$target.html() || this.$target.val();
-        return this._super();
+        return this._super().then(() => {
+            this.$editor.trigger('mouseup');
+        });
     },
     /**
      * @override
