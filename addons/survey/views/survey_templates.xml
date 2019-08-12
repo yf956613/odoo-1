@@ -345,7 +345,7 @@
                     t-att-data-maxdate="question.validation_max_date">
                 <input type="text" class="form-control datetimepicker-input" t-attf-data-target="#datetimepicker_#{question.id}" t-att-name="prefix"/>
                 <div class="input-group-append" t-attf-data-target="#datetimepicker_#{question.id}" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                 </div>
             </div>
         </div>
@@ -359,7 +359,7 @@
                     t-att-data-questiontype="question.question_type">
                 <input type="text" class="form-control datetimepicker-input" t-attf-data-target="#datetimepicker_#{question.id}" t-att-name="prefix"/>
                 <div class="input-group-append" t-attf-data-target="#datetimepicker_#{question.id}" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                 </div>
             </div>
         </div>
@@ -505,7 +505,7 @@
                 <t t-call="survey.back" />
                 <div class="jumbotron mt32">
                     <h1><span t-field="survey.title" />
-                    <span style="font-size:1.5em;" t-attf-class="fa fa-bar-chart-o #{'fa-bar-chart-o' if survey.scoring_type == 'no_scoring' else 'fa-trophy' if survey.certificate else 'fa-question-circle-o'} float-right " role="img" aria-label="Chart" title="Chart"/></h1>
+                    <span style="font-size:1.5em;" t-attf-class="far fa-chart-bar #{'fa-chart-bar' if survey.scoring_type == 'no_scoring' else 'fa-trophy' if survey.certificate else 'fa-question-circle'} float-right " role="img" aria-label="Chart" title="Chart"/></h1>
                     <div t-field="survey.description" class="oe_no_empty" />
                     <h2 t-if="not answers">
                         Sorry, no one answered this survey yet.
@@ -669,17 +669,17 @@
             <ul class="nav nav-tabs d-print-none" role="tablist">
                 <li class="nav-item" t-if="question.question_type != 'simple_choice'">
                     <a t-att-href="'#graph_question_%d' % question.id" t-att-aria-controls="'graph_question_%d' % question.id" class="nav-link active" data-toggle="tab" role="tab">
-                        <i class="fa fa-bar-chart-o"></i> Graph
+                        <i class="far fa-chart-bar"></i> Graph
                     </a>
                 </li>
                 <li class="nav-item" t-if="question.question_type == 'simple_choice'">
                     <a t-att-href="'#graph_question_%d' % question.id" t-att-aria-controls="'graph_question_%d' % question.id" class="nav-link active" data-toggle="tab" role="tab">
-                        <i class="fa fa-bar-chart-o"></i> Pie Chart
+                        <i class="far fa-chart-bar"></i> Pie Chart
                     </a>
                 </li>
                 <li class="nav-item">
                     <a t-att-href="'#data_question_%d' % question.id" t-att-aria-controls="'data_question_%d' % question.id" class="nav-link" data-toggle="tab" role="tab">
-                        <i class="fa fa-list-alt"></i> Data
+                        <i class="far fa-list-alt"></i> Data
                     </a>
                 </li>
             </ul>
@@ -736,13 +736,13 @@
         <ul class="nav nav-tabs d-print-none" role="tablist">
             <li class="nav-item">
                 <a t-att-href="'#graph_question_%d' % question.id" t-att-aria-controls="'graph_question_%d' % question.id" class="nav-link active" data-toggle="tab" role="tab">
-                    <i class="fa fa-bar-chart"></i>
+                    <i class="far fa-chart-bar"></i>
                     Graph
                 </a>
             </li>
             <li class="nav-item">
                 <a t-att-href="'#data_question_%d' % question.id" t-att-aria-controls="'data_question_%d' % question.id" class="nav-link" data-toggle="tab" role="tab">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="far fa-list-alt"></i>
                     Data
                 </a>
             </li>
@@ -804,7 +804,7 @@
             </li>
             <li class="nav-item">
                 <a t-att-href="'#data_question_%d' % question.id" t-att-aria-controls="'data_question_%d' % question.id" class="nav-link" data-toggle="tab" role="tab">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="far fa-list-alt"></i>
                     All Data
                 </a>
             </li>

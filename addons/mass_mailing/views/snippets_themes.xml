@@ -34,7 +34,7 @@
             </div>
             <div id="email_designer_default_body" class="o_panel">
                 <div class="o_panel_header">
-                    <i class="fa fa-clone"/> Body
+                    <i class="far fa-clone"/> Body
                 </div>
                 <div class="o_panel_body" id="email_designer_body_elements">
                     <t t-snippet="mass_mailing.s_mail_block_title_text" t-thumbnail="/mass_mailing/static/src/img/blocks/block_title_text.png"/>
@@ -678,7 +678,7 @@
                                 <tr>
                                     <td rowspan="2" class="text-right">
                                         &amp;nbsp;
-                                        <span class="fa fa-compass fa-2x text-delta" role="img" aria-label="Choose" title="Choose"></span>
+                                        <span class="far fa-compass fa-2x text-delta" role="img" aria-label="Choose" title="Choose"></span>
                                         &amp;nbsp;
                                     </td>
                                     <td style="padding-left:10px;">
@@ -693,7 +693,7 @@
                                 <tr>
                                     <td rowspan="2" class="text-right">
                                         &amp;nbsp;
-                                        <span class="fa fa-credit-card fa-2x text-delta" role="img" aria-label="Order" title="Order"></span>
+                                        <span class="far fa-credit-card fa-2x text-delta" role="img" aria-label="Order" title="Order"></span>
                                         &amp;nbsp;
                                     </td>
                                     <td style="padding-left:10px;">
@@ -708,7 +708,7 @@
                                 <tr>
                                     <td rowspan="2" class="text-right">
                                         &amp;nbsp;
-                                        <span class="fa fa-smile-o fa-2x text-delta" role="img" aria-label="Enjoy" title="Enjoy"></span>
+                                        <span class="far fa-smile fa-2x text-delta" role="img" aria-label="Enjoy" title="Enjoy"></span>
                                         &amp;nbsp;
                                     </td>
                                     <td style="padding-left:10px;">
@@ -737,7 +737,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <p class="o_mail_footer_copy"><span class="fa fa-copyright" role="img" aria-label="Copyright" title="Copyright"/> 2016 All Rights Reserved</p>
+                            <p class="o_mail_footer_copy"><span class="far fa-copyright" role="img" aria-label="Copyright" title="Copyright"/> 2016 All Rights Reserved</p>
                         </td>
                     </tr>
                 </tbody>
@@ -760,7 +760,7 @@
                                 <a role="button" href="/unsubscribe_from_list" class="btn btn-link">Unsubscribe</a>
                             </div>
                             <div>
-                                <p class="o_mail_footer_copy"><span class="fa fa-copyright" role="img" aria-label="Copyright" title="Copyright"/> 2016 All Rights Reserved</p>
+                                <p class="o_mail_footer_copy"><span class="far fa-copyright" role="img" aria-label="Copyright" title="Copyright"/> 2016 All Rights Reserved</p>
                             </div>
                         </td>
                     </tr>
@@ -812,7 +812,7 @@
         data-selector=".note-editable > div:not(.o_layout), .note-editable .oe_structure > div, td, th"
         data-exclude=".o_mail_no_colorpicker, .o_mail_no_options">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Background Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>

@@ -73,7 +73,7 @@
                                 <tree string="Components" editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="product_id" context="{'default_type': 'product'}"/>
-                                    <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label="attachment" title="attachment"
+                                    <button name="action_see_attachments" type="object" icon="fa-copy" aria-label="attachment" title="attachment"
                                     class="float-right"/>
                                     <field name="attachments_count" class="text-left"
                                     string=" "/>

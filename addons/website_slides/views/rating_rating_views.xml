@@ -23,7 +23,7 @@
                                         <i class="fa fa-star" role="img" aria-label="One star" title="One star"></i>
                                     </t>
                                     <t t-if="val_decimal">
-                                        <i class="fa fa-star-half-o" role="img" aria-label="Half a star" title="Half a star"></i>
+                                        <i class="far fa-star-half-alt" role="img" aria-label="Half a star" title="Half a star"></i>
                                     </t>
                                     <t t-foreach="_.range(0, empty_star)" t-as="num" role="img" t-attf-aria-label="#{empty_star} on 5" t-attf-title="#{empty_star} on 5">
                                         <i class="fa fa-star text-black-25"></i>
@@ -41,7 +41,7 @@
                                                 <field name="res_name" />
                                             </a>
                                         </span>
-                                        <span><i class="fa fa-clock-o mr-2"/>on <field name="create_date" /></span>
+                                        <span><i class="far fa-clock mr-2"/>on <field name="create_date" /></span>
                                         <div class="d-flex mt-2">
                                             <i t-if="record.feedback.raw_value" class="fa fa-comment mr-2" t-att-title="record.feedback.raw_value"  t-att-aria-label="record.feedback.raw_value" role="img"/>
                                             <span t-esc="record.feedback.raw_value"/>

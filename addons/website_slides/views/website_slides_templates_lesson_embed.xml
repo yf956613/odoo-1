@@ -77,7 +77,7 @@
                                 <div id="PDFViewerLoader" class="oe_slides_loader position-absolute mt-3 mr-3" style="right:0">
                                     <div class="toast show">
                                         <div class="toast-header">
-                                            <i class="fa fa-circle-o-notch fa-spin mr-2"/><b>Loading...</b>
+                                            <i class="fas fa-circle-notch fa-spin mr-2"/><b>Loading...</b>
                                         </div>
                                         <div class="toast-body p-0">
                                             <img class="img-fluid w-100" t-att-src="website.image_url(slide, 'image_256')"/>
@@ -109,7 +109,7 @@
                                         <a id="last" href="#" class="text-decoration-none ml-1 ml-sm-2" title="Last slide" aria-label="Last slide" role="button"> <i class="fa fa-step-forward"/> </a>
                                     </div>
                                     <div class="col-2 flex-grow-0 text-right">
-                                        <a id="fullscreen" href="#" title="View fullscreen" role="img" aria-label="Fullscreen"> <i class="fa fa-arrows-alt"/> </a>
+                                        <a id="fullscreen" href="#" title="View fullscreen" role="img" aria-label="Fullscreen"> <i class="fas fa-expand-arrows-alt"/> </a>
                                     </div>
                                 </div>
                             </div>

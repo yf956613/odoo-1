@@ -115,12 +115,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 pt32 pb32 text-center">
-                    <i class="fa fa-3x fa-gear rounded-circle bg-gamma m-3"/>
+                    <i class="fas fa-3x fa-cog rounded-circle bg-gamma m-3"/>
                     <h3>First Feature</h3>
                     <p>Tell what's the value for the <br/>customer for this feature.</p>
                 </div>
                 <div class="col-lg-4 pt32 pb32 text-center">
-                    <i class="fa fa-3x fa-photo rounded bg-epsilon m-3"/>
+                    <i class="far fa-3x fa-image rounded bg-epsilon m-3"/>
                     <h3>Second Feature</h3>
                     <p>Write what the customer would like to know, <br/>not what you want to show.</p>
                 </div>
@@ -189,7 +189,7 @@
                 <div class="col-lg-8 offset-lg-2 pb24">
                     <figure class="figure">
                         <img src="/web/image/website.s_picture_default_image" class="figure-img img-fluid rounded img-thumbnail padding-large" alt="Odoo • A picture with a caption"/>
-                        <figcaption class="figure-caption py-3 text-center"><i class="fa fa-1x fa-picture-o mr-2"/>Add a caption to enhance the meaning of this image.</figcaption>
+                        <figcaption class="figure-caption py-3 text-center"><i class="far fa-1x fa-image mr-2"/>Add a caption to enhance the meaning of this image.</figcaption>
                     </figure>
                 </div>
             </div>
@@ -286,7 +286,7 @@
             <p class="card-text">A card is a flexible and extensible content container. It includes options for headers and footers, a wide variety of content, contextual background colors, and powerful display options.</p>
         </div>
         <div class="card-footer">
-            <i class="fa fa-1x fa-clock-o mr8"/><small>2 days ago</small>
+            <i class="far fa-1x fa-clock mr8"/><small>2 days ago</small>
         </div>
     </div>
 </template>
@@ -295,16 +295,16 @@
     <div t-attf-class="s_share #{_classes or ''}">
         <h4 t-if="not _no_title" class="s_share_title">Share</h4>
         <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank">
-            <i class="fa fa-1x fa-facebook rounded shadow-sm"/>
+            <i class="fab fa-1x fa-facebook-f rounded shadow-sm"/>
         </a>
         <a href="https://twitter.com/intent/tweet?text={title}&amp;url={url}" class="s_share_twitter" target="_blank">
-            <i class="fa fa-1x fa-twitter rounded shadow-sm"/>
+            <i class="fab fa-1x fa-twitter rounded shadow-sm"/>
         </a>
         <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url={url}&amp;title={title}&amp;" class="s_share_linkedin" target="_blank">
-            <i class="fa fa-1x fa-linkedin rounded shadow-sm"/>
+            <i class="fab fa-1x fa-linkedin-in rounded shadow-sm"/>
         </a>
         <a href="https://plus.google.com/share?url={url}" class="s_share_google" target="_blank">
-            <i class="fa fa-1x fa-google-plus rounded shadow-sm"/>
+            <i class="fab fa-1x fa-google-plus-g rounded shadow-sm"/>
         </a>
         <a href="mailto:?body={url}&amp;subject={title}" class="s_share_email">
             <i class="fa fa-1x fa-envelope rounded shadow-sm"/>
@@ -609,21 +609,21 @@
                             <h5 class="text-primary">Add a great slogan.</h5>
                         </div>
                         <div class="col-lg-12 pt16 pb16" data-name="Box">
-                            <i class="fa fa-2x fa-font-awesome rounded-circle bg-primary s_features_grid_icon"/>
+                            <i class="fab fa-2x fa-font-awesome rounded-circle bg-primary s_features_grid_icon"/>
                             <div class="s_features_grid_content">
                                 <h4>Change Icons</h4>
                                 <p>Double click an icon to replace it with one of your choice.</p>
                             </div>
                         </div>
                         <div class="col-lg-12 pt16 pb16" data-name="Box">
-                            <i class="fa fa-2x fa-files-o rounded-circle bg-primary s_features_grid_icon"/>
+                            <i class="far fa-2x fa-copy rounded-circle bg-primary s_features_grid_icon"/>
                             <div class="s_features_grid_content">
                                 <h4>Duplicate</h4>
                                 <p>Duplicate blocks and columns to add more features.</p>
                             </div>
                         </div>
                         <div class="col-lg-12 pt16 pb16" data-name="Box">
-                            <i class="fa fa-2x fa-trash rounded-circle bg-primary s_features_grid_icon"/>
+                            <i class="fas fa-2x fa-trash-alt rounded-circle bg-primary s_features_grid_icon"/>
                             <div class="s_features_grid_content">
                                 <h4>Delete Blocks</h4>
                                 <p>Select and delete blocks to remove some features.</p>
@@ -645,14 +645,14 @@
                             </div>
                         </div>
                         <div class="col-lg-12 pt16 pb16" data-name="Box">
-                            <i class="fa fa-2x fa-eyedropper rounded bg-secondary s_features_grid_icon"/>
+                            <i class="fas fa-2x fa-eye-dropper rounded bg-secondary s_features_grid_icon"/>
                             <div class="s_features_grid_content">
                                 <h4>Edit Styles</h4>
                                 <p>You can edit colors and background to highlight features.</p>
                             </div>
                         </div>
                         <div class="col-lg-12 pt16 pb16" data-name="Box">
-                            <i class="fa fa-2x fa-picture-o rounded bg-secondary s_features_grid_icon"/>
+                            <i class="far fa-2x fa-image rounded bg-secondary s_features_grid_icon"/>
                             <div class="s_features_grid_content">
                                 <h4>Sample Icons</h4>
                                 <p>All these icons are completely free for commercial use.</p>
@@ -843,7 +843,7 @@
 
             <div id="snippet_feature" class="o_panel">
                 <div class="o_panel_header">
-                    <i class="fa fa-diamond"/> Features
+                    <i class="far fa-gem"/> Features
                 </div>
                 <div class="o_panel_body">
                     <t t-snippet="website.s_image_gallery" t-thumbnail="/website/static/src/img/snippets_thumbs/s_image_gallery.png"/>
@@ -915,7 +915,7 @@
         data-target=".card"
         data-palette-title="Box Color">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Color</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -928,7 +928,7 @@
         data-palette-exclude="transparent_grayscale, common"
         data-palette-title="Separator Color">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Color</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -938,7 +938,7 @@
         data-selector=".s_card, .accordion .card"
         data-palette-title="Card Color">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Color</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -949,7 +949,7 @@
         data-color-prefix="alert-"
         data-palette-title="Box Color">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Color</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -986,7 +986,7 @@
 
     <div data-selector=".s_alert">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows"/>Size</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-expand-arrows-alt"/>Size</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" data-select-class="s_alert_sm">Small</a>
                 <a href="#" class="dropdown-item" data-select-class="s_alert_md">Medium</a>
@@ -997,7 +997,7 @@
 
     <div data-selector=".s_alert, .s_card">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-h"/>Width</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-arrows-alt-h"/>Width</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" data-select-class="w-25">25%</a>
                 <a href="#" class="dropdown-item" data-select-class="w-50">50%</a>
@@ -1050,7 +1050,7 @@
             </div>
         </div>
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-pencil"/>Style</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-pencil-alt"/>Style</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" data-select-class="s_hr_solid">Solid</a>
                 <a href="#" class="dropdown-item" data-select-class="s_hr_dashed">Dashed</a>
@@ -1059,7 +1059,7 @@
             </div>
         </div>
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-arrows-h"/>Width</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-arrows-alt-h"/>Width</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" data-select-class="w-25">25%</a>
                 <a href="#" class="dropdown-item" data-select-class="w-50">50%</a>
@@ -1081,9 +1081,9 @@
     <div data-js="carousel"
         data-selector=":not(.o_gallery > .container) > .carousel">
         <a href="#" class="dropdown-item" data-add-slide="true" data-no-preview="true"><i class="fa fa-plus-circle"/>Add Slide</a>
-        <a href="#" class="dropdown-item" data-remove-slide="true" data-no-preview="true"><i class="fa fa-trash-o"/>Remove Slide</a>
+        <a href="#" class="dropdown-item" data-remove-slide="true" data-no-preview="true"><i class="far fa-trash-alt"/>Remove Slide</a>
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-clone"/>Transition</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="far fa-clone"/>Transition</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" role="menuitem" data-select-class="slide">Slide</a>
                 <a href="#" class="dropdown-item" role="menuitem" data-select-class="carousel-fade slide">Fade</a>
@@ -1102,7 +1102,7 @@
             </div>
         </div>
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-clock-o"/>Speed</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="far fa-clock"/>Speed</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" role="menuitem" data-interval="1000">1s</a>
                 <a href="#" class="dropdown-item" role="menuitem" data-interval="2000">2s</a>
@@ -1121,7 +1121,7 @@
 
     <div data-js="gallery" data-selector=".o_gallery">
         <a href="#" class="dropdown-item" data-add-images="true" data-no-preview="true"><i class="fa fa-plus-circle"/>Add images</a>
-        <a href="#" class="dropdown-item" data-remove-all-images="true" data-no-preview="true"><i class="fa fa-trash"/>Remove all images</a>
+        <a href="#" class="dropdown-item" data-remove-all-images="true" data-no-preview="true"><i class="fas fa-trash-alt"/>Remove all images</a>
         <div class="dropdown-divider"/>
         <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-magic"/>Mode</a>
@@ -1133,7 +1133,7 @@
             </div>
         </div>
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-clock-o"/>Slideshow speed</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="far fa-clock"/>Slideshow speed</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" role="menuitem" data-interval="1000">1s</a>
                 <a href="#" class="dropdown-item" role="menuitem" data-interval="2000">2s</a>
@@ -1155,7 +1155,7 @@
             </div>
         </div>
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-h"/>Images spacing</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-arrows-alt-h"/>Images spacing</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" role="menuitem" data-select-class="o_spc-none">None</a>
                 <a href="#" class="dropdown-item" role="menuitem" data-select-class="o_spc-small">Small</a>
@@ -1177,7 +1177,7 @@
 
     <div data-js="gallery_img" data-selector=".o_gallery img">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-refresh"/>Re-order</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-sync"/>Re-order</a>
             <div class="dropdown-menu" role="menu" data-no-preview="true">
                 <a href="#" class="dropdown-item" role="menuitem" data-position="first">Move to first</a>
                 <a href="#" class="dropdown-item" role="menuitem" data-position="prev">Move to previous</a>
@@ -1189,7 +1189,7 @@
 
     <!-- Facebook Page -->
     <div data-js="facebookPage" data-selector=".o_facebook_page">
-        <a href="#" class="dropdown-item" data-fb-page-options="true" data-no-preview="true"><i class="fa fa-facebook"/>Options</a>
+        <a href="#" class="dropdown-item" data-fb-page-options="true" data-no-preview="true"><i class="fab fa-facebook-f"/>Options</a>
     </div>
 
     <!-- Accordion -->
@@ -1217,7 +1217,7 @@
     <!--  V-ALIGN -->
     <div id="row_valign_snippet_option" data-selector=".s_text_image, .s_image_text, .s_three_columns" data-target=".row">
         <div class="dropdown-submenu">
-            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-v"/>Alignment</a>
+            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-arrows-alt-v"/>Alignment</a>
             <div class="dropdown-menu" role="menu">
                 <a href="#" class="dropdown-item" data-select-class="align-items-start">Top</a>
                 <a href="#" class="dropdown-item" data-select-class="align-items-center">Middle</a>
@@ -1232,19 +1232,19 @@
     <div data-js="background"
         data-selector="section, .parallax, :not(.o_gallery > .container) > .carousel"
         data-exclude=".s_hr, .s_image_gallery">
-        <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="fa fa-picture-o"/>Background Image</a>
+        <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="far fa-image"/>Background Image</a>
     </div>
 
     <!-- Background Image -->
     <div data-js="background_position"
         data-selector="section, .parallax, :not(.o_gallery > .container) > .carousel">
-        <a tabindex="-1" href="#" class="dropdown-item background_position_li" data-background-position="true" data-no-preview="true"><i class="fa fa-arrows"/>Background Image Sizing</a>
+        <a tabindex="-1" href="#" class="dropdown-item background_position_li" data-background-position="true" data-no-preview="true"><i class="fas fa-expand-arrows-alt"/>Background Image Sizing</a>
     </div>
 
     <!-- Parallax -->
     <div data-js="parallax" data-selector=".parallax">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-clock-o"/>Scroll Speed</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="far fa-clock"/>Scroll Speed</a>
             <div class="dropdown-menu" role="menu" name="parallax-scroll">
                 <a href="#" class="dropdown-item" role="menuitem" data-scroll="0">No-scroll</a>
                 <div class="dropdown-divider" role="separator"/>
@@ -1264,7 +1264,7 @@
         data-selector="section, :not(.o_gallery > .container) > .carousel"
         data-exclude=".parallax">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Background Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -1276,7 +1276,7 @@
         data-palette-default="transparent_grayscale"
         data-palette-title="Overlay Color">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Filter</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Filter</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -1286,7 +1286,7 @@
         data-selector="section .row > div"
         data-exclude=".s_col_no_bgcolor, .s_col_no_bgcolor.row > div, .o_gallery .row > div">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Background Color</a>
             <div class="dropdown-menu" role="menu"/>
         </div>
     </div>
@@ -1339,7 +1339,7 @@
     <div data-js="topMenuTransparency"
         data-selector="[data-main-object^='website.page('] #wrapwrap > header"
         data-no-check="true">
-        <a tabindex="-1" href="#" class="dropdown-item" data-transparent="true" data-no-preview="true"><i class="fa fa-eye-slash"/>Transparent</a>
+        <a tabindex="-1" href="#" class="dropdown-item" data-transparent="true" data-no-preview="true"><i class="far fa-eye-slash"/>Transparent</a>
     </div>
 
     <div data-js="topMenuColor"
@@ -1349,7 +1349,7 @@
         data-palette-title="Top Menu Color"
         data-no-check="true">
         <div class="dropdown-submenu">
-            <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>
+            <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Background Color</a>
             <div class="dropdown-menu"/>
         </div>
     </div>

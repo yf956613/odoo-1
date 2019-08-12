@@ -140,8 +140,8 @@
         <td class="cell_account_code"><t t-esc="state.balance.account_code"/></td>
         <td class="cell_due_date"></td>
         <td class="cell_label"><t t-if="state.st_line.partner_id">Open balance</t><t t-else="">Choose counterpart or Create Write-off</t></td>
-        <td class="cell_left"><t t-if="state.balance.amount_currency &lt; 0"><span role="img" t-if="state.balance.amount_currency_str" t-attf-class="o_multi_currency o_multi_currency_color_#{state.balance.currency_id%8} line_info_button fa fa-money" t-att-data-content="state.balance.amount_currency_str" t-att-aria-label="state.balance.amount_currency_str" t-att-title="state.balance.amount_currency_str"/><t t-raw="state.balance.amount_str"/></t></td>
-        <td class="cell_right"><t t-if="state.balance.amount_currency &gt; 0"><span role="img" t-if="state.balance.amount_currency_str" t-attf-class="o_multi_currency o_multi_currency_color_#{state.balance.currency_id%8} line_info_button fa fa-money" t-att-data-content="state.balance.amount_currency_str" t-att-aria-label="state.balance.amount_currency_str" t-att-title="state.balance.amount_currency_str"/><t t-raw="state.balance.amount_str"/></t></td>
+        <td class="cell_left"><t t-if="state.balance.amount_currency &lt; 0"><span role="img" t-if="state.balance.amount_currency_str" t-attf-class="o_multi_currency o_multi_currency_color_#{state.balance.currency_id%8} line_info_button far fa-money-bill-alt" t-att-data-content="state.balance.amount_currency_str" t-att-aria-label="state.balance.amount_currency_str" t-att-title="state.balance.amount_currency_str"/><t t-raw="state.balance.amount_str"/></t></td>
+        <td class="cell_right"><t t-if="state.balance.amount_currency &gt; 0"><span role="img" t-if="state.balance.amount_currency_str" t-attf-class="o_multi_currency o_multi_currency_color_#{state.balance.currency_id%8} line_info_button far fa-money-bill-alt" t-att-data-content="state.balance.amount_currency_str" t-att-aria-label="state.balance.amount_currency_str" t-att-title="state.balance.amount_currency_str"/><t t-raw="state.balance.amount_str"/></t></td>
         <td class="cell_info_popover"></td>
     </tr>
 </t>
@@ -239,7 +239,7 @@
 
         <span class="line_amount">
             <span t-if="line.amount_currency_str"
-                  t-attf-class="o_multi_currency o_multi_currency_color_#{line.currency_id%8} line_info_button fa fa-money"
+                  t-attf-class="o_multi_currency o_multi_currency_color_#{line.currency_id%8} line_info_button far fa-money-bill-alt"
                   t-att-data-content="line.amount_currency_str"/>
             <span t-if="line.partial_amount &amp;&amp; line.partial_amount != line.amount" class="strike_amount text-muted">
                 <t t-raw="line.amount_str"/>
@@ -247,7 +247,7 @@
             </span>
         </span>
         <t t-if="line.is_move_line &amp;&amp; proposition == true">
-            <i class="fa fa-pencil edit_amount"></i>
+            <i class="fas fa-pencil-alt edit_amount"></i>
             <input class="edit_amount_input text-right d-none"/>
         </t>
         <span class="line_amount">
@@ -343,7 +343,7 @@
 <t t-name="reconciliation.notification.default">
     <t t-esc="message"/>
     <t t-if="details !== undefined">
-        <a class="fa fa-external-link" rel="do_action" href="#" aria-label="External link" title="External link"
+        <a class="fas fa-external-link-alt" rel="do_action" href="#" aria-label="External link" title="External link"
             t-att-data-action_name="details.name"
             t-att-data-model="details.model"
             t-att-data-ids="details.ids">

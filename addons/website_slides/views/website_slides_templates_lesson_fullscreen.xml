@@ -19,7 +19,7 @@
                         <i class="fa fa-bars"/><span class="d-none d-md-inline-block ml-1">Lessons</span>
                     </a>
                     <a class="o_wslides_fs_review d-flex align-items-center px-3" t-att-href="slide.channel_id.website_url + '?active_tab=review'" title="Reviews" t-if="slide.channel_id.allow_comment">
-                        <i class="fa fa-pencil"/><span class="d-none d-md-inline-block ml-1">Write a review</span>
+                        <i class="fas fa-pencil-alt"/><span class="d-none d-md-inline-block ml-1">Write a review</span>
                     </a>
                     <a class="o_wslides_fs_share d-flex align-items-center px-3" href="#" title="Share">
                         <i class="fa fa-share-alt"/><span class="d-none d-md-inline-block ml-1">Share</span>
@@ -27,7 +27,7 @@
                 </div>
                 <div class="d-flex ml-auto">
                     <a class="d-flex align-items-center px-3 o_wslides_fs_exit_fullscreen" t-attf-href="/slides/slide/#{slug(slide)}">
-                        <i class="fa fa-sign-out d-md-none"/><span class="d-none d-md-inline-block ml-1">Exit Fullscreen</span>
+                        <i class="fas fa-sign-out-alt d-md-none"/><span class="d-none d-md-inline-block ml-1">Exit Fullscreen</span>
                     </a>
                     <a class="d-flex align-items-center px-3" t-attf-href="/slides/#{slug(slide.channel_id)}">
                         <i class="fa fa-home d-md-none"/><span class="d-none d-md-inline-block ml-1">Back to course</span>
@@ -95,7 +95,7 @@
                     >
                     <span class="ml-3">
                         <i t-if="slide_completed and is_member" class="o_wslides_slide_completed fa fa-check fa-fw text-success" t-att-data-slide-id="slide.id"/>
-                        <i t-if="not slide_completed and is_member" class="fa fa-circle-thin fa-fw" t-att-data-slide-id="slide.id"/>
+                        <i t-if="not slide_completed and is_member" class="far fa-circle fa-fw" t-att-data-slide-id="slide.id"/>
                     </span>
                     <div class="ml-2">
                         <a class="d-block pt-1" href="#">

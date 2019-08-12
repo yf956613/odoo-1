@@ -59,8 +59,8 @@
                         <td class="text-right"><span t-field="quotation.date_order"/></td>
                         <td class="text-right"><span t-field="quotation.validity_date"/></td>
                         <td class="text-center">
-                            <span t-if="quotation.state == 'cancel'" class="badge badge-pill badge-secondary"><i class="fa fa-fw fa-remove"/> Cancelled</span>
-                            <span t-if="quotation.is_expired" class="badge badge-pill badge-secondary"><i class="fa fa-fw fa-clock-o"/> Expired</span>
+                            <span t-if="quotation.state == 'cancel'" class="badge badge-pill badge-secondary"><i class="fas fa-fw fa-times"/> Cancelled</span>
+                            <span t-if="quotation.is_expired" class="badge badge-pill badge-secondary"><i class="far fa-fw fa-clock"/> Expired</span>
                         </td>
                         <td class="text-right">
                             <span t-field="quotation.amount_total"/>
@@ -156,7 +156,7 @@
                                 <li t-if="sale_order.remaining_validity_days &gt; 0" class="list-group-item">
                                     <small><b class="text-muted">This offer expires in</b></small>
                                     <div class="day_counter">
-                                        <i class="fa fa-clock-o" aria-label="Dates" title="Dates"></i>
+                                        <i class="far fa-clock" aria-label="Dates" title="Dates"></i>
                                         <t t-esc="sale_order.remaining_validity_days"/>
                                         <t t-if="sale_order.remaining_validity_days &gt; 1">days</t><t t-else="">day</t>
                                     </div>
@@ -417,7 +417,7 @@
                                         <div class="small d-lg-inline-block">Date: <span class="text-muted" t-field="i.invoice_date"/></div>
                                     </div>
                                     <span t-if="i.state == 'paid'" class="small badge badge-success orders_label_text_align"><i class="fa fa-fw fa-check"/> <b>Paid</b></span>
-                                    <span t-else="" class="small badge badge-info orders_label_text_align"><i class="fa fa-fw fa-clock-o"/> <b>Waiting Payment</b></span>
+                                    <span t-else="" class="small badge badge-info orders_label_text_align"><i class="far fa-fw fa-clock"/> <b>Waiting Payment</b></span>
                                 </div>
                             </t>
                         </ul>

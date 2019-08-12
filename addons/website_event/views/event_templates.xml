@@ -47,14 +47,14 @@
                             <span t-if="event.is_online" class="badge badge-info">Online</span>
                             <span t-if="not event.website_published" class="badge badge-danger">unpublished</span>
                             <small class="badge badge-primary float-right" t-if="event.event_type_id">
-                                <i class="fa fa-ticket" role="img" aria-label="Event type" title="Event type"/> <span t-field="event.event_type_id"/>
+                                <i class="fas fa-ticket-alt" role="img" aria-label="Event type" title="Event type"/> <span t-field="event.event_type_id"/>
                             </small>
                             <h4>
                                 <a itemprop="url" t-att-class="event.state == 'done' and 'text-success'" t-attf-href="/event/#{ slug(event) }/#{(not event.menu_id) and 'register' or ''}"><b itemprop="name" t-field="event.name"/></a>
                             </h4>
                             <small t-if="event.organizer_id" class="text-muted">Organized by <span t-field="event.organizer_id" /></small>
                             <div>
-                                <i class="fa fa-clock-o text-primary mx-1" role="img" aria-label="Start date" title="Start date"/>
+                                <i class="far fa-clock text-primary mx-1" role="img" aria-label="Start date" title="Start date"/>
                                 <span itemprop="startDate" t-field="event.with_context(tz=event.date_tz).date_begin" t-options='{"hide_seconds":"True"}'></span>
                                 <small>to</small>
                                 <span itemprop="endDate" t-field="event.with_context(tz=event.date_tz).date_end" t-options='{"hide_seconds":"True"}'></span>
@@ -281,7 +281,7 @@
             <div class="text-center">
                 <div class="mb-3 text-secondary"><b><h1 itemprop="name" t-field="event.name" class="d-inline"></h1></b> <small t-if="event.is_participating" class="badge badge-info">Participating</small></div>
                 <h5>
-                    <i class="fa fa-clock-o text-primary" role="img" aria-label="Start date" title="Start date"></i> <span itemprop="startDate" t-field="event.with_context(tz=event.date_tz).date_begin" t-options='{"hide_seconds":"True"}'/> to
+                    <i class="far fa-clock text-primary" role="img" aria-label="Start date" title="Start date"></i> <span itemprop="startDate" t-field="event.with_context(tz=event.date_tz).date_begin" t-options='{"hide_seconds":"True"}'/> to
                     <span itemprop="endDate" t-field="event.with_context(tz=event.date_tz).date_end" t-options='{"hide_seconds":"True"}'/>
                     <t t-if="event.date_tz">(<span t-field="event.date_tz"/>)</t>
                 </h5>
@@ -365,11 +365,11 @@
             <div class="card bg-secondary my-3">
                 <h4 class="card-header">When</h4>
                 <div class="card-body">
-                    <i class="fa fa-clock-o"/>
+                    <i class="far fa-clock"/>
                     <span>From</span>
                     <span t-field="event.with_context(tz=event.date_tz).date_begin" t-options='{"hide_seconds":"True"}'/>
                     <hr/>
-                    <i class="fa fa-clock-o"/>
+                    <i class="far fa-clock"/>
                     <span>To</span>
                     <span t-field="event.with_context(tz=event.date_tz).date_end" t-options='{"hide_seconds":"True"}'/>
                 </div>
@@ -595,16 +595,16 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <small class="badge badge-primary float-right" t-if="event.event_type_id">
-                                <i class="fa fa-ticket" role="img" aria-label="Event type" title="Event type"/> <span t-field="event.event_type_id"/>
+                                <i class="fas fa-ticket-alt" role="img" aria-label="Event type" title="Event type"/> <span t-field="event.event_type_id"/>
                             </small>
                             <h3><a t-attf-href="/event/#{slug(event)}" class="text-secondary"><b><t t-esc="event.name"/></b></a></h3>
-                            <h6><i class="fa fa-clock-o text-primary" role="img" aria-label="Start date" title="Start date"></i> <span itemprop="startDate" t-esc="event.date_begin_located"> </span> <small>to</small> <span itemprop="endDate" t-esc="event.date_end_located"> </span></h6>
+                            <h6><i class="far fa-clock text-primary" role="img" aria-label="Start date" title="Start date"></i> <span itemprop="startDate" t-esc="event.date_begin_located"> </span> <small>to</small> <span itemprop="endDate" t-esc="event.date_end_located"> </span></h6>
                             <div id="add_to_calendar" class="mt-4">
                                 <a role="button" class="btn btn-primary" t-att-href="iCal_url">
-                                    <i class="fa fa-fw fa-calendar"/> Add to iCal/Outlook
+                                    <i class="fas fa-fw fa-calendar-alt"/> Add to iCal/Outlook
                                 </a>
                                 <a role="button" class="btn btn-primary" t-att-href="google_url" target='_blank'>
-                                    <i class="fa fa-fw fa-calendar"/> Add to Google Calendar
+                                    <i class="fas fa-fw fa-calendar-alt"/> Add to Google Calendar
                                 </a>
                             </div>
                         </div>
@@ -698,7 +698,7 @@
                         <span class="badge badge-danger" role="img" aria-label="Attention: not published" title="Not published"><i class="fa fa-ban"></i></span>
                     </t>
                     <t t-if="event_dict['event'].address_id">
-                        <i class="fa fa-map-marker" title="It is a physical event" role="img" aria-label="It is a physical event"></i>
+                        <i class="fas fa-map-marker-alt" title="It is a physical event" role="img" aria-label="It is a physical event"></i>
                     </t>
                     <t t-if="not event_dict['event'].address_id">
                         <i class="fa fa-cloud" title="It is an online event" role="img" aria-label="It is an online event"></i>

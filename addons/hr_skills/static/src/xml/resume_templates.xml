@@ -24,7 +24,7 @@
 
 <t t-name="hr_trash_button">
     <td class="o_list_record_remove" style="text-align: right;">
-        <button class="fa fa-trash-o"
+        <button class="far fa-trash-alt"
             name="delete"
             arial-label="Delete row"/>
     </td>

@@ -157,6 +157,10 @@ $bronze: #eea91e;
     button.btn-link.text-muted {
         color: $gray-600;
     }
+
+    .fa-linkedin-square::before {
+        content: '\f08c';
+    }
 }
 
 .o_forum_tag_follow_box {

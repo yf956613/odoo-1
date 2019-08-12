@@ -153,7 +153,9 @@
 .o_kanban_record, .o_view_controller{
     .o_mail_activity {
         .o_activity_btn {
-            span.fa {
+            span.fa,
+            span.far,
+            span.fas {
                 overflow: visible;
                 line-height: 1;
                 vertical-align: middle;

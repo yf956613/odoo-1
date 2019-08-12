@@ -33,14 +33,14 @@
                             type="object">
                             <field name="order_count" widget="statinfo" string="Orders"/>
                         </button>
-                        <button class="oe_stat_button" name="action_stock_picking" type="object" icon="fa-arrows-v" attrs="{'invisible':[('picking_count', '=', 0)]}">
+                        <button class="oe_stat_button" name="action_stock_picking" type="object" icon="fa-arrows-alt-v" attrs="{'invisible':[('picking_count', '=', 0)]}">
                             <field name="picking_count" widget="statinfo" string="Picking Errors"/>
                         </button>
                         <button
                             name="action_show_payments_list"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-dollar"
+                            icon="fa-dollar-sign"
                             >
                             <field name="total_payments_amount" widget="statinfo" string="Payments"/>
                         </button>

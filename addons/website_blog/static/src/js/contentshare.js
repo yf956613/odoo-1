@@ -30,7 +30,7 @@
                     var selectedText = this.getSelection('string').substring(0, option.maxLength - baseLength - 23);
                     var text = encodeURIComponent(_.str.sprintf(tweet, selectedText, window.location.href));
                     var $btn_t = $('<a class="px-2 btn btn-link" onclick="window.open(\''+option.shareLink+text+'\',\'_'+option.target+'\',\'location=yes,height=570,width=520,scrollbars=yes,status=yes\')" href="#"/>');
-                    $btn_t.append($('<i class="fa fa-lg fa-twitter"/>'));
+                    $btn_t.append($('<i class="fab fa-lg fa-twitter"/>'));
                     $popover_content.append($btn_t);
                 }
                 return $popover_content;

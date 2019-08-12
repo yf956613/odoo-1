@@ -31,7 +31,7 @@ MockServer.include({
                         '        <button data-color="delta"></button>' +
                         '        <button data-color="epsilon"></button>' +
                         '    </div>' +
-                        '    <div class="o_colorpicker_section" data-name="transparent_grayscale" data-display="Transparent Colors" data-icon-class="fa fa-eye-slash">' +
+                        '    <div class="o_colorpicker_section" data-name="transparent_grayscale" data-display="Transparent Colors" data-icon-class="far fa-eye-slash">' +
                         '        <button class="o_btn_transparent"></button>' +
                         '        <button data-color="black-25"></button>' +
                         '        <button data-color="black-50"></button>' +
@@ -80,16 +80,16 @@ MockServer.include({
                         '    <div data-js="sizing_y" data-selector=".s_hr, .test_option_all"></div>' +
                         '    <div data-js="colorpicker" data-selector=".test_option_all">' +
                         '       <div class="dropdown-submenu">' +
-                        '           <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>' +
+                        '           <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Background Color</a>' +
                         '           <div class="dropdown-menu" role="menu"/>' +
                         '       </div>' +
                         '    </div>' +
                         '    <div data-js="background" data-selector=".test_option_all">' +
-                        '       <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="fa fa-picture-o"/>Background Image</a>' +
+                        '       <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="far fa-image"/>Background Image</a>' +
                         '    </div>' +
                         '    <div data-js="option_test" data-selector=".s_hr">' +
                         '        <div class="dropdown-submenu">' +
-                        '            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-v"/>Alignment</a>' +
+                        '            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-arrows-alt-v"/>Alignment</a>' +
                         '            <div class="dropdown-menu" role="menu">' +
                         '                <a href="#" class="dropdown-item" data-select-class="align-items-start">Top</a>' +
                         '                <a href="#" class="dropdown-item" data-select-class="align-items-center">Middle</a>' +
@@ -206,7 +206,7 @@ function wysiwygData(data) {
                         '        <button data-color="delta"></button>' +
                         '        <button data-color="epsilon"></button>' +
                         '    </div>' +
-                        '    <div class="o_colorpicker_section" data-name="transparent_grayscale" data-display="Transparent Colors" data-icon-class="fa fa-eye-slash">' +
+                        '    <div class="o_colorpicker_section" data-name="transparent_grayscale" data-display="Transparent Colors" data-icon-class="far fa-eye-slash">' +
                         '        <button class="o_btn_transparent"></button>' +
                         '        <button data-color="black-25"></button>' +
                         '        <button data-color="black-50"></button>' +
@@ -256,16 +256,16 @@ function wysiwygData(data) {
                         '    <div data-js="sizing_y" data-selector=".s_hr, .test_option_all"></div>' +
                         '    <div data-js="colorpicker" data-selector=".test_option_all">' +
                         '       <div class="dropdown-submenu">' +
-                        '           <a tabindex="-1" href="#" class="dropdown-item"><i class="fa fa-eyedropper"/>Background Color</a>' +
+                        '           <a tabindex="-1" href="#" class="dropdown-item"><i class="fas fa-eye-dropper"/>Background Color</a>' +
                         '           <div class="dropdown-menu" role="menu"/>' +
                         '       </div>' +
                         '    </div>' +
                         '    <div data-js="background" data-selector=".test_option_all">' +
-                        '       <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="fa fa-picture-o"/>Background Image</a>' +
+                        '       <a tabindex="-1" href="#" class="dropdown-item" data-choose-image="true" data-no-preview="true"><i class="far fa-image"/>Background Image</a>' +
                         '    </div>' +
                         '    <div data-js="option_test" data-selector=".s_hr">' +
                         '        <div class="dropdown-submenu">' +
-                        '            <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-arrows-v"/>Alignment</a>' +
+                        '            <a tabindex="-2" href="#" class="dropdown-item"><i class="fas fa-arrows-alt-v"/>Alignment</a>' +
                         '            <div class="dropdown-menu" role="menu">' +
                         '                <a href="#" class="dropdown-item" data-select-class="align-items-start">Top</a>' +
                         '                <a href="#" class="dropdown-item" data-select-class="align-items-center">Middle</a>' +

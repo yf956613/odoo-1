@@ -215,7 +215,7 @@
             <button data-color="delta"></button>
             <button data-color="epsilon"></button>
         </div>
-        <div class="o_colorpicker_section" data-name="transparent_grayscale" data-display="Transparent Colors" data-icon-class="fa fa-eye-slash">
+        <div class="o_colorpicker_section" data-name="transparent_grayscale" data-display="Transparent Colors" data-icon-class="far fa-eye-slash">
             <button class="o_btn_transparent"></button>
             <button data-color="black-25"></button>
             <button data-color="black-50"></button>

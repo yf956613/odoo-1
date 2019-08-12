@@ -105,9 +105,9 @@
                                 id="button_view_sent"
                                 type="object"
                                 context="{'search_default_filter_sent': True}"
-                                icon="fa-envelope-o" class="oe_stat_button"
-                                attrs="{'invisible': ['&amp;', ('sent', '=', 0), ('state', 'in', ('draft', 'test'))]}" >
-                                <field name="sent" string="Sent" widget="statinfo"/>
+                                icon="fa-envelope" class="oe_stat_button o_mass_mailing_button"
+                                attrs="{'invisible': ['&amp;', ('sent', '=', 0), ('state', 'in', ('draft','test'))]}" >
+                                <field name="sent" string="Emails Sent" widget="statinfo"/>
                             </button>
                             <button name="action_view_delivered"
                                 type="object"

@@ -38,7 +38,7 @@
                 </button>
                 <button name="%(hr_attendance_action)d"
                         class="oe_stat_button"
-                        icon="fa-clock-o"
+                        icon="fa-calendar-alt"
                         type="action"
                         context="{'search_default_employee_id': active_id, 'search_default_check_in_filter': '1'}"
                         groups="base.group_user"
@@ -92,7 +92,7 @@
                 <field name="employee_ids" invisible="1"/>
                 <button name="%(hr_attendance_action)d"
                         class="oe_stat_button"
-                        icon="fa-calendar"
+                        icon="fa-calendar-alt"
                         type="action"
                         context="{'search_default_employee_id': employee_ids, 'search_default_check_in_filter': '1'}"
                         groups="base.group_user"

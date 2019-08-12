@@ -57,7 +57,7 @@
                                         }'/>
                                     <span t-if="not job.website_published" class="badge badge-danger">unpublished</span>
                                     <div class="text-muted">
-                                        <i class="fa fa-clock-o" title="Publication date" role="img" aria-label="Publication date"/> <span t-field="job.write_date"/>
+                                        <i class="far fa-clock" title="Publication date" role="img" aria-label="Publication date"/> <span t-field="job.write_date"/>
                                     </div>
                                 </div>
                             </li>
@@ -328,7 +328,7 @@
                     <p>Healthcare, dental, vision, life insurance, Flexible Spending Account (FSA), Health Savings Account (HSA)</p>
                 </div>
                 <div class="text-center col-lg-3 mt16 mb16">
-                    <h4 class="mt8 mb0"><span class="fa fa-2x fa-sun-o"/>
+                    <h4 class="mt8 mb0"><span class="far fa-2x fa-sun"/>
                     PTOs</h4>
                     <p>Vacation, Sick, and paid leaves</p>
                 </div>
@@ -344,17 +344,17 @@
                 </div>
             </div><div class="row">
                 <div class="text-center col-lg-3 mt16 mb16">
-                    <h4 class="mb0 mt8"><span class="fa fa-2x fa-map-marker"/>
+                    <h4 class="mb0 mt8"><span class="fas fa-2x fa-map-marker-alt"/>
                     Prime location</h4>
                     <p>Only a couple blocs from BART, Caltrain, Highway 101, carpool pickup, and Bay Bridge.</p>
                 </div>
                 <div class="text-center col-lg-3 mt16 mb16">
-                    <h4 class="mt8 mb0"><span class="fa fa-2x fa-calendar"/>
+                    <h4 class="mt8 mb0"><span class="fas fa-2x fa-calendar-alt"/>
                     Sponsored Events</h4>
                     <p>Tuesday Dinners, Monthly Lunch Mixers, Monthly Happy Hour, Annual day event</p>
                 </div>
                 <div class="text-center col-lg-3 mt16 mb16">
-                    <h4 class="mt8 mb0"><span class="fa fa-2x fa-futbol-o"/>
+                    <h4 class="mt8 mb0"><span class="far fa-2x fa-futbol"/>
                     Sport Activity</h4>
                     <p>Play any sport with colleagues and the bill is covered</p>
                     </div>

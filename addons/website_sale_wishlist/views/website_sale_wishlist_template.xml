@@ -69,7 +69,7 @@
                                         <td class='text-left'>
                                             <strong><a t-att-href="wish.product_id.website_url"><t t-esc="wish.product_id.display_name" /></a></strong>
                                             <small class='d-none d-md-block'><p t-field="wish.product_id.description_sale" class="text-muted"/></small>
-                                            <button type="button" class="btn btn-link o_wish_rm no-decoration"><small><i class='fa fa-trash-o'></i> Remove</small></button>
+                                            <button type="button" class="btn btn-link o_wish_rm no-decoration"><small><i class='far fa-trash-alt'></i> Remove</small></button>
                                         </td>
                                         <td>
                                             <t t-set="combination_info" t-value="wish.product_id._get_combination_info_variant()"/>

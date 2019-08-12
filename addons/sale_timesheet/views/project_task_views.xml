@@ -76,7 +76,7 @@
         <field name="arch" type="xml">
             <div name="button_box" position="inside">
                 <button type="object" name="action_view_so"
-                        class="oe_stat_button" icon="fa-dollar"
+                        class="oe_stat_button" icon="fa-dollar-sign"
                         attrs="{'invisible': [('sale_order_id', '=', False)]}"
                         string="Sales Order"/>
                 <field name="sale_order_id" invisible="1"/>

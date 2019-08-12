@@ -62,7 +62,7 @@ body.editor_enable {
             border: none;
             border-radius: 0;
 
-            .fa {
+            .fa, .far, .fas {
                 margin-right: $grid-gutter-width/4;
 
                 &.fa-times {
@@ -276,7 +276,7 @@ html[lang] > body.editor_enable [data-oe-translation-state] {
                         }
                     }
 
-                    >.fa {
+                    >.fa, >.far, >.fas {
                         color: $o-we-color-text-light;
                     }
                 }
@@ -578,14 +578,14 @@ body .modal {
         border: none !important;
         padding: 0.0625rem 0.3125rem !important;
 
-        >.fa {
+        >.fa, >.far, >.fas {
             color: $o-we-color-text-normal !important;
         }
 
         &:hover {
             color: $o-we-color-text-light !important;
 
-            >.fa {
+            >.fa, >.far, >.fas {
                 color: $o-we-color-text-light !important;
             }
         }
@@ -594,7 +594,7 @@ body .modal {
             background-color: $o-we-color-dark !important;
             color: $o-we-color-text-light !important;
 
-            >.fa {
+            >.fa, >.far, >.fas {
                 color: $o-we-color-text-light !important;
             }
         }
@@ -630,7 +630,7 @@ body .modal {
             width: 100% !important;
             color: $o-we-color-text-light !important;
 
-            >.fa {
+            >.fa, >.far, >.fas {
                 color: $o-we-color-text-light !important;
             }
 
@@ -638,7 +638,7 @@ body .modal {
                 background-color: $o-we-tab-active-bg !important;
                 color: white !important;
 
-                >.fa {
+                >.fa, >.far, >.fas {
                     color: white !important;
                 }
             }

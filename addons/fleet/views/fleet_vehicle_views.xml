@@ -29,7 +29,7 @@
                         <button name="act_show_log_cost"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-usd"
+                            icon="fa-dollar-sign"
                             help="show all the costs for this vehicle"
                             groups="fleet.fleet_group_manager">
                             <field name="cost_count" widget="statinfo" string="Costs"/>
@@ -53,7 +53,7 @@
                         <button name="return_action_to_open"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-tachometer"
+                            icon="fa-tachometer-alt"
                             context="{'xml_id':'fleet_vehicle_odometer_action'}"
                             help="show the odometer logs for this vehicle" >
                             <field name="odometer_count" widget="statinfo" string="Odometer"/>

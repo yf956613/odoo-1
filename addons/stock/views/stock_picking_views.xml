@@ -242,7 +242,7 @@
                         <field name="has_scrap_move" invisible="True"/>
                         <field name="has_tracking" invisible="True"/>
                         <button name="action_see_move_scrap" string="Scraps" type="object"
-                            class="oe_stat_button" icon="fa-arrows-v"
+                            class="oe_stat_button" icon="fa-arrows-alt-v"
                             attrs="{'invisible': [('has_scrap_move', '=', False)]}"/>
                         <button name="action_see_packages" string="Packages" type="object"
                             class="oe_stat_button" icon="fa-cubes"
@@ -251,7 +251,7 @@
                         <!-- Use the following button to avoid onchange on one2many -->
                         <button name="action_picking_move_tree"
                             class="oe_stat_button"
-                            icon="fa-arrows-v"
+                            icon="fa-arrows-alt-v"
                             type="object"
                             help="List view of operations"
                             groups="base.group_no_one"
@@ -329,7 +329,7 @@
                                     <button name="action_show_details" string="Register lots, packs, location" type="object" icon="fa-list"
                                             attrs="{'invisible': [('show_details_visible', '=', False)]}" options='{"warn": true}'/>
                                     <button name="action_assign_serial" type="object"
-                                            class="btn-sm btn-primary fa fa-plus-square-o"
+                                            class="btn-sm btn-primary far fa-plus-square"
                                             style="line-height: 1;"
                                             role="img" title="Assign Serial Numbers"
                                             attrs="{'invisible': ['|', '|',

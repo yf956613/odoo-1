@@ -34,7 +34,7 @@ invalid_form = etree.parse(io.BytesIO(b'''\
                     <div class="o_progressbar">100%</div>
                     <label string=""></label>
                     <img/>
-                    <span class="fa fa-warning"/>
+                    <span class="fas fa-exclamation-triangle"/>
                     <field colspan="Five"> </field>
                 </div>
             </group>

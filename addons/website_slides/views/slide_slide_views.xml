@@ -180,25 +180,25 @@
                                     <span class="text-primary"><field name="user_id"/></span>
                                     <div class=" mt-auto d-flex justify-content-between">
                                         <span class="badge badge-pill">
-                                            <i class="fa fa-clock-o mr-2" aria-label="Duration" role="img" title="Duration"/><field name="completion_time" widget="float_time"/>
+                                            <i class="far fa-clock mr-2" aria-label="Duration" role="img" title="Duration"/><field name="completion_time" widget="float_time"/>
                                         </span>
                                         <span class="badge badge-pill">
-                                            <i class="fa fa-eye mr-2" aria-label="Views" role="img" title="Views"/><field name="total_views"/>
+                                            <i class="far fa-eye mr-2" aria-label="Views" role="img" title="Views"/><field name="total_views"/>
                                         </span>
                                         <span class="badge badge-pill">
                                             <t t-if="record.slide_type.raw_value == 'infographic'">
-                                                <i class="fa fa-file-image-o mr-2" aria-label="Infographic" role="img" title="Infographic"/>
+                                                <i class="far fa-file-image mr-2" aria-label="Infographic" role="img" title="Infographic"/>
                                             </t>
                                             <t t-elif="record.slide_type.raw_value == 'webpage'">
-                                                <i class="fa fa-file-code-o mr-2" aria-label="Webpage" role="img" title="Webpage"/>
+                                                <i class="far fa-file-code mr-2" aria-label="Webpage" role="img" title="Webpage"/>
                                             </t>
                                             <t t-elif="record.slide_type.raw_value == 'video'">
-                                                <i class="fa fa-file-video-o mr-2" aria-label="Video" role="img" title="Video"/>
+                                                <i class="far fa-file-video mr-2" aria-label="Video" role="img" title="Video"/>
                                             </t>
                                             <t t-elif="record.slide_type.raw_value == 'quiz'">
                                                 <i class="fa fa-flag mr-2" aria-label="Quiz" role="img" title="Quiz"/>
                                             </t>
-                                            <t t-else=""><i class="fa fa-file-pdf-o mr-2" aria-label="Document" role="img" title="Document"/></t>
+                                            <t t-else=""><i class="far fa-file-pdf mr-2" aria-label="Document" role="img" title="Document"/></t>
                                             <field name="slide_type"/>
                                         </span>
                                     </div>

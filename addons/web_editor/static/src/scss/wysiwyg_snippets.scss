@@ -242,7 +242,8 @@ body.editor_enable.editor_has_snippets {
 
             &.selected:before {
                 content: "\f00c";
-                font-family: "FontAwesome";
+                font-weight: 900;
+                font-family: "Font Awesome 5 Free";
                 padding-top: 1px;
                 color: theme-color('success');
             }
@@ -405,7 +406,7 @@ body.editor_enable.editor_has_snippets {
                         background-color: $o-wysiwyg-color-danger;
                         border-color: darken($o-wysiwyg-color-danger, 20%);
 
-                        >.fa {
+                        >.fa, >.far, >.fas {
                             color: $o-wysiwyg-color;
                         }
 
@@ -419,7 +420,7 @@ body.editor_enable.editor_has_snippets {
                         font-size: 12px;
                     }
 
-                    >.fa {
+                    >.fa, >.far, >.fas {
                         color: $o-wysiwyg-color;
                         line-height: inherit;
                         vertical-align: top;
@@ -510,7 +511,8 @@ body.editor_enable.editor_has_snippets {
                                 &:before {
                                     @include o-position-absolute($top: 5px, $right: 5px);
                                     content: "\f00c";
-                                    font-family: "FontAwesome";
+                                    font-weight: 900;
+                                    font-family: "Font Awesome 5 Free";
                                     color: $o-brand-primary;
                                 }
                             }
@@ -574,9 +576,10 @@ body.editor_enable.editor_has_snippets {
                                 padding-bottom: .25em;
 
                                 &::before {
-                                    content: "\f148";
+                                    content: "\f3bf";
+                                    font-weight: 900;
                                     @include o-position-absolute($top: 5px, $left: 4px);
-                                    font-family: FontAwesome;
+                                    font-family: 'Font Awesome 5 Free';
                                     transform: scaleX(-1);
                                 }
 
@@ -653,19 +656,21 @@ body.editor_enable.editor_has_snippets {
                     border: solid 1px darken($o-wysiwyg-handles-accent-color, 10%);
                     line-height: $o-wysiwyg-handles-btn-size - 2;
                     font-size: 14px;
-                    font-family: FontAwesome;
+                    font-family: 'Font Awesome 5 Free';
                     background-color: darken($o-wysiwyg-handles-accent-color, 20%);
                     color: white;
                 }
 
                 &.w:after,
                 &.e:after {
-                    content: "\f07e";
+                    content: "\f337";
+                    font-weight: 900;
                 }
 
                 &.s:after,
                 &.n:after {
-                    content: "\f07d";
+                    content: "\f338";
+                    font-weight: 900;
                 }
 
                 &.o_handle_start {
@@ -673,11 +678,13 @@ body.editor_enable.editor_has_snippets {
                     &.w:after,
                     &.e:after {
                         content: '\f061';
+                        font-weight: 900;
                     }
 
                     &.n:after,
                     &.s:after {
                         content: '\f063';
+                        font-weight: 900;
                     }
                 }
 
@@ -686,11 +693,13 @@ body.editor_enable.editor_has_snippets {
                     &.w:after,
                     &.e:after {
                         content: '\f060';
+                        font-weight: 900;
                     }
 
                     &.n:after,
                     &.s:after {
                         content: '\f062';
+                        font-weight: 900;
                     }
                 }
 

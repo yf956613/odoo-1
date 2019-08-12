@@ -32,7 +32,7 @@
         </record>
         <record id="mail_activity_data_warning" model="mail.activity.type">
             <field name="name">Exception</field>
-            <field name="icon">fa-warning</field>
+            <field name="icon"> fa-exclamation-triangle</field>
             <field name="delay_count">0</field>
             <field name="sequence">99</field>
             <field name="decoration_type">warning</field>

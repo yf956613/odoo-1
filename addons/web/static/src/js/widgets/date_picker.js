@@ -35,13 +35,13 @@ var DateWidget = Widget.extend({
             maxDate: moment().add(200, "y"),
             useCurrent: false,
             icons: {
-                time: 'fa fa-clock-o',
-                date: 'fa fa-calendar',
+                time: 'far fa-clock',
+                date: 'fas fa-calendar-alt',
                 up: 'fa fa-chevron-up',
                 down: 'fa fa-chevron-down',
                 previous: 'fa fa-chevron-left',
                 next: 'fa fa-chevron-right',
-                today: 'fa fa-calendar-check-o',
+                today: 'far fa-calendar-alt-check',
                 clear: 'fa fa-delete',
                 close: 'fa fa-times'
             },

@@ -14,7 +14,7 @@ var _lt = core._lt;
  */
 var DiagramView = BasicView.extend({
     display_name: _lt('Diagram'),
-    icon: 'fa-code-fork',
+    icon: 'fa-code-branch',
     multi_record: false,
     withSearchBar: false,
     searchMenuTypes: [],

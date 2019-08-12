@@ -26,7 +26,7 @@ if(!the_form.length) {
 
     // Printing mode: will disable all the controls in the form
     if (_.isUndefined(submit_controller)) {
-        $(".js_surveyform .input-group-text span.fa-calendar").css("pointer-events", "none");
+        $(".js_surveyform .input-group-text span.fa-calendar-alt").css("pointer-events", "none");
         $('.js_surveyform :input').prop('disabled', true);
         print_mode = true;
     }
@@ -211,8 +211,8 @@ if(!the_form.length) {
                 viewDate: moment(new Date()).hours(0).minutes(0).seconds(0).milliseconds(0),
                 calendarWeeks: true,
                 icons: {
-                    time: 'fa fa-clock-o',
-                    date: 'fa fa-calendar',
+                    time: 'far fa-clock',
+                    date: 'fas fa-calendar-alt',
                     next: 'fa fa-chevron-right',
                     previous: 'fa fa-chevron-left',
                     up: 'fa fa-chevron-up',

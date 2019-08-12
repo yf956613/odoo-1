@@ -307,7 +307,7 @@
                             Sort by
                         </t>
                     </span>
-                    <i class="fa fa-sort-amount-asc d-lg-none"/>
+                    <i class="fas fa-sort-amount-down d-lg-none"/>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                     <t t-foreach="website_sale_sortable" t-as="sortby">
@@ -885,7 +885,7 @@
                             <span t-field="line.price_reduce_taxinc" style="white-space: nowrap;" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}" groups="account.group_show_line_subtotals_tax_included" />
                         </td>
                         <td class="td-action">
-                            <a href='#' aria-label="Remove from cart" title="Remove from cart" class='js_delete_product no-decoration'> <small><i class='fa fa-trash-o'></i></small></a>
+                            <a href='#' aria-label="Remove from cart" title="Remove from cart" class='js_delete_product no-decoration'> <small><i class='far fa-trash-alt'></i></small></a>
                         </td>
                     </tr>
                 </t>
@@ -1608,7 +1608,7 @@
                 <div class="card-header">
                     <a role="button" groups="base.group_system" class="btn btn-sm btn-link text-white float-right" target="_blank" aria-label="Edit" title="Edit"
                             t-att-href="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % ('payment.acquirer', payment_tx_id.acquirer_id.id, 'payment.action_payment_acquirer')">
-                        <i class="fa fa-pencil"></i>
+                        <i class="fas fa-pencil-alt"></i>
                     </a>
                     <t t-if="payment_tx_id.state == 'pending'">
                         <t t-raw="payment_tx_id.acquirer_id.pending_msg"/>
@@ -1739,7 +1739,7 @@
                 <ol t-if="len(product_images) > 1" class="carousel-indicators d-inline-block position-static mx-auto my-0 p-1 text-left">
                     <t t-foreach="product_images" t-as="product_image"><li t-attf-class="d-inline-block m-1 align-top {{'active' if product_image_first else ''}}" data-target="#o-carousel-product" t-att-data-slide-to="str(product_image_index)">
                         <div t-field="product_image.image_64" class="d-flex align-items-center justify-content-center h-100" t-options='{"widget": "image", "alt-field": "name"}'/>
-                        <i t-if="product_image._name == 'product.image' and product_image.embed_code" class="fa fa-2x fa-play-circle-o o_product_video_thumb"/>
+                        <i t-if="product_image._name == 'product.image' and product_image.embed_code" class="far fa-2x fa-play-circle o_product_video_thumb"/>
                     </li></t>
                 </ol>
             </div>

@@ -158,6 +158,7 @@
         }
         tr:hover .cell_action .fa-add-remove:before {
             content: "\f068";
+            font-weight: 900;
         }
         .is_tax .cell_action .fa-add-remove:before {
             position: relative;
@@ -271,6 +272,7 @@
         }
         tr:hover .cell_action .fa-add-remove:before {
             content: "\f067";
+            font-weight: 900;
         }
         .match_controls {
             padding: 5px 0 5px ($o-account-action-col-width+$o-account-main-table-borders-padding);

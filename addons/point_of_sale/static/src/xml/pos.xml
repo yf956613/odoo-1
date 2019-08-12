@@ -67,7 +67,7 @@
                 <i class='fa fa-fw fa-wifi' role="img" aria-label="Synchronisation Disconnected" title="Synchronisation Disconnected"></i>
             </div>
             <div class="js_error oe_icon oe_red oe_hidden">
-                <i class='fa fa-fw fa-warning' role="img" aria-label="Synchronisation Error" title="Synchronisation Error"></i>
+                <i class='fas fa-fw fa-exclamation-triangle' role="img" aria-label="Synchronisation Error" title="Synchronisation Error"></i>
             </div>
         </div>
     </t>
@@ -367,7 +367,7 @@
             <input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Name'></input>
             <div class='edit-buttons'>
                 <div class='button undo'><i class='fa fa-undo' role="img" aria-label="Undo" title="Undo"/></div>
-                <div class='button save'><i class='fa fa-floppy-o' role="img" aria-label="Save" title="Save"/></div>
+                <div class='button save'><i class='far fa-save' role="img" aria-label="Save" title="Save"/></div>
             </div>
             <div class='client-details-box clearfix'>
                 <div class='client-details-left'>
@@ -446,7 +446,7 @@
             </div>
             <div class='client-name'><t t-esc='partner.name' /></div>
             <div class='edit-buttons'>
-                <div class='button edit'><i class='fa fa-pencil-square' role="img" aria-label="Edit" title="Edit"/></div>
+                <div class='button edit'><i class='fas fa-pen-square' role="img" aria-label="Edit" title="Edit"/></div>
             </div>
             <div class='client-details-box clearfix'>
                 <div class='client-details-left'>
@@ -720,7 +720,7 @@
                         <t t-if='widget.pos.config.module_account'>
                             <t t-if='widget.pos.get_order()'>
                                 <div t-attf-class='button js_invoice #{ widget.pos.get_order().is_to_invoice() ? "highlight" : ""} '>
-                                    <i class='fa fa-file-text-o' /> Invoice
+                                    <i class='far fa-file-alt' /> Invoice
                                 </div>
                             </t>
                         </t>
@@ -1159,7 +1159,7 @@
                                 t-att-autofocus="lot_line === focus_lot_line ? 'autofocus': undefined"
                                 class="popup-input packlot-line-input"
                                 placeholder="Serial/Lot Number"/>
-                            <i class="oe_link_icon remove-lot fa fa-trash-o" role="img" aria-label="Remove" title="Remove"></i>
+                            <i class="oe_link_icon remove-lot far fa-trash-alt" role="img" aria-label="Remove" title="Remove"></i>
                         </t>
                     </t>
                 </main>

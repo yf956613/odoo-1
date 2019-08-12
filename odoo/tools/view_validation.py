@@ -308,9 +308,9 @@ def valid_alternative_icon_text(arch, **kwargs):
     valid_attrs_xpath = ' or '.join('@' + attr for attr in valid_attrs)
 
     # Select elements with class beginning by 'fa-'
-    xpath = '(//*[contains(concat(" ", @class), " fa-")'
-    xpath += ' or contains(concat(" ", @t-att-class), " fa-")'
-    xpath += ' or contains(concat(" ", @t-attf-class), " fa-")]'
+    xpath = '(//*[contains(concat(" ", @class), "fa-")'
+    xpath += ' or contains(concat(" ", @t-att-class), "fa-")'
+    xpath += ' or contains(concat(" ", @t-attf-class), "fa-")]'
     xpath += ' | //button[@icon])'
     # Elements with accessibility or string attrs are good
     xpath += '[not(' + valid_attrs_xpath + ')]'
@@ -348,9 +348,9 @@ def valid_title_icon(arch, **kwargs):
     valid_attrs_xpath = ' or '.join('@' + attr for attr in valid_attrs)
 
     # Select elements with class beginning by 'fa-'
-    xpath = '(//*[contains(concat(" ", @class), " fa-")'
-    xpath += ' or contains(concat(" ", @t-att-class), " fa-")'
-    xpath += ' or contains(concat(" ", @t-attf-class), " fa-")]'
+    xpath = '(//*[contains(concat(" ", @class), "fa-")'
+    xpath += ' or contains(concat(" ", @t-att-class), "fa-")'
+    xpath += ' or contains(concat(" ", @t-attf-class), "fa-")]'
     xpath += ' | //button[@icon])'
     # Elements with accessibility or string attrs are good
     xpath += '[not(' + valid_attrs_xpath + ')]'

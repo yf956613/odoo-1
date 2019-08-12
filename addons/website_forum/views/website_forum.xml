@@ -75,7 +75,7 @@
                         <div class="card-body o_card_people">
                             <img class="o_wforum_people_photo_container d-block mx-auto mb-3" t-att-src="website.image_url(question.create_uid, 'image_128')"/>
                             <h6 class="text-center">
-                                <b><i class="fa fa-diamond text-secondary"/> <t t-esc="question.create_uid.sudo().karma"/></b>
+                                <b><i class="far fa-gem text-secondary"/> <t t-esc="question.create_uid.sudo().karma"/></b>
                                 <b><a t-attf-href="/forum/#{slug(forum)}/user/#{question.create_uid.sudo().id}" t-field="question.create_uid" t-options='{"widget": "contact", "fields": ["name", "country_id"]}'/></b>
                             </h6>
                         </div>
@@ -120,7 +120,7 @@
                     <div class="card my-3 bg-secondary" id="moderation_tools" t-if="user.karma>=forum.karma_moderate">
                         <h6 class="card-header"><b>Moderation Tools</b></h6>
                         <div class="card-body">
-                            <a t-attf-href="/forum/#{slug(forum)}/validation_queue" class="text-dark"><i class="fa fa-check-square-o mr-2 text-primary"/><strong><t t-esc="forum.count_posts_waiting_validation"/></strong> waiting for validation</a>
+                            <a t-attf-href="/forum/#{slug(forum)}/validation_queue" class="text-dark"><i class="far fa-check-square mr-2 text-primary"/><strong><t t-esc="forum.count_posts_waiting_validation"/></strong> waiting for validation</a>
                             <hr style="margin-top:4px;margin-bottom:0;padding-bottom:4px;" />
                             <a t-attf-href="/forum/#{slug(forum)}/flagged_queue" class="text-dark"><i class="fa fa-flag mr-2 text-primary"/><strong id="count_flagged_posts"><t t-esc="forum.count_flagged_posts"/></strong> post<t t-if="forum.count_flagged_posts&gt;1">s</t> flagged</a>
                         </div>
@@ -179,7 +179,7 @@
                     <ul class="navbar-nav ml-auto">
                         <li t-if="not is_public_user" class="nav-item">
                             <a t-attf-href="/profile/user/#{uid}?forum_id=#{forum.id}" t-attf-class="text-dark font-weight-bold nav-link#{searches.get('my_profile') and ' active' or ''}">
-                                <i class="fa fa-diamond text-secondary" /> <t t-esc="user_id.karma"/>
+                                <i class="far fa-gem text-secondary" /> <t t-esc="user_id.karma"/>
                             </a>
                         </li>
                     </ul>
@@ -235,8 +235,8 @@
                 <small class="text-muted">
                     <i t-attf-class="fa fa-question-circle" role="img" aria-label="Question" />
                     <span>By </span><span t-field="question.create_uid" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="d-inline-block"/>
-                    <span class="ml-4 mr-1 fa fa-calendar"></span><span t-field="question.write_date" t-options='{"format":"short"}'/>
-                    <span class="ml-4 mr-1 fa fa-eye"></span><span t-field="question.views" /> <t t-if="question.views&lt;=1">View</t><t t-else="">Views</t>
+                    <span class="ml-4 mr-1 fas fa-calendar-alt"></span><span t-field="question.write_date" t-options='{"format":"short"}'/>
+                    <span class="ml-4 mr-1 far fa-eye"></span><span t-field="question.views" /> <t t-if="question.views&lt;=1">View</t><t t-else="">Views</t>
                     <i class="ml-4 fa fa-comments text-primary"/>
                     <a t-attf-href="/forum/#{ slug(question.forum_id) }/question/#{ slug(question) }">
                         <t t-esc="question.child_count"/>
@@ -715,8 +715,8 @@
                         <span t-if="question.state == 'close'"><b> [Closed]</b></span>
                     </h1>
                     <div class="text-muted mb16">
-                        <i class="mr-2 fa fa-calendar"/><span t-field="question.create_date" t-options='{"format":"short"}'/>
-                        <i class="ml-4 mr-2 fa fa-eye"/><span t-field="question.views"/> views
+                        <i class="mr-2 fas fa-calendar-alt"/><span t-field="question.create_date" t-options='{"format":"short"}'/>
+                        <i class="ml-4 mr-2 far fa-eye"/><span t-field="question.views"/> views
                     </div>
 
                     <div class="alert alert-info text-center" t-if="question.state == 'close'" role="status">
@@ -748,7 +748,7 @@
                                 href="#post_reply"><i class="fa fa-reply"/> <b>Reply</b>
                             </a>
                             <a t-attf-class="btn btn-outline-primary #{not question.can_comment and 'karma_required text-muted' or ''}" t-att-data-karma="question.karma_comment" t-att-data-toggle="question.can_comment and 'collapse' or None"
-                                t-attf-href="#comment#{ question._name.replace('.','') + '-' + str(question.id) }"><i class=" fa fa-comment-o"/> <b>Comment</b>
+                                t-attf-href="#comment#{ question._name.replace('.','') + '-' + str(question.id) }"><i class=" far fa-comment"/> <b>Comment</b>
                             </a>
                             <a href="javascript:void(0)" class="oe_social_share btn btn-outline-primary"
                                 t-attf-data-hashtags="#question"><i class="fa fa-share-alt"/> <b>Share</b>
@@ -766,7 +766,7 @@
                                 <t t-set="url" t-value="'/forum/' + slug(forum) +'/post/' + slug(question) + '/edit'"/>
                                 <t t-set="title">Edit</t>
                                 <t t-set="inDropdown" t-value="False"/>
-                                <t t-set="icon" t-value="'fa-pencil-square-o'"/>
+                                <t t-set="icon" t-value="'fa-edit'"/>
                                 <t t-set="karma" t-value="not question.can_edit and question.karma_edit or 0"/>
                             </t>
                             <t t-if="question.state != 'close'" t-call="website_forum.link_button">
@@ -780,7 +780,7 @@
                                 <t t-set="url" t-value="'/forum/' + slug(forum) +'/question/' + slug(question) + '/delete'"/>
                                 <t t-set="title">Delete</t>
                                 <t t-set="inDropdown" t-value="False"/>
-                                <t t-set="icon" t-value="'fa-trash-o'"/>
+                                <t t-set="icon" t-value="'fa-trash-alt'"/>
                                 <t t-set="karma" t-value="not question.can_unlink and question.karma_unlink or 0"/>
                             </t>
                             <t t-if="not question.active and question.state != 'offensive'" t-call="website_forum.link_button">
@@ -801,7 +801,7 @@
                                 <t t-set="url" t-value="'/forum/' + slug(forum) +'/post/' + slug(question) + '/flag'"/>
                                 <t t-set="title">Flag</t>
                                 <t t-set="inDropdown" t-value="False"/>
-                                <t t-set="icon" t-value="not question.can_flag and 'fa-flag-o' or 'fa-flag'"/>
+                                <t t-set="icon" t-value="not question.can_flag and 'fa-flag' or 'fa-flag'"/>
                                 <t t-set="karma" t-value="not question.can_flag and question.forum_id.karma_flag or 0"/>
                                 <t t-set="classes" t-value="'flag'"/>
                             </t>
@@ -875,7 +875,7 @@
                                 <t t-set="url" t-value="'/forum/' + slug(forum) + '/post/' + slug(answer) + '/edit'"/>
                                 <t t-set="label">Edit</t>
                                 <t t-set="inDropdown" t-value="True"/>
-                                <t t-set="icon" t-value="'fa-pencil-square-o text-primary'"/>
+                                <t t-set="icon" t-value="'fa-edit text-primary'"/>
                                 <t t-set="classes" t-value="'border-bottom'"/>
                                 <t t-set="karma" t-value="not answer.can_edit and answer.karma_edit or 0"/>
                             </t>
@@ -883,7 +883,7 @@
                                 <t t-set="url" t-value="'/forum/' + slug(forum) + '/post/' + slug(answer) + '/delete'"/>
                                 <t t-set="label">Delete</t>
                                 <t t-set="inDropdown" t-value="True"/>
-                                <t t-set="icon" t-value="'fa-trash-o text-primary'"/>
+                                <t t-set="icon" t-value="'fa-trash-alt text-primary'"/>
                                 <t t-set="classes" t-value="'border-bottom'"/>
                                 <t t-set="karma" t-value="not answer.can_unlink and answer.karma_unlink or 0"/>
                             </t>
@@ -893,7 +893,7 @@
                                 <t t-set="form_method" t-value="'GET'"/>
                                 <t t-set="inDropdown" t-value="True"/>
                                 <t t-set="karma" t-value="not answer.can_flag and answer.forum_id.karma_flag or 0"/>
-                                <t t-set="icon" t-value="'fa-flag-o text-primary'"/>
+                                <t t-set="icon" t-value="'fa-flag text-primary'"/>
                                 <t t-set="classes" t-value="'border-bottom'"/>
                                 <t t-set="form_classes" t-value="'flag'"/>
                             </t>
@@ -923,7 +923,7 @@
                             t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}'
                             style="display: inline-block;"/>
                         <div class="text-muted">
-                            <a t-attf-href="/forum/#{slug(question.forum_id)}/question/#{slug(question)}#answer_#{answer.id}"><i class="fa fa-calendar text-muted"/></a>
+                            <a t-attf-href="/forum/#{slug(question.forum_id)}/question/#{slug(question)}#answer_#{answer.id}"><i class="fas fa-calendar-alt text-muted"/></a>
                             <span t-field="answer.create_date" t-options='{"format":"short"}'/>
                         </div>
                     </div>
@@ -1004,7 +1004,7 @@
                                 <t t-set="label">Delete</t>
                                 <t t-set="title">Delete</t>
                                 <t t-set="inDropdown" t-value="True"/>
-                                <t t-set="icon" t-value="'fa-trash-o text-primary'"/>
+                                <t t-set="icon" t-value="'fa-trash-alt text-primary'"/>
                                 <t t-set="classes" t-value="'comment_delete border-bottom'"/>
                                 <t t-set="karma" t-value="not object.can_unlink and object.karma_unlink or 0"/>
                             </t>
@@ -1024,7 +1024,7 @@
                             <t t-set="allow_post_comment" t-value="True" />
                         </t>
                         <a t-attf-href="/forum/#{slug(forum)}/partner/#{message.author_id.id}"
-                            t-field="message.author_id" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="font-weight-bold float-left mr-3 mt-1"/><i class="fa fa-calendar mr-1 pl-3 border-left"/><span t-field="message.date" t-options='{"format":"short"}'/>
+                            t-field="message.author_id" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="font-weight-bold float-left mr-3 mt-1"/><i class="fas fa-calendar-alt mr-1 pl-3 border-left"/><span t-field="message.date" t-options='{"format":"short"}'/>
                         <div class="mt-2"><span t-field="message.body" class="oe_no_empty text-dark"/></div>
                     </small>
                 </div>
@@ -1067,7 +1067,7 @@
                         t-attf-class="badge #{'badge-primary' if tag.message_is_follower else 'badge-secondary'} px-2">
                     <span t-field="tag.name"/>
                 </a>
-                <span><i t-attf-class="fa #{'fa-star text-primary' if tag.message_is_follower else 'fa-star-o text-secondary'}" title="Subscribe" role="img" aria-label="Close"/></span>
+                <span><i t-attf-class="far #{'fa-star text-primary' if tag.message_is_follower else 'fa-star text-secondary'}" title="Subscribe" role="img" aria-label="Close"/></span>
                 <div t-attf-class="o_forum_tag_follow_box">
                     <div class="input-group">
                         <t t-call="website_mail.follow">
@@ -1186,7 +1186,7 @@
                             <small class="text-muted">
                                  <i t-attf-class="fa fa-user" role="img" aria-label="Question" />
                                 <span>By </span><span t-field="question.create_uid" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' style="display: inline-block;"/>
-                                <i class="ml-4 mr4 fa fa-calendar"/><span t-field="question.write_date" t-options='{"format":"short"}'/>
+                                <i class="ml-4 mr4 fas fa-calendar-alt"/><span t-field="question.write_date" t-options='{"format":"short"}'/>
                                 <span t-if="question.state == 'flagged'" class="text-black">
                                     <i class="fa fa-flag ml-4 mr4"/>
                                     Flagged

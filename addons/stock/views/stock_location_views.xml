@@ -18,7 +18,7 @@
                     <div class="oe_button_box" name="button_box">
                         <button string="Putaway Rules"
                                 class="oe_stat_button"
-                                icon="fa-random" name="%(location_open_putaway)d" type="action"
+                                icon="fa-rebelndom" name="%(location_open_putaway)d" type="action"
                                 groups="stock.group_stock_multi_locations"/>
                         <button string="Current Stock"
                                 class="oe_stat_button"
