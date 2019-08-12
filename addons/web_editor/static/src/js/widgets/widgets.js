@@ -314,7 +314,7 @@ var FileWidget = SearchableMediaWidget.extend({
             return Promise.resolve(this.media);
         }
 
-        var def = new Promise(function(resolve){
+        var def = new Promise(function (resolve) {
             if (!img.access_token) {
                 self._rpc({
                     model: 'ir.attachment',
@@ -324,6 +324,8 @@ var FileWidget = SearchableMediaWidget.extend({
                     img.access_token = access_token[0];
                     resolve();
                 });
+            } else {
+                resolve();
             }
         });
 
@@ -455,14 +457,14 @@ var FileWidget = SearchableMediaWidget.extend({
      */
     _highlightSelectedImages: function () {
         var self = this;
-        this.$('.o_existing_attachment_cell.o_selected').removeClass("o_selected");
+        this.$('.o_existing_attachment_cell.o_we_selected').removeClass("o_we_selected");
         var $select = this.$('.o_existing_attachment_cell [data-src]').filter(function () {
             var $img = $(this);
             return !!_.find(self.images, function (v) {
                 return (v.url === $img.data("src") || ($img.data("url") && v.url === $img.data("url")) || v.id === $img.data("id"));
             });
         });
-        $select.closest('.o_existing_attachment_cell').addClass("o_selected");
+        $select.closest('.o_existing_attachment_cell').addClass("o_we_selected");
         return $select;
     },
     /**
@@ -939,10 +941,10 @@ var IconWidget = SearchableMediaWidget.extend({
      */
     _highlightSelectedIcon: function () {
         var self = this;
-        this.$icons.removeClass('o_selected');
+        this.$icons.removeClass('o_we_selected');
         this.$icons.filter(function (i, el) {
             return _.contains($(el).data('alias').split(','), self.selectedIcon);
-        }).addClass('o_selected');
+        }).addClass('o_we_selected');
     },
 
     //--------------------------------------------------------------------------

@@ -161,7 +161,7 @@ tour.register('rte', {
 }, {
     content: "save pictogram",
     trigger: '.modal-footer > .btn-primary',
-    extra_trigger: '#editor-media-icon.active span.o_selected',
+    extra_trigger: '#editor-media-icon.active span.o_we_selected',
 }, {
     content: "select a size for the pictogram",
     trigger: '.note-image-popover button[data-event="resizefa"][data-value="3"]',

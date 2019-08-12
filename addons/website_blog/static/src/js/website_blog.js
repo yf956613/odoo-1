@@ -126,7 +126,7 @@ publicWidget.registry.websiteBlog = publicWidget.Widget.extend({
      * @param {Event} ev
      */
     _onBlogPostMouseEnter: function (ev) {
-        $('div.o_blog_post_complete a').not('#' + ev.srcElement.id).addClass('unhover');
+        $('div.o_blog_post_complete a').not('#' + ev.currentTarget.id).addClass('unhover');
     },
     /**
      * @private
