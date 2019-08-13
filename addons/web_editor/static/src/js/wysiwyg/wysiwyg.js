@@ -56,11 +56,24 @@ var Wysiwyg = Widget.extend({
      * @override
      */
     start: function () {
+        var self = this;
         this.$target.wrap('<odoo-wysiwyg-container>');
         this.$el = this.$target.parent();
         this.$target.summernote(this._editorOptions());
         this.$editor = this.$('.note-editable:first');
         this.$editor.data('wysiwyg', this);
+
+        var $wysiwyg = this.$editor.closest('odoo-wysiwyg-container');
+        var focus = false;
+        this._blur = function (e) {
+            if ($wysiwyg[0].contains(e.target)) {
+                focus = true;
+            } else if (focus) {
+                focus = false;
+                self.trigger_up('wysiwyg_blur');
+            }
+        };
+        $(document).on('mousedown', this._blur);
 
         this._value = this.$target.html() || this.$target.val();
         return this._super().then(() => {
@@ -71,7 +84,8 @@ var Wysiwyg = Widget.extend({
      * @override
      */
     destroy: function () {
-        this._super.apply(this, arguments);
+        $(document).off('mousedown', this._blur);
+        this._super();
     },
 
     //--------------------------------------------------------------------------
