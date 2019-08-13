@@ -3,6 +3,7 @@ odoo.define('web_editor.wysiwyg', function (require) {
 
 var Widget = require('web.Widget');
 var SummernoteManager = require('web_editor.rte.summernote');
+var summernoteCustomColors = require('web_editor.rte.summernote_custom_colors');
 var id = 0;
 
 // core.bus
@@ -12,6 +13,24 @@ var Wysiwyg = Widget.extend({
     xmlDependencies: [
     ],
     defaultOptions: {
+        'focus': false,
+        'airPopover': [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['history', ['undo', 'redo']],
+        ],
+        'styleWithSpan': false,
+        'inlinemedia': ['p'],
+        'lang': 'odoo',
+        'onChange': function (html, $editable) {
+            $editable.trigger('content_changed');
+        },
+        'colors': summernoteCustomColors,
         recordInfo: {
             context: {},
         },
@@ -138,6 +157,7 @@ var Wysiwyg = Widget.extend({
      */
     getValue: function (options) {
         console.log('getValue ???', options);
+        this.$editor.find('[style=""]').removeAttr('style');
         return this.$editor.html();
     },
     /**
