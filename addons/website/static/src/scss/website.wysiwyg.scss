@@ -3,11 +3,9 @@
 //------------------------------------------------------------------------------
 
 body.editor_enable {
-    overflow: hidden;
     padding-top: 0 !important;
 
     #wrapwrap {
-        overflow: auto;
         height: calc(100vh - #{$o-navbar-height});
         padding-top: 46px;
 
@@ -121,7 +119,7 @@ html[lang] > body.editor_enable [data-oe-translation-state] {
 // SNIPPET PANEL
 #oe_snippets {
     @include o-w-preserve-btn;
-    @include o-position-absolute(0, auto, 0, -$o-we-sidebar-width);
+    position: fixed;
     width: $o-we-sidebar-width;
     z-index: 1042;
 
