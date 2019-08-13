@@ -3,9 +3,11 @@
 //------------------------------------------------------------------------------
 
 body.editor_enable {
+    overflow: hidden;
     padding-top: 0 !important;
 
     #wrapwrap {
+        overflow: auto;
         height: calc(100vh - #{$o-navbar-height});
         padding-top: 46px;
 
