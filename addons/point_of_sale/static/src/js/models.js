@@ -1361,7 +1361,7 @@ exports.Orderline = Backbone.Model.extend({
             try {
                 this.init_from_JSON(options.json);
             } catch(error) {
-                console.error('ERROR: attempting to recover product ID', json.product_id,
+                console.error('ERROR: attempting to recover product ID', options.json.product_id,
                     'not available in the point of sale. Correct the product or clean the browser cache.');
             }
             return;
@@ -1382,8 +1382,11 @@ exports.Orderline = Backbone.Model.extend({
             this.set_unit_price(this.product.get_price(this.order.pricelist, this.get_quantity()));
         }
     },
+    set_product(id) {
+        this.product = this.pos.db.get_product_by_id(id);
+    },
     init_from_JSON: function(json) {
-        this.product = this.pos.db.get_product_by_id(json.product_id);
+        this.set_product(json.product_id);
         this.set_product_lot(this.product);
         this.price = json.price_unit;
         this.set_discount(json.discount);
@@ -2416,14 +2419,16 @@ exports.Order = Backbone.Model.extend({
         }
     },
     /* ---- Order Lines --- */
-    add_orderline: function(line){
+    add_orderline: function(line, select){
         this.assert_editable();
         if(line.order){
-            line.order.remove_orderline(line);
+            line.order.remove_orderline(line, false);
         }
         line.order = this;
         this.orderlines.add(line);
-        this.select_orderline(this.get_last_orderline());
+        if (select !== false) {
+            this.select_orderline(this.get_last_orderline());
+        }
     },
     get_orderline: function(id){
         var orderlines = this.orderlines.models;
@@ -2487,10 +2492,12 @@ exports.Order = Backbone.Model.extend({
         });
         this.trigger('change');
     },
-    remove_orderline: function( line ){
+    remove_orderline: function(line, select){
         this.assert_editable();
         this.orderlines.remove(line);
-        this.select_orderline(this.get_last_orderline());
+        if (select !== false) {
+            this.select_orderline(this.get_last_orderline());
+        }
     },
 
     fix_tax_included_price: function(line){
@@ -2558,8 +2565,7 @@ exports.Order = Backbone.Model.extend({
             to_merge_orderline.merge(line);
             this.select_orderline(to_merge_orderline);
         } else {
-            this.orderlines.add(line);
-            this.select_orderline(this.get_last_orderline());
+            this.add_orderline(line, options.select !== false);
         }
 
         if(line.has_product_lot){
