@@ -15,6 +15,7 @@ import odoo.release as release
 import odoo.tools as tools
 from odoo.tools.parse_version import parse_version
 
+
 _logger = logging.getLogger(__name__)
 
 
@@ -56,6 +57,13 @@ class MigrationManager(object):
     """
 
     def __init__(self, cr, graph):
+        try:
+            # register `odoo.upgrades` module
+            # It cannot be done a module level, because config should be sanitized before loading
+            import odoo.upgrades  # noqa
+        except ImportError:
+            pass
+
         self.cr = cr
         self.graph = graph
         self.migrations = defaultdict(dict)
