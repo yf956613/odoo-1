@@ -484,7 +484,9 @@ eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
             noVideos: $editable.data('oe-model') === "mail.compose.message",
         },
         onSave: function (media) {
+            if(!document.body.contains(media)) {
             r.insertNode(media);
+            };
         },
     });
     return new $.Deferred().reject();
