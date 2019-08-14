@@ -1,14 +1,11 @@
 odoo.define('web_editor.wysiwyg', function (require) {
 'use strict';
-
 var Widget = require('web.Widget');
 var SummernoteManager = require('web_editor.rte.summernote');
 var summernoteCustomColors = require('web_editor.rte.summernote_custom_colors');
 var id = 0;
-
 // core.bus
 // media_dialog_demand
-
 var Wysiwyg = Widget.extend({
     xmlDependencies: [
     ],
@@ -35,7 +32,6 @@ var Wysiwyg = Widget.extend({
             context: {},
         },
     },
-
     /**
      * @options {Object} options
      * @options {Object} options.recordInfo
@@ -69,7 +65,6 @@ var Wysiwyg = Widget.extend({
         this.$target = this.$el;
         return this._super();
     },
-
     /**
      *
      * @override
@@ -81,7 +76,6 @@ var Wysiwyg = Widget.extend({
         this.$target.summernote(this._editorOptions());
         this.$editor = this.$('.note-editable:first');
         this.$editor.data('wysiwyg', this);
-
         var $wysiwyg = this.$editor.closest('odoo-wysiwyg-container');
         var focus = false;
         this._blur = function (e) {
@@ -93,7 +87,6 @@ var Wysiwyg = Widget.extend({
             }
         };
         $(document).on('mousedown', this._blur);
-
         this._value = this.$target.html() || this.$target.val();
         return this._super().then(() => {
             this.$editor.trigger('mouseup');
@@ -104,19 +97,14 @@ var Wysiwyg = Widget.extend({
      */
     destroy: function () {
         $(document).off('mousedown', this._blur);
+        if (this.$target.is('textarea')) {
+            this.$target.summernote('destroy');
+        }
         this._super();
     },
-
     //--------------------------------------------------------------------------
     // Public
     //--------------------------------------------------------------------------
-
-    /**
-     * Add a step (undo) in editor.
-     */
-    addHistoryStep: function () {
-        console.log('addHistoryStep');
-    },
     /**
      * Return the editable area.
      *
@@ -124,14 +112,6 @@ var Wysiwyg = Widget.extend({
      */
     getEditable: function () {
         return this.$editor;
-    },
-    /**
-     * Perform undo or redo in the editor.
-     *
-     * @param {integer} step
-     */
-    history: function (step) {
-        console.log('history');
     },
     /**
      * Return true if the content has changed.
@@ -151,14 +131,20 @@ var Wysiwyg = Widget.extend({
      * Get the value of the editable element.
      *
      * @param {object} [options]
-     * @param {Boolean} [options.keepPopover]
      * @param {jQueryElement} [options.$layout]
      * @returns {String}
      */
     getValue: function (options) {
-        console.log('getValue ???', options);
-        this.$editor.find('[style=""]').removeAttr('style');
-        return this.$editor.html();
+        var $editable = options && options.$layout || this.$editor.clone();
+        $editable.find('[contenteditable]').removeAttr('contenteditable');
+        $editable.find('[class=""]').removeAttr('class');
+        $editable.find('[style=""]').removeAttr('style');
+        $editable.find('[title=""]').removeAttr('title');
+        $editable.find('[alt=""]').removeAttr('alt');
+        $editable.find('[data-original-title=""]').removeAttr('data-original-title');
+        $editable.find('a.o_image, span.fa, i.fa').html('');
+        $editable.find('[aria-describedby]').removeAttr('aria-describedby').removeAttr('data-original-title');
+        return $editable.html();
     },
     /**
      * Save the content in the target
@@ -185,7 +171,6 @@ var Wysiwyg = Widget.extend({
      * @returns {String}
      */
     setValue: function (value, options) {
-        console.log('setValue ???', options);
         this._value = value;
         if (this.$editor.is('textarea')) {
             this.$target.val(value);
@@ -194,20 +179,16 @@ var Wysiwyg = Widget.extend({
         }
         this.$editor.html(value);
     },
-
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
-
     _editorOptions: function () {
         return Object.assign({}, $.summernote.options, this.defaultOptions, this.options);
     },
 });
-
 //--------------------------------------------------------------------------
 // Public helper
 //--------------------------------------------------------------------------
-
 /**
  * @param {Node} node (editable or node inside)
  * @returns {Object}
@@ -256,7 +237,6 @@ Wysiwyg.setRangeFromNode = function (node, options) {
     while (first.firstChild) {
         first = first.firstChild;
     }
-
     if (options && options.begin && !options.end) {
         Wysiwyg.setRange(first, 0);
     } else if (options && !options.begin && options.end) {
@@ -265,12 +245,8 @@ Wysiwyg.setRangeFromNode = function (node, options) {
         Wysiwyg.setRange(first, 0, last, last.tagName ? last.childNodes.length : last.textContent.length);
     }
 };
-
-
 return Wysiwyg;
 });
-
-
 odoo.define('web_editor.widget', function (require) {
 'use strict';
     return {
