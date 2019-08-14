@@ -9,7 +9,7 @@ var mixins = require('web.mixins');
 var base = require('web_editor.base');
 var weContext = require('web_editor.context');
 var rte = require('web_editor.rte');
-var weWidgets = require('web_editor.widget');
+var weWidgets = require('wysiwyg.widgets');
 
 var QWeb = core.qweb;
 var _t = core._t;
