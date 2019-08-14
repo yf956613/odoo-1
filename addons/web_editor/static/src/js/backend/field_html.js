@@ -468,10 +468,9 @@ var FieldHtml = basic_fields.DebouncedField.extend(TranslatableFieldMixin, {
             'font-size': '15px',
             position: 'absolute',
             right: '+5px',
+            top: '+5px',
         });
-        var $toolbar = this.$content.find('.note-toolbar');
-        $toolbar.css('position', 'relative');
-        $toolbar.append($button);
+        this.$el.append($button);
     },
     /**
      * @private

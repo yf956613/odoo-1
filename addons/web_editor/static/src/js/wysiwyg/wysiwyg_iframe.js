@@ -104,7 +104,7 @@ Wysiwyg.include({
                 resolve();
             };
         });
-        this.$iframe.data('loadDef', def);  // for unit test
+        this.$iframe.data('loadDef', def); // for unit test
 
         // inject content in iframe
 
