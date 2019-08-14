@@ -14,14 +14,20 @@ Wysiwyg.include({
     },
     start: async function () {
         if (this.options.snippets) {
+            var self = this;
             this.editor = new (this.Editor)(this, this.options);
             this.$editor = this.editor.rte.editable();
             await this.editor.prependTo(this.$editor[0].ownerDocument.body);
             this.options.toolbarHandler.append(this.editor.$el);
+            this.$el.on('content_changed', function (e) {
+                var $editable = $(e.target).closest('[data-oe-model], .o_editable').add($('[data-oe-model], .o_editable', e.target));
+                $editable.addClass('o_dirty');
+                self.trigger_up('wysiwyg_change');
+            });
         } else {
             await this._super();
         }
-    }
+    },
 });
 
 });
