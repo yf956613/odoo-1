@@ -419,47 +419,6 @@ QUnit.test('save immediately before iframe is rendered in edit mode', async func
             form.destroy();
             _t.database.multi_lang = multiLang;
         });
-
-        QUnit.test('field html translatable in iframe', async function (assert) {
-            assert.expect(2);
-
-            var multiLang = _t.database.multi_lang;
-            _t.database.multi_lang = true;
-
-            this.data['note.note'].fields.body.translate = true;
-
-            var form = await testUtils.createView({
-                View: FormView,
-                model: 'note.note',
-                data: this.data,
-                arch: '<form>' +
-                    '<field name="body" widget="html" style="height: 100px" options="{\'cssEdit\': \'template.assets\'}"/>' +
-                    '</form>',
-                res_id: 1,
-                mockRPC: function (route, args) {
-                    if (route === '/web/dataset/call_button' && args.method === 'translate_fields') {
-                        assert.deepEqual(args.args, ['note.note', 1, 'body'], "should call 'call_button' route");
-                        return Promise.resolve();
-                    }
-                    return this._super.apply(this, arguments);
-                },
-            });
-            await testUtils.form.clickEdit(form);
-            var $field = form.$('.oe_form_field[name="body"]');
-            var $iframe = $field.find('iframe');
-
-            await $iframe.data('loadDef');
-            await testUtils.nextTick();
-            var doc = $iframe.contents()[0];
-            var $content = $('#iframe_target', doc);
-
-            var $button = $content.find('.o_field_translate');
-            assert.strictEqual($button.length, 1, "should have a translate button");
-            await testUtils.dom.click($button);
-
-            form.destroy();
-            _t.database.multi_lang = multiLang;
-        });
     });
 });
 });
