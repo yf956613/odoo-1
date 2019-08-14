@@ -6,11 +6,19 @@
             <div class="o_mail_thread_content o_sub_w_visitor_info">
                 <t t-if="options.displayLoadMore" t-call="mail.widget.Thread.LoadMore"/>
                 <t t-call="mail.widget.Thread.Messages"/>
+                <t t-if="thread and thread.hasTypingNotification() and thread._typingPartnerData[thread.getID()]" t-call="mail.widget.Thread.TypingData"/>
                 <t t-if="options.displayBottomThreadFreeSpace">
                     <div class="o_thread_bottom_free_space"/>
                 </t>
             </div>
         </t>
+    </t>
+
+    <t t-name="mail.widget.Thread.TypingData">
+        <div class="alert alert-secondary o_thread_message_preview ml32">
+            <t t-call="mail.ThreadTypingIcon"/> <t t-esc="thread._name"/> <br/>
+            <t t-esc="thread._typingPartnerData[thread.getID()]"/>
+        </div>
     </t>
 
     <t t-extend="mail.widget.Thread.Content.DESC">

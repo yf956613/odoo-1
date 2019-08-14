@@ -791,7 +791,7 @@ class Channel(models.Model):
             'custom_channel_name': name,
         })
 
-    def notify_typing(self, is_typing, is_website_user=False):
+    def notify_typing(self, is_typing, is_website_user=False, typing_text=False):
         """ Broadcast the typing notification to channel members
             :param is_typing: (boolean) tells whether the current user is typing or not
             :param is_website_user: (boolean) tells whether the user that notifies comes
@@ -806,6 +806,7 @@ class Channel(models.Model):
                 'is_typing': is_typing,
                 'is_website_user': is_website_user,
                 'partner_id': self.env.user.partner_id.id,
+                'typing_text': typing_text,
             }
             notifications.append([(self._cr.dbname, 'mail.channel', channel.id), data]) # notify backend users
             notifications.append([channel.uuid, data]) # notify frontend users

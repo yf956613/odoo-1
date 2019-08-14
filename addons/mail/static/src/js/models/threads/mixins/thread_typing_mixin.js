@@ -81,6 +81,7 @@ var ThreadTypingMixin = {
         // This is used to track the order of registered partners typing
         // something, in order to display the oldest typing partners.
         this._typingPartnerIDs = [];
+        this._typingPartnerData = {};
 
         this.on('message_added', this, this._onTypingMessageAdded);
         this.on('message_posted', this, this._onTypingMessagePosted);
@@ -176,10 +177,11 @@ var ThreadTypingMixin = {
             timeoutCallbackArguments: [partnerID],
             timerID: partnerID,
         });
-        if (_.contains(this._typingPartnerIDs, partnerID)) {
+        if (_.contains(this._typingPartnerIDs, partnerID) && !params.inputData) {
             return;
         }
         this._typingPartnerIDs.push(partnerID);
+        this._typingPartnerData[this.getID()] = params.inputData;
         this._warnUpdatedTypingPartners();
     },
     /**
@@ -219,6 +221,7 @@ var ThreadTypingMixin = {
         this._typingPartnerIDs = _.reject(this._typingPartnerIDs, function (id) {
             return id === partnerID;
         });
+        this._typingPartnerData[this.getID()] = params.inputData;
         this._warnUpdatedTypingPartners();
     },
 

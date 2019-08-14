@@ -413,7 +413,11 @@ var ThreadWindow = AbstractThreadWindow.extend({
         if (this._thread.getID() !== threadID) {
             return;
         }
-        this.renderHeader();
+        if (this._thread && this._thread._typingPartnerData[threadID] != undefined) {
+            this.render();
+        } else {
+            this.renderHeader();
+        }
     },
     /**
      * @private
