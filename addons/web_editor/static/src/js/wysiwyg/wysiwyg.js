@@ -193,6 +193,9 @@ var Wysiwyg = Widget.extend({
             $editable.trigger('content_changed');
             self.trigger_up('wysiwyg_change');
         };
+        options.onUpload = function (attachments) {
+            self.trigger_up('wysiwyg_attachment', attachments);
+        };
         return options;
     },
 });
