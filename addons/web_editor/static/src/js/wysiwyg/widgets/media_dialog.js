@@ -94,19 +94,6 @@ var MediaDialog = Dialog.extend({
         this.$modal.find('.modal-dialog').addClass('o_select_media_dialog');
 
         if (this.imageWidget) {
-            this.imageWidget.clear();
-        }
-        if (this.documentWidget) {
-            this.documentWidget.clear();
-        }
-        if (this.iconWidget) {
-            this.iconWidget.clear();
-        }
-        if (this.videoWidget) {
-            this.videoWidget.clear();
-        }
-
-        if (this.imageWidget) {
             promises.push(this.imageWidget.appendTo(this.$("#editor-media-image")));
         }
         if (this.documentWidget) {
@@ -171,9 +158,32 @@ var MediaDialog = Dialog.extend({
         var _super = this._super;
         var args = arguments;
         return this.activeWidget.save().then(function (data) {
+            self._clearWidgets();
             self.final_data = data;
             _super.apply(self, args);
             $(data).trigger('content_changed');
+        });
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * Call clear on all the widgets except the activeWidget.
+     * We clear because every widgets are modifying the "media" element.
+     * All widget have the responsibility to clear a previous element that
+     * was created from them.
+     */
+    _clearWidgets: function () {
+        [   this.imageWidget,
+            this.documentWidget,
+            this.iconWidget,
+            this.videoWidget
+        ].forEach( (widget) => {
+            if (widget !== this.activeWidget) {
+                widget.clear();
+            }
         });
     },
 
