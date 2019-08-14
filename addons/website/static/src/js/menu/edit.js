@@ -183,7 +183,7 @@ var EditPageMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
      * @param {OdooEvent} ev
      */
     _onEditionWillStop: function (ev) {
-        this.$editorMessageElements.removeAttr('data-editor-message');
+        this.$editorMessageElements && this.$editorMessageElements.removeAttr('data-editor-message');
         this.trigger_up('widgets_stop_request', {
             $target: this._targetForEdition(),
         });
