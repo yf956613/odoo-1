@@ -11,7 +11,7 @@ var Wysiwyg = Widget.extend({
     ],
     defaultOptions: {
         'focus': false,
-        'airPopover': [
+        'toolbar': [
             ['style', ['style']],
             ['font', ['bold', 'italic', 'underline', 'clear']],
             ['fontsize', ['fontsize']],
@@ -24,9 +24,6 @@ var Wysiwyg = Widget.extend({
         'styleWithSpan': false,
         'inlinemedia': ['p'],
         'lang': 'odoo',
-        'onChange': function (html, $editable) {
-            $editable.trigger('content_changed');
-        },
         'colors': summernoteCustomColors,
         recordInfo: {
             context: {},
@@ -80,7 +77,10 @@ var Wysiwyg = Widget.extend({
         var focus = false;
         this._blur = function (e) {
             if ($wysiwyg[0].contains(e.target)) {
-                focus = true;
+                if (!focus) {
+                    focus = true;
+                    self.trigger_up('wysiwyg_focus');
+                }
             } else if (focus) {
                 focus = false;
                 self.trigger_up('wysiwyg_blur');
@@ -183,7 +183,17 @@ var Wysiwyg = Widget.extend({
     // Private
     //--------------------------------------------------------------------------
     _editorOptions: function () {
-        return Object.assign({}, $.summernote.options, this.defaultOptions, this.options);
+        var self = this;
+        var options = Object.assign({}, $.summernote.options, this.defaultOptions, this.options);
+        if (this.options.generateOptions) {
+            options = this.options.generateOptions(options);
+        }
+        options.airPopover = options.toolbar;
+        options.onChange = function (html, $editable) {
+            $editable.trigger('content_changed');
+            self.trigger_up('wysiwyg_change');
+        };
+        return options;
     },
 });
 //--------------------------------------------------------------------------

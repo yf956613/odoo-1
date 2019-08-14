@@ -342,6 +342,15 @@ eventHandler.modules.popover.button.update = function ($container, oStyle) {
     }
 };
 
+var fn_toolbar_boutton_update = eventHandler.modules.toolbar.button.update;
+eventHandler.modules.toolbar.button.update = function ($container, oStyle) {
+    fn_toolbar_boutton_update.call(this, $container, oStyle);
+
+    $container.find('button[data-event="insertUnorderedList"]').toggleClass("active", $(oStyle.ancestors).is('ul:not(.o_checklist)'));
+    $container.find('button[data-event="insertOrderedList"]').toggleClass("active", $(oStyle.ancestors).is('ol'));
+    $container.find('button[data-event="insertCheckList"]').toggleClass("active", $(oStyle.ancestors).is('ul.o_checklist'));
+};
+
 var fn_popover_update = eventHandler.modules.popover.update;
 eventHandler.modules.popover.update = function ($popover, oStyle, isAirMode) {
     var $imagePopover = $popover.find('.note-image-popover');
@@ -388,7 +397,7 @@ var fn_handle_update = eventHandler.modules.handle.update;
 eventHandler.modules.handle.update = function ($handle, oStyle, isAirMode) {
     fn_handle_update.call(this, $handle, oStyle, isAirMode);
     if (oStyle.image) {
-        $handle.find('.note-control-selection').hide();
+        $handle.find('[]').hide();
     }
 };
 
