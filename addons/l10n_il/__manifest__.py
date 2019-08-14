@@ -26,6 +26,6 @@ This module consists:
         'data/account_chart_template_configure_data.xml',
         'views/res_partner_view.xml',
         'views/res_company_view.xml',
-        'views/l10n_il_withh_tax_report_data_view.xml'
+        'views/account_view.xml'
     ],
 }
