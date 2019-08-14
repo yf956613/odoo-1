@@ -182,7 +182,7 @@ var MediaDialog = Dialog.extend({
             this.videoWidget
         ].forEach( (widget) => {
             if (widget !== this.activeWidget) {
-                widget.clear();
+                widget && widget.clear();
             }
         });
     },
