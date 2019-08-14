@@ -70,9 +70,12 @@ var Wysiwyg = Widget.extend({
         var self = this;
         this.$target.wrap('<odoo-wysiwyg-container>');
         this.$el = this.$target.parent();
-        this.$target.summernote(this._editorOptions());
+        var options = this._editorOptions();
+        this.$target.summernote(options);
         this.$editor = this.$('.note-editable:first');
         this.$editor.data('wysiwyg', this);
+        this.$editor.data('oe-model', options.recordInfo.res_model);
+        this.$editor.data('oe-id', options.recordInfo.res_id);
         var $wysiwyg = this.$editor.closest('odoo-wysiwyg-container');
         var focus = false;
         this._blur = function (e) {
