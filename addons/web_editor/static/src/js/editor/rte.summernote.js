@@ -397,7 +397,7 @@ var fn_handle_update = eventHandler.modules.handle.update;
 eventHandler.modules.handle.update = function ($handle, oStyle, isAirMode) {
     fn_handle_update.call(this, $handle, oStyle, isAirMode);
     if (oStyle.image) {
-        $handle.find('[]').hide();
+        $handle.find('.note-control-selection').hide();
     }
 };
 
