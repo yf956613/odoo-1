@@ -50,6 +50,7 @@ def locate_node(arch, spec):
     :param spec: a modifying node in an inheriting view
     :return: a node in the source matching the spec
     """
+    spec.attrib.pop("studio-view-group-ids", None)
     if spec.tag == 'xpath':
         nodes = etree.ETXPath(spec.get('expr'))(arch)
         return nodes[0] if nodes else None
