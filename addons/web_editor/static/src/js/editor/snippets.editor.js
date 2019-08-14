@@ -1274,7 +1274,8 @@ var SnippetsMenu = Widget.extend({
         }
 
         return Promise.resolve(def).then(function (parentEditor) {
-            snippetEditor = new SnippetEditor(parentEditor || self, $snippet, self.templateOptions, $snippet.closest('[data-oe-type="html"], .oe_structure'), self.options);
+            var $editable = $snippet.closest('[data-oe-type="html"], .oe_structure').add($snippet).first();
+            snippetEditor = new SnippetEditor(parentEditor || self, $snippet, self.templateOptions, $editable, self.options);
             self.snippetEditors.push(snippetEditor);
             return snippetEditor.appendTo(self.$snippetEditorArea);
         }).then(function () {
