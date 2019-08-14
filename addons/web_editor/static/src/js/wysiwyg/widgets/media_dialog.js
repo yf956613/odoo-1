@@ -41,9 +41,10 @@ var MediaDialog = Dialog.extend({
         media = $media[0];
 
         options = _.extend({}, options);
-        options.noDocuments = options.onlyImages || options.noDocuments;
-        options.noIcons = options.onlyImages || options.noIcons;
-        options.noVideos = options.onlyImages || options.noVideos;
+        var onlyImages = options.onlyImages || this.multiImages || (media && ($media.parent().data('oeField') === 'image' || $media.parent().data('oeType') === 'image'));
+        options.noDocuments = onlyImages || options.noDocuments;
+        options.noIcons = onlyImages || options.noIcons;
+        options.noVideos = onlyImages || options.noVideos;
 
         this._super(parent, _.extend({}, {
             title: _t("Select a Media"),
