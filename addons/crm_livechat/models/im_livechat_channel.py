@@ -7,7 +7,6 @@ from odoo import api, models
 class ImLivechatChannel(models.Model):
     _inherit = 'im_livechat.channel'
 
-    @api.multi
     def _get_mail_channel(self, anonymous_name, previous_operator_id=None, user_id=None, country_id=None):
         self.ensure_one()
         res = super(ImLivechatChannel, self)._get_mail_channel(anonymous_name, previous_operator_id=previous_operator_id, user_id=user_id, country_id=country_id)
