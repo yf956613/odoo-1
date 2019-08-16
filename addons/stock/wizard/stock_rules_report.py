@@ -18,18 +18,24 @@ class StockRulesReport(models.TransientModel):
     def default_get(self, fields):
         res = super(StockRulesReport, self).default_get(fields)
         product_tmpl_id = False
-        if 'product_id' in fields:
-            if self.env.context.get('default_product_id'):
-                product_id = self.env['product.product'].browse(self.env.context['default_product_id'])
-                product_tmpl_id = product_id.product_tmpl_id
-                res['product_tmpl_id'] = product_id.product_tmpl_id.id
-                res['product_id'] = product_id.id
-            elif self.env.context.get('default_product_tmpl_id'):
-                product_tmpl_id = self.env['product.template'].browse(self.env.context['default_product_tmpl_id'])
-                res['product_tmpl_id'] = product_tmpl_id.id
-                res['product_id'] = product_tmpl_id.product_variant_id.id
-                if len(product_tmpl_id.product_variant_ids) > 1:
-                    res['product_has_variants'] = True
+        if self.context.get('active_model', '') == 'product.product':
+            product_id = self.context.get('active_id')
+            product = self.env['product.product'].browse(product_id)
+            res['product_id'] = product_id
+            res['product_tmpl_id'] = product.product_tmpl_id.id
+            if len(product_tmpl_id.product_variant_ids) > 1:
+                res['product_has_variants'] = True
+        elif self.context.get('active_model', '') == 'product.template':
+            ptmpl_id = self.context.get('active_id')
+            ptmpl = self.env['product.template'].browse(ptmpl_id)
+            res['product_id'] = ptmpl.product_variant_id.id
+            res['product_tmpl_id'] = ptmpl_id
+            if len(product_tmpl_id.product_variant_ids) > 1:
+                res['product_has_variants'] = True
+        else:
+            return res
+
+        # VFE NOTE move to independent default function ?
         if 'warehouse_ids' in fields:
             warehouse_id = self.env['stock.warehouse'].search([], limit=1).id
             res['warehouse_ids'] = [(6, 0, [warehouse_id])]
@@ -46,4 +52,3 @@ class StockRulesReport(models.TransientModel):
         self.ensure_one()
         data = self._prepare_report_data()
         return self.env.ref('stock.action_report_stock_rule').report_action(None, data=data)
-

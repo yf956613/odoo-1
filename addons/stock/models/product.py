@@ -511,6 +511,16 @@ class Product(models.Model):
     def action_product_forecast_report(self):
         action = self.env.ref('stock.report_stock_quantity_action_product').read()[0]
         action['domain'] = [('product_id', '=', self.id)]
+        action['context'] = {'default_product_id': self.id}
+        return action
+
+    def action_view_orderpoints(self):
+        action = self.env.ref('stock.product_open_orderpoint').read()[0]
+        if len(self) == 1:
+            action['context'] = {'default_product_id': self.id, 'search_default_product_id': self.id}
+        else:
+            action['domain'] = [('product_id', 'in', self.ids)]
+            action['context'] = {}
         return action
 
     @api.model
@@ -776,9 +786,10 @@ class ProductTemplate(models.Model):
             })
         return action
 
-    def action_product_tmpl_forecast_report(self):
+    def action_product_forecast_report(self):
         action = self.env.ref('stock.report_stock_quantity_action').read()[0]
         action['domain'] = [('product_id', 'in', self.product_variant_ids.ids)]
+        action['context'] = {'default_product_tmpl_id': self.id}
         return action
 
 class ProductCategory(models.Model):

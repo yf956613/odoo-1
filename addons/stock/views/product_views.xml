@@ -97,11 +97,88 @@
         </record>
 
         <!-- view common to both template and product -->
-        <record id="view_template_property_form" model="ir.ui.view">
+        <record id="product_template_form_view" model="ir.ui.view">
             <field name="name">product.template.stock.property.form.inherit</field>
             <field name="model">product.template</field>
+            <field name="priority">20</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
+                <header position="inside">
+                    <button string="Update Quantity" type="object"
+                        groups="stock.group_stock_manager"
+                        name="action_update_quantity_on_hand"
+                        attrs="{'invisible': [('type', '!=', 'product')]}"/>
+                    <button string="Replenish" type="action"
+                        name="%(action_product_replenish)d"
+                        context="{'default_product_id': id}"
+                        groups="stock.group_stock_user"
+                        attrs="{'invisible': [('type', '!=', 'product')]}"/>
+                </header>
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button"
+                           name="action_open_quants"
+                           icon="fa-cubes"
+                           type="object" attrs="{'invisible':[('type', '!=', 'product')]}">
+                           <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="qty_available" widget="statinfo" nolabel="1" class="mr4"/>
+                                    <field name="uom_name"/>
+                                </span>
+                                <span class="o_stat_text">On Hand</span>
+                           </div>
+                    </button>
+                    <button type="object"
+                        name="action_product_forecast_report"
+                        attrs="{'invisible':[('type', '!=', 'product')]}"
+                        class="oe_stat_button" icon="fa-cubes">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="virtual_available" widget="statinfo" nolabel="1" class="mr4"/>
+                                <field name="uom_name"/>
+                            </span>
+                            <span class="o_stat_text">Forecasted</span>
+                        </div>
+                    </button>
+                   <button string="Traceability"
+                        type="object"
+                        name= "action_view_stock_move_lines"
+                        attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}"
+                        class="oe_stat_button" icon="fa-exchange"
+                        groups="stock.group_stock_user"/>
+                    <button name="action_view_orderpoints" type="action"
+                        attrs="{'invisible':['|',('type', 'not in', ['product', 'consu']),('nbr_reordering_rules', '!=', 1)]}"
+                        class="oe_stat_button" icon="fa-refresh">
+                        <div class="o_field_widget o_stat_info mr4">
+                            <span class="o_stat_text">Min:</span>
+                            <span class="o_stat_text">Max:</span>
+                        </div>
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value"><field name="reordering_min_qty"/></span>
+                            <span class="o_stat_value"><field name="reordering_max_qty"/></span>
+                        </div>
+                    </button>
+                    <button type="action"
+                        name="action_view_orderpoints"
+                        attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '==', 1)]}"
+                        class="oe_stat_button" icon="fa-refresh">
+                        <field name="nbr_reordering_rules" widget="statinfo"/>
+                    </button>
+                    <button string="Lot/Serial Numbers" type="object"
+                        name="action_open_product_lot"
+                        attrs="{'invisible': [('tracking', '=', 'none')]}"
+                        class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot"/>
+                   <button string="Routes" type="action"
+                        name="%(action_stock_rules_report)d"
+                        attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}"
+                        class="oe_stat_button" icon="fa-cogs"
+                        context="{'default_product_id': id}"
+                        groups="stock.group_stock_multi_locations"/>
+                    <button string="Putaway Rules" type="object"
+                        name="action_view_related_putaway_rules"
+                        class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
+                        attrs="{'invisible': [('type', '=', 'service')]}"
+                        context="{'invisible_handle': True, 'single_product': True}"/>
+                </div>
                 <xpath expr="//group[@name='group_lots_and_weight']" position="before">
                     <group string="Operations" name="operations">
                         <field name="route_ids" widget="many2many_checkboxes" attrs="{'invisible': [('type', 'in', ['service', 'digital'])]}"/>
@@ -119,6 +196,9 @@
                         <field name="property_stock_production" domain="[('usage', '=', 'production')]"/>
                         <field name="property_stock_inventory" domain="[('usage', '=', 'inventory')]"/>
                     </group>
+                </xpath>
+                <xpath expr="//group[@name='group_lots_and_weight']" position="inside">
+                    <field name="responsible_id"/>
                 </xpath>
                 <page name="inventory" position="inside">
                     <group string="Description for Delivery Orders">
@@ -201,182 +281,11 @@
             <field name="inherit_id" ref="product.product_normal_form_view"/>
             <field name="arch" type="xml">
                 <data>
-                    <header position="inside">
-                        <button string="Update Quantity" type="object"
-                            groups="stock.group_stock_manager"
-                            name="action_update_quantity_on_hand"
-                            attrs="{'invisible': [('type', '!=', 'product')]}"/>
-                        <button string="Replenish" type="action"
-                            name="%(action_product_replenish)d"
-                            context="{'default_product_id': id}"
-                            groups="stock.group_stock_user"
-                            attrs="{'invisible': [('type', '!=', 'product')]}"/>
-                    </header>
-                    <div name="button_box" position="inside">
-                        <button class="oe_stat_button"
-                               name="action_open_quants"
-                               icon="fa-cubes"
-                               type="object" attrs="{'invisible':[('type', '!=', 'product')]}">
-                               <div class="o_field_widget o_stat_info">
-                                    <span class="o_stat_value">
-                                        <field name="qty_available" widget="statinfo" nolabel="1" class="mr4"/>
-                                        <field name="uom_name"/>
-                                    </span>
-                                    <span class="o_stat_text">On Hand</span>
-                               </div>
-                        </button>
-                        <button type="object"
-                            name="action_product_forecast_report"
-                            attrs="{'invisible':[('type', '!=', 'product')]}"
-                            context="{'default_product_id': id}"
-                            class="oe_stat_button" icon="fa-cubes">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value">
-                                    <field name="virtual_available" widget="statinfo" nolabel="1" class="mr4"/>
-                                    <field name="uom_name"/>
-                                </span>
-                                <span class="o_stat_text">Forecasted</span>
-                            </div>
-                        </button>
-                       <button string="Traceability"
-                            type="object"
-                            name= "action_view_stock_move_lines"
-                            attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}"
-                            class="oe_stat_button" icon="fa-exchange"
-                            groups="stock.group_stock_user"/>
-                        <button name="%(product_open_orderpoint)d" type="action"
-                            attrs="{'invisible':['|',('type', 'not in', ['product', 'consu']),('nbr_reordering_rules', '!=', 1)]}"
-                            class="oe_stat_button" icon="fa-refresh">
-                            <div class="o_field_widget o_stat_info mr4">
-                                <span class="o_stat_text">Min :</span>
-                                <span class="o_stat_text">Max:</span>
-                            </div>
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value"><field name="reordering_min_qty"/></span>
-                                <span class="o_stat_value"><field name="reordering_max_qty"/></span>
-                            </div>
-                        </button>
-                        <button type="action"
-                            name="%(product_open_orderpoint)d"
-                            attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '==', 1)]}"
-                            class="oe_stat_button" icon="fa-refresh">
-                            <field name="nbr_reordering_rules" widget="statinfo"/>
-                        </button>
-                        <button string="Lot/Serial Numbers" type="object"
-                            name="action_open_product_lot"
-                            attrs="{'invisible': [('tracking', '=', 'none')]}"
-                            class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot"/>
-                       <button string="Routes" type="action"
-                            name="%(action_stock_rules_report)d"
-                            attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}"
-                            class="oe_stat_button" icon="fa-cogs"
-                            context="{'default_product_id': id}"
-                            groups="stock.group_stock_multi_locations"/>
-                        <button string="Putaway Rules" type="object"
-                            name="action_view_related_putaway_rules"
-                            class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
-                            attrs="{'invisible': [('type', '=', 'service')]}"
-                            context="{'invisible_handle': True, 'single_product': True}"/>
-                    </div>
                     <xpath expr="//field[@name='product_tmpl_id']" position="attributes">
                         <attribute name="context">{'quantity_available_locations_domain': ('internal',)}</attribute>
-                    </xpath>
-                </data>
-            </field>
-        </record>
-
-        <!-- view used for product.template only -->
-        <record model="ir.ui.view" id="product_template_form_view_procurement_button">
-            <field name="name">product.template_procurement</field>
-            <field name="model">product.template</field>
-            <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
-            <field name="inherit_id" ref="product.product_template_only_form_view"/>
-            <field name="arch" type="xml">
-                <data>
-                    <header position="inside" >
-                        <button string="Update Quantity" type="object"
-                            groups="stock.group_stock_manager"
-                            name="action_update_quantity_on_hand"
-                            attrs="{'invisible': [('type', '!=', 'product')]}"/>
-                        <button string="Replenish" type="action"
-                            name="%(action_product_replenish)d"
-                            context="{'default_product_tmpl_id': id}"
-                            groups="stock.group_stock_user"
-                            attrs="{'invisible': [('type', '!=', 'product')]}"/>
-                    </header>
-                    <div name="button_box" position="inside">
-                        <button type="object"
-                            name="action_open_quants"
-                            attrs="{'invisible':[('type', '!=', 'product')]}"
-                            class="oe_stat_button" icon="fa-cubes">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value" widget="statinfo">
-                                    <field name="qty_available" widget="statinfo" nolabel="1" class="mr4"/>
-                                    <field name="uom_name"/>
-                                </span>
-                                <span class="o_stat_text">On Hand</span>
-                            </div>
-                        </button>
-                        <button type="object"
-                            name="action_product_tmpl_forecast_report"
-                            attrs="{'invisible':[('type', '!=', 'product')]}"
-                            context="{'default_product_tmpl_id': id}"
-                            class="oe_stat_button" icon="fa-cubes">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value">
-                                    <field name="virtual_available" widget="statinfo" nolabel="1" class="mr4"/>
-                                    <field name="uom_name"/>
-                                </span>
-                                <span class="o_stat_text">Forecasted</span>
-                            </div>
-                        </button>
-                        <button string="Traceability" type="object"
-                            name= "action_view_stock_move_lines"
-                            attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}"
-                            class="oe_stat_button" icon="fa-exchange"
-                            groups="stock.group_stock_user"/>
-                        <button type="object"
-                            name="action_view_orderpoints"
-                            attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '!=', 1)]}"
-                            class="oe_stat_button" icon="fa-refresh">
-                            <div class="o_field_widget o_stat_info mr4">
-                                <span class="o_stat_text">Min:</span>
-                                <span class="o_stat_text">Max:</span>
-                            </div>
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_value"><field name="reordering_min_qty"/></span>
-                                <span class="o_stat_value"><field name="reordering_max_qty"/></span>
-                            </div>
-                        </button>
-                        <button type="object"
-                            name="action_view_orderpoints"
-                            attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '==', 1)]}"
-                            class="oe_stat_button"
-                            icon="fa-refresh">
-                            <field name="nbr_reordering_rules" widget="statinfo"/>
-                         </button>
-                        <button string="Lot/Serial Numbers" type="object"
-                            name="action_open_product_lot"
-                            attrs="{'invisible': [('tracking', '=', 'none')]}"
-                            class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot"/>
-                        <button string="Routes" type="action"
-                            name="%(action_stock_rules_report)d"
-                            attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}"
-                            class="oe_stat_button" icon="fa-cogs"
-                            context="{'default_product_tmpl_id': id}"
-                            groups="stock.group_stock_multi_locations"/>
-                        <button string="Putaway Rules" type="object"
-                            name="action_view_related_putaway_rules"
-                            class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
-                            attrs="{'invisible': [('type', '=', 'service')]}"
-                            context="{
-                                'invisible_handle': True,
-                                'single_product': product_variant_count == 1,
-                            }"/>
-                    </div>
-
-                    <xpath expr="//group[@name='group_lots_and_weight']" position="inside">
-                        <field name="responsible_id"/>
+                        <!-- Is it really needed ?
+                        https://github.com/odoo/odoo/commit/204a673ca63792f8380c3676c351ae42ad5ed6f2
+                      -->
                     </xpath>
                 </data>
             </field>
