@@ -12,6 +12,10 @@ var _t = core._t;
 var SlideUploadDialog = Dialog.extend({
     template: 'website.slide.upload.modal',
     events: _.extend({}, Dialog.prototype.events, {
+        'click .o_upload_image_certification_slide': '_onClickImageCertificationSlide',
+        'click .o_upload_image_certification_badge': '_onClickImageCertificationBadge',
+        'click .o_wss_trash_icon_slide': '_onClickTrashIconSlide',
+        'click .o_wss_trash_icon_badge': '_onClickTrashIconBadge',
         'click .o_wslides_js_upload_install_button': '_onClickInstallModule',
         'click .o_wslides_select_type': '_onClickSlideTypeIcon',
         'change input#slide-upload': '_onChangeSlideUpload',
@@ -123,7 +127,24 @@ var SlideUploadDialog = Dialog.extend({
     _formValidate: function () {
         var form = this.$("form");
         form.addClass('was-validated');
+        this._formValidateImages();
         return form[0].checkValidity() && this.isValidUrl;
+    },
+    _formValidateImages: function(){
+        var imageSlide = document.getElementById("slide-border");
+        var imageBadge = document.getElementById("badge-border");
+        if (document.getElementById('slide-upload').value === ''){      
+            imageSlide.classList.add("border-danger");
+        }
+        else{
+            imageSlide.classList.remove("border-danger");
+        }
+        if (document.getElementById("badge-image").offsetParent && document.getElementById('badge-upload').value === ''){
+            imageBadge.classList.add("border-danger");
+        }
+        else{
+            imageBadge.classList.remove("border-danger");
+        }
     },
     /**
      * Extract values to submit from form, force the slide_type according to
@@ -437,11 +458,37 @@ var SlideUploadDialog = Dialog.extend({
         }
     },
 
+    _onClickTrashIconBadge: function (ev) {
+        ev.preventDefault();
+        document.getElementById('badge-upload').value = ''
+        document.getElementById("badge-image").src="/website_slides/static/src/img/document.png";
+    },
+
+    _onClickTrashIconSlide: function (ev) {
+        ev.preventDefault();
+        document.getElementById('slide-upload').value = ''
+        document.getElementById("slide-image").src="/website_slides/static/src/img/document.png";
+    },
+
+    _onClickImageCertificationBadge: function(ev){
+        ev.preventDefault();
+        $("input[id='badge-upload']").click();
+    },
+
+    _onClickImageCertificationSlide: function(ev){
+        ev.preventDefault();
+        $("input[id='slide-upload']").click();
+    },
+
     _onChangeSlideUpload: function (ev){
+        var imageSlide = document.getElementById("slide-border");
+        imageSlide.classList.remove("border-danger");
         return this._onChangeImageUpload(ev, "slide-upload")
     },
 
     _onChangeBadgeUpload: function (ev){
+        var imageBadge = document.getElementById("badge-border");
+        imageBadge.classList.remove("border-danger");
         return this._onChangeImageUpload(ev, "badge-upload")
     },
 
@@ -649,8 +696,8 @@ var SlideUploadDialog = Dialog.extend({
             $(".no_badge").removeClass("d-none");
             $(".readonly").addClass( "d-none");
         }
-        
     },
+
     _onClickGoBack: function (ev) {
         this.set('state', '_select');
         this.isValidUrl = true;
@@ -658,6 +705,7 @@ var SlideUploadDialog = Dialog.extend({
             this.modulesToInstallStatus = null;
         }
     },
+
     _onClickFormSubmit: function (ev) {
         var self = this;
         var $btn = $(ev.currentTarget);

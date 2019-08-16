@@ -12,7 +12,23 @@
                         <input class="form-control" id="certification_id" required="required"/>
                     </div>
                 </div>
-                <t t-call="website.slide.upload.modal.common"/>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <div class="img-thumbnail img-hover" id="slide-border">
+                            <img src="/website_slides/static/src/img/document.png" id="slide-image" title="Content Preview" alt="Content Preview" class="img-fluid mb8"/>
+                            <input id="slide-upload" name="slide-file" class="form-control-file d-none" accept="image/*" type="file" required="required" data-prevent-onchange="1"/>
+                            <div class="o_wss_icon_controls">
+                                <button class="fa fa-trash-o fa-lg float-right o_wss_trash_icon_slide" title="Clear" aria-label="Clear"/>
+                                <button class="fa fa-pencil fa-lg float-right o_select_file_button o_upload_image_certification_slide" title="Edit" aria-label="Edit"/>
+                            </div>
+                        </div>
+                </div>
+                <div class="col-md-8">
+                        <t t-call="website.slide.upload.modal.common"/>
+                    </div>
+                </div>
+
+                
                 <div class="no_badge form-group row d-none">
                     <label for="certification_give_badge" class="col-form-label col-md-3">Give badge</label>
                     <div class="controls col-md-9 mt8">
@@ -25,58 +41,29 @@
                         <input id="certification_badge_id_readonly" name="certification_badge_id_readonly" class="form-control" readonly="True" style="pointer-events: none;"/>
                     </div>
                 </div>
-                <div class="form-group row">
-                    <div class="col-md-4">
-                        <div class="img-thumbnail">
-                            <div class="o_slide_preview">
-                                <img src="/website_slides/static/src/img/document.png" id="slide-image" title="Content Preview" alt="Content Preview" class="img-fluid"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <ul class="list-group">
-                            <li class="list-group-item">
-                                <h5 class="list-group-item-heading">
-                                    <label for="upload" class="col-form-label">Cover Image Certification</label>
-                                </h5>
-                                <input id="slide-upload" name="slide-file" class="form-control" accept="image/*" type="file" required="required" data-prevent-onchange="1"/>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div class="no_badge o_web_slide_survey_badge d-none p-1" style="border:2px solid #999999;">
-                    <h3 class="modal-title p-1">Create a Badge</h3>
-                    <div class="no_badge form-group row o_web_slide_survey_badge d-none p-1">
-                        <label for="certification_badge_id" class="col-form-label col-md-3">Title</label>
-                        <div class="col-md-9">
-                            <input id="certification_badge_id" class="form-control" required="required"/>
-                        </div>
-                    </div>
-
-                    <div class="form-group row p-1">
+                <div class="no_badge o_web_slide_survey_badge d-none">
+                    <div class="form-group row">
                         <div class="col-md-4">
-                            <div class="img-thumbnail">
-                                <div class="o_slide_preview">
-                                    <img src="/website_slides/static/src/img/document.png" id="badge-image" title="Content Preview" alt="Content Preview" class="img-fluid"/>
+                            <div class="img-thumbnail img-hover" id="badge-border">
+                                <img src="/website_slides/static/src/img/document.png" id="badge-image" title="Content Preview" alt="Content Preview" class="img-fluid"/>
+                                <input id="badge-upload" name="badge-file" class="form-control-file d-none" accept="image/*" type="file" required="required" data-prevent-onchange="1"/>
+                                <div class="o_wss_icon_controls">
+                                    <button class="fa fa-trash-o fa-lg float-right o_wss_trash_icon_badge" title="Clear" aria-label="Clear"/>
+                                    <button class="fa fa-pencil fa-lg float-right o_select_file_button o_upload_image_certification_badge" title="Edit" aria-label="Edit"/>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <ul class="list-group">
-                                <li class="list-group-item">
-                                    <h5 class="list-group-item-heading">
-                                        <label for="upload" class="col-form-label">Badge Image</label>
-                                    </h5>
-                                    <input id="badge-upload" name="badge-file" class="form-control" accept="image/*" type="file" data-prevent-onchange="1"/>
-                                </li>
-                            </ul>
+                            <div class="no_badge form-group row o_web_slide_survey_badge d-none p-1">
+                            <label for="certification_badge_id" class="col-form-label col-md-3">Certification Badge</label>
+                                <div class="col-md-9">
+                                    <input id="certification_badge_id" class="form-control" required="required"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-
-
                 <canvas id="data_canvas" class="d-none"></canvas>
             </form>
         </div>
