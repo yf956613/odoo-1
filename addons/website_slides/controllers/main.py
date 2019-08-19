@@ -130,7 +130,7 @@ class WebsiteSlides(WebsiteProfile):
                 'answers': [{
                     'id': answer.id,
                     'text_value': answer.text_value,
-                    'is_correct': answer.is_correct if slide_completed else None
+                    'is_correct': answer.is_correct if slide_completed or request.website.is_publisher() else None
                 } for answer in question.sudo().answer_ids],
             } for question in slide.question_ids]
         }
@@ -694,6 +694,58 @@ class WebsiteSlides(WebsiteProfile):
     # QUIZZ SECTION
     # --------------------------------------------------
 
+    @http.route('/slides/slide/quiz/question_add_or_update', type='json', methods=['POST'], auth='user', website=True)
+    def slide_quiz_question_add_or_update(self, **post):
+        """Adds a new Question to an existing slide and set the completed field to False
+            in the slide.slide.partner model to make sure that the creator can take the
+            Quiz if there wasn't any to begin with. When updating, the Question is deleted
+            first before creating a new one.
+
+            :param post: object with the following form :
+                {
+                    'sequence': Question Sequence (Integer),
+                    'question': Question Title (String),
+                    'slide_id': Slide ID (Integer),
+                    'answer_ids': [
+                        'sequence': Answer Sequence (Integer),
+                        'text_value': Answer Title (String),
+                        'is_correct': Answer Is Correct (Boolean)
+                    ]
+                }
+            :return: same object as received in parameter but containing the ID of the
+                     question
+        """
+        question = request.env['slide.question'].browse(post['id'] or None)
+        update = False
+        if question.exists():
+            update = True
+            question.unlink()
+        request.env['slide.slide.partner'].search([
+            ('slide_id', '=', post['slide_id']),
+            ('partner_id', '=', request.env.user.partner_id.id)
+        ]).write({'completed': False})
+        question = request.env['slide.question'].create({
+            'sequence': post['sequence'],
+            'question': post['question'],
+            'slide_id': post['slide_id'],
+            'answer_ids': [(0, 0, {
+                'sequence': answer['sequence'],
+                'text_value': answer['text_value'],
+                'is_correct': answer['is_correct']
+            }) for answer in post['answer_ids']]
+        })
+        return {
+            'update': update,
+            'id': question.id,
+            'sequence': question.sequence,
+            'question': question.question,
+            'answer_ids': [{
+                'id': answer['id'],
+                'text_value': answer['text_value'],
+                'is_correct': answer['is_correct']
+            } for answer in question.answer_ids]
+        }
+
     @http.route('/slides/slide/quiz/get', type="json", auth="public", website=True)
     def slide_quiz_get(self, slide_id):
         fetch_res = self._fetch_slide(slide_id)
@@ -749,6 +801,14 @@ class WebsiteSlides(WebsiteProfile):
             'quizAttemptsCount': quiz_info['quiz_attempts_count'],
             'rankProgress': rank_progress,
         }
+
+    @http.route('/slides/slide/quiz/reset', type="json", auth="user", website=True)
+    def slide_quiz_reset(self, **post):
+        request.env['slide.slide.partner'].search([
+            ('slide_id', '=', post['slide_id']),
+            ('partner_id', '=', request.env.user.partner_id.id)
+        ]).write({'completed': False})
+        return
 
     # --------------------------------------------------
     # CATEGORY MANAGEMENT
@@ -852,13 +912,10 @@ class WebsiteSlides(WebsiteProfile):
         channel._resequence_slides(slide)
 
         redirect_url = "/slides/slide/%s" % (slide.id)
-        if channel.channel_type == "training" and not slide.slide_type == "webpage":
+        if slide.slide_type == 'certification':
             redirect_url = "/slides/%s" % (slug(channel))
-        if slide.slide_type == 'webpage':
+        elif slide.slide_type == 'webpage':
             redirect_url += "?enable_editor=1"
-        if slide.slide_type == "quiz":
-            action_id = request.env.ref('website_slides.slide_slide_action').id
-            redirect_url = '/web#id=%s&action=%s&model=slide.slide&view_type=form' %( slide.id, action_id)
         return {
             'url': redirect_url,
             'channel_type': channel.channel_type,

@@ -77,9 +77,14 @@
                         </span>
                     </span>
                 </div>
-                <button t-if="widget.slide.completed &amp;&amp; widget.slide.hasNext" class="btn btn-primary o_wslides_quiz_continue">
-                    Continue <i class="fa fa-chevron-right ml-1"/>
-                </button>
+                <div class="ml-auto">
+                    <button t-if="widget.slide.completed &amp;&amp; widget.slide.channelCanUpload" class="btn btn-light border o_wslides_js_lesson_quiz_reset">
+                        Reset
+                    </button>
+                    <button t-if="widget.slide.completed &amp;&amp; widget.slide.hasNext" class="btn btn-primary o_wslides_quiz_continue">
+                        Continue <i class="fa fa-chevron-right ml-1"/>
+                    </button>
+                </div>
             </div>
         </div>
     </t>

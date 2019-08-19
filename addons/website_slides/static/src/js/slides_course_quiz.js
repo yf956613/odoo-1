@@ -2,10 +2,12 @@ odoo.define('website_slides.quiz', function (require) {
     'use strict';
 
     var publicWidget = require('web.public.widget');
+    var Dialog = require('web.Dialog');
     var core = require('web.core');
     var session = require('web.session');
 
     var CourseJoinWidget = require('website_slides.course.join.widget').courseJoinWidget;
+    var QuestionFormWidget = require('website_slides.quiz.question.form');
 
     var QWeb = core.qweb;
     var _t = core._t;
@@ -28,7 +30,18 @@ odoo.define('website_slides.quiz', function (require) {
             "click .o_wslides_quiz_answer": '_onAnswerClick',
             "click .o_wslides_js_lesson_quiz_submit": '_onSubmitQuiz',
             "click .o_wslides_quiz_btn": '_onClickNext',
-            "click .o_wslides_quiz_continue": '_onClickNext'
+            "click .o_wslides_quiz_continue": '_onClickNext',
+            "click .o_wslides_js_lesson_quiz_reset": '_onClickReset',
+            'click .o_wslides_js_quiz_add': '_onQuizCreation',
+            'click .o_wslides_js_quiz_edit_question': '_onEditQuestionClick',
+            'click .o_wslides_js_quiz_delete_question': '_onDeleteQuestionClick',
+        },
+
+        custom_events: {
+            displayCreatedQuestion: '_displayCreatedQuestion',
+            displayUpdatedQuestion: '_displayUpdatedQuestion',
+            resetDisplay: '_resetDisplay',
+            deleteQuestion: '_deleteQuestion',
         },
 
         /**
@@ -46,6 +59,8 @@ odoo.define('website_slides.quiz', function (require) {
                 readonly: false,
             });
             this.quiz = quiz_data || false;
+            if (this.quiz)
+                this.quiz.questionsCount = quiz_data.questions.length || 0;
             this.readonly = slide_data.readonly || false;
             this.publicUser = session.is_website_user;
             this.redirectURL = encodeURIComponent(document.URL);
@@ -73,6 +88,8 @@ odoo.define('website_slides.quiz', function (require) {
                 self._renderAnswers();
                 self._renderAnswersHighlighting();
                 self._renderValidationInfo();
+                self._bindSortable();
+                self._checkLocationHref();
                 new CourseJoinWidget(self, self.channel.channelId).appendTo(self.$('.o_wslides_course_join_widget'));
             });
         },
@@ -99,6 +116,40 @@ odoo.define('website_slides.quiz', function (require) {
             this.$('.o_wslides_js_lesson_quiz_error').removeClass('d-none');
         },
 
+        /**
+         * Allows to reorder the questions
+         * @private
+         */
+        _bindSortable: function() {
+            this.$el.sortable({
+                handle: '.o_wslides_js_quiz_sequence_handler',
+                items: '.o_wslides_js_lesson_quiz_question',
+                stop: this._reorderQuestions.bind(this),
+                placeholder: 'o_wslides_js_quiz_sequence_highlight position-relative my-3'
+            });
+        },
+
+        _getQuestions: function () {
+            var questionIds = [];
+            this.$('.o_wslides_js_lesson_quiz_question').each(function (index, question) {
+                $(question).find('span.o_wslides_quiz_question_sequence').text(index + 1);
+                questionIds.push($(question).data('question-id'));
+            });
+            return questionIds;
+        },
+
+        _reorderQuestions: function () {
+            var self = this;
+            self._rpc({
+                route: '/web/dataset/resequence',
+                params: {
+                    model: "slide.question",
+                    offset: 1,
+                    ids: self._getQuestions()
+                }
+            });
+        },
+
         /*
          * @private
          * Fetch the quiz for a particular slide
@@ -113,10 +164,19 @@ odoo.define('website_slides.quiz', function (require) {
             }).then(function (quiz_data) {
                 self.quiz = {
                     questions: quiz_data.slide_questions,
+                    questionsCount: quiz_data.slide_questions.length,
                     quizAttemptsCount: quiz_data.quiz_attempts_count,
                     quizKarmaGain: quiz_data.quiz_karma_gain,
                     quizKarmaWon: quiz_data.quiz_karma_won
                 };
+            });
+        },
+
+        _renderQuestions: function () {
+            this.$('.o_wslides_js_lesson_quiz_question').each(function () {
+                var $question = $(this);
+                $question.find('.o_wslides_js_quiz_sequence_handler').addClass('d-none');
+                $question.find('.o_wslides_js_quiz_edit_del').addClass('d-none');
             });
         },
 
@@ -212,10 +272,39 @@ odoo.define('website_slides.quiz', function (require) {
                         self.slide.completed = true;
                         self.trigger_up('slide_completed', {slide: self.slide, completion: data.channel_completion});
                     }
+                    self._renderQuestions();
                     self._renderAnswersHighlighting();
                     self._renderValidationInfo();
                 }
             });
+        },
+
+       _getQuestionDetails: function ($elem) {
+            var answers = [];
+            $elem.find('.o_wslides_quiz_answer').each(function () {
+                answers.push({
+                    'id': $(this).data('answerId'),
+                    'text_value': $(this).data('text'),
+                    'is_correct': $(this).data('isCorrect')
+                });
+            });
+            return {
+                'id': $elem.data('questionId'),
+                'sequence': parseInt($elem.find('.o_wslides_quiz_question_sequence').text()),
+                'text': $elem.data('title'),
+                'answers': answers,
+            };
+        },
+
+        /**
+         * If the slides has been called with the Add Quiz button on the slide list
+         * it goes straight to the anchor and open a new QuestionFormWidget.
+         * @private
+         */
+        _checkLocationHref: function() {
+            if (window.location.href.includes('#quiz')) {
+                this._onQuizCreation();
+            }
         },
 
         //--------------------------------------------------------------------------
@@ -247,6 +336,21 @@ odoo.define('website_slides.quiz', function (require) {
             }
         },
         /**
+         * Triggering a event to reset the completion of the slide
+         *
+         * @private
+         */
+        _onClickReset: function () {
+            this._rpc({
+                route: '/slides/slide/quiz/reset',
+                params: {
+                    slide_id: this.slide.id
+                }
+            }).then(function() {
+                window.location.reload();
+            });
+        },
+        /**
          * Submit a quiz and get the correction. It will display messages
          * according to quiz result.
          *
@@ -260,13 +364,147 @@ odoo.define('website_slides.quiz', function (require) {
                 values.push(parseInt($(inputs[i]).val()));
             }
 
-            if (values.length === this.quiz.questions.length){
+            if (values.length === this.quiz.questionsCount){
                 this._alertHide();
                 this._submitQuiz(values);
             } else {
                 this._alertShow();
             }
         },
+
+        _onQuizCreation: function () {
+            var $elem = this.$('.o_wslides_js_quiz_add');
+            new QuestionFormWidget(this, {
+                slideId: this.slide.id,
+                sequence: this.quiz.questionsCount + 1
+            }).replace($elem);
+        },
+
+        _onEditQuestionClick: function (ev) {
+            var $elem = $(ev.currentTarget).closest('.o_wslides_js_lesson_quiz_question');
+            var question = this._getQuestionDetails($elem);
+            new QuestionFormWidget(this, {
+                oldElement: $elem,
+                question: question,
+                slideId: this.slide.id,
+                sequence: question.sequence,
+                update: true
+            }).replace($elem);
+        },
+
+        _onDeleteQuestionClick: function (ev) {
+            var question = $(ev.currentTarget).closest('.o_wslides_js_lesson_quiz_question');
+            new ConfirmationDialog(this, null, question).open();
+        },
+
+        /**
+         * Displays the created Question at the correct place (after the last question or
+         * at the first place if there is no questions yet) It also displays the 'Add Question'
+         * button or open a new QuestionFormWidget if the user wants to immediately add another one.
+         *
+         * @param response
+         * @private
+         */
+        _displayCreatedQuestion: function (response) {
+            var newQuestion = response.data.newQuestionData;
+            var $lastQuestion = this.$('.o_wslides_js_lesson_quiz_question:last');
+            var renderedQuestion = QWeb.render('slide.quiz.question.view', {question: newQuestion});
+            if ($lastQuestion.length !== 0) {
+                $lastQuestion.after(renderedQuestion);
+            } else {
+                this.$el.prepend(renderedQuestion);
+            }
+            this.quiz.questionsCount++;
+            var $elem = this.$('.o_wsildes_quiz_question_input:last');
+            if (response.data.createNext) {
+                new QuestionFormWidget(this, {
+                    slideId: this.slide.id,
+                    sequence: this.quiz.questionsCount + 1
+                }).replace($elem);
+            } else {
+                $elem.replaceWith(QWeb.render('slide.quiz.new.question.button'));
+            }
+        },
+
+        _displayUpdatedQuestion: function (response) {
+            response.data.element.replaceWith(QWeb.render('slide.quiz.question.view', { question: response.data.newQuestionData }));
+        },
+
+        /**
+         * If the user cancels the creation or update of a Question it resets the display
+         * of the updated Question or it displays back the buttons.
+         *
+         * @param reset
+         * @private
+         */
+        _resetDisplay: function (reset) {
+            if (reset.data.update) {
+                reset.data.$elem.html(reset.data.$oldElem);
+            } else {
+                var $elem = this.$('.o_wslides_js_lesson_quiz_new_question');
+                if (this.quiz.questionsCount > 0) {
+                    $elem.html(QWeb.render('slide.quiz.new.question.button'));
+                } else {
+                    $elem.html(QWeb.render('slide.quiz.new.quiz.button'));
+                }
+            }
+        },
+
+        /**
+         * After deletion of a Question the display is refreshed with the removal of the Question
+         * the reordering of all the remaining Questions and the change of the new Question sequence
+         * if the QuestionFormWidget is initialized.
+         *
+         * @param event
+         * @private
+         */
+        _deleteQuestion: function(event) {
+            var question = event.data;
+            question.remove();
+            this.quiz.questionsCount--;
+            this._reorderQuestions();
+            var $newQuestion = this.$('.o_wslides_js_lesson_quiz_new_question .o_wslides_quiz_question_sequence');
+            $newQuestion.text(parseInt($newQuestion.text()) - 1);
+        },
+    });
+
+    /**
+     * Dialog box shown when clicking the deletion button on a Question.
+     * When confirming it sends a RPC request to delete the Question.
+     */
+    var ConfirmationDialog = Dialog.extend({
+        template: 'slide.quiz.confirm.deletion',
+        xmlDependencies: Dialog.prototype.xmlDependencies.concat(
+            ['/website_slides/static/src/xml/slide_quiz_create.xml']
+        ),
+
+        init: function (parent, options, question) {
+            options = _.defaults(options || {}, {
+                title: _t('Delete Question'),
+                buttons: [
+                    { text: _t('Yes'), classes: 'btn-primary', click: this._confirm },
+                    { text: _t('No'), close: true}
+                ],
+                size: 'medium'
+            });
+            this.question = question;
+            this._super(parent, options);
+        },
+
+        _confirm: function () {
+            var self = this;
+            this._rpc({
+                model: 'slide.question',
+                method: 'unlink',
+                args: [this.question.data('questionId')],
+            }).then(function () {
+                self.trigger_up('deleteQuestion', self.question);
+                self.close();
+            }, function (error) {
+                console.log(error);
+            });
+        }
+
     });
 
     publicWidget.registry.websiteSlidesQuizNoFullscreen = publicWidget.Widget.extend({
