@@ -72,14 +72,6 @@
                 <field name='supplier_taxes_id' position="replace" >
                      <field name="supplier_taxes_id" colspan="2" widget="many2many_tags" attrs="{'readonly':[('purchase_ok','=',0)]}" context="{'default_type_tax_use':'purchase'}"/>
                 </field>
-            </field>
-        </record>
-
-        <record id="product_template_form_view" model="ir.ui.view">
-            <field name="name">product.normal.form.inherit.stock</field>
-            <field name="model">product.template</field>
-            <field name="inherit_id" ref="account.product_template_form_view"/>
-            <field name="arch" type="xml">
                 <field name="property_account_expense_id" position="after">
                     <field name="property_account_creditor_price_difference" domain="[('deprecated','=',False)]" attrs="{'readonly':[('purchase_ok', '=', 0)]}" groups="account.group_account_user"/>
                 </field>
