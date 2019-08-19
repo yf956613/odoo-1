@@ -8,3 +8,9 @@
     // They would go over floating elements, which is never what we want.
     clear: both;
 }
+
+.col-auto{
+    -webkit-box-flex: 1;
+    width: 50%;
+}
+
