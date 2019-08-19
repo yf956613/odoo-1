@@ -100,7 +100,7 @@ var Wysiwyg = Widget.extend({
      */
     destroy: function () {
         $(document).off('mousedown', this._blur);
-        if (this.$target && this.$target.is('textarea')) {
+        if (this.$target && this.$target.is('textarea') && this.$target.next('.note-editor').length) {
             this.$target.summernote('destroy');
         }
         this._super();
