@@ -1,0 +1,44 @@
+$o-dms-p-small: $o-horizontal-padding*0.5;
+$o-dms-p-tiny: $o-dms-p-small*0.5;
+$o-dms-btn-to-delete: #963535;
+.o_mrp_documents_progress_border {
+
+    position: relative;
+    padding: 0;
+    min-height: 80px;
+    cursor: pointer;
+
+    .o_mrp_kanban_record_bottom {
+        color: $gray-900;
+    }
+    .o_mrp_kanban_image_wrapper {
+        opacity: 0.7;
+    }
+}
+
+.o_mrp_documents_progress_bar_wrapper {
+    @include o-position-absolute($top: 0px, $left: 0px);
+    height: 100%;
+    width: 100%;
+    .o_mrp_documents_progress_bar {
+        z-index: 0;
+        transition: width 0.1s;
+        border-right: 1px solid #007b79;
+        height: 100%;
+        width: 100%;
+        background-color: #007b79;
+        opacity: 0.5;
+    }
+    .o_mrp_upload_cross {
+        @include o-position-absolute($o-kanban-inside-vgutter - 4px , $o-kanban-inside-hgutter - 4px);
+        padding: $o-dms-p-tiny;
+        color: $o-dms-btn-to-delete;
+        font-size: 16px;
+        &:active {
+            opacity: 0.7;
+        }
+    }
+    &:not(:hover) .o_mrp_upload_cross {
+        display: none;
+    }
+}

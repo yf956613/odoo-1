@@ -5,7 +5,7 @@
         <field name="name">mrp.document kanban.mrp</field>
         <field name="model">mrp.document</field>
         <field name="arch" type="xml">
-            <kanban js_class="mrp_documents_kanban">
+            <kanban js_class="mrp_documents_kanban" create="false">
                 <field name="ir_attachment_id"/>
                 <field name="mimetype"/>
                 <field name="type"/>
@@ -64,8 +64,22 @@
         <field name="inherit_id" ref="base.view_attachment_form"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-          <xpath expr="//field[@name='mimetype']" position="after">
-              <field name="priority" widget="priority"/>
+          <xpath expr="//field[@name='mimetype']" position="replace">
+             <field name="mimetype" string="Number of ideas" invisible="1"/>
+          </xpath>
+          <xpath expr="//field[@name='res_model']" position="replace">
+             <field name="res_model" invisible="1"/>
+          </xpath>
+          <xpath expr="//field[@name='res_field']" position="replace">
+             <field name="res_field" invisible="1"/>
+          </xpath>
+          <xpath expr="//field[@name='res_id']" position="replace">
+             <field name="res_id" invisible="1"/>
+          </xpath>
+          <xpath expr="//field[@name='public']" position="replace">
+             <field name="public" invisible="1"/>
+          </xpath>
+          <xpath expr="//group[@name='indexed_content']" position="replace">
           </xpath>
         </field>
     </record>

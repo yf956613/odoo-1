@@ -10,6 +10,8 @@
             <script type="text/javascript" src="/mrp/static/src/js/mrp_documents_kanban_renderer.js"></script>
             <script type="text/javascript" src="/mrp/static/src/js/mrp_documents_kanban_record.js"></script>
             <script type="text/javascript" src="/mrp/static/src/js/mrp_documents_document_viewer.js"></script>
+            <script type="text/javascript" src="/mrp/static/src/js/mrp_document_progress_card.js"></script>
+            <script type="text/javascript" src="/mrp/static/src/js/mrp_document_progress_bar.js"></script>
         </xpath>
    </template>
 
@@ -17,12 +19,14 @@
         <xpath expr="." position="inside">
             <link rel="stylesheet" type="text/scss" href="/mrp/static/src/scss/mrp_bom_report.scss" />
             <link rel="stylesheet" type="text/scss" href="/mrp/static/src/scss/mrp_fields.scss" />
+            <link rel="stylesheet" type="text/scss" href="/mrp/static/src/scss/mrp_document_kanban_view.scss" />
         </xpath>
     </template>
 
     <template id="qunit_suite" inherit_id="web.qunit_suite">
         <xpath expr="//script[last()]" position="after">
             <script type="text/javascript" src="/mrp/static/tests/mrp_tests.js"/>
+            <script type="text/javascript" src="/mrp/static/tests/mrp_document_kanban_tests.js"/>
         </xpath>
     </template>
 
