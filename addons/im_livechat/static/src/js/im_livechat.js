@@ -196,6 +196,11 @@ var LivechatButton = Widget.extend({
             });
         });
     },
+    /**
+     * called when there is no operator available for the livechat
+     *
+     * @private
+     */
     _notifyNoOperator: function () {
         alert(_t("None of our collaborators seem to be available, please try again later."));
     },
