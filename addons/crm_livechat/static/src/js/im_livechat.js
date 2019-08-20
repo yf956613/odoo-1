@@ -34,7 +34,9 @@ LiveChat.LivechatButton.include({
     _handleNotification: function  (notification) {
         if (this._livechat && (notification[0] === this._livechat.getUUID())) {
             if (notification[1].type == 'operator_unavailable') {
-                this._createLead(this._livechat);
+                if (!this.is_lead) {
+                    this._createLead(this._livechat);
+                }
             } else {
                 this._super.apply(this, arguments);
             }
