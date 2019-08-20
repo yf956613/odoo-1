@@ -3,7 +3,7 @@
 
 {
     'name': 'Twitter Roller',
-    'category': 'Website',
+    'category': 'Website/Website',
     'summary': 'Twitter scroller snippet in website',
     'version': '1.0',
     'description': """

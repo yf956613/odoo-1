@@ -4,7 +4,7 @@
 {
     'name': 'Mercury Payment Services',
     'version': '1.0',
-    'category': 'Point of Sale',
+    'category': 'Sales/Point Of Sale',
     'sequence': 6,
     'summary': 'Credit card support for Point Of Sale',
     'description': """
