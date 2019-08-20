@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo import tools
 from odoo import fields, http, SUPERUSER_ID
 from odoo.http import request
 from odoo.tools import html2plaintext
@@ -22,6 +23,8 @@ class CrmController(http.Controller):
             )
             kwargs['description'] = content
         kwargs['user_id'] = False
+        partner = request.env['res.partner'].sudo().create({'name': kwargs['name'], 'email': kwargs['email_from']})
+        kwargs['partner_id'] = partner.id
         lead = request.env['crm.lead'].with_user(SUPERUSER_ID).create(kwargs)
         template = request.env.ref('crm_livechat.visitor_lead_creation_email_template', raise_if_not_found=False)
         if template:
@@ -67,4 +70,10 @@ class LivechatController(LivechatController):
         if not res.get('rule') and not res.get('available_for_me'):
             res['available_for_me'] = True
             res['rule'] = self.get_livechat_rule(channel_id) or {}
+        return res
+
+    @http.route('/im_livechat/load_templates', type='json', auth='none', cors="*")
+    def load_templates(self, **kwargs):
+        res = super(LivechatController, self).load_templates(**kwargs)
+        res.append(tools.file_open('crm_livechat/static/src/xml/im_livechat.xml', 'rb').read())
         return res

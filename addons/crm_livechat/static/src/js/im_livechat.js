@@ -1,7 +1,12 @@
 odoo.define('crm_livechat.im_livechat', function (require) {
 "use strict";
 
+var core = require('web.core');
+var Dialog = require('web.Dialog');
 var LiveChat = require('im_livechat.im_livechat');
+
+var _t = core._t;
+var QWeb = core.qweb;
 
 LiveChat.LivechatButton.include({
     /**
@@ -12,20 +17,32 @@ LiveChat.LivechatButton.include({
     */
     _createLead: function (livechatData) {
         var self = this;
-        var getEmail = prompt("There is no operator available at the moment. Please leave your email adress if you want us to reach you as soon as someone is available");
-        if (getEmail) {
-            return this._rpc({
-                route: '/create/lead',
-                params: {'name': 'visitor lead', 'email_from': getEmail, 'channel_uuid': this._livechat ? this._livechat._uuid : false},
-            }).then(function (res_id) {
-                livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
-                self.lead_id = res_id;
-                self.options.default_message = "Hello, your lead has been created. comment your questions here, we will contact you soon!"
-                if (!self._livechat) {
-                    self._createChatWindow(livechatData);
+        var $dialog = new Dialog(self, {
+            title: _t('Lead Generation'),
+            size: 'medium',
+            $content: QWeb.render('Livechat.create_lead', {widget: this}),
+            buttons: [
+            {text: _t('OK'), classes: 'btn-primary',close: true, click: function () {
+                var name = $('.modal-body td input[name="name"]').val();
+                var email = $('.modal-body td input[name="email"]').val();
+
+                if (!name || !email) {
+                    return;
                 }
-            });
-        }
+                return this._rpc({
+                    route: '/create/lead',
+                    params: {'name': 'visitor lead', 'email_from': email, 'channel_uuid': this._livechat ? this._livechat._uuid : false, 'name': name},
+                }).then(function (res_id) {
+                    livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
+                    self.lead_id = res_id;
+                    self.options.default_message = "Hello, your lead has been created. comment your questions here, we will contact you soon!"
+                    if (!self._livechat) {
+                        self._createChatWindow(livechatData);
+                    }
+                });
+            }},
+            {text: _t('Cancel'), close: true}]
+        }).open();
     },
     /**
      * @private

@@ -12,7 +12,7 @@
             <field name="body_html" type="xml">
 <div style="margin: 0px; padding: 0px;">
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear ${object.sudo().partner_id.name or 'Madam/Sir'},<br /><br />
+        Dear ${object.partner_id.name or 'Madam/Sir'},<br /><br />
         Your lead has been created and is being reviewed by our ${object.user_id.name or 'team'}.
         The reference of your lead is ${object.id}.<br /><br />
         To add additional comments, reply to this email.<br />
