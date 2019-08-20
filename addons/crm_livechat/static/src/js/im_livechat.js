@@ -35,7 +35,7 @@ LiveChat.LivechatButton.include({
                 }).then(function (res_id) {
                     livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
                     self.lead_id = res_id;
-                    self.options.default_message = "Hello, your lead has been created. comment your questions here, we will contact you soon!"
+                    self.options.default_message = _t("Hello, your lead has been created. comment your questions here, we will contact you soon!")
                     if (!self._livechat) {
                         self._createChatWindow(livechatData);
                     }
