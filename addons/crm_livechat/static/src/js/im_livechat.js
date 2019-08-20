@@ -33,10 +33,10 @@ LiveChat.LivechatButton.include({
                     route: '/create/lead',
                     params: {'email_from': email, 'channel_uuid': this._livechat ? this._livechat._uuid : false, 'name': name},
                 }).then(function (res_id) {
-                    livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
                     self.lead_id = res_id;
-                    self.options.default_message = _t("Hello, your lead has been created. comment your questions here, we will contact you soon!")
                     if (!self._livechat) {
+                        self.options.default_message = _t("Hello, your lead has been created. comment your questions here, we will contact you soon!")
+                        livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
                         self._createChatWindow(livechatData);
                     }
                 });
@@ -52,7 +52,7 @@ LiveChat.LivechatButton.include({
         if (this._livechat && (notification[0] === this._livechat.getUUID())) {
             if (notification[1].type == 'operator_unavailable') {
                 if (!this.is_lead) {
-                    this._createLead(this._livechat);
+                    this._createLead();
                 }
             } else {
                 this._super.apply(this, arguments);
