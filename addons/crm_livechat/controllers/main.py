@@ -67,9 +67,10 @@ class LivechatController(LivechatController):
     @http.route('/im_livechat/init', type='json', auth="public", cors="*")
     def livechat_init(self, channel_id):
         res = super(LivechatController, self).livechat_init(channel_id)
-        if not res.get('rule') and not res.get('available_for_me'):
-            res['available_for_me'] = True
+        if not res.get('rule'):
             res['rule'] = self.get_livechat_rule(channel_id) or {}
+        if not res.get('available_for_me'):
+            res['available_for_me'] = True and res.get('rule', {}).get('action') != 'hide_button'
         return res
 
     @http.route('/im_livechat/load_templates', type='json', auth='none', cors="*")
