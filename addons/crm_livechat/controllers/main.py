@@ -24,7 +24,8 @@ class CrmController(http.Controller):
             kwargs['description'] = content
         kwargs['user_id'] = False
         partner = request.env['res.partner'].sudo().create({'name': kwargs['name'], 'email': kwargs['email_from']})
-        kwargs['partner_id'] = partner.id
+        kwargs.update({'partner_id': partner.id, 'name': "%s's Livechat Visitor Lead" % partner.name})
+
         lead = request.env['crm.lead'].with_user(SUPERUSER_ID).create(kwargs)
         template = request.env.ref('crm_livechat.visitor_lead_creation_email_template', raise_if_not_found=False)
         if template:

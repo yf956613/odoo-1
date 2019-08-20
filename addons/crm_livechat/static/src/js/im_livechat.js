@@ -31,7 +31,7 @@ LiveChat.LivechatButton.include({
                 }
                 return this._rpc({
                     route: '/create/lead',
-                    params: {'name': 'visitor lead', 'email_from': email, 'channel_uuid': this._livechat ? this._livechat._uuid : false, 'name': name},
+                    params: {'email_from': email, 'channel_uuid': this._livechat ? this._livechat._uuid : false, 'name': name},
                 }).then(function (res_id) {
                     livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
                     self.lead_id = res_id;
