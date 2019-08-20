@@ -34,11 +34,8 @@ class ImLivechatChannel(models.Model):
         return res
 
     def get_livechat_info(self, username='Visitor'):
-        self.ensure_one()
-        res = {
-            'available': True,
-            'server_url': self.env['ir.config_parameter'].sudo().get_param('web.base.url'),
-            'options': self._get_channel_infos()
-        }
+        res = super(ImLivechatChannel, self).get_livechat_info(username='Visitor')
+        res['available'] = True
+        res['options'] = self._get_channel_infos()
         res['options']['default_username'] = username
         return res
