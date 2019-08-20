@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from email.utils import formataddr
-
 from odoo.addons.test_mail.tests import common
+from odoo.tools import formataddr
 
 
 class TestTracking(common.BaseFunctionalTest, common.MockEmails):
