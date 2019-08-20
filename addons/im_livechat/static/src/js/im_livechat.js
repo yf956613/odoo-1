@@ -204,6 +204,11 @@ var LivechatButton = Widget.extend({
     _notifyNoOperator: function () {
         alert(_t("None of our collaborators seem to be available, please try again later."));
     },
+    /**
+     * create and open livechat window
+     *
+     * @private
+     */
     _createChatWindow: function(livechatData) {
         var self = this;
         self._livechat = new WebsiteLivechat({
