@@ -195,14 +195,13 @@ class ImLivechatChannel(models.Model):
         # convert the selected 'partner_id' to its corresponding res.users
         return next(operator for operator in operators if operator.partner_id.id == less_active_operator)
 
-    def _get_channel_infos(self, username='Visitor'):
+    def _get_channel_infos(self):
         self.ensure_one()
 
         return {
             'button_text': self.button_text,
             'input_placeholder': self.input_placeholder,
             'default_message': self.default_message,
-            'default_username': username,
             "channel_name": self.name,
             "channel_id": self.id,
         }
@@ -214,7 +213,8 @@ class ImLivechatChannel(models.Model):
         info['available'] = len(self._get_available_users()) > 0
         info['server_url'] = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         if info['available']:
-            info['options'] = self._get_channel_infos(username)
+            info['options'] = self._get_channel_infos()
+            info['options']["default_username"] = username
         return info
 
 
