@@ -75,11 +75,12 @@ class LivechatController(http.Controller):
     @http.route('/im_livechat/init', type='json', auth="public", cors="*")
     def livechat_init(self, channel_id):
         available = len(request.env['im_livechat.channel'].sudo().browse(channel_id)._get_available_users())
+        rule = {}
         if available:
             rule = self.get_livechat_rule(channel_id)
         return {
             'available_for_me': available and (not rule or rule['action'] != 'hide_button'),
-            'rule': rule if available else {},
+            'rule': rule,
         }
 
     @http.route('/im_livechat/get_session', type="json", auth='public', cors="*")
