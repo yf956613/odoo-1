@@ -807,6 +807,7 @@ class WebsiteSlides(WebsiteProfile):
                 return {'error': _('File is too big. File size cannot exceed 25MB')}
 
         values = dict((fname, post[fname]) for fname in self._get_valid_slide_post_values() if post.get(fname))
+        import pudb; pudb.set_trace()
         try:
             if post.get('category_id'):
                 if post['category_id'][0] == 0:
@@ -822,29 +823,20 @@ class WebsiteSlides(WebsiteProfile):
 
         if post.get('badge_id'):
             try:
-                if post['badge_id'][0] == 0:
-                    if 'image_badge_1920' in values:
-                        values['badge_id'] = request.env['gamification.badge'].create({
-                            'name': post['badge_id'][1]['title'],
-                            'description': 'Congratulation, you succeeded this certification',
-                            'rule_auth': 'nobody',
-                            'image_1920': values['image_badge_1920'],
-                            'is_published': True,
-                            }).id
-                    else:
-                         values['badge_id'] = request.env['gamification.badge'].create({
-                            'name': post['badge_id'][1]['title'],
-                            'description': 'Congratulation, you succeeded this certification',
-                            'rule_auth': 'nobody',
-                            'is_published': True,
-                            }).id
+                if post['badge_id'] == [None]:
+                    values['badge_id'] = request.env['gamification.badge'].create({
+                        'name': values['image_1920'],
+                        'description': 'Congratulation, you succeeded this certification',
+                        'rule_auth': 'nobody',
+                        'image_1920': values['image_1920'],
+                        'is_published': True,
+                        }).id
                 else:
                     values['badge_id'] = post['badge_id'][0]
             except (UserError, AccessError) as e:
                 _logger.error(e)
                 return {'error': e.name}
 
-        new_certification = False
         if post.get('survey_id'):           
             try:
                 if post['survey_id'][0] == 0:
@@ -868,7 +860,6 @@ class WebsiteSlides(WebsiteProfile):
                             'certification_badge_id': values['badge_id'],
                         })                    
                     values['survey_id'] = survey_id.id
-                    new_certification = True
                 else:
                     values['survey_id'] = post['survey_id'][0]
                     if 'badge_id' in values:
@@ -934,9 +925,9 @@ class WebsiteSlides(WebsiteProfile):
         if slide.slide_type == "quiz":
             action_id = request.env.ref('website_slides.slide_slide_action').id
             redirect_url = '/web#id=%s&action=%s&model=slide.slide&view_type=form' %( slide.id, action_id)
-        if slide.slide_type == "certification" and new_certification:
+        if slide.slide_type == "certification":
             action_id = request.env.ref('survey.action_survey_form').id
-            redirect_url = '/web#id=%s&action=%s&model=survey.survey&view_type=form' %(survey_id.id,action_id)
+            redirect_url = '/web#id=%s&action=%s&model=survey.survey&view_type=form' %(values['survey_id'],action_id)
         return {
             'url': redirect_url,
             'channel_type': channel.channel_type,
@@ -947,7 +938,7 @@ class WebsiteSlides(WebsiteProfile):
     def _get_valid_slide_post_values(self):
         return ['name', 'url', 'tag_ids', 'slide_type', 'channel_id', 'is_preview',
                 'mime_type', 'datas', 'description', 'image_1920', 
-                'image_badge_1920', 'index_content', 'is_published', 'survey_id', 'give_badge', 'badge_id']
+                'index_content', 'is_published', 'survey_id', 'give_badge', 'badge_id']
     @http.route(['/slides/tag/search_read'], type='json', auth='user', methods=['POST'], website=True)
     def slide_tag_search_read(self, fields, domain):
         can_create = request.env['slide.tag'].check_access_rights('create', raise_exception=False)

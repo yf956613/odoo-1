@@ -43,16 +43,6 @@ SlidesUpload.SlideUploadDialog.include({
                 });
             }, 'title')
         );
-        this.$('#certification_badge_id').select2(this._select2Wrapper(_t('Certification Badge'), false,
-            function () {
-                return self._rpc({
-                    route: '/slides_survey/badge/search_read',
-                    params: {
-                        fields: ['name'],
-                    }
-                });
-            }, 'name')
-        );
     },
     /**
      * The select2 field makes the "required" input hidden on the interface.
@@ -77,19 +67,6 @@ SlidesUpload.SlideUploadDialog.include({
                 $select2Container.addClass('is-valid');
             }
         }
-
-        var $certificationBadgeInput = this.$('#certification_badge_id');
-        if ($certificationBadgeInput.length !== 0){
-            var $select2Container = $certificationBadgeInput
-                .closest('.form-group')
-                .find('.select2-container');
-            $select2Container.removeClass('is-invalid is-valid');
-            if ($certificationBadgeInput.is(':invalid')) {
-                $select2Container.addClass('is-invalid');
-            } else if ($certificationBadgeInput.is(':valid')) {
-                $select2Container.addClass('is-valid');
-            }
-        }
         return result;
     },
     /**
@@ -109,12 +86,7 @@ SlidesUpload.SlideUploadDialog.include({
         }
         if (this.$('#certification_give_badge').is(':checked')) {
             result['give_badge'] = true
-            var badgeValue = this.$('#certification_badge_id').select2('data');
-            if (badgeValue && badgeValue.create) {
-                result['badge_id'] =  [0, {'title': badgeValue.text}];
-            } else if (badgeValue) {
-                result['badge_id'] =  [badgeValue.id];
-            }
+            result['badge_id'] =  [0];
         }
         else {
             result['give_badge'] = false

@@ -13,13 +13,10 @@ var SlideUploadDialog = Dialog.extend({
     template: 'website.slide.upload.modal',
     events: _.extend({}, Dialog.prototype.events, {
         'click .o_upload_image_certification_slide': '_onClickImageCertificationSlide',
-        'click .o_upload_image_certification_badge': '_onClickImageCertificationBadge',
         'click .o_wss_trash_icon_slide': '_onClickTrashIconSlide',
-        'click .o_wss_trash_icon_badge': '_onClickTrashIconBadge',
         'click .o_wslides_js_upload_install_button': '_onClickInstallModule',
         'click .o_wslides_select_type': '_onClickSlideTypeIcon',
         'change input#slide-upload': '_onChangeSlideUpload',
-        'change input#badge-upload': '_onChangeBadgeUpload',
         'change input#url': '_onChangeSlideUrl',
         'change input#certification_give_badge': '_toggleCertificationBadge',
         'change input#certification_id': '_populateWithCertificationName'
@@ -53,7 +50,6 @@ var SlideUploadDialog = Dialog.extend({
         this.on('change:can_submit_form', this, this._onChangeCanSubmitForm);
 
         this.file = {};
-        this.fileBadge = {};
         this.isValidUrl = true;
     },
     start: function () {
@@ -132,18 +128,11 @@ var SlideUploadDialog = Dialog.extend({
     },
     _formValidateImages: function(){
         var imageSlide = document.getElementById("slide-border");
-        var imageBadge = document.getElementById("badge-border");
         if (document.getElementById('slide-upload').value === ''){      
             imageSlide.classList.add("border-danger");
         }
         else{
             imageSlide.classList.remove("border-danger");
-        }
-        if (document.getElementById("badge-image").offsetParent && document.getElementById('badge-upload').value === ''){
-            imageBadge.classList.add("border-danger");
-        }
-        else{
-            imageBadge.classList.remove("border-danger");
         }
     },
     /**
@@ -162,7 +151,6 @@ var SlideUploadDialog = Dialog.extend({
             'duration': this._formGetFieldValue('duration'),
             'is_published': forcePublished,
         }, this._getSelect2DropdownValues()); // add tags and category
- 
         // default slide_type (for webpage for instance)
         if (_.contains(this.slide_type_data), this.get('state')) {
             values['slide_type'] = this.get('state');
@@ -191,12 +179,6 @@ var SlideUploadDialog = Dialog.extend({
                 _.extend(values, {
                     'image_1920': this.file.type === 'image/svg+xml' ? this._svgToPng() : this.file.data,
                 });
-                if (!isEmptyObj(this.fileBadge)){
-                    _.extend(values, {
-                        'image_badge_1920': this.fileBadge.type === 'image/svg+xml' ? this._svgToPng() : this.fileBadge.data,
-                    });
-                }
-
             }
         }
         return values;
@@ -338,12 +320,7 @@ var SlideUploadDialog = Dialog.extend({
                     $select2Container.removeClass('is-invalid is-valid');
                     $('#warning-no-certif').addClass('o_hidden');
                     _.each(data, function (obj) {
-                        if (typeof obj.certification_badge_id !== 'undefined') {
-                            if (that.matcher(query.term, obj[nameKey])) {
-                                tags.results.push({id: obj.id, text: obj[nameKey], badge_id: obj.certification_badge_id});
-                            }
-                        }
-                        else if (that.matcher(query.term, obj[nameKey])) {
+                        if (that.matcher(query.term, obj[nameKey])) {
                             tags.results.push({id: obj.id, text: obj[nameKey]});
                         }
                     });
@@ -458,21 +435,10 @@ var SlideUploadDialog = Dialog.extend({
         }
     },
 
-    _onClickTrashIconBadge: function (ev) {
-        ev.preventDefault();
-        document.getElementById('badge-upload').value = ''
-        document.getElementById("badge-image").src="/website_slides/static/src/img/document.png";
-    },
-
     _onClickTrashIconSlide: function (ev) {
         ev.preventDefault();
         document.getElementById('slide-upload').value = ''
         document.getElementById("slide-image").src="/website_slides/static/src/img/document.png";
-    },
-
-    _onClickImageCertificationBadge: function(ev){
-        ev.preventDefault();
-        $("input[id='badge-upload']").click();
     },
 
     _onClickImageCertificationSlide: function(ev){
@@ -483,34 +449,16 @@ var SlideUploadDialog = Dialog.extend({
     _onChangeSlideUpload: function (ev){
         var imageSlide = document.getElementById("slide-border");
         imageSlide.classList.remove("border-danger");
-        return this._onChangeImageUpload(ev, "slide-upload")
+        return this._onChangeImageUpload(ev)
     },
 
-    _onChangeBadgeUpload: function (ev){
-        var imageBadge = document.getElementById("badge-border");
-        imageBadge.classList.remove("border-danger");
-        return this._onChangeImageUpload(ev, "badge-upload")
-    },
-
-    _onChangeImageUpload: function (ev, type) {
+    _onChangeImageUpload: function (ev) {
         var self = this
         this._alertRemove();
-        var preview;
-        var selfFile;
+        var preview = '#slide-image';
+        var selfFile = this.file;
         var $input = $(ev.currentTarget);
         var preventOnchange = $input.data('preventOnchange');
-        if (type === "slide-upload"){
-            selfFile = this.file;
-            preview = '#slide-image';
-        }
-        else if (type === "badge-upload"){
-            selfFile = this.fileBadge
-            preview = '#badge-image';
-        }
-        else{
-            return;
-        }
-
         var file = ev.target.files[0];
         if (file === undefined) {
             $(preview).attr('src',"/website_slides/static/src/img/document.png");
@@ -669,11 +617,11 @@ var SlideUploadDialog = Dialog.extend({
     },
     _toggleCertificationBadge: function (ev) {
         if($(ev.target).is(":checked")){    
-            $('.o_web_slide_survey_badge').show();
+            $('.checked').show();
             $("#certification_badge_id").attr("required", "required");
         }
         else{
-            $('.o_web_slide_survey_badge').hide();
+            $('.checked').hide();
             $("#certification_badge_id").removeAttr("required");
         }
     },
@@ -686,15 +634,11 @@ var SlideUploadDialog = Dialog.extend({
         $("#name").val(certificationName);
         if(ev.added.badge_id){
             $("#certification_badge_id_readonly").val(ev.added.badge_id[1]);
-            $('#certification_badge_id').removeAttr("required")
-            $(".readonly").removeClass("d-none");
-            $(".no_badge").addClass( "d-none");
+            $(".o_web_slide_survey_badge").removeClass( "d-none");
         }
         else{
-            $('#certification_badge_id').select2('data', {id: 0, text: certificationName, create: true,});
-            $('#certification_badge_id').attr("required",'required')
-            $(".no_badge").removeClass("d-none");
-            $(".readonly").addClass( "d-none");
+            $('#certification_badge_id_readonly').val(certificationName);
+            $(".o_web_slide_survey_badge").removeClass("d-none");
         }
     },
 
@@ -705,12 +649,12 @@ var SlideUploadDialog = Dialog.extend({
             this.modulesToInstallStatus = null;
         }
     },
-
     _onClickFormSubmit: function (ev) {
         var self = this;
         var $btn = $(ev.currentTarget);
         if (this._formValidate()) {
             var values = this._formValidateGetValues($btn.hasClass('o_w_slide_upload_published')); // get info before changing state
+            console.log(values)
             var oldType = this.get('state');
             this.set('state', '_upload');
             return this._rpc({

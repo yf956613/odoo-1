@@ -14,10 +14,3 @@ class WebsiteSlidesSurvey(http.Controller):
             'can_create': can_create,
         }
     
-    @http.route(['/slides_survey/badge/search_read'], type='json', auth='user', methods=['POST'], website=True)
-    def slides_badge_search_read(self, fields):
-        can_create = request.env['survey.survey'].check_access_rights('create', raise_exception=False)
-        return {
-            'read_results': False,
-            'can_create': can_create,
-        }
