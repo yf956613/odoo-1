@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import tools
-from odoo import fields, http, SUPERUSER_ID
+from odoo import fields, http, tools, SUPERUSER_ID
 from odoo.http import request
 from odoo.tools import html2plaintext
 
@@ -52,8 +51,7 @@ class CrmLivechatController(BusController):
             partner_id = request.env.user.partner_id.id
 
             if partner_id:
-                channels = list(channels)
-                for mail_channel in request.env['mail.channel'].search([('livechat_operator_id', 'in', [partner_id]), ('uuid', 'in', channels)]):
+                for mail_channel in request.env['mail.channel'].search([('livechat_operator_id', 'in', [partner_id]), ('uuid', 'in', list(channels))]):
                     if mail_channel.message_unread_counter and (fields.datetime.now() - mail_channel.message_ids[0].create_date).total_seconds() > 120 and not mail_channel.is_lead:
                         mail_channel.is_lead = True
                         data = {

@@ -256,9 +256,9 @@ var LivechatButton = Widget.extend({
         }
         def.then(function (livechatData) {
             if (!livechatData || !livechatData.operator_pid) {
-                self._notifyNoOperator(livechatData)
+                self._notifyNoOperator(livechatData);
             } else {
-                self._createChatWindow(livechatData)
+                self._createChatWindow(livechatData);
             }
         }).then(function () {
             self._openingChat = false;

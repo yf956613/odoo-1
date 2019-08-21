@@ -17,7 +17,8 @@ class ImLivechatChannel(models.Model):
 
     def get_livechat_info(self, username='Visitor'):
         res = super(ImLivechatChannel, self).get_livechat_info(username='Visitor')
-        res['available'] = True
-        res['options'] = self._get_channel_infos()
-        res['options']['default_username'] = username
+        if not res.get('available'):
+            res['available'] = True
+            res['options'] = self._get_channel_infos()
+            res['options']['default_username'] = username
         return res

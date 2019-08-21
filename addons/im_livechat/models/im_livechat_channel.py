@@ -113,7 +113,7 @@ class ImLivechatChannel(models.Model):
                 channel_partner_to_add.append((4, visitor_user.partner_id.id))
         channel_name = visitor_user.name if visitor_user else anonymous_name
         if operator:
-            channel_name += ", %s" % operator.livechat_username or operator.name
+            channel_name += ", %s" % (operator.livechat_username or operator.name)
         return self.env["mail.channel"].with_context(mail_create_nosubscribe=False).sudo().create({
             'channel_partner_ids': channel_partner_to_add,
             'livechat_operator_id': operator_partner_id,

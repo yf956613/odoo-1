@@ -32,7 +32,7 @@
         <field name="res_model">res.config.settings</field>
         <field name="view_mode">form</field>
         <field name="target">inline</field>
-        <field name="context">{'module' : 'im_livechat'}</field>
+        <field name="context">{'module': 'im_livechat'}</field>
     </record>
 
     <menuitem id="livechat_config_settings_menu"

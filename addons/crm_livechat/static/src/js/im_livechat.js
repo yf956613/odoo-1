@@ -20,11 +20,11 @@ LiveChat.LivechatButton.include({
         var $dialog = new Dialog(self, {
             title: _t('Lead Generation'),
             size: 'medium',
-            $content: QWeb.render('Livechat.create_lead', {widget: this}),
+            $content: QWeb.render('crm_livechat.create_lead'),
             buttons: [
             {text: _t('OK'), classes: 'btn-primary',close: true, click: function () {
-                var name = $('.modal-body td input[name="name"]').val();
-                var email = $('.modal-body td input[name="email"]').val();
+                var name = this.$el.find('input[name="name"]').val();
+                var email = this.$el.find('input[name="email"]').val();
 
                 if (!name || !email) {
                     return;
@@ -35,7 +35,7 @@ LiveChat.LivechatButton.include({
                 }).then(function (res_id) {
                     self.lead_id = res_id;
                     if (!self._livechat) {
-                        self.options.default_message = _t("Hello, your lead has been created. comment your questions here, we will contact you soon!")
+                        self.options.default_message = _t("Hello, your lead has been created. comment your questions here, we will contact you soon!");
                         livechatData['operator_pid'] = [res_id, 'Visitor Lead'];
                         self._createChatWindow(livechatData);
                     }
@@ -72,13 +72,13 @@ LiveChat.LivechatButton.include({
      */
     _onPostMessageChatWindow: function (ev) {
         ev.stopPropagation();
-        this._super.apply(this, arguments);
         if (this.lead_id) {
             this._rpc({
                 route: '/lead/update_description',
                 params: {lead_id: this.lead_id, content: ev.data.messageData.content, channel_uuid: this._livechat._uuid},
-            })
+            });
         }
+        return this._super.apply(this, arguments);
     },
 
 });

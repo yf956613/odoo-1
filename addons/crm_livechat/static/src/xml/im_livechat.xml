@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <template>
-    <t t-name="Livechat.create_lead">
+    <t t-name="crm_livechat.create_lead">
         <div>
             <p>
                 There is no operator available at the moment. Please leave your email adress if you want us to reach you as soon as someone is available
             </p>
             <table>
                 <tr>
-                    <td class="pr-4">Name: </td><td> <input type="text" name="name" required="1"/></td>
+                    <td>Name: </td><td> <input type="text" name="name" required="1"/></td>
                 </tr>
                 <tr>
-                    <td class="pr-4"> Email:</td><td> <input type="email" name="email" required="1"/></td>
+                    <td> Email:</td><td> <input type="email" name="email" required="1"/></td>
                 </tr>
             </table>
         </div>
