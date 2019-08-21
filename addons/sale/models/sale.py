@@ -985,8 +985,9 @@ class SaleOrderLine(models.Model):
                 if invoice_line.move_id.state != 'cancel':
                     if invoice_line.move_id.type == 'out_invoice':
                         qty_invoiced += invoice_line.product_uom_id._compute_quantity(invoice_line.quantity, line.product_uom)
-                    elif invoice_line.move_id.type == 'out_refund' and line.untaxed_amount_to_invoice == 0 :
-                        qty_invoiced -= invoice_line.product_uom_id._compute_quantity(invoice_line.quantity, line.product_uom)
+                    elif invoice_line.move_id.type == 'out_refund' :
+                        if not line.is_downpayment or line.untaxed_amount_to_invoice == 0 :
+                            qty_invoiced -= invoice_line.product_uom_id._compute_quantity(invoice_line.quantity, line.product_uom)
             line.qty_invoiced = qty_invoiced
 
     @api.depends('price_unit', 'discount')
@@ -1314,8 +1315,7 @@ class SaleOrderLine(models.Model):
 
                 amount_to_invoice = price_subtotal - line.untaxed_amount_invoiced
             line.untaxed_amount_to_invoice = amount_to_invoice
-            line.price_unit = line.untaxed_amount_to_invoice
-            
+
     def _prepare_invoice_line(self):
         """
         Prepare the dict of values to create the new invoice line for a sales order line.
@@ -1331,7 +1331,7 @@ class SaleOrderLine(models.Model):
             'product_uom_id': self.product_uom.id,
             'quantity': self.qty_to_invoice,
             'discount': self.discount,
-            'price_unit': self.price_unit if not self.is_downpayment else -self.untaxed_amount_to_invoice,
+            'price_unit': self.price_unit,
             'tax_ids': [(6, 0, self.tax_id.ids)],
             'analytic_account_id': self.order_id.analytic_account_id.id,
             'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)],

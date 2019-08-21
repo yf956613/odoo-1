@@ -12,13 +12,18 @@ class AccountMove(models.Model):
     def action_post(self):
         #inherit of the function from account.move to validate a new tax and the priceunit of a downpayment
         res = super(AccountMove, self).action_post()
-        sale_lines_ids = self.mapped('line_ids.sale_line_ids').filtered(lambda line: line.is_downpayment)
-        line_ids = self.mapped('line_ids').filtered(lambda line: line.sale_line_ids.is_downpayment)        
+        """ sale_lines_ids = self.mapped('line_ids.sale_line_ids').filtered(lambda line: line.is_downpayment)
+        line_ids = self.mapped('line_ids').filtered(lambda line: line.sale_line_ids.is_downpayment)
         for line in line_ids:
             for sale_line in sale_lines_ids:
                 if sale_line == line.sale_line_ids:
                     sale_line.tax_id = line.tax_ids
-                    sale_line.price_unit = sale_line.untaxed_amount_to_invoice
+                    #To keep positive amount on the sale order and to have the right price for the invoice
+                    sale_line.price_unit = - sale_line.untaxed_amount_to_invoice """
+        line_ids = self.mapped('line_ids').filtered(lambda line: line.sale_line_ids.is_downpayment)
+        for line in line_ids:
+            line.sale_line_ids.tax_id = line.tax_ids
+            line.sale_line_ids.price_unit = -line.sale_line_ids.untaxed_amount_to_invoice
         return res
 
 class AccountMoveLine(models.Model):
