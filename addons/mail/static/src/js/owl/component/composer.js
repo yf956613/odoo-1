@@ -125,9 +125,9 @@ class Composer extends owl.store.ConnectedComponent {
     /**
      * @private
      */
-    _postMessage() {
+    async _postMessage() {
         // TODO: take suggested recipients into account
-        this.env.store.dispatch('postMessageOnThread', this.props.threadLocalId, {
+        await this.env.store.dispatch('postMessageOnThread', this.props.threadLocalId, {
             attachmentLocalIds: this.props.attachmentLocalIds,
             content: this.refs.textInput.getValue(),
             isLog: this.props.isLog,
