@@ -56,6 +56,9 @@ class TestEmailParsing(BaseFunctionalTest, MockEmails):
         self.assertEqual(res['body'], '')
         self.assertEqual(res['attachments'][0][0], 'thetruth.pdf')
 
+        res = self.env['mail.thread'].message_parse(from_string(test_mail_data.MAIL_MULTIPART_WEIRD_FILENAME))
+        self.assertEqual(res['attachments'][0][0], '62_@;,][)=.(ÇÀÉ.txt')
+
     def test_message_parse_eml(self):
         # Test that the parsing of mail with embedded emails as eml(msg) which generates empty attachments, can be processed.
         mail = self.format(test_mail_data.MAIL_EML_ATTACHMENT, email_from='"Sylvie Lelitre" <test.sylvie.lelitre@agrolait.com>', to='generic@test.com')
