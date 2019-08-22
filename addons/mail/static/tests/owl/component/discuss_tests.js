@@ -3648,55 +3648,121 @@ QUnit.test('post a simple message', async function (assert) {
         "new message in thread should have content typed from composer text input");
 });
 
-QUnit.test('input not cleared on unresolved message_post rpc', async function (assert) {
-    assert.expect(2);
-    // Promise to simulate late server response on message post
+QUnit.test('input cleared only after message_post rpc is resolved', async function (assert) {
+    assert.expect(5);
+
     var messagePostPromise = testUtils.makeTestPromise();
 
-    this.data.initMessaging = {
+    Object.assign(this.data.initMessaging, {
         channel_slots: {
             channel_channel: [{
-                id: 1,
                 channel_type: "channel",
-                name: "general",
+                id: 20,
+                name: "General",
             }],
         },
-    };
+    });
 
-    var discuss = await createDiscuss({
-        id: 1,
-        context: {},
-        params: {},
-        data: this.data,
-        services: this.services,
-        mockRPC: function (route, args) {
+    await this.start({
+        async mockRPC(route, args) {
             if (args.method === 'message_post') {
+                assert.step('message_post');
                 return messagePostPromise;
             }
             return this._super.apply(this, arguments);
         },
+        params: { default_active_id: 'mail.channel_20' },
+        session: { partner_id: 3 },
     });
 
-    // Click on channel 'general'
-    var $general = discuss.$('.o_mail_discuss_sidebar').find('.o_mail_discuss_item[data-thread-id=1]');
-    await testUtils.dom.click($general);
+    // Type message OWL
+    const editable = document.querySelector(`
+        .o_ComposerTextInput
+        .note-editable`);
+    // insert some HTML in editable
+    editable.focus();
+    document.execCommand('insertHTML', false, '<p>test message</p>');
 
-    // Type message
-    var $input = discuss.$('textarea.o_composer_text_field').first();
-    $input.focus();
-    $input.val('test message');
+    // Send message OWL
+    assert.strictEqual(
+        editable.innerHTML,
+        "<p>test message</p>",
+        "should have inserted HTML in editable");
+    assert.strictEqual(
+        editable.textContent,
+        "test message",
+        "should have inserted text in editable");
 
-    // Send message
-    await testUtils.fields.triggerKeydown($input, 'enter');
-    assert.strictEqual($input.val(), 'test message', "composer should not be cleared on send without server response");
+    editable.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter' }));
+
+    assert.verifySteps(['message_post']);
+
+    await testUtils.nextTick(); // re-render
 
     // Simulate server response
     messagePostPromise.resolve();
 
     await testUtils.nextTick();
-    assert.strictEqual($input.val(), '', "composer should be cleared on send after server response");
+    assert.strictEqual(
+        editable.innerHTML,
+        "",
+        "should have no content in composer input after posting message");
+});
 
-    discuss.destroy();
+QUnit.only('input not cleared if message_post rpc is not resolved', async function (assert) {
+    assert.expect(5);
+
+    Object.assign(this.data.initMessaging, {
+        channel_slots: {
+            channel_channel: [{
+                channel_type: "channel",
+                id: 20,
+                name: "General",
+            }],
+        },
+    });
+
+    await this.start({
+        async mockRPC(route, args) {
+            if (args.method === 'message_post') {
+                assert.step('message_post');
+                throw new Error();
+            }
+            return this._super(...arguments);
+        },
+        params: { default_active_id: 'mail.channel_20' },
+        session: { partner_id: 3 },
+    });
+
+    // Type message OWL
+    const editable = document.querySelector(`
+        .o_ComposerTextInput
+        .note-editable`);
+    // insert some HTML in editable
+    editable.focus();
+    document.execCommand('insertHTML', false, '<p>test message</p>');
+
+    // Send message OWL
+    assert.strictEqual(
+        editable.innerHTML,
+        "<p>test message</p>",
+        "should have inserted HTML in editable");
+    assert.strictEqual(
+        editable.textContent,
+        "test message",
+        "should have inserted text in editable");
+
+    editable.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter' }));
+
+    assert.verifySteps(['message_post']);
+
+    await testUtils.nextTick(); // re-render
+
+    // Check input is not cleared as messagePostPromise is not resolved
+    assert.strictEqual(
+        editable.innerHTML,
+        "<p>test message</p>",
+        "should still have content in composer input");
 });
 
 QUnit.test('rendering of inbox message', async function (assert) {

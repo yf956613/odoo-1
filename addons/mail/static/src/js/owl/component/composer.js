@@ -127,18 +127,20 @@ class Composer extends owl.store.ConnectedComponent {
      */
     async _postMessage() {
         // TODO: take suggested recipients into account
-        await this.env.store.dispatch('postMessageOnThread', this.props.threadLocalId, {
-            attachmentLocalIds: this.props.attachmentLocalIds,
-            content: this.refs.textInput.getValue(),
-            isLog: this.props.isLog,
-            threadCacheLocalId: this.props.threadCacheLocalId,
-        });
-        this.refs.textInput.resetValue();
-        this.env.store.commit('unlinkAttachmentsFromComposer', this.props.id);
+        try {
+            await this.env.store.dispatch('postMessageOnThread', this.props.threadLocalId, {
+                attachmentLocalIds: this.props.attachmentLocalIds,
+                content: this.refs.textInput.getValue(),
+                isLog: this.props.isLog,
+                threadCacheLocalId: this.props.threadCacheLocalId,
+            });
+            this.refs.textInput.resetValue();
+            this.env.store.commit('unlinkAttachmentsFromComposer', this.props.id);
 
-        // TODO: we might need to remove trigger and use the store to wait for
-        // the post rpc to be done
-        this.trigger('o-message-posted');
+            // TODO: we might need to remove trigger and use the store to wait for
+            // the post rpc to be done
+            this.trigger('o-message-posted');
+        }
     }
 
     //--------------------------------------------------------------------------
