@@ -354,9 +354,9 @@ QUnit.module('basic_fields', {
                 '</tree>',
         });
 
-        assert.containsN(list, 'button i.fa.fa-circle.o_toggle_button_success', 4,
+        assert.containsN(list, 'button i.far.fa-circle.o_toggle_button_success', 4,
             "should have 4 green buttons");
-        assert.containsOnce(list, 'button i.fa.fa-circle.text-muted',
+        assert.containsOnce(list, 'button i.far.fa-circle.text-muted',
             "should have 1 muted button");
 
         assert.hasAttrValue(list.$('.o_list_view button').first(), 'title',
@@ -366,11 +366,11 @@ QUnit.module('basic_fields', {
 
         // clicking on first button to check the state is properly changed
         await testUtils.dom.click(list.$('.o_list_view button').first());
-        assert.containsN(list, 'button i.fa.fa-circle.o_toggle_button_success', 3,
+        assert.containsN(list, 'button i.far.fa-circle.o_toggle_button_success', 3,
             "should have 3 green buttons");
 
         await testUtils.dom.click(list.$('.o_list_view button').first());
-        assert.containsN(list, 'button i.fa.fa-circle.o_toggle_button_success', 4,
+        assert.containsN(list, 'button i.far.fa-circle.o_toggle_button_success', 4,
             "should have 4 green buttons");
         list.destroy();
     });

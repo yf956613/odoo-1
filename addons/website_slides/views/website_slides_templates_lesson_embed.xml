@@ -29,7 +29,7 @@
                                     </div>
                                     <div class="col flex-grow-0 d-flex text-nowrap small">
                                         <a href="#" class="oe_slide_js_embed_option_link" data-slide-option-id="#slide_share"><i class="fa fa-share-alt"/> Share</a>
-                                        <a href="#" class="oe_slide_js_embed_option_link mx-4" data-slide-option-id="#slide_email"><i class="fa fa-envelope"/> Email</a>
+                                        <a href="#" class="oe_slide_js_embed_option_link mx-4" data-slide-option-id="#slide_email"><i class="far fa-envelope"/> Email</a>
                                         <a href="#" class="oe_slide_js_embed_option_link" data-slide-option-id="#slide_embed"><i class="fa fa-code"/> Embed</a>
                                     </div>
                                 </div>

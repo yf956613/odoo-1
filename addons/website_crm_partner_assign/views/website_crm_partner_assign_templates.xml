@@ -363,7 +363,7 @@
                                         <span class="fas fa-mobile-alt" role="img" aria-label="Mobile" title="Mobile"/> <span itemprop="telephone" t-field="lead.mobile" />
                                     </div>
                                     <div t-if="lead.email_from">
-                                        <span class="fa fa-envelope" role="img" aria-label="Email" title="Email"/> <span itemprop="email" t-field="lead.email_from" />
+                                        <span class="far fa-envelope" role="img" aria-label="Email" title="Email"/> <span itemprop="email" t-field="lead.email_from" />
                                     </div>
                                 </address>
                             </div>
@@ -572,7 +572,7 @@
                                 <strong class="col-12 col-sm-3">Customer</strong>
                                 <div class="col">
                                     <div>
-                                        <span class="fa fa-user fa-fw" role="img" aria-label="User" title="User"/>
+                                        <span class="far fa-user fa-fw" role="img" aria-label="User" title="User"/>
                                         <strong class="font-italic" t-if="opportunity.partner_name" itemprop="name" t-field="opportunity.partner_name" />
                                         <strong class="font-italic" t-else="" itemprop="name" t-field="opportunity.contact_name" />
                                     </div>
@@ -587,7 +587,7 @@
                                         <span t-else="" class="text-muted"> - </span>
                                     </div>
                                     <div>
-                                        <span class="fa fa-envelope fa-fw" role="img" aria-label="Email" title="Email"/>
+                                        <span class="far fa-envelope fa-fw" role="img" aria-label="Email" title="Email"/>
                                         <span t-if="opportunity.email_from" itemprop="email" t-field="opportunity.email_from"/>
                                         <span t-else="" class="text-muted"> - </span>
                                     </div>

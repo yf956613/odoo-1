@@ -120,7 +120,7 @@
                                 t-att-data-completed="1 if slide_completed else 0"
                                 t-att-data-readonly="not is_member">
                                 <a class="o_wslides_fs_slide_quiz" href="#" t-att-index="i">
-                                    <i class="fa fa-flag-checkered text-warning mr-2"/>Quiz
+                                    <i class="far fa-flag-checkered text-warning mr-2"/>Quiz
                                 </a>
                             </li>
                         </ul>

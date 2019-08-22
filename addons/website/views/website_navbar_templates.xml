@@ -124,7 +124,7 @@
                                     </div>
                                     <div groups="base.group_system" name="module_website_forum" t-att-data-module-id="env.ref('base.module_website_forum').id" t-att-data-module-shortdesc="env.ref('base.module_website_forum').shortdesc" class="col-md-4 mb8 o_new_content_element">
                                         <a href="#" data-action="new_forum">
-                                            <i class="fa fa-comment"/>
+                                            <i class="far fa-comment"/>
                                             <p>New Forum</p>
                                         </a>
                                     </div>

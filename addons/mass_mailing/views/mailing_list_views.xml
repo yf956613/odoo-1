@@ -132,7 +132,7 @@
                                 <a name="action_view_contacts" type="object">
                                     <div>
                                         <span class="badge badge-pill">
-                                            <i class="fa fa-user" role="img" aria-label="Contacts" title="Contacts"/>
+                                            <i class="far fa-user" role="img" aria-label="Contacts" title="Contacts"/>
                                             <t t-esc="record.contact_nbr.value"/>
                                         </span>
                                     </div>

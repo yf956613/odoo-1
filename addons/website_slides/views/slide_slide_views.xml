@@ -196,7 +196,7 @@
                                                 <i class="far fa-file-video mr-2" aria-label="Video" role="img" title="Video"/>
                                             </t>
                                             <t t-elif="record.slide_type.raw_value == 'quiz'">
-                                                <i class="fa fa-flag mr-2" aria-label="Quiz" role="img" title="Quiz"/>
+                                                <i class="far fa-flag mr-2" aria-label="Quiz" role="img" title="Quiz"/>
                                             </t>
                                             <t t-else=""><i class="far fa-file-pdf mr-2" aria-label="Document" role="img" title="Document"/></t>
                                             <field name="slide_type"/>

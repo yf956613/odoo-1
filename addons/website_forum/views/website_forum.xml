@@ -122,7 +122,7 @@
                         <div class="card-body">
                             <a t-attf-href="/forum/#{slug(forum)}/validation_queue" class="text-dark"><i class="far fa-check-square mr-2 text-primary"/><strong><t t-esc="forum.count_posts_waiting_validation"/></strong> waiting for validation</a>
                             <hr style="margin-top:4px;margin-bottom:0;padding-bottom:4px;" />
-                            <a t-attf-href="/forum/#{slug(forum)}/flagged_queue" class="text-dark"><i class="fa fa-flag mr-2 text-primary"/><strong id="count_flagged_posts"><t t-esc="forum.count_flagged_posts"/></strong> post<t t-if="forum.count_flagged_posts&gt;1">s</t> flagged</a>
+                            <a t-attf-href="/forum/#{slug(forum)}/flagged_queue" class="text-dark"><i class="far fa-flag mr-2 text-primary"/><strong id="count_flagged_posts"><t t-esc="forum.count_flagged_posts"/></strong> post<t t-if="forum.count_flagged_posts&gt;1">s</t> flagged</a>
                         </div>
                     </div>
                 </div>
@@ -210,7 +210,7 @@
 <template id="display_post_question_block">
     <div t-if="question.has_validated_answer" class="validate_answer">
         <div class="bg-success"></div>
-        <span title="Question has accepted answer" role="img" aria-label="Question has accepted answer"><i class="fa fa-check-circle text-success bg-white"/></span>
+        <span title="Question has accepted answer" role="img" aria-label="Question has accepted answer"><i class="far fa-check-circle text-success bg-white"/></span>
     </div>
     <div class="col">
         <div class="row">
@@ -233,11 +233,11 @@
                 </div>
                 <div><t t-raw="post_content"/></div>
                 <small class="text-muted">
-                    <i t-attf-class="fa fa-question-circle" role="img" aria-label="Question" />
+                    <i t-attf-class="far fa-question-circle" role="img" aria-label="Question" />
                     <span>By </span><span t-field="question.create_uid" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="d-inline-block"/>
                     <span class="ml-4 mr-1 fas fa-calendar-alt"></span><span t-field="question.write_date" t-options='{"format":"short"}'/>
                     <span class="ml-4 mr-1 far fa-eye"></span><span t-field="question.views" /> <t t-if="question.views&lt;=1">View</t><t t-else="">Views</t>
-                    <i class="ml-4 fa fa-comments text-primary"/>
+                    <i class="ml-4 far fa-comments text-primary"/>
                     <a t-attf-href="/forum/#{ slug(question.forum_id) }/question/#{ slug(question) }">
                         <t t-esc="question.child_count"/>
                         <t t-if="question.child_count&lt;=1">Answer</t>
@@ -247,7 +247,7 @@
                         <span class="ml-4 mr-1 fa fa-star"></span><span t-field="question.favourite_count"/> <t t-if="question.views&lt;=1">Favorite</t><t t-else="">Favorites</t>
                     </a>
                     <span t-if="question.state == 'flagged'" class="text-black">
-                        <i class="fa fa-flag ml-4 mr4"/>
+                        <i class="far fa-flag ml-4 mr4"/>
                         Flagged
                     </span>
                 </small>
@@ -707,7 +707,7 @@
                     </t>
                 </div>
                 <div t-attf-class="col-11 question-block mb-5 o_post_content" role="alert">
-                     <span t-if="question.has_validated_answer" title="Question has accepted answer" role="img" aria-label="Question has accepted answer"><i class="fa fa-check-circle text-success"/> <b class="text-success">Resolved</b></span>
+                     <span t-if="question.has_validated_answer" title="Question has accepted answer" role="img" aria-label="Question has accepted answer"><i class="far fa-check-circle text-success"/> <b class="text-success">Resolved</b></span>
                     <h1 t-attf-class="#{not question.active and 'text-danger' or 'text-primary'}">
                         <t t-esc="question.name"/>
                         <span t-if="not question.active and question.state!='offensive'"><b> [Deleted]</b></span>
@@ -801,7 +801,7 @@
                                 <t t-set="url" t-value="'/forum/' + slug(forum) +'/post/' + slug(question) + '/flag'"/>
                                 <t t-set="title">Flag</t>
                                 <t t-set="inDropdown" t-value="False"/>
-                                <t t-set="icon" t-value="not question.can_flag and 'fa-flag' or 'fa-flag'"/>
+                                <t t-set="icon" t-value="not question.can_flag and 'fa-flag'"/>
                                 <t t-set="karma" t-value="not question.can_flag and question.forum_id.karma_flag or 0"/>
                                 <t t-set="classes" t-value="'flag'"/>
                             </t>
@@ -814,7 +814,7 @@
                 </div>
                 <div class="col-12">
                     <div class="border-primary o_wforum_post_count_answer_count p-2">
-                        <i class="fa fa-comments text-primary"/>
+                        <i class="far fa-comments text-primary"/>
                         <t t-esc="question.child_count"/>
                         <t t-if="question.child_count&lt;=1">Answer</t>
                         <t t-else="">Answers</t>
@@ -848,7 +848,7 @@
                 <div class="bg-success"></div>
                 <span title="Question has accepted answer" role="img" aria-label="Question has accepted answer"
                       t-attf-data-href="/forum/#{slug(question.forum_id)}/post/#{slug(answer)}/toggle_correct">
-                    <i class="fa fa-check-circle text-success bg-white"/>
+                    <i class="far fa-check-circle text-success bg-white"/>
                 </span>
             </div>
             <div class="row">
@@ -856,7 +856,7 @@
                     <t t-call="website_forum.vote">
                         <t t-set="post" t-value="answer"/>
                         <div t-if="question.can_answer and question.forum_id.mode == 'questions'" class="mt4">
-                            <a t-attf-class="accept_answer fa fa-2x fa-check-circle no-decoration #{answer.is_correct and 'oe_answer_true' or 'oe_answer_false'} #{not answer.can_accept and 'karma_required' or ''}"
+                            <a t-attf-class="accept_answer far fa-2x fa-check-circle no-decoration #{answer.is_correct and 'oe_answer_true' or 'oe_answer_false'} #{not answer.can_accept and 'karma_required' or ''}"
                                 t-attf-data-karma="#{answer.karma_accept}"
                                 aria-label="Accept this answer as the best" title="Accept this answer as the best"
                                 t-attf-data-href="/forum/#{slug(question.forum_id)}/post/#{slug(answer)}/toggle_correct"
@@ -952,7 +952,7 @@
                                     t-attf-data-karma="#{not answer.can_comment and answer.karma_comment or 0}"
                                     style="cursor: pointer" t-att-data-toggle="answer.can_comment and 'collapse' or None"
                                     t-attf-data-target="#comment#{ answer._name.replace('.','') + '-' + str(answer.id) }">
-                                    <i t-attf-class="fa fa-comment text-primary #{not answer.can_comment and 'karma_required text-muted' or ''}"/> Comment
+                                    <i t-attf-class="far fa-comment text-primary #{not answer.can_comment and 'karma_required text-muted' or ''}"/> Comment
                                 </a>
                                 <a href="javascript:void(0)" class="oe_social_share text-black ml-2 pl-2 border-left"
                                     t-attf-data-urlshare="#{request.httprequest.url}#comment#{ answer._name.replace('.','') + '-' + str(answer.id) }"
@@ -1107,10 +1107,10 @@
                     <div class="modal-header pb-0">
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active spam_menu" id="user-tab" data-toggle="tab" href="#spam_user" role="tab" aria-controls="user" aria-selected="true"><i class="fa fa-user"/> User</a>
+                                <a class="nav-link active spam_menu" id="user-tab" data-toggle="tab" href="#spam_user" role="tab" aria-controls="user" aria-selected="true"><i class="far fa-user"/> User</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link spam_menu" id="country-tab" data-toggle="tab" href="#spam_country" role="tab" aria-controls="spam_country" aria-selected="false"><i class="fa fa-flag"/> Country</a>
+                                <a class="nav-link spam_menu" id="country-tab" data-toggle="tab" href="#spam_country" role="tab" aria-controls="spam_country" aria-selected="false"><i class="far fa-flag"/> Country</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link spam_menu" id="character-tab" data-toggle="tab" href="#spam_character" role="tab" aria-controls="spam_character" aria-selected="false">圾 Typical Character</a>
@@ -1184,11 +1184,11 @@
                         <div t-foreach="question" t-as="answer" class="col-md-10 col-sm-8">
                             <t t-call="website_forum.moderation_display_post_answer"/>
                             <small class="text-muted">
-                                 <i t-attf-class="fa fa-user" role="img" aria-label="Question" />
+                                 <i t-attf-class="far fa-user" role="img" aria-label="Question" />
                                 <span>By </span><span t-field="question.create_uid" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' style="display: inline-block;"/>
                                 <i class="ml-4 mr4 fas fa-calendar-alt"/><span t-field="question.write_date" t-options='{"format":"short"}'/>
                                 <span t-if="question.state == 'flagged'" class="text-black">
-                                    <i class="fa fa-flag ml-4 mr4"/>
+                                    <i class="far fa-flag ml-4 mr4"/>
                                     Flagged
                                 </span>
                             </small>

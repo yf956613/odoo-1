@@ -167,7 +167,7 @@
                         </t>
                         <li class="pl-4">
                             <a t-if="aside_slide.question_ids and aside_slide.slide_type != 'quiz'" t-att-href="'/slides/slide/%s#lessonQuiz' % (slug(aside_slide))" class="o_wslides_lesson_aside_list_link text-decoration-none small text-600">
-                                <i class="fa fa-flag text-warning"/> Quiz
+                                <i class="far fa-flag text-warning"/> Quiz
                             </a>
                         </li>
                     </ul>
@@ -192,7 +192,7 @@
                 <span t-if="slide.question_ids"
                     t-att-class="'ml-2 badge %s' % ('badge-success' if channel_progress[slide.id].get('completed') else 'badge-info')">
                     <span t-if="channel_progress[slide.id].get('completed')">
-                        <i class="fa fa-check-circle"/>
+                        <i class="far fa-check-circle"/>
                         <t t-esc="channel_progress[slide.id].get('quiz_karma_won', 0)"/>
                     </span>
                     <span t-else="" t-esc="channel_progress[slide.id].get('quiz_karma_gain', 0)"/>
@@ -412,9 +412,9 @@
                                 t-att-value="answer['id']"
                                 class="d-none"
                                 t-att-disabled="True if not slide.channel_id.is_member or slide_completed else ''"/>
-                            <i t-att-class="'fa fa-circle text-400 %s' % ('d-none' if slide_completed and answer['is_correct'] else '')"/>
+                            <i t-att-class="'far fa-circle text-400 %s' % ('d-none' if slide_completed and answer['is_correct'] else '')"/>
                             <i class="fa fa-times-circle text-danger d-none"></i>
-                            <i t-att-class="'fa fa-check-circle text-success %s' % ('d-none' if not (slide_completed and answer['is_correct']) else '')"></i>
+                            <i t-att-class="'far fa-check-circle text-success %s' % ('d-none' if not (slide_completed and answer['is_correct']) else '')"></i>
                         </label>
                         <span t-esc="answer['text_value']"/>
                     </a>

@@ -1394,7 +1394,7 @@
 </t>
 <t t-name="toggle_button">
     <button type="button" class="o_icon_button" t-att-title="widget.string" t-att-aria-label="widget.string" aria-pressed="false">
-        <i class="fa fa-circle" t-att-title="widget.string"/>
+        <i class="far fa-circle" t-att-title="widget.string"/>
     </button>
 </t>
 

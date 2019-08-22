@@ -76,10 +76,10 @@
                     <i class="fa fa-fw fa-arrow-circle-right"/> Pay Now
                 </a>
                 <div t-if="tx_ids and not pending_manual_txs and invoice.invoice_payment_state != 'paid'" class="alert alert-info py-1 mb-2" >
-                    <i class="fa fa-fw fa-check-circle"/> Pending
+                    <i class="far fa-fw fa-check-circle"/> Pending
                 </div>
                 <div t-if="invoice.invoice_payment_state == 'paid'" class="alert alert-success py-1 mb-2" >
-                    <i class="fa fa-fw fa-check-circle"/> Paid
+                    <i class="far fa-fw fa-check-circle"/> Paid
                 </div>
             </div>
         </xpath>

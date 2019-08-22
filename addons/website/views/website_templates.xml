@@ -356,7 +356,7 @@
                             <ul class="list-unstyled">
                                 <li><a href="/contactus">Contact us</a></li>
                                 <li><i class="fa fa-phone"/> <span t-field="res_company.phone"/></li>
-                                <li><i class="fa fa-envelope"/>  <span t-field="res_company.email"/></li>
+                                <li><i class="far fa-envelope"/>  <span t-field="res_company.email"/></li>
                             </ul>
                             <p>
                                 <a t-if="website.social_facebook" t-att-href="website.social_facebook" class="btn btn-sm btn-link"><i class="fab fa-2x fa-facebook-square"/></a>

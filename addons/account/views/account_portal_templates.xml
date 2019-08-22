@@ -113,7 +113,7 @@
                                     </div>
                                     <div class="col pl-0">
                                         <span t-field="invoice.invoice_user_id" t-options='{"widget": "contact", "fields": ["name", "phone"], "no_marker": True}'/>
-                                        <a href="#discussion" class="small"><i class="fa fa-fw fa-comments"/><b>Send message</b></a>
+                                        <a href="#discussion" class="small"><i class="far fa-fw fa-comments"/><b>Send message</b></a>
                                     </div>
                                 </div>
                             </li>

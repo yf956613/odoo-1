@@ -28,7 +28,7 @@
                                                     <i class="fas fa-calendar-alt"/> End date : <t t-esc="project.date"/>
                                                 </p>
                                                 <p t-if="project.alias_name and project.alias_domain"  class="text-muted">
-                                                    <i class="fa fa-envelope"/> Email : <t t-esc="project.alias_name"/>@<t t-esc="project.alias_domain"/>
+                                                    <i class="far fa-envelope"/> Email : <t t-esc="project.alias_name"/>@<t t-esc="project.alias_domain"/>
                                                 </p>
                                                 <div class="row">
                                                     <div class="col-lg-6 text-center">

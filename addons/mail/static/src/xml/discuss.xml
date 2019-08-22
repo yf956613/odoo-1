@@ -66,7 +66,7 @@
         </div>
         <div t-if="isMyselfModerator" t-attf-class="o_mail_discuss_title_main o_mail_discuss_item #{(activeThreadID == 'mailbox_moderation') ? 'o_active': ''}"
                 data-thread-id="mailbox_moderation">
-            <span class="o_thread_name"> <i class="fa fa-envelope mr8"/>Moderation Queue</span>
+            <span class="o_thread_name"> <i class="far fa-envelope mr8"/>Moderation Queue</span>
             <t t-set="counter" t-value="moderation.getMailboxCounter()"/>
             <t t-call="mail.discuss.SidebarCounter"/>
         </div>
@@ -185,8 +185,8 @@
     -->
     <t t-name="mail.UserStatus">
         <span t-att-class="partnerID ? 'o_updatable_im_status' : ''" t-att-data-partner-id="partnerID">
-            <i t-if="status == 'online'" class="o_mail_user_status o_user_online fa fa-circle" title="Online" role="img" aria-label="User is online"/>
-            <i t-if="status == 'away'" class="o_mail_user_status o_user_idle fa fa-circle" title="Idle" role="img" aria-label="User is idle"/>
+            <i t-if="status == 'online'" class="o_mail_user_status o_user_online far fa-circle" title="Online" role="img" aria-label="User is online"/>
+            <i t-if="status == 'away'" class="o_mail_user_status o_user_idle far fa-circle" title="Idle" role="img" aria-label="User is idle"/>
             <i t-if="status == 'offline'" class="o_mail_user_status far fa-circle" title="Offline" role="img" aria-label="User is offline"/>
         </span>
     </t>
@@ -257,7 +257,7 @@
                     <span class="o_tab_title">Inbox</span>
                 </div>
                 <div class="o_mail_mobile_tab" data-type="dm_chat">
-                    <span class="fa fa-user"/>
+                    <span class="far fa-user"/>
                     <span class="o_tab_title">Chat</span>
                 </div>
                 <div class="o_mail_mobile_tab" data-type="multi_user_channel">

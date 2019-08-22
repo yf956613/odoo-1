@@ -135,7 +135,7 @@ OTHER DEALINGS IN THE SOFTWARE.
                 +  '<div class="transfo-controls">'
                 +   '<div style="cursor: crosshair; position: absolute; margin: -30px; top: 0; right: 0; padding: 1px 0 0 1px;" class="transfo-rotator">'
                 +    '<span class="fa-stack fa-lg">'
-                +    '<i class="fa fa-circle fa-stack-2x"></i>'
+                +    '<i class="far fa-circle fa-stack-2x"></i>'
                 +    '<i class="fas fa-redo fa-stack-1x fa-inverse"></i>'
                 +    '</span>'
                 +   '</div>'

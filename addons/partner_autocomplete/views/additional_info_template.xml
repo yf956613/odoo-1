@@ -22,7 +22,7 @@
             <hr/>
 
             <p t-if="company_type">
-                <i class="fa fa-fw mr-2 fa-building text-primary"/>
+                <i class="far fa-fw mr-2 fa-building text-primary"/>
                 <b>Company type:</b>
                 <t t-esc="company_type"/>
             </p>

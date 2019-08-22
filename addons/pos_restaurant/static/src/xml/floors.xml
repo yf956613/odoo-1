@@ -119,7 +119,7 @@
                             <i class='fa fa-font' role="img" aria-label="Rename" title="Rename"></i>
                         </span>
                         <span class='edit-button seats needs-selection'>
-                            <i class='fa fa-user' role="img" aria-label="Seats" title="Seats"></i>
+                            <i class='far fa-user' role="img" aria-label="Seats" title="Seats"></i>
                         </span>
                         <span class='edit-button shape needs-selection'>
                             <span class='button-option square'><i class='far fa-square' role="img" aria-label="Square Shape" title="Square Shape"></i></span>

@@ -136,7 +136,7 @@
                     </h3>
                     <ul class="list-inline mb0">
                         <li t-if="track.partner_id" class="list-inline-item">
-                            <i class="fa fa-user text-primary"/>
+                            <i class="far fa-user text-primary"/>
                             <t t-esc="track.partner_id.sudo().name"/>
                         </li>
                         <li t-if="track.date" class="list-inline-item"> <i class="fas fa-calendar-alt text-primary"/><span t-field="track.date" t-options='{"hide_seconds":"True"}'/></li>

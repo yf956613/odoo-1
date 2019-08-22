@@ -134,7 +134,7 @@
                                     <button role="button" class="btn text-white pl-0" title="Share Channel"
                                         aria-label="Share Channel"
                                         data-toggle="modal" data-target="#slideChannelShareModal">
-                                        <i class="fa fa-share-square"></i> Share
+                                        <i class="far fa-share-square"></i> Share
                                     </button>
                                 </div>
                             </div>
@@ -296,7 +296,7 @@
                 <button role="button" class="btn btn-link btn-block" title="Share Channel"
                     aria-label="Share Channel"
                     data-toggle="modal" data-target="#slideChannelShareModal">
-                    <i class="fa fa-share-square fa-fw"/> Share
+                    <i class="far fa-share-square fa-fw"/> Share
                 </button>
                 <div class="modal fade" id="slideChannelShareModal" tabindex="-1" role="dialog" aria-labelledby="slideChannelShareModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -424,7 +424,7 @@
 
         <div class="d-flex flex-wrap">
             <span t-if="slide.question_ids" t-att-class="'badge font-weight-bold px-2 py-1 m-1 %s' % ('badge-success' if channel_progress[slide.id].get('completed') else 'badge-warning')">
-                <i t-attf-class="fa fa-fw #{'fa-check' if channel_progress[slide.id].get('completed') else 'fa-flag'}"/>
+                <i t-attf-class="fa-fw #{'fas fa-check' if channel_progress[slide.id].get('completed') else 'far fa-flag'}"/>
                 <t t-esc="channel_progress[slide.id].get('quiz_karma_won', 0) if channel_progress[slide.id].get('completed') else channel_progress[slide.id].get('quiz_karma_gain', 0)"/> xp
             </span>
             <span class="badge badge-danger font-weight-normal px-2 py-1 m-1" t-if="not slide.website_published">Unpublished</span>
@@ -437,7 +437,7 @@
         <div t-if="channel.is_member or channel.can_publish" class="pt-2 pb-2 border-left ml-2 mr-2 pl-2 d-flex align-items-center o_wslides_slides_list_slide_controls">
             <t t-if="channel.is_member">
                 <i t-if="not channel_progress[slide.id].get('completed')" class="check-done far fa-circle text-500 px-2"></i>
-                <i t-else="" class="check-done text-success fa fa-check-circle px-2"></i>
+                <i t-else="" class="check-done text-success far fa-check-circle px-2"></i>
             </t>
             <span t-if="channel.can_publish" class="d-none d-md-inline-block">
                 <a t-if="slide.slide_type == 'webpage'" class="px-2 o_text_link text-primary" target="_blank" t-attf-href="/slides/slide/#{slug(slide)}?enable_editor=1"><span class="fas fa-pencil-alt"/></a>
@@ -683,7 +683,7 @@
     <i t-if="slide.slide_type == 'video'" t-att-class="'fa fa-play-circle %s' % icon_class"></i>
     <i t-if="slide.slide_type == 'link'" t-att-class="'far fa-file-code %s' % icon_class"></i>
     <i t-if="slide.slide_type == 'webpage'" t-att-class="'fas fa-file-alt %s' % icon_class"></i>
-    <i t-if="slide.slide_type == 'quiz'" t-att-class="'fa fa-question-circle %s' % icon_class"></i>
+    <i t-if="slide.slide_type == 'quiz'" t-att-class="'far fa-question-circle %s' % icon_class"></i>
 </template>
 
 </data></odoo>

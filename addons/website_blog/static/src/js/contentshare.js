@@ -19,7 +19,7 @@
                 var $popover_content = $('<div class="h4 m-0"/>');
                 if($('.o_wblog_title, .o_wblog_post_content_field').hasClass('js_comment')){
                     selected_text = this.getSelection('string');
-                    var $btn_c = $('<a class="o_share_comment btn btn-link px-2" href="#"/>').append($('<i class="fa fa-lg fa-comment"/>'));
+                    var $btn_c = $('<a class="o_share_comment btn btn-link px-2" href="#"/>').append($('<i class="far fa-lg fa-comment"/>'));
                     $popover_content.append($btn_c);
                 }
                 if($('.o_wblog_title, .o_wblog_post_content_field').hasClass('js_tweet')){

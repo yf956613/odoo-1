@@ -44,7 +44,7 @@
                     <div t-esc="group.description" class="text-muted"/>
                 </div>
                 <div class="col-lg-2">
-                    <i class='fa fa-fw fa-user' role="img" aria-label="Recipients" title="Recipients"/> <t t-esc="group_data[group.id]['members_count']"/> members<br />
+                    <i class='far fa-fw fa-user' role="img" aria-label="Recipients" title="Recipients"/> <t t-esc="group_data[group.id]['members_count']"/> members<br />
                     <i class='far fa-fw fa-envelope' role="img" aria-label="Traffic" title="Traffic"/> <t t-raw="group_data[group.id]['monthly_message_nbr']"/> messages / month
                 </div>
                 <div class="col-lg-3">

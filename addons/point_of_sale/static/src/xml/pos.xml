@@ -149,7 +149,7 @@
     <t t-name="ActionpadWidget">
         <div class="actionpad">
             <button t-attf-class='button set-customer #{ ( widget.pos.get_client() and widget.pos.get_client().name.length > 10) ? "decentered" : "" }' >
-                <i class='fa fa-user' role="img" aria-label="Customer" title="Customer"/>
+                <i class='far fa-user' role="img" aria-label="Customer" title="Customer"/>
                 <t t-if="widget.pos.get_client()">
                     <t t-esc="widget.pos.get_client().name" />
                 </t>
@@ -525,7 +525,7 @@
                     </span>
                     <span class='searchbox'></span>
                     <span class='button new-customer' role="img" aria-label="Add a customer" title="Add a customer">
-                        <i class='fa fa-user'></i>
+                        <i class='far fa-user'></i>
                         <i class='fa fa-plus'></i>
                     </span>
                     <span class='button next oe_hidden highlight'>
@@ -707,7 +707,7 @@
 
                     <div class='payment-buttons'>
                         <div class='button js_set_customer'>
-                            <i class='fa fa-user' role="img" aria-label="Customer" title="Customer"/>
+                            <i class='far fa-user' role="img" aria-label="Customer" title="Customer"/>
                             <span class='js_customer_name'>
                                 <t t-if="widget.pos.get_client()">
                                     <t t-esc="widget.pos.get_client().name" />
@@ -726,7 +726,7 @@
                         </t>
                         <t t-if='widget.pos.config.tip_product_id'>
                             <div class='button js_tip'>
-                                <i class='fa fa-heart' /> Tip
+                                <i class='far fa-heart' /> Tip
                             </div>
                         </t>
                         <t t-if='widget.pos.config.iface_cashdrawer'>
