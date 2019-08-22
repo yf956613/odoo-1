@@ -161,7 +161,6 @@ class StockPicking(models.Model):
         self.message_post(body=msg)
         self._add_delivery_cost_to_so()
 
-
     def print_return_label(self):
         self.ensure_one()
         res = self.carrier_id.get_return_label(self)
@@ -222,6 +221,10 @@ class StockPicking(models.Model):
                 package_names = ', '.join([str(p.name) for p in packages])
                 raise UserError(_('You are shipping different packaging types in the same shipment.\nPackaging Types: %s' % package_names))
         return True
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(StockPicking, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['carrier_id']
 
 
 class StockReturnPicking(models.TransientModel):
