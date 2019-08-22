@@ -14,6 +14,10 @@
     ],
     'demo': [
         'data/product_demo.xml',
+        'views/point_of_sale.xml',
+    ],
+    'qweb': [
+        'static/src/xml/pos_receipt.xml',
     ],
     'auto_install': True,
 }
