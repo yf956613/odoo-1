@@ -15,13 +15,14 @@ _logger = logging.getLogger(__name__)
 
 class StockQuant(models.Model):
     _name = 'stock.quant'
+    _inherit = 'company.consistency.mixin'
     _description = 'Quants'
     _rec_name = 'product_id'
 
     def _domain_location_id(self):
         if not self._is_inventory_mode():
             return
-        return ['&', ('company_id', '=', self.env.company.id), ('usage', 'in', ['internal', 'transit'])]
+        return [('usage', 'in', ['internal', 'transit'])]
 
     def _domain_product_id(self):
         if not self._is_inventory_mode():
@@ -50,12 +51,15 @@ class StockQuant(models.Model):
         auto_join=True, ondelete='restrict', readonly=True, required=True)
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
+        domain="[('product_id', '=', product_id), ('company_id', '=', company_id)]",
         ondelete='restrict', readonly=True)
     package_id = fields.Many2one(
         'stock.quant.package', 'Package',
+        domain="[('location_id', '=', location_id)]",
         help='The package containing this quant', readonly=True, ondelete='restrict')
     owner_id = fields.Many2one(
         'res.partner', 'Owner',
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         help='This is the owner of the quant', readonly=True)
     quantity = fields.Float(
         'Quantity',
@@ -95,9 +99,9 @@ class StockQuant(models.Model):
             if diff_float_compared == 0:
                 continue
             elif diff_float_compared > 0:
-                move_vals = quant._get_inventory_move_values(diff, quant.product_id.property_stock_inventory, quant.location_id)
+                move_vals = quant._get_inventory_move_values(diff, quant.product_id.with_context(force_company=quant.company_id.id or self.env.company.id).property_stock_inventory, quant.location_id)
             else:
-                move_vals = quant._get_inventory_move_values(-diff, quant.location_id, quant.product_id.property_stock_inventory, out=True)
+                move_vals = quant._get_inventory_move_values(-diff, quant.location_id, quant.product_id.with_context(force_company=quant.company_id.id or self.env.company.id).property_stock_inventory, out=True)
             move = quant.env['stock.move'].with_context(inventory_mode=False).create(move_vals)
             move._action_done()
 
@@ -126,7 +130,10 @@ class StockQuant(models.Model):
             # Set the `inventory_quantity` field to create the necessary move.
             quant.inventory_quantity = inventory_quantity
             return quant
-        return super(StockQuant, self).create(vals)
+        res = super(StockQuant, self).create(vals)
+        if self._is_inventory_mode():
+            res._company_consistency_check()
+        return res
 
     @api.model
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
@@ -608,6 +615,16 @@ class StockQuant(models.Model):
             })
         return action
 
+    @api.model
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(StockQuant, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['lot_id']
+
+    @api.model
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(StockQuant, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id', 'owner_id', 'package_id']
+
 
 class QuantPackage(models.Model):
     """ Packages containing quants and/or other packages """
@@ -635,7 +652,7 @@ class QuantPackage(models.Model):
     @api.depends('quant_ids.package_id', 'quant_ids.location_id', 'quant_ids.company_id', 'quant_ids.owner_id', 'quant_ids.quantity', 'quant_ids.reserved_quantity')
     def _compute_package_info(self):
         for package in self:
-            values = {'location_id': False, 'company_id': self.env.company.id, 'owner_id': False}
+            values = {'location_id': False, 'owner_id': False}
             if package.quant_ids:
                 values['location_id'] = package.quant_ids[0].location_id
                 if all(q.owner_id == package.quant_ids[0].owner_id for q in package.quant_ids):
@@ -643,7 +660,7 @@ class QuantPackage(models.Model):
                 if all(q.company_id == package.quant_ids[0].company_id for q in package.quant_ids):
                     values['company_id'] = package.quant_ids[0].company_id
             package.location_id = values['location_id']
-            package.company_id = values['company_id']
+            package.company_id = values.get('company_id')
             package.owner_id = values['owner_id']
 
     def name_get(self):
@@ -702,3 +719,4 @@ class QuantPackage(models.Model):
                 res[quant.product_id] = 0
             res[quant.product_id] += quant.quantity
         return res
+

@@ -5,7 +5,8 @@ from odoo import api, fields, models, _
 
 
 class Company(models.Model):
-    _inherit = "res.company"
+    _name = 'res.company'
+    _inherit = ["res.company", "company.consistency.mixin"]
 
     def _default_confirmation_mail_template(self):
         try:
@@ -169,10 +170,32 @@ class Company(models.Model):
         self.ensure_one()
         self._create_scrap_sequence()
 
+    def _create_per_company_picking_types(self):
+        self.ensure_one()
+
+    def _create_per_company_rules(self):
+        self.ensure_one()
+
     @api.model
     def create(self, vals):
         company = super(Company, self).create(vals)
         company.sudo()._create_per_company_locations()
         company.sudo()._create_per_company_sequences()
+        company.sudo()._create_per_company_picking_types()
+        company.sudo()._create_per_company_rules()
         self.env['stock.warehouse'].sudo().create({'name': company.name, 'code': company.name[:5], 'company_id': company.id, 'partner_id': company.partner_id.id})
+        # It should not be necessary to guard the consistency check here.
+        if any(field in vals for field in self._company_consistency_fields()):
+            company._company_consistency_check()
         return company
+
+    def write(self, vals):
+        res = super(Company, self).write(vals)
+        if any(field in vals for field in self._company_consistency_fields()):
+            self._company_consistency_check()
+        return res
+
+    @api.model
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(Company, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['internal_transit_location_id']

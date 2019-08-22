@@ -12,6 +12,7 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 class Location(models.Model):
     _name = "stock.location"
+    _inherit = 'company.consistency.mixin'
     _description = "Inventory Locations"
     _parent_name = "location_id"
     _parent_store = True
@@ -46,6 +47,7 @@ class Location(models.Model):
              "\n* Transit Location: Counterpart location that should be used in inter-company or inter-warehouses operations")
     location_id = fields.Many2one(
         'stock.location', 'Parent Location', index=True, ondelete='cascade',
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         help="The parent location that includes this location. Example : The 'Dispatch Zone' is the 'Gate 1' parent location.")
     child_ids = fields.One2many('stock.location', 'location_id', 'Contains')
     comment = fields.Text('Additional Information')
@@ -80,12 +82,21 @@ class Location(models.Model):
         if self.usage not in ('internal', 'inventory'):
             self.scrap_location = False
 
+    @api.model
+    def create(self, vals):
+        location = super(Location, self).create(vals)
+        location._company_consistency_check()
+        return location
+
     def write(self, values):
+        if 'company_id' in values:
+            for location in self:
+                if location.company_id.id != values['company_id']:
+                    raise UserError(_("Changing the company of this record is forbidden at this point, you should rather archive it and create a new one."))
         if 'usage' in values and values['usage'] == 'view':
             if self.mapped('quant_ids'):
                 raise UserError(_("This location's usage cannot be changed to view as it contains products."))
         if 'usage' in values or 'scrap_location' in values:
-
             modified_locations = self.filtered(
                 lambda l: any(l[f] != values[f] if f in values else False
                               for f in {'usage', 'scrap_location'}))
@@ -116,8 +127,10 @@ class Location(models.Model):
                         (','.join(children_quants.mapped('location_id.name'))))
                 else:
                     super(Location, children_location - self).with_context({'do_not_check_quant': True}).write(values)
-
-        return super(Location, self).write(values)
+        res = super(Location, self).write(values)
+        if any(field in values for field in self._company_consistency_fields()):
+            self._company_consistency_check()
+        return res
 
     def name_get(self):
         ret_list = []
@@ -174,10 +187,16 @@ class Location(models.Model):
         self.ensure_one()
         return self.usage in ('supplier', 'customer', 'inventory', 'production') or self.scrap_location
 
+    @api.model
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(Location, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['location_id']
+
 
 class Route(models.Model):
     _name = 'stock.location.route'
     _description = "Inventory Routes"
+    _inherit = 'company.consistency.mixin'
     _order = 'sequence'
 
     name = fields.Char('Route', required=True, translate=True)
@@ -193,9 +212,34 @@ class Route(models.Model):
         'res.company', 'Company',
         default=lambda self: self.env.company, index=True,
         help='Leave this field empty if this route is shared between all companies')
-    product_ids = fields.Many2many('product.template', 'stock_route_product', 'route_id', 'product_id', 'Products', copy=False)
+    product_ids = fields.Many2many(
+        'product.template', 'stock_route_product', 'route_id', 'product_id',
+        'Products', copy=False, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     categ_ids = fields.Many2many('product.category', 'stock_location_route_categ', 'route_id', 'categ_id', 'Product Categories', copy=False)
-    warehouse_ids = fields.Many2many('stock.warehouse', 'stock_route_warehouse', 'route_id', 'warehouse_id', 'Warehouses', copy=False)
+    warehouse_ids = fields.Many2many(
+        'stock.warehouse', 'stock_route_warehouse', 'route_id', 'warehouse_id',
+        'Warehouses', copy=False)
+
+    def create(self, values):
+        res = super(Route, self).create(values)
+        res._company_consistency_check()
+        return res
+
+    def write(self, values):
+        res = super(Route, self).write(values)
+        if any(field in values for field in self._company_consistency_fields()):
+            self._company_consistency_check()
+        return res
+
+    @api.model
+    def _company_consistency_m2m_required_cid_fields(self):
+        res = super(Route, self)._company_consistency_m2m_required_cid_fields()
+        return res + ['warehouse_ids']
+
+    @api.model
+    def _company_consistency_m2m_optional_cid_fields(self):
+        res = super(Route, self)._company_consistency_m2m_optional_cid_fields()
+        return res + ['product_ids']
 
     @api.onchange('warehouse_selectable')
     def _onchange_warehouse_selectable(self):

@@ -20,6 +20,7 @@ class StockRule(models.Model):
     """ A rule describe what a procurement should do; produce, buy, move, ... """
     _name = 'stock.rule'
     _description = "Stock Rule"
+    _inherit = 'company.consistency.mixin'
     _order = "sequence, id"
 
     name = fields.Char(
@@ -39,9 +40,14 @@ class StockRule(models.Model):
     sequence = fields.Integer('Sequence', default=20)
     company_id = fields.Many2one('res.company', 'Company',
         default=lambda self: self.env.company)
-    location_id = fields.Many2one('stock.location', 'Destination Location', required=True)
-    location_src_id = fields.Many2one('stock.location', 'Source Location')
-    route_id = fields.Many2one('stock.location.route', 'Route', required=True, ondelete='cascade')
+    location_id = fields.Many2one(
+        'stock.location', 'Destination Location', required=True,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    location_src_id = fields.Many2one(
+        'stock.location', 'Source Location',
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    route_id = fields.Many2one(
+        'stock.location.route', 'Route', required=True, ondelete='cascade')
     procure_method = fields.Selection([
         ('make_to_stock', 'Take From Stock'),
         ('make_to_order', 'Trigger Another Rule'),
@@ -52,10 +58,12 @@ class StockRule(models.Model):
              "If there is no stock available, the system will try to find a  rule to bring the products in the source location.")
     route_sequence = fields.Integer('Route Sequence', related='route_id.sequence', store=True, readonly=False)
     picking_type_id = fields.Many2one(
-        'stock.picking.type', 'Operation Type',
-        required=True)
+        'stock.picking.type', 'Operation Type', required=True)
     delay = fields.Integer('Delay', default=0, help="The expected date of the created transfer will be computed based on this delay.")
-    partner_address_id = fields.Many2one('res.partner', 'Partner Address', help="Address where goods should be delivered. Optional.")
+    partner_address_id = fields.Many2one(
+        'res.partner', 'Partner Address',
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+        help="Address where goods should be delivered. Optional.")
     propagate_cancel = fields.Boolean(
         'Cancel Next Move', default=False,
         help="When ticked, if the move created by this rule is cancelled, the next move will be cancelled too.")
@@ -78,6 +86,27 @@ class StockRule(models.Model):
         'Alert if Delay',
         help='Log an exception on the picking if this move has to be delayed (due to a change in the previous move scheduled date).',
     )
+
+    def create(self, values):
+        res = super(StockRule, self).create(values)
+        res._company_consistency_check()
+        return res
+
+    def write(self, values):
+        res = super(StockRule, self).write(values)
+        if any(field in values for field in self._company_consistency_fields()):
+            self._company_consistency_check()
+        return res
+
+    @api.model
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(StockRule, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['picking_type_id', 'warehouse_id']
+
+    @api.model
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(StockRule, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['location_id', 'location_src_id', 'partner_address_id']
 
     @api.onchange('picking_type_id')
     def _onchange_picking_type(self):
@@ -411,9 +440,14 @@ class ProcurementGroup(models.Model):
         result = False
         location = location_id
         while (not result) and location:
-            result = self._search_rule(values.get('route_ids', False), product_id, values.get('warehouse_id', False), [('location_id', '=', location.id), ('action', '!=', 'push')])
+            domain = self._get_rule_domain(location, values)
+            result = self._search_rule(values.get('route_ids', False), product_id, values.get('warehouse_id', False), domain)
             location = location.location_id
         return result
+
+    @api.model
+    def _get_rule_domain(self, location, values):
+        return [('location_id', '=', location.id), ('action', '!=', 'push')]
 
     @api.model
     def _get_moves_to_assign_domain(self):

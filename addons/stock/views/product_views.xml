@@ -116,8 +116,8 @@
                         <field name="tracking" widget="radio" attrs="{'invisible': [('type', 'in', ['service', 'digital'])]}"/>
                     </group>
                      <group string="Counterpart Locations" name="stock_property" groups="base.group_no_one">
-                        <field name="property_stock_production" domain="[('usage', '=', 'production')]"/>
-                        <field name="property_stock_inventory" domain="[('usage', '=', 'inventory')]"/>
+                        <field name="property_stock_production"/>
+                        <field name="property_stock_inventory"/>
                     </group>
                 </xpath>
                 <page name="inventory" position="inside">
@@ -385,6 +385,32 @@
                         <field name="responsible_id"/>
                     </xpath>
                 </data>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="product.action_packaging_view">
+            <field name="context">{'default_company_id': allowed_company_ids[0]}</field>
+        </record>
+
+        <record id="product_packaging_form_view_inherit" model="ir.ui.view">
+            <field name="name">product.packaging.form</field>
+            <field name="model">product.packaging</field>
+            <field name="inherit_id" ref="product.product_packaging_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='barcode']" position="after">
+                    <field name="company_id" group="base.group_multi_company"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_packaging_tree_view_inherit" model="ir.ui.view">
+            <field name="name">product.packaging.tree</field>
+            <field name="model">product.packaging</field>
+            <field name="inherit_id" ref="product.product_packaging_tree_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='qty']" position="after">
+                    <field name="company_id" group="base.group_multi_company"/>
+                </xpath>
             </field>
         </record>
 
