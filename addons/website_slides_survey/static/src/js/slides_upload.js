@@ -85,11 +85,7 @@ SlidesUpload.SlideUploadDialog.include({
             result['survey_id'] =  [certificateValue.id];
         }
         if (this.$('#certification_give_badge').is(':checked')) {
-            result['give_badge'] = true
-            result['badge_id'] =  [0];
-        }
-        else {
-            result['give_badge'] = false
+            result['badge_id'] = [$("#certification_badge_id_readonly").val()]
         }
         return result;
     }

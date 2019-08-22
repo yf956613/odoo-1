@@ -13,4 +13,3 @@ class WebsiteSlidesSurvey(http.Controller):
             'read_results': request.env['survey.survey'].search_read([('certificate', '=', True)], fields),
             'can_create': can_create,
         }
-    

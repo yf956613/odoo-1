@@ -12,13 +12,10 @@ var _t = core._t;
 var SlideUploadDialog = Dialog.extend({
     template: 'website.slide.upload.modal',
     events: _.extend({}, Dialog.prototype.events, {
-        'click .o_upload_image_certification_slide': '_onClickImageCertificationSlide',
-        'click .o_wss_trash_icon_slide': '_onClickTrashIconSlide',
         'click .o_wslides_js_upload_install_button': '_onClickInstallModule',
         'click .o_wslides_select_type': '_onClickSlideTypeIcon',
-        'change input#slide-upload': '_onChangeSlideUpload',
+        'change input#upload': '_onChangeSlideUpload',
         'change input#url': '_onChangeSlideUrl',
-        'change input#certification_give_badge': '_toggleCertificationBadge',
         'change input#certification_id': '_populateWithCertificationName'
     }),
 
@@ -123,17 +120,7 @@ var SlideUploadDialog = Dialog.extend({
     _formValidate: function () {
         var form = this.$("form");
         form.addClass('was-validated');
-        this._formValidateImages();
         return form[0].checkValidity() && this.isValidUrl;
-    },
-    _formValidateImages: function(){
-        var imageSlide = document.getElementById("slide-border");
-        if (document.getElementById('slide-upload').value === ''){      
-            imageSlide.classList.add("border-danger");
-        }
-        else{
-            imageSlide.classList.remove("border-danger");
-        }
     },
     /**
      * Extract values to submit from form, force the slide_type according to
@@ -320,7 +307,12 @@ var SlideUploadDialog = Dialog.extend({
                     $select2Container.removeClass('is-invalid is-valid');
                     $('#warning-no-certif').addClass('o_hidden');
                     _.each(data, function (obj) {
-                        if (that.matcher(query.term, obj[nameKey])) {
+                        if (obj.certification_badge_id !== false) {
+                            if (that.matcher(query.term, obj[nameKey])) {
+                                tags.results.push({id: obj.id, text: obj[nameKey], badge_id: obj.certification_badge_id});
+                            }
+                        }
+                        else if (that.matcher(query.term, obj[nameKey])) {
                             tags.results.push({id: obj.id, text: obj[nameKey]});
                         }
                     });
@@ -435,40 +427,20 @@ var SlideUploadDialog = Dialog.extend({
         }
     },
 
-    _onClickTrashIconSlide: function (ev) {
-        ev.preventDefault();
-        document.getElementById('slide-upload').value = ''
-        document.getElementById("slide-image").src="/website_slides/static/src/img/document.png";
-    },
-
-    _onClickImageCertificationSlide: function(ev){
-        ev.preventDefault();
-        $("input[id='slide-upload']").click();
-    },
-
-    _onChangeSlideUpload: function (ev){
-        var imageSlide = document.getElementById("slide-border");
-        imageSlide.classList.remove("border-danger");
-        return this._onChangeImageUpload(ev)
-    },
-
-    _onChangeImageUpload: function (ev) {
+    _onChangeSlideUpload: function (ev) {
         var self = this
         this._alertRemove();
-        var preview = '#slide-image';
-        var selfFile = this.file;
+
         var $input = $(ev.currentTarget);
         var preventOnchange = $input.data('preventOnchange');
+        var preview = '#slide-image';
         var file = ev.target.files[0];
-        if (file === undefined) {
-            $(preview).attr('src',"/website_slides/static/src/img/document.png");
-            return;
-        }
+
         var isImage = /^image\/.*/.test(file.type);
         var loaded = false;
-        selfFile.name = file.name;
-        selfFile.type = file.type;
-        if (!(isImage || selfFile.type === 'application/pdf')) {
+        this.file.name = file.name;
+        this.file.type = file.type;
+        if (!(isImage || this.file.type === 'application/pdf')) {
             this._alertDisplay(_t("Invalid file type. Please select pdf or image file"));
             this._fileReset();
             return;
@@ -615,16 +587,6 @@ var SlideUploadDialog = Dialog.extend({
             self._resetModalButton();
         });
     },
-    _toggleCertificationBadge: function (ev) {
-        if($(ev.target).is(":checked")){    
-            $('.checked').show();
-            $("#certification_badge_id").attr("required", "required");
-        }
-        else{
-            $('.checked').hide();
-            $("#certification_badge_id").removeAttr("required");
-        }
-    },
 
     _populateWithCertificationName: function (ev) {
         if(!ev.added){
@@ -633,12 +595,13 @@ var SlideUploadDialog = Dialog.extend({
         var certificationName = ev.added.text;
         $("#name").val(certificationName);
         if(ev.added.badge_id){
-            $("#certification_badge_id_readonly").val(ev.added.badge_id[1]);
-            $(".o_web_slide_survey_badge").removeClass( "d-none");
+            $("#certification_badge_id_readonly").val(ev.added.badge_id[0]);
+            $("#certification_give_badge").attr('disabled', true);
+
         }
         else{
-            $('#certification_badge_id_readonly').val(certificationName);
-            $(".o_web_slide_survey_badge").removeClass("d-none");
+            $("#certification_badge_id_readonly").val(0);
+            $("#certification_give_badge").removeAttr('disabled');
         }
     },
 
@@ -654,7 +617,6 @@ var SlideUploadDialog = Dialog.extend({
         var $btn = $(ev.currentTarget);
         if (this._formValidate()) {
             var values = this._formValidateGetValues($btn.hasClass('o_w_slide_upload_published')); // get info before changing state
-            console.log(values)
             var oldType = this.get('state');
             this.set('state', '_upload');
             return this._rpc({

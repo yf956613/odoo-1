@@ -807,7 +807,6 @@ class WebsiteSlides(WebsiteProfile):
                 return {'error': _('File is too big. File size cannot exceed 25MB')}
 
         values = dict((fname, post[fname]) for fname in self._get_valid_slide_post_values() if post.get(fname))
-        import pudb; pudb.set_trace()
         try:
             if post.get('category_id'):
                 if post['category_id'][0] == 0:
@@ -823,9 +822,9 @@ class WebsiteSlides(WebsiteProfile):
 
         if post.get('badge_id'):
             try:
-                if post['badge_id'] == [None]:
+                if values['badge_id'] == ['0']:
                     values['badge_id'] = request.env['gamification.badge'].create({
-                        'name': values['image_1920'],
+                        'name': values['name'],
                         'description': 'Congratulation, you succeeded this certification',
                         'rule_auth': 'nobody',
                         'image_1920': values['image_1920'],
@@ -938,7 +937,7 @@ class WebsiteSlides(WebsiteProfile):
     def _get_valid_slide_post_values(self):
         return ['name', 'url', 'tag_ids', 'slide_type', 'channel_id', 'is_preview',
                 'mime_type', 'datas', 'description', 'image_1920', 
-                'index_content', 'is_published', 'survey_id', 'give_badge', 'badge_id']
+                'index_content', 'is_published', 'survey_id', 'badge_id']
     @http.route(['/slides/tag/search_read'], type='json', auth='user', methods=['POST'], website=True)
     def slide_tag_search_read(self, fields, domain):
         can_create = request.env['slide.tag'].check_access_rights('create', raise_exception=False)
