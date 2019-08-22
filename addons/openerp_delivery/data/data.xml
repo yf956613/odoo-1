@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record model="product.template" id="product_business_game_product_template">
+        <field name="name">Scale-Up! The Business Game</field>
+    </record>
+    <record model="ir.actions.server" id="validate_picking_with_one_business_game">
+        <field name="name">Scale-Up: Validate pickings with 1 game only</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">
+business_game = env.ref('openerp_delivery.product_business_game_product_template').product_variant_id
+pickings_to_validate = records.filtered(lambda p: p.state == 'assigned' and len(p.move_lines) == 1 and all(ml.product_uom_qty == 1 and ml.product_id.id == business_game.id for ml in p.move_lines))
+
+for picking in pickings_to_validate:
+    try:
+        env.cr.execute('SAVEPOINT PIM')
+        if not picking.carrier_id:
+            if picking.partner_id.country_id.code == "BE":
+                picking.write({'carrier_id': env.ref('delivery_bpost.delivery_carrier_bpost_domestic').id})
+            else:
+                picking.write({'carrier_id': env.ref('delivery_bpost.delivery_carrier_bpost_inter').id})
+        picking.move_lines.write({'quantity_done': 1})
+        picking.action_done()
+        env.cr.execute('RELEASE SAVEPOINT PIM')
+    except:
+        env.cr.execute('ROLLBACK TO SAVEPOINT PIM')
+        env['stock.quant'].invalidate_cache()
+        </field>
+    </record>
+
+    <record model="base.automation" id="automatically_assign_bpost">
+          <field name="name">Assign BPost for ScaleUp</field>
+          <field name="model_id" ref="stock.model_stock_picking"/>
+          <field name="state">code</field>
+          <field name="trigger">on_create</field>
+          <field name="active" eval="False"/> <!-- To be enabled later -->
+          <field name="filter_domain"></field>
+          <field name="code">
+for picking in records:
+    if picking.partner_id.country_id.code == "BE":
+        picking.write({'carrier_id': env.ref('delivery_bpost.delivery_carrier_bpost_domestic').id})
+    else:
+        picking.write({'carrier_id': env.ref('delivery_bpost.delivery_carrier_bpost_inter').id})
+          </field>
+    </record>
+  </data>
+</openerp>
