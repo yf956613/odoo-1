@@ -141,6 +141,9 @@ class Composer extends owl.store.ConnectedComponent {
             // the post rpc to be done
             this.trigger('o-message-posted');
         }
+        catch(e) {
+            console.log(e);
+        }
     }
 
     //--------------------------------------------------------------------------

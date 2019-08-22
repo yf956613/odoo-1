@@ -3709,7 +3709,7 @@ QUnit.test('input cleared only after message_post rpc is resolved', async functi
         "should have no content in composer input after posting message");
 });
 
-QUnit.only('input not cleared if message_post rpc is not resolved', async function (assert) {
+QUnit.test('input not cleared if message_post rpc is not resolved', async function (assert) {
     assert.expect(5);
 
     Object.assign(this.data.initMessaging, {
