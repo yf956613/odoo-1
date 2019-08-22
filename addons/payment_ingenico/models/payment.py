@@ -6,6 +6,8 @@ import time
 from hashlib import sha1
 from pprint import pformat
 from unicodedata import normalize
+import urllib.parse as urlparse
+import json
 
 import requests
 from lxml import etree, objectify
@@ -81,6 +83,7 @@ class PaymentAcquirerOgone(models.Model):
             else:
                 # SHA-OUT keys
                 # source https://viveum.v-psp.com/Ncol/Viveum_e-Com-BAS_EN.pdf
+                # https://payment-services.ingenico.com/int/en/ogone/support/guides/integration%20guides/directlink-3-d
                 keys = [
                     'AAVADDRESS',
                     'AAVCHECK',
@@ -100,6 +103,7 @@ class PaymentAcquirerOgone(models.Model):
                     'COMPLUS',
                     'CREATION_STATUS',
                     'CURRENCY',
+                    'CVC',
                     'CVCCHECK',
                     'DCC_COMMPERCENTAGE',
                     'DCC_CONVAMOUNT',
@@ -138,7 +142,7 @@ class PaymentAcquirerOgone(models.Model):
                     'SUBBRAND',
                     'SUBSCRIPTION_ID',
                     'TRXDATE',
-                    'VC'
+                    'VC',
                 ]
                 return key.upper() in keys
 
@@ -148,12 +152,41 @@ class PaymentAcquirerOgone(models.Model):
         shasign = sha1(sign).hexdigest()
         return shasign
 
+    def ogone_form_constantes_values(self, partner_id, paramplus):
+        # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url = "http://arj-odoo.agayon.be" # testing purpose
+        path_url = "payment/ogone/feedback/"
+        # print(paramplus)
+        paramplus['partner_id'] = partner_id
+        ogone_tx_values = {'PSPID': self.ogone_pspid,
+                           'ACCEPTURL': urls.url_join(base_url, path_url),
+                           # 'DECLINEURL': urls.url_join(base_url,path_url),
+                           'EXCEPTIONURL':  urls.url_join(base_url, path_url),
+                           # 'CANCELURL': urls.url_join(base_url,path_url),
+                           'ALIASPERSISTEDAFTERUSE': 'N', 'ALIAS': 'ARJ-TEST-NEW-ALIAS-0819-%s' % time.time(),
+                           'PARAMPLUS': url_encode(paramplus),
+                           }
+
+        self.save_token = 'always'
+        if self.save_token in ['ask', 'always']:
+            ogone_tx_values['ALIASPERSISTEDAFTERUSE'] = 'Y'
+        # Generate sha sign here.
+        # https://payment-services.ingenico.com/int/en/ogone/support/guides/integration%20
+        #  guides/e-commerce/security-pre-payment-check#shainsignature
+        # # TODO: try the upper function
+        shasign = self._ogone_generate_shasign('in', ogone_tx_values)
+
+        return ogone_tx_values, shasign
+
+
     def ogone_form_generate_values(self, values):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         ogone_tx_values = dict(values)
         param_plus = {
             'return_url': ogone_tx_values.pop('return_url', False)
         }
+
+
         temp_ogone_tx_values = {
             'PSPID': self.ogone_pspid,
             'ORDERID': values['reference'],
@@ -343,11 +376,10 @@ class PaymentTxOgone(models.Model):
         # TODO: create tx with s2s type
         account = self.acquirer_id
         reference = self.reference or "ODOO-%s-%s" % (datetime.datetime.now().strftime('%y%m%d_%H%M%S'), self.partner_id.id)
-
         param_plus = {
-            'return_url': kwargs.get('return_url', False)
+            'return_url': kwargs.get('return_url', False),
         }
-
+        ogone_params = json.loads(self.payment_token_id.ogone_params)
         data = {
             'PSPID': account.ogone_pspid,
             'USERID': account.ogone_userid,
@@ -362,6 +394,14 @@ class PaymentTxOgone(models.Model):
             'PARAMPLUS': url_encode(param_plus),
             'EMAIL': self.partner_id.email or '',
             'CN': self.partner_id.name or '',
+            'BROWSERACCEPTHEADER': ogone_params['BROWSERACCEPTHEADER'],
+            'BROWSERCOLORDEPTH': ogone_params['BROWSERCOLORDEPTH'],
+            'BROWSERJAVAENABLED': ogone_params['BROWSERJAVAENABLED'],
+            'BROWSERLANGUAGE': ogone_params['BROWSERLANGUAGE'],
+            'BROWSERSCREENHEIGHT': ogone_params['BROWSERSCREENHEIGHT'],
+            'BROWSERSCREENWIDTH': ogone_params['BROWSERSCREENWIDTH'],
+            'BROWSERTIMEZONE': ogone_params['BROWSERTIMEZONE'],
+            'BROWSERUSERAGENT': ogone_params['BROWSERUSERAGENT'],
         }
 
         if request:
@@ -531,59 +571,82 @@ class PaymentTxOgone(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
+    ogone_params = fields.Char('Alias gateway return values',)
+
     def ogone_create(self, values):
         if values.get('cc_number'):
             # create a alias via batch
             values['cc_number'] = values['cc_number'].replace(' ', '')
             acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
-            alias = 'ODOO-NEW-ALIAS-%s' % time.time()
+            # TODO alias ou value[acquirer_ref]
+            alias = values.get('alias') or 'ODOO-NEW-ALIAS-%s' % time.time()
 
             expiry = str(values['cc_expiry'][:2]) + str(values['cc_expiry'][-2:])
             line = 'ADDALIAS;%(alias)s;%(cc_holder_name)s;%(cc_number)s;%(expiry)s;%(cc_brand)s;%(pspid)s'
             line = line % dict(values, alias=alias, expiry=expiry, pspid=acquirer.ogone_pspid)
 
-            data = {
-                'FILE_REFERENCE': alias,
-                'TRANSACTION_CODE': 'MTR',
-                'OPERATION': 'SAL',
-                'NB_PAYMENTS': 1,   # even if we do not actually have any payment, ogone want it to not be 0
-                'FILE': normalize('NFKD', line).encode('ascii','ignore'),  # Ogone Batch must be ASCII only
-                'REPLY_TYPE': 'XML',
-                'PSPID': acquirer.ogone_pspid,
-                'USERID': acquirer.ogone_userid,
-                'PSWD': acquirer.ogone_password,
-                'PROCESS_MODE': 'CHECKANDPROCESS',
-            }
+            if not values.get('alias'):
+                # ALIAS (token) was not created with the alias gateway
+                data = {
+                    'FILE_REFERENCE': alias,
+                    'TRANSACTION_CODE': 'MTR',
+                    'OPERATION': 'SAL',
+                    'NB_PAYMENTS': 1,   # even if we do not actually have any payment, ogone want it to not be 0
+                    'FILE': normalize('NFKD', line).encode('ascii','ignore'),  # Ogone Batch must be ASCII only
+                    'REPLY_TYPE': 'XML',
+                    'PSPID': acquirer.ogone_pspid,
+                    'USERID': acquirer.ogone_userid,
+                    'PSWD': acquirer.ogone_password,
+                    'PROCESS_MODE': 'CHECKANDPROCESS',
+                }
 
-            url = 'https://secure.ogone.com/ncol/%s/AFU_agree.asp' % ('prod' if self.acquirer_id.state == 'enabled' else 'test')
-            _logger.info("ogone_create: Creating new alias %s via url %s", alias, url)
-            result = requests.post(url, data=data).content
+                url = 'https://secure.ogone.com/ncol/%s/AFU_agree.asp' % ('prod' if self.acquirer_id.state == 'enabled' else 'test')
+                _logger.info("ogone_create: Creating new alias %s via url %s", alias, url)
+                result = requests.post(url, data=data).content
 
-            try:
-                tree = objectify.fromstring(result)
-            except etree.XMLSyntaxError:
-                _logger.exception('Invalid xml response from ogone')
-                return None
+                try:
+                    tree = objectify.fromstring(result)
+                except etree.XMLSyntaxError:
+                    _logger.exception('Invalid xml response from ogone')
+                    return None
 
-            error_code = error_str = None
-            if hasattr(tree, 'PARAMS_ERROR'):
-                error_code = tree.NCERROR.text
-                error_str = 'PARAMS ERROR: %s' % (tree.PARAMS_ERROR.text or '',)
-            else:
-                node = tree.FORMAT_CHECK
-                error_node = getattr(node, 'FORMAT_CHECK_ERROR', None)
-                if error_node is not None:
-                    error_code = error_node.NCERROR.text
-                    error_str = 'CHECK ERROR: %s' % (error_node.ERROR.text or '',)
+                error_code = error_str = None
+                if hasattr(tree, 'PARAMS_ERROR'):
+                    error_code = tree.NCERROR.text
+                    error_str = 'PARAMS ERROR: %s' % (tree.PARAMS_ERROR.text or '',)
+                else:
+                    node = tree.FORMAT_CHECK
+                    error_node = getattr(node, 'FORMAT_CHECK_ERROR', None)
+                    if error_node is not None:
+                        error_code = error_node.NCERROR.text
+                        error_str = 'CHECK ERROR: %s' % (error_node.ERROR.text or '',)
 
-            if error_code:
-                error_msg = tree.get(error_code)
-                error = '%s\n\n%s: %s' % (error_str, error_code, error_msg)
-                _logger.error(error)
-                raise Exception(error)
+                if error_code:
+                    error_msg = tree.get(error_code)
+                    error = '%s\n\n%s: %s' % (error_str, error_code, error_msg)
+                    _logger.error(error)
+                    raise Exception(error)
 
             return {
                 'acquirer_ref': alias,
                 'name': 'XXXXXXXXXXXX%s - %s' % (values['cc_number'][-4:], values['cc_holder_name'])
             }
         return {}
+
+    @api.model
+    def ogone_prepare_token(self, *args, **kwargs):
+        """
+        Prepare the data needed to the token creation.
+        Needed values:
+        :return:
+        :rtype:
+        """
+        partner_id = kwargs.get('partner_id')
+        paramplus = kwargs.get('paramplus')
+        acquirer = self.env['payment.acquirer'].search([('provider', '=', 'ogone')])
+        # FIXME: better to send partner_id and param + separately or join them in paramplus ?
+        data, shasign = acquirer.ogone_form_constantes_values(partner_id=partner_id, paramplus=paramplus)
+        # if values.get(values['partner']):
+        #     data['partner_id'] =  1 #self.env['res_partner'].browse()
+        data['SHASIGN'] = shasign
+        return data

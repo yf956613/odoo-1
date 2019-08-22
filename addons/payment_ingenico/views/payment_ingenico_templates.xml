@@ -58,5 +58,11 @@
                 </div>
             </div>
         </template>
+        <template id="assets_frontend" inherit_id="web.assets_frontend">
+            <xpath expr="script[last()]" position="after">
+                <script type="text/javascript" src="/payment_ingenico/static/src/js/payment_form.js"></script>
+                <script type="text/javascript" src="/payment_ingenico/static/src/js/payment_feedback.js"></script>
+            </xpath>
+        </template>
     </data>
 </odoo>
