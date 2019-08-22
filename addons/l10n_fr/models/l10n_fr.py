@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import calendar
+from dateutil.relativedelta import relativedelta
 
-from odoo import fields, models
+from odoo import fields, models, api, _
+from odoo.exceptions import ValidationError
 
 
 class ResCompany(models.Model):
@@ -9,6 +12,12 @@ class ResCompany(models.Model):
 
     siret = fields.Char(related='partner_id.siret', string='SIRET', size=14, readonly=False)
     ape = fields.Char(string='APE')
+
+    def _is_vat_french(self):
+        return self.vat and self.vat.startswith('FR') and len(self.vat) == 13
+
+    def _is_accounting_unalterable(self):
+        return super(ResCompany, self)._is_accounting_unalterable() or self._is_vat_french()
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'

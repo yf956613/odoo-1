@@ -627,8 +627,8 @@ class AccountJournal(models.Model):
         ondelete='restrict')
     default_debit_account_id = fields.Many2one('account.account', string='Default Debit Account',
         domain="[('deprecated', '=', False), ('company_id', '=', company_id)]", help="It acts as a default account for debit amount", ondelete='restrict')
-    update_posted = fields.Boolean(string='Allow Cancelling Entries',
-        help="Check this box if you want to allow the cancellation the entries related to this journal or of the invoice related to this journal")
+    restrict_mode_hash_table = fields.Boolean(string="Strict Mode By Hash Table",
+        help="Check this box if you want to restrict modification on entries related to this journal or on invoice related to this journal", default=False)
     sequence_id = fields.Many2one('ir.sequence', string='Entry Sequence',
         help="This field contains the information related to the numbering of the journal entries of this journal.", required=True, copy=False)
     refund_sequence_id = fields.Many2one('ir.sequence', string='Credit Note Entry Sequence',
@@ -770,6 +770,11 @@ class AccountJournal(models.Model):
     def _onchange_type(self):
         self.refund_sequence = self.type in ('sale', 'purchase')
 
+    @api.onchange('restrict_mode_hash_table')
+    def onchange_restrict_mode_hash_table(self):
+        if self.restrict_mode_hash_table and not self.company_id.secure_sequence_id:
+            self.company_id._create_secure_sequence(['secure_sequence_id'])
+
     def _get_alias_values(self, type, alias_name=None):
         if not alias_name:
             alias_name = self.name
@@ -849,6 +854,11 @@ class AccountJournal(models.Model):
                         raise UserError(_("The partners of the journal's company and the related bank account mismatch."))
             if 'alias_name' in vals:
                 journal._update_mail_alias(vals)
+            if vals.get('restrict_mode_hash_table') == False:
+                journal_entry = self.env['account.move'].search([('journal_id', '=', self.id), ('state', '=', 'posted'), ('secure_sequence_number', '!=', 0)], limit=1)
+                if len(journal_entry) > 0:
+                    field_string = self._fields['restrict_mode_hash_table'].get_description(self.env)['string']
+                    raise UserError(_("You cannot modify the field %s of a journal that already has accounting entries.") % field_string)
         result = super(AccountJournal, self).write(vals)
 
         # Create the bank_account_id if necessary
@@ -871,6 +881,10 @@ class AccountJournal(models.Model):
             pending_payments = draft_moves.mapped('line_ids.payment_id')
             pending_payments.mapped('move_line_ids.move_id').post()
             pending_payments.mapped('reconciled_invoice_ids').filtered(lambda x: x.state == 'in_payment').write({'state': 'paid'})
+        for record in self:
+            if record.restrict_mode_hash_table and not record.company_id.secure_sequence_id:
+                record.company_id._create_secure_sequence(['secure_sequence_id'])
+
         return result
 
     @api.model

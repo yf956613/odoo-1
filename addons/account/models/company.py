@@ -103,6 +103,8 @@ class ResCompany(models.Model):
     revenue_accrual_account_id = fields.Many2one('account.account', help="Account used to move the period of a revenue", domain=[('internal_group', '=', 'asset'), ('reconcile', '=', True)])
     accrual_default_journal_id = fields.Many2one('account.journal', help="Journal used by default for moving the period of an entry", domain="[('type', '=', 'general')]")
 
+    secure_sequence_id = fields.Many2one('ir.sequence', 'Sequence to use to ensure the securisation of data', readonly=True)
+
     @api.constrains('account_opening_move_id', 'fiscalyear_last_day', 'fiscalyear_last_month')
     def _check_fiscalyear_last_day(self):
         # if the user explicitly chooses the 29th of February we allow it:
@@ -299,7 +301,18 @@ class ResCompany(models.Model):
                 if self.env['account.move.line'].search([('company_id', '=', company.id)]):
                     raise UserError(_('You cannot change the currency of the company since some journal items already exist'))
 
-        return super(ResCompany, self).write(values)
+        res = super(ResCompany, self).write(values)
+        #if country changed to fr, create the securisation sequence
+        for company in self:
+            if company._is_accounting_unalterable():
+                sequence_fields = ['secure_sequence_id']
+                company._create_secure_sequence(sequence_fields)
+
+        # fiscalyear_lock_date can't be set to a prior date
+        if 'fiscalyear_lock_date' in values or 'period_lock_date' in values:
+            self._check_lock_dates(values)
+
+        return res
 
     @api.model
     def setting_init_bank_account_action(self):
@@ -383,6 +396,14 @@ class ResCompany(models.Model):
                 'journal_id': default_journal.id,
                 'date': opening_date,
             })
+
+    def create(self, vals):
+        company = super(ResCompany, self).create(vals)
+        #when creating a new french company, create the securisation sequence as well
+        if company._is_accounting_unalterable():
+            sequence_fields = ['secure_sequence_id']
+            company._create_secure_sequence(sequence_fields)
+        return company
 
     def opening_move_posted(self):
         """ Returns true if this company has an opening account move and this move is posted."""
@@ -553,3 +574,34 @@ class ResCompany(models.Model):
                 "Please go to Account Configuration and select or install a fiscal localization.")
             raise RedirectWarning(msg, action.id, _("Go to the configuration panel"))
         return account
+
+    def _create_secure_sequence(self, sequence_fields):
+        """This function creates a no_gap sequence on each companies in self that will ensure
+        a unique number is given to all posted account.move in such a way that we can always
+        find the previous move of a journal entry.
+        """
+        for company in self:
+            vals_write = {}
+            for seq_field in sequence_fields:
+                if not company[seq_field]:
+                    vals = {
+                        'name': _('Securisation of %s - %s') % (seq_field, company.name),
+                        'code': 'SECUR',
+                        'implementation': 'no_gap',
+                        'prefix': '',
+                        'suffix': '',
+                        'padding': 0,
+                        'company_id': company.id}
+                    seq = self.env['ir.sequence'].create(vals)
+                    vals_write[seq_field] = seq.id
+            if vals_write:
+                company.write(vals_write)
+
+    @api.model
+    def _get_unalterable_country(self):
+        return ['FR', 'MF', 'MQ', 'NC', 'PF', 'RE', 'GF', 'GP', 'TF']
+
+    def _is_accounting_unalterable(self):
+        if not self.vat and not self.country_id:
+            return False
+        return self.country_id and self.country_id.code in self._get_unalterable_country()

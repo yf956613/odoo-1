@@ -84,7 +84,7 @@ class TestMembership(TestMembershipCommon):
         invoice = self.partner_1.create_membership_invoice(self.membership_1, 75.0)
 
         # the invoice is canceled -> membership state of the customer goes to canceled
-        invoice.journal_id.update_posted = True
+        invoice.journal_id.restrict_mode_hash_table = False
 
         def patched_today(*args, **kwargs):
             return fields.Date.to_date('2019-01-01')

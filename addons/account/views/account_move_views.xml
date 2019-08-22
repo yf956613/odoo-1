@@ -500,6 +500,10 @@
                         <button name="action_duplicate" string="Duplicate" type="object" groups="account.group_account_invoice"
                                 attrs="{'invisible': [('type', '!=', 'entry')]}"/>
                         <!-- Cancel -->
+                        <button name="button_cancel" string="Cancel Entry" type="object" groups="account.group_account_invoice"
+                                attrs="{'invisible' : ['|', ('restrict_mode_hash_table', '=', True), ('state', '!=', 'posted')]}"/>
+                        <button name="button_draft" string="Reset to Draft" type="object" groups="account.group_account_invoice"
+                                attrs="{'invisible' : ['|', ('restrict_mode_hash_table', '=', True), ('state', '!=', 'cancel')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <!-- Invoice outstanding credits -->
@@ -550,6 +554,7 @@
                         <field name="invoice_sequence_number_next" invisible="1"/>
                         <field name="invoice_has_matching_suspense_amount" invisible="1"/>
                         <field name="has_reconciled_entries" invisible="1"/>
+                        <field name="restrict_mode_hash_table" invisible="1"/>
 
                         <div>
                             <!-- Invoice draft header -->
@@ -1266,6 +1271,16 @@
             <field name="code">
 if records:
     action = records.action_switch_invoice_into_refund_credit_note()
+            </field>
+        </record>
+
+        <record model="ir.actions.server" id="action_check_hash_integrity">
+            <field name="name">Data Inalterability Check</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="type">ir.actions.server</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = env['account.move']._check_hash_integrity(env.company.id)
             </field>
         </record>
 

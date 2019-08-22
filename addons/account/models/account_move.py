@@ -10,6 +10,8 @@ from datetime import date
 from itertools import groupby, chain
 from stdnum.iso7064 import mod_97_10
 from itertools import zip_longest
+from hashlib import sha256
+from json import dumps
 
 import json
 import re
@@ -18,6 +20,9 @@ import psycopg2
 
 _logger = logging.getLogger(__name__)
 
+#forbidden fields
+INTEGRITY_HASH_MOVE_FIELDS = ['date', 'journal_id', 'company_id']
+INTEGRITY_HASH_LINE_FIELDS = ['debit', 'credit', 'account_id', 'partner_id']
 
 class AccountMove(models.Model):
     _name = "account.move"
@@ -242,6 +247,12 @@ class AccountMove(models.Model):
         help="Technical field used to display an alert on invoices if there is at least a matching amount in any supsense account.")
     # Technical field to hide Reconciled Entries stat button
     has_reconciled_entries = fields.Boolean(compute="_compute_has_reconciled_entries")
+
+    # ==== Hash Fields ====
+    restrict_mode_hash_table = fields.Boolean(related='journal_id.restrict_mode_hash_table')
+    secure_sequence_number = fields.Integer(string="Inalteralbility No Gap Sequence #", readonly=True, copy=False)
+    inalterable_hash = fields.Char(string="Inalterability Hash", readonly=True, copy=False)
+    string_to_hash = fields.Char(compute='_compute_string_to_hash', readonly=True, store=False)
 
     # -------------------------------------------------------------------------
     # ONCHANGE METHODS
@@ -1456,11 +1467,24 @@ class AccountMove(models.Model):
     def write(self, vals):
         not_paid_invoices = self.filtered(lambda move: move.is_invoice(include_receipts=True) and move.invoice_payment_state not in ('paid', 'in_payment'))
 
+        for move in self:
+            if (move.state == "posted" and set(vals).intersection(INTEGRITY_HASH_MOVE_FIELDS)):
+                raise UserError(_("You cannot modify a journal entry in order for its posted data to be updated or deleted. Unauthorized field: %s.") % ', '.join(INTEGRITY_HASH_MOVE_FIELDS))
+            if (move.inalterable_hash and 'inalterable_hash' in vals) or (move.secure_sequence_number and 'secure_sequence_number' in vals):
+                raise UserError(_('You cannot overwrite the values ensuring the inalterability of the accounting.'))
+
         if self._move_autocomplete_invoice_lines_write(vals):
             res = True
         else:
             vals.pop('invoice_line_ids', None)
             res = super(AccountMove, self.with_context(check_move_validity=False)).write(vals)
+
+        if vals.get('state') == 'posted' and self.restrict_mode_hash_table:
+            for move in self.filtered(lambda m: not(m.secure_sequence_number or m.inalterable_hash)):
+                new_number = move.company_id.secure_sequence_id.next_by_id()
+                vals_hashing = {'secure_sequence_number': new_number,
+                                'inalterable_hash': move._get_new_hash(new_number)}
+                res |= super(AccountMove, move).write(vals_hashing)
 
         # Ensure the move is still well balanced.
         if 'line_ids' in vals and self._context.get('check_move_validity', True):
@@ -1941,11 +1965,13 @@ class AccountMove(models.Model):
         return lines.reconcile()
 
     def button_draft(self):
-        if any(move.state != 'cancel' for move in self):
-            raise UserError(_('Only cancelled journal entries can be reset to draft.'))
+        self.button_cancel() # Cancel before setting to draft
         self.write({'state': 'draft'})
 
     def button_cancel(self):
+        if self.company_id._is_accounting_unalterable():
+            raise UserError(_('You cannot modify a posted journal entry. This ensures its inalterability.'))
+
         AccountMoveLine = self.env['account.move.line']
         excluded_move_ids = []
 
@@ -1953,8 +1979,8 @@ class AccountMove(models.Model):
             excluded_move_ids = AccountMoveLine.search(AccountMoveLine._get_suspense_moves_domain() + [('move_id', 'in', self.ids)]).mapped('move_id').ids
 
         for move in self:
-            if not move.journal_id.update_posted and move.id not in excluded_move_ids:
-                raise UserError(_('You cannot modify a posted entry of this journal.\nFirst you should set the journal to allow cancelling entries.'))
+            if move.state == 'posted' and move.restrict_mode_hash_table and move.id not in excluded_move_ids:
+                raise UserError(_('You cannot modify a posted entry of this journal.\nYou must disable strict mode by hash table on the journal in order to do that.'))
             # We remove all the analytics entries for this journal
             move.mapped('line_ids.analytic_line_ids').unlink()
         if self.ids:
@@ -1994,6 +2020,94 @@ class AccountMove(models.Model):
             'view_id': compose_form.id,
             'target': 'new',
             'context': ctx,
+        }
+
+    def _get_new_hash(self, secure_seq_number):
+        """ Returns the hash to write on journal entries when they get posted"""
+        self.ensure_one()
+        #get the only one exact previous move in the securisation sequence
+        prev_move = self.search([('state', '=', 'posted'),
+                                 ('company_id', '=', self.company_id.id),
+                                 ('secure_sequence_number', '!=', 0),
+                                 ('secure_sequence_number', '=', int(secure_seq_number) - 1)])
+        if prev_move and len(prev_move) != 1:
+            raise UserError(
+               _('An error occured when computing the inalterability. Impossible to get the unique previous posted journal entry.'))
+
+        #build and return the hash
+        return self._compute_hash(prev_move.inalterable_hash if prev_move else u'')
+
+    def _compute_hash(self, previous_hash):
+        """ Computes the hash of the browse_record given as self, based on the hash
+        of the previous record in the company's securisation sequence given as parameter"""
+        self.ensure_one()
+        hash_string = sha256((previous_hash + self.string_to_hash).encode('utf-8'))
+        return hash_string.hexdigest()
+
+    def _compute_string_to_hash(self):
+        def _getattrstring(obj, field_str):
+            field_value = obj[field_str]
+            if obj._fields[field_str].type == 'many2one':
+                field_value = field_value.id
+            return str(field_value)
+
+        for move in self:
+            values = {}
+            for field in INTEGRITY_HASH_MOVE_FIELDS:
+                values[field] = _getattrstring(move, field)
+
+            for line in move.line_ids:
+                for field in INTEGRITY_HASH_LINE_FIELDS:
+                    k = 'line_%d_%s' % (line.id, field)
+                    values[k] = _getattrstring(line, field)
+            #make the json serialization canonical
+            #  (https://tools.ietf.org/html/draft-staykov-hu-json-canonical-form-00)
+            move.string_to_hash = dumps(values, sort_keys=True,
+                                                ensure_ascii=True, indent=None,
+                                                separators=(',',':'))
+
+    @api.model
+    def _check_hash_integrity(self, company_id):
+        """Checks that all posted moves have still the same data as when they were posted
+        and raises an error with the result.
+        """
+        def build_move_info(move):
+            entry_reference = _('(ref.: %s)')
+            move_reference_string = move.ref and entry_reference % move.ref or ''
+            return [move.name, move_reference_string]
+
+        moves = self.search([('state', '=', 'posted'),
+                             ('company_id', '=', company_id),
+                             ('secure_sequence_number', '!=', 0)],
+                            order="secure_sequence_number ASC")
+
+        if not moves:
+            raise UserError(_('There isn\'t any journal entry flagged for data inalterability yet for the company %s. This mechanism only runs for journal entries generated after the installation of the module France - Certification CGI 286 I-3 bis.') % self.env.company.name)
+        previous_hash = u''
+        start_move_info = []
+        for move in moves:
+            if move.inalterable_hash != move._compute_hash(previous_hash=previous_hash):
+                raise UserError(_('Corrupted data on journal entry with id %s.') % move.id)
+            if not previous_hash:
+                #save the date and sequence number of the first move hashed
+                start_move_info = build_move_info(move)
+            previous_hash = move.inalterable_hash
+        end_move_info = build_move_info(move)
+
+        report_dict = {'start_move_name': start_move_info[0],
+                       'start_move_ref': start_move_info[1],
+                       'end_move_name': end_move_info[0],
+                       'end_move_ref': end_move_info[1]}
+        hash_integrity_wizard = self.env['account.move.hash.wizard'].create({'report_values': report_dict})
+
+        return {
+            "name": _("Hash Integrity Result"),
+            "type": "ir.actions.act_window",
+            "res_model": "account.move.hash.wizard",
+            "res_id": hash_integrity_wizard.id,
+            "views": [[False, "form"]],
+            "target": "new",
+            "context": {},
         }
 
     def action_invoice_print(self):
