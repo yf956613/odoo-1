@@ -58,7 +58,7 @@
             <field name="product_id" ref="stock.product_cable_management_box"/>
         </record>
 
-        <record id="stock_inventory_line_icecream_lot0" model="stock.inventory.line">
+        <record id="stock_inventory_line_cable_management_box_lot0" model="stock.inventory.line">
             <field name="product_id" ref="stock.product_cable_management_box"/>
             <field name="product_uom_id" ref="uom.product_uom_unit"/>
             <field name="inventory_id" ref="stock.stock_inventory_icecream"/>
@@ -67,7 +67,7 @@
             <field name="prod_lot_id" ref="lot_product_product_cable_management_box_0"/>
         </record>
 
-        <record id="stock_inventory_line_icecream_lot1" model="stock.inventory.line">
+        <record id="stock_inventory_line_cable_management_box_lot1" model="stock.inventory.line">
             <field name="product_id" ref="stock.product_cable_management_box"/>
             <field name="product_uom_id" ref="uom.product_uom_unit"/>
             <field name="inventory_id" ref="stock.stock_inventory_icecream"/>
