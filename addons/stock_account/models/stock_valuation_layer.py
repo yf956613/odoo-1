@@ -8,6 +8,7 @@ class StockValuationLayer(models.Model):
     """Stock Valuation Layer"""
 
     _name = 'stock.valuation.layer'
+    _inherit = 'company.consistency.mixin'
     _description = 'Stock Valuation Layer'
     _order = 'create_date, id'
 
@@ -27,4 +28,12 @@ class StockValuationLayer(models.Model):
     stock_valuation_layer_ids = fields.One2many('stock.valuation.layer', 'stock_valuation_layer_id')
     stock_move_id = fields.Many2one('stock.move', 'Stock Move', readonly=True)
     account_move_id = fields.Many2one('account.move', 'Journal Entry', readonly=True)
+
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(StockValuationLayer, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['stock_valuation_layer_id', 'stock_move_id', 'account_move_id']
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(StockValuationLayer, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id']
 
