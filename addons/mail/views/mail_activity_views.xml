@@ -129,7 +129,7 @@
                     </group>
                     <group>
                         <group>
-                            <field name="activity_type_id" required="1" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="activity_type_id" required="1" options="{'no_create': True, 'no_open': True}" domain="[('decoration_type', 'not in', ['warning', 'danger'])]"/>
                             <field name="summary" placeholder="e.g. Discuss proposal"/>
                         </group>
                         <group>
