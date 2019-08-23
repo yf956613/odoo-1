@@ -1121,7 +1121,7 @@
 
     <div data-js="gallery" data-selector=".o_gallery">
         <a href="#" class="dropdown-item" data-add-images="true" data-no-preview="true"><i class="fa fa-plus-circle"/>Add images</a>
-        <a href="#" class="dropdown-item" data-remove-all-images="true" data-no-preview="true"><i class="fas fa-trash-alt"/>Remove all images</a>
+        <a href="#" class="dropdown-item" data-remove-all-images="true" data-no-preview="true"><i class="far fa-trash-alt"/>Remove all images</a>
         <div class="dropdown-divider"/>
         <div class="dropdown-submenu">
             <a tabindex="-2" href="#" class="dropdown-item"><i class="fa fa-magic"/>Mode</a>

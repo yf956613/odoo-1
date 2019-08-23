@@ -345,7 +345,7 @@
                     t-att-data-maxdate="question.validation_max_date">
                 <input type="text" class="form-control datetimepicker-input" t-attf-data-target="#datetimepicker_#{question.id}" t-att-name="prefix"/>
                 <div class="input-group-append" t-attf-data-target="#datetimepicker_#{question.id}" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
                 </div>
             </div>
         </div>
@@ -359,7 +359,7 @@
                     t-att-data-questiontype="question.question_type">
                 <input type="text" class="form-control datetimepicker-input" t-attf-data-target="#datetimepicker_#{question.id}" t-att-name="prefix"/>
                 <div class="input-group-append" t-attf-data-target="#datetimepicker_#{question.id}" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
                 </div>
             </div>
         </div>

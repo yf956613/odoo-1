@@ -1091,7 +1091,7 @@
 <div t-name="web.TimeRangeMenu" class="btn-group o_dropdown">
     <button t-att-class="'o_dropdown_toggler_btn btn btn-secondary dropdown-toggle o_time_range_menu_button' + (widget.isMobile ? ' o-no-caret' : '')" data-toggle="dropdown"
         aria-expanded="false" tabindex="-1">
-        <span class="fas fa-calendar-alt"/> Time Ranges <span t-att-class="widget.symbol"/>
+        <span class="far fa-calendar-alt"/> Time Ranges <span t-att-class="widget.symbol"/>
     </button>
     <div class="dropdown-menu o_dropdown_menu o_time_range_menu" role="menu">
         <div class="dropdown-item-text">
@@ -1354,7 +1354,7 @@
             </t>
         </select>
         <button type="button" class="btn btn-secondary d-none ml-1 o_delete_exported_list">
-            <i class="fas fa-trash-alt"/>
+            <i class="far fa-trash-alt"/>
         </button>
     </div>
 </t>

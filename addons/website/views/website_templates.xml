@@ -1187,7 +1187,7 @@ Sitemap: <t t-esc="url_root"/>sitemap.xml
             <a class="mr4 fa fa-search" t-attf-href="{{ page.url}}?enable_seo" title="Optimize SEO of this page"/>
             <a groups="base.group_no_one" class="mr4 fa fa-bug" t-attf-href="/web#id=#{page.view_id.id}&amp;view_type=form&amp;model=ir.ui.view" title="Edit code in backend"/>
             <a class="mr4 far fa-clone js_clone_page" t-att-data-id="page.id" href="#" title="Clone this page"/>
-            <a class="fas fa-trash-alt js_delete_page" t-att-data-id="page.id" href="#" title="Delete this page"/>
+            <a class="far fa-trash-alt js_delete_page" t-att-data-id="page.id" href="#" title="Delete this page"/>
         </td>
     </tr>
 </template>

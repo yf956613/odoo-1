@@ -405,7 +405,7 @@ class Project(models.Model):
         ts_form = self.env.ref('hr_timesheet.hr_timesheet_line_form')
         stat_buttons.append({
             'name': _('Timesheets'),
-            'icon': 'fas fa-calendar-alt',
+            'icon': 'far fa-calendar-alt',
             'action': _to_action_data(
                 'account.analytic.line',
                 domain=[('project_id', 'in', self.ids)],

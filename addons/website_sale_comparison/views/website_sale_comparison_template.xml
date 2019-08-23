@@ -156,7 +156,7 @@
             </div>
             <div class="col-1 text-right">
                 <a href='#' class="o_remove" title="Remove" t-att-data-product_product_id="product.id">
-                    <i class="fas fa-trash-alt" role="img" aria-label="Remove"></i>
+                    <i class="far fa-trash-alt" role="img" aria-label="Remove"></i>
                 </a>
             </div>
         </div>

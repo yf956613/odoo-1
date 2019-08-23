@@ -257,7 +257,7 @@
                     <span class="o_tab_title">Inbox</span>
                 </div>
                 <div class="o_mail_mobile_tab" data-type="dm_chat">
-                    <span class="far fa-user"/>
+                    <span class="fas fa-user"/>
                     <span class="o_tab_title">Chat</span>
                 </div>
                 <div class="o_mail_mobile_tab" data-type="multi_user_channel">

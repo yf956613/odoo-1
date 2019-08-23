@@ -36,7 +36,7 @@ var DateWidget = Widget.extend({
             useCurrent: false,
             icons: {
                 time: 'far fa-clock',
-                date: 'fas fa-calendar-alt',
+                date: 'far fa-calendar-alt',
                 up: 'fa fa-chevron-up',
                 down: 'fa fa-chevron-down',
                 previous: 'fa fa-chevron-left',

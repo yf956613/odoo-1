@@ -76,7 +76,7 @@
                 </div>
             </t>
             <div t-if="log.user_id[0] != session.uid and log.mail_template_ids" class="o_activity_title_entry">
-                <span class="far fa-user fa-fw mr-2 text-center text-muted" role="img" aria-label="User" title="User"/>
+                <span class="fas fa-user fa-fw mr-2 text-center text-muted" role="img" aria-label="User" title="User"/>
                 <span><t t-esc="log.user_id[1]" /></span>
             </div>
         </div>

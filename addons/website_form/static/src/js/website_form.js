@@ -37,7 +37,7 @@ odoo.define('website_form.animation', function (require) {
                 calendarWeeks: true,
                 icons : {
                     time: 'far fa-clock',
-                    date: 'fas fa-calendar-alt',
+                    date: 'far fa-calendar-alt',
                     next: 'fa fa-chevron-right',
                     previous: 'fa fa-chevron-left',
                     up: 'fa fa-chevron-up',

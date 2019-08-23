@@ -329,7 +329,7 @@
     <t t-name="wysiwyg.widgets.file.existing.remove">
         <t t-set="removeTitle" t-if="attachment.res_model === 'ir.ui.view'">This file is a public view attachment.</t>
         <t t-set="removeTitle" t-else="">This file is attached to the current record.</t>
-        <i class="fas fa-trash-alt o_existing_attachment_remove p-2" t-att-title="removeTitle" role="img" t-att-aria-label="removeTitle"/>
+        <i class="far fa-trash-alt o_existing_attachment_remove p-2" t-att-title="removeTitle" role="img" t-att-aria-label="removeTitle"/>
     </t>
 
     <t t-name="wysiwyg.widgets.image.existing.error">

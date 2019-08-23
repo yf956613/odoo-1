@@ -183,7 +183,7 @@
                     <field name="tag_ids" widget="many2many_tags" width="0.5" optional="hide"/>
                     <groupby name="move_id">
                         <field name="state" invisible="1"/>
-                        <button name="edit" type="edit" icon="fa-edit" title="Edit"/>
+                        <button name="edit" type="edit" icon="fas fa-edit" title="Edit"/>
                         <button name="action_post" states="draft" icon="fa-check" title="Post" type="object" groups="account.group_account_invoice"/>
                         <button name="%(action_view_account_move_reversal)d" states="posted" title="Reverse" icon="fa-sync" type="action" groups="account.group_account_invoice"/>
                         <button name="action_duplicate" icon="fa-copy" title="Duplicate" type="object" groups="account.group_account_invoice"/>

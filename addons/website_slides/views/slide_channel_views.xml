@@ -31,7 +31,7 @@
                             </button>
                              <button name="action_view_ratings"
                                 type="object"
-                                icon="fa-star"
+                                icon="far fa-star"
                                 class="oe_stat_button"
                                 groups="website.group_website_publisher"
                                 attrs="{'invisible': [('allow_comment', '=', False)]}">

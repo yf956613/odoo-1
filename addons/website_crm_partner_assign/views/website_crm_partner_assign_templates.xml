@@ -572,7 +572,7 @@
                                 <strong class="col-12 col-sm-3">Customer</strong>
                                 <div class="col">
                                     <div>
-                                        <span class="far fa-user fa-fw" role="img" aria-label="User" title="User"/>
+                                        <span class="fas fa-user fa-fw" role="img" aria-label="User" title="User"/>
                                         <strong class="font-italic" t-if="opportunity.partner_name" itemprop="name" t-field="opportunity.partner_name" />
                                         <strong class="font-italic" t-else="" itemprop="name" t-field="opportunity.contact_name" />
                                     </div>
@@ -678,7 +678,7 @@
                                                             <input type="date" min="1900-01-01" name="date_deadline" t-att-value="date_formatted" class="datetimepicker-input form-control date_deadline" data-date-format="YYYY-MM-DD" t-att-name="prefix" placeholder="YYYY-MM-DD"/>
                                                             <div class="input-group-append" data-target="#exp_closing_div" data-toggle="datetimepicker">
                                                                 <span class="input-group-text">
-                                                                    <span class="fas fa-calendar-alt" role="img" aria-label="Calendar"></span>
+                                                                    <span class="far fa-calendar-alt" role="img" aria-label="Calendar"></span>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -704,7 +704,7 @@
                                                     <input type="date" min="1900-01-01" name="activity_date_deadline" t-att-value="date_formatted" class="form-control activity_date_deadline datetimepicker-input" data-date-format="YYYY-MM-DD" t-att-name="prefix" placeholder="YYYY-MM-DD"/>
                                                     <div class="input-group-append" data-target="#next_activity_div" data-toggle="datetimepicker">
                                                         <span class="input-group-text">
-                                                            <span class="fas fa-calendar-alt" role="img" aria-label="Calendar" title="Calendar"></span>
+                                                            <span class="far fa-calendar-alt" role="img" aria-label="Calendar" title="Calendar"></span>
                                                         </span>
                                                     </div>
                                                 </div>

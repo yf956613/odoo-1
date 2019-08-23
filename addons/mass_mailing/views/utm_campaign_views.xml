@@ -14,7 +14,7 @@
             </xpath>
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
                 <button name="%(action_view_mass_mailings_from_campaign)d"
-                    type="action" class="oe_stat_button order-11" icon="fa-envelope">
+                    type="action" class="oe_stat_button order-11" icon="far fa-envelope">
                     <field name="mailing_items" widget="statinfo" string="Mailings"/>
                 </button>
             </xpath>

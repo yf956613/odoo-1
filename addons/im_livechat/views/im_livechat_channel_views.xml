@@ -43,10 +43,10 @@
                                     <strong class="o_kanban_record_title" style="word-wrap: break-word;"><field name="name"/></strong>
                                     <div>
                                         <div>
-                                            <i class="far fa-user" role="img" aria-label="User" title="User"></i>
+                                            <i class="fas fa-user" role="img" aria-label="User" title="User"></i>
                                             <t t-esc="(record.user_ids.raw_value || []).length"/> Operators
                                             <br/>
-                                            <i class="far fa-comments" role="img" aria-label="Comments" title="Comments"></i>
+                                            <i class="fas fa-comments" role="img" aria-label="Comments" title="Comments"></i>
                                             <t t-esc="record.nbr_channel.raw_value"/> Sessions
                                              <div class="float-right">
                                                 <t t-if="record.rating_percentage_satisfaction.raw_value &gt; 0">
@@ -80,7 +80,7 @@
                     </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" type="action" attrs="{'invisible':[('nbr_channel','=', 0)]}" name="%(mail_channel_action_from_livechat_channel)d" icon="fa-comments">
+                        <button class="oe_stat_button" type="action" attrs="{'invisible':[('nbr_channel','=', 0)]}" name="%(mail_channel_action_from_livechat_channel)d" icon="fas fa-comments">
                             <field string="Sessions" name="nbr_channel" widget="statinfo"/>
                         </button>
                         <button name="action_view_rating" attrs="{'invisible':[('rating_percentage_satisfaction','=', -1)]}" class="oe_stat_button" type="object" icon="fa-smile">

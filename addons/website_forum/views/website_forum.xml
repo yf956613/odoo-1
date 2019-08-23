@@ -235,9 +235,9 @@
                 <small class="text-muted">
                     <i t-attf-class="far fa-question-circle" role="img" aria-label="Question" />
                     <span>By </span><span t-field="question.create_uid" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="d-inline-block"/>
-                    <span class="ml-4 mr-1 fas fa-calendar-alt"></span><span t-field="question.write_date" t-options='{"format":"short"}'/>
+                    <span class="ml-4 mr-1 far fa-calendar-alt"></span><span t-field="question.write_date" t-options='{"format":"short"}'/>
                     <span class="ml-4 mr-1 far fa-eye"></span><span t-field="question.views" /> <t t-if="question.views&lt;=1">View</t><t t-else="">Views</t>
-                    <i class="ml-4 far fa-comments text-primary"/>
+                    <i class="ml-4 fas fa-comments text-primary"/>
                     <a t-attf-href="/forum/#{ slug(question.forum_id) }/question/#{ slug(question) }">
                         <t t-esc="question.child_count"/>
                         <t t-if="question.child_count&lt;=1">Answer</t>
@@ -715,7 +715,7 @@
                         <span t-if="question.state == 'close'"><b> [Closed]</b></span>
                     </h1>
                     <div class="text-muted mb16">
-                        <i class="mr-2 fas fa-calendar-alt"/><span t-field="question.create_date" t-options='{"format":"short"}'/>
+                        <i class="mr-2 far fa-calendar-alt"/><span t-field="question.create_date" t-options='{"format":"short"}'/>
                         <i class="ml-4 mr-2 far fa-eye"/><span t-field="question.views"/> views
                     </div>
 
@@ -748,7 +748,7 @@
                                 href="#post_reply"><i class="fa fa-reply"/> <b>Reply</b>
                             </a>
                             <a t-attf-class="btn btn-outline-primary #{not question.can_comment and 'karma_required text-muted' or ''}" t-att-data-karma="question.karma_comment" t-att-data-toggle="question.can_comment and 'collapse' or None"
-                                t-attf-href="#comment#{ question._name.replace('.','') + '-' + str(question.id) }"><i class=" far fa-comment"/> <b>Comment</b>
+                                t-attf-href="#comment#{ question._name.replace('.','') + '-' + str(question.id) }"><i class=" fas fa-comment"/> <b>Comment</b>
                             </a>
                             <a href="javascript:void(0)" class="oe_social_share btn btn-outline-primary"
                                 t-attf-data-hashtags="#question"><i class="fa fa-share-alt"/> <b>Share</b>
@@ -814,7 +814,7 @@
                 </div>
                 <div class="col-12">
                     <div class="border-primary o_wforum_post_count_answer_count p-2">
-                        <i class="far fa-comments text-primary"/>
+                        <i class="fas fa-comments text-primary"/>
                         <t t-esc="question.child_count"/>
                         <t t-if="question.child_count&lt;=1">Answer</t>
                         <t t-else="">Answers</t>
@@ -923,7 +923,7 @@
                             t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}'
                             style="display: inline-block;"/>
                         <div class="text-muted">
-                            <a t-attf-href="/forum/#{slug(question.forum_id)}/question/#{slug(question)}#answer_#{answer.id}"><i class="fas fa-calendar-alt text-muted"/></a>
+                            <a t-attf-href="/forum/#{slug(question.forum_id)}/question/#{slug(question)}#answer_#{answer.id}"><i class="far fa-calendar-alt text-muted"/></a>
                             <span t-field="answer.create_date" t-options='{"format":"short"}'/>
                         </div>
                     </div>
@@ -952,7 +952,7 @@
                                     t-attf-data-karma="#{not answer.can_comment and answer.karma_comment or 0}"
                                     style="cursor: pointer" t-att-data-toggle="answer.can_comment and 'collapse' or None"
                                     t-attf-data-target="#comment#{ answer._name.replace('.','') + '-' + str(answer.id) }">
-                                    <i t-attf-class="far fa-comment text-primary #{not answer.can_comment and 'karma_required text-muted' or ''}"/> Comment
+                                    <i t-attf-class="fas fa-comment text-primary #{not answer.can_comment and 'karma_required text-muted' or ''}"/> Comment
                                 </a>
                                 <a href="javascript:void(0)" class="oe_social_share text-black ml-2 pl-2 border-left"
                                     t-attf-data-urlshare="#{request.httprequest.url}#comment#{ answer._name.replace('.','') + '-' + str(answer.id) }"
@@ -1024,7 +1024,7 @@
                             <t t-set="allow_post_comment" t-value="True" />
                         </t>
                         <a t-attf-href="/forum/#{slug(forum)}/partner/#{message.author_id.id}"
-                            t-field="message.author_id" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="font-weight-bold float-left mr-3 mt-1"/><i class="fas fa-calendar-alt mr-1 pl-3 border-left"/><span t-field="message.date" t-options='{"format":"short"}'/>
+                            t-field="message.author_id" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' class="font-weight-bold float-left mr-3 mt-1"/><i class="far fa-calendar-alt mr-1 pl-3 border-left"/><span t-field="message.date" t-options='{"format":"short"}'/>
                         <div class="mt-2"><span t-field="message.body" class="oe_no_empty text-dark"/></div>
                     </small>
                 </div>
@@ -1107,7 +1107,7 @@
                     <div class="modal-header pb-0">
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active spam_menu" id="user-tab" data-toggle="tab" href="#spam_user" role="tab" aria-controls="user" aria-selected="true"><i class="far fa-user"/> User</a>
+                                <a class="nav-link active spam_menu" id="user-tab" data-toggle="tab" href="#spam_user" role="tab" aria-controls="user" aria-selected="true"><i class="fas fa-user"/> User</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link spam_menu" id="country-tab" data-toggle="tab" href="#spam_country" role="tab" aria-controls="spam_country" aria-selected="false"><i class="far fa-flag"/> Country</a>
@@ -1184,9 +1184,9 @@
                         <div t-foreach="question" t-as="answer" class="col-md-10 col-sm-8">
                             <t t-call="website_forum.moderation_display_post_answer"/>
                             <small class="text-muted">
-                                 <i t-attf-class="far fa-user" role="img" aria-label="Question" />
+                                 <i t-attf-class="fas fa-user" role="img" aria-label="Question" />
                                 <span>By </span><span t-field="question.create_uid" t-options='{"widget": "contact", "country_image": True, "fields": ["name", "country_id"]}' style="display: inline-block;"/>
-                                <i class="ml-4 mr4 fas fa-calendar-alt"/><span t-field="question.write_date" t-options='{"format":"short"}'/>
+                                <i class="ml-4 mr4 far fa-calendar-alt"/><span t-field="question.write_date" t-options='{"format":"short"}'/>
                                 <span t-if="question.state == 'flagged'" class="text-black">
                                     <i class="far fa-flag ml-4 mr4"/>
                                     Flagged

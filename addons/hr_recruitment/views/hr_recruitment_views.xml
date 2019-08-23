@@ -84,7 +84,7 @@
                             attrs="{'invisible': [('application_count', '=', 0)]}">
                         <field name="application_count" widget="statinfo" string="Other Applications"/>
                     </button>
-                    <button name="action_makeMeeting" class="oe_stat_button" icon="fa-calendar-alt" type="object"
+                    <button name="action_makeMeeting" class="oe_stat_button" icon="far fa-calendar-alt" type="object"
                          help="Schedule interview with this applicant">
                         <field name="meeting_count" widget="statinfo" string="Meetings"/>
                     </button>
@@ -323,7 +323,7 @@
                                             <field name="activity_ids" widget="kanban_activity"/>
                                         </div>
                                         <t t-if="record.message_needaction_counter.raw_value">
-                                            <span role="alert" class='oe_kanban_mail_new mr4' title='Unread Messages'><i class='far fa-comments' role="img" aria-label="Unread messages"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
+                                            <span role="alert" class='oe_kanban_mail_new mr4' title='Unread Messages'><i class='fas fa-comments' role="img" aria-label="Unread messages"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
                                         </t>
                                     </div>
                                     <div class="oe_kanban_bottom_right">

@@ -43,7 +43,7 @@
                                         </span>
                                         <span><i class="far fa-clock mr-2"/>on <field name="create_date" /></span>
                                         <div class="d-flex mt-2">
-                                            <i t-if="record.feedback.raw_value" class="far fa-comment mr-2" t-att-title="record.feedback.raw_value"  t-att-aria-label="record.feedback.raw_value" role="img"/>
+                                            <i t-if="record.feedback.raw_value" class="fas fa-comment mr-2" t-att-title="record.feedback.raw_value"  t-att-aria-label="record.feedback.raw_value" role="img"/>
                                             <span t-esc="record.feedback.raw_value"/>
                                         </div>
                                     </div>

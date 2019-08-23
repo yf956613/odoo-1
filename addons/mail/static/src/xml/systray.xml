@@ -7,7 +7,7 @@
     <t t-name="mail.systray.MessagingMenu">
         <li class="o_mail_systray_item">
             <a class="dropdown-toggle o-no-caret" data-toggle="dropdown" data-display="static" aria-expanded="false" title="Conversations" href="#" role="button">
-                <i class="far fa-comments" role="img" aria-label="Messages"/> <span class="o_notification_counter badge badge-pill"/>
+                <i class="fas fa-comments" role="img" aria-label="Messages"/> <span class="o_notification_counter badge badge-pill"/>
             </a>
             <div class="o_mail_systray_dropdown dropdown-menu dropdown-menu-right" role="menu">
                 <t t-if="widget.isMobile()">
@@ -31,7 +31,7 @@
                             <span class="o_tab_title">All</span>
                         </div>
                         <div class="o_mail_mobile_tab o_filter_button" data-filter='chat' role="tab">
-                            <span class="far fa-user"/>
+                            <span class="fas fa-user"/>
                             <span class="o_tab_title">Chat</span>
                         </div>
                         <div class="o_mail_mobile_tab o_filter_button" data-filter='channels' role="tab">

@@ -12,7 +12,7 @@
                 </xpath>
                 <button name="action_schedule_meeting" position="after">
                     <button class="oe_stat_button" type="object"
-                        name="action_view_sale_quotation" icon="fa-edit" attrs="{'invisible': [('type', '=', 'lead')]}">
+                        name="action_view_sale_quotation" icon="fas fa-edit" attrs="{'invisible': [('type', '=', 'lead')]}">
                         <field name="quotation_count" widget="statinfo" string="Quotations"/>
                     </button>
                     <button class="oe_stat_button" type="object" attrs="{'invisible': ['|', ('sale_order_count', '=', 0), ('type', '=', 'lead')]}"

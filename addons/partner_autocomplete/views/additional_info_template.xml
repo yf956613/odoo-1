@@ -27,7 +27,7 @@
                 <t t-esc="company_type"/>
             </p>
             <p t-if="founded_year">
-                <i class="fas fa-fw mr-2 fa-calendar-alt text-primary"/>
+                <i class="far fa-fw mr-2 fa-calendar-alt text-primary"/>
                 <b>Founded:</b>
                 <t t-esc="founded_year"/>
             </p>

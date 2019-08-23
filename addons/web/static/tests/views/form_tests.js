@@ -1246,7 +1246,7 @@ QUnit.module('Views', {
                 return this._super.apply(this, arguments);
             },
         });
-        assert.containsOnce(form, 'button.btn i.fa.fa-check');
+        assert.containsOnce(form, 'button.btn i.fas.fa-check');
         assert.containsN(form, '.o_form_statusbar button', 3);
         assert.containsOnce(form, 'button.p[name="post"]:contains(Confirm)');
         assert.containsN(form, '.o_form_statusbar button:visible', 2);

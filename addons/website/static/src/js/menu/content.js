@@ -57,7 +57,7 @@ var PagePropertiesDialog = weWidgets.Dialog.extend({
         }
         buttons.push({
             text: _t("Delete Page"),
-            icon: 'fa-trash-alt',
+            icon: 'far fa-trash-alt',
             classes: 'btn-link float-right',
             click: function (e) {
                 _deletePage.call(this, self.page_id, options.fromPageManagement);
@@ -156,7 +156,7 @@ var PagePropertiesDialog = weWidgets.Dialog.extend({
             calendarWeeks: true,
             icons : {
                 time: 'far fa-clock',
-                date: 'fas fa-calendar-alt',
+                date: 'far fa-calendar-alt',
                 next: 'fa fa-chevron-right',
                 previous: 'fa fa-chevron-left',
                 up: 'fa fa-chevron-up',

@@ -152,9 +152,9 @@
         <field name="arch" type="xml">
         <data>
             <xpath expr="//button[@name='preview_invoice']" position="after">
-                <button name="post" type="object" icon="fa-envelope" class="btn btn-primary" string="Resend"
+                <button name="post" type="object" icon="far fa-envelope" class="btn btn-primary" string="Resend"
                         attrs="{'invisible': ['|', ('type', 'not in', ('out_invoice', 'out_refund')), ('l10n_it_send_state', '!=', 'invalid')]}"/>
-                <button name="post" type="object" icon="fa-envelope" class="btn btn-primary" string="Send"
+                <button name="post" type="object" icon="far fa-envelope" class="btn btn-primary" string="Send"
                         attrs="{'invisible': ['|', '|', ('type', 'not in', ('out_invoice', 'out_refund')), ('state', 'in', ['draft', 'cancel']),('l10n_it_send_state', 'not in', ['to_send', False])]}"/>
             </xpath>
             <xpath expr="//field[@name='type']" position="before">

@@ -601,10 +601,10 @@
                             <h6><i class="far fa-clock text-primary" role="img" aria-label="Start date" title="Start date"></i> <span itemprop="startDate" t-esc="event.date_begin_located"> </span> <small>to</small> <span itemprop="endDate" t-esc="event.date_end_located"> </span></h6>
                             <div id="add_to_calendar" class="mt-4">
                                 <a role="button" class="btn btn-primary" t-att-href="iCal_url">
-                                    <i class="fas fa-fw fa-calendar-alt"/> Add to iCal/Outlook
+                                    <i class="far fa-fw fa-calendar-alt"/> Add to iCal/Outlook
                                 </a>
                                 <a role="button" class="btn btn-primary" t-att-href="google_url" target='_blank'>
-                                    <i class="fas fa-fw fa-calendar-alt"/> Add to Google Calendar
+                                    <i class="far fa-fw fa-calendar-alt"/> Add to Google Calendar
                                 </a>
                             </div>
                         </div>
@@ -643,7 +643,7 @@
                     <t t-foreach="attendees" t-as="attendee">
                         <tr>
                             <td><t t-esc="attendee.id"/></td>
-                            <td><i class="far fa-user text-primary" role="img" aria-label="Name" title="Name"/> <t t-if='attendee.name'><t t-esc="attendee.name"/></t><t t-if='not attendee.name'>N/A</t></td>
+                            <td><i class="fas fa-user text-primary" role="img" aria-label="Name" title="Name"/> <t t-if='attendee.name'><t t-esc="attendee.name"/></t><t t-if='not attendee.name'>N/A</t></td>
                             <td><i class="far fa-envelope text-primary" role="img" aria-label="Email" title="Email"/> <t t-if='attendee.email'><t t-esc="attendee.email"/></t><t t-if='not attendee.email'>N/A</t></td>
                             <td><i class="fa fa-phone text-primary " role="img" aria-label="Phone" title="Phone"/> <t t-if='attendee.phone'><t t-esc="attendee.phone"/></t><t t-if='not attendee.phone'>N/A</t></td>
                         </tr>

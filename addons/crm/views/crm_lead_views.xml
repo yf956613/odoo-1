@@ -63,7 +63,7 @@
                     <sheet>
                         <field name="active" invisible="1"/>
                         <div class="oe_button_box" name="button_box">
-                            <button class="oe_stat_button" type="object" context="{'partner_id': partner_id}" name="action_schedule_meeting" icon="fa-calendar" attrs="{'invisible': [('type', '=', 'lead')]}">
+                            <button class="oe_stat_button" type="object" context="{'partner_id': partner_id}" name="action_schedule_meeting" icon="far fa-calendar-alt" attrs="{'invisible': [('type', '=', 'lead')]}">
                                 <div class="o_stat_info">
                                     <field name="meeting_count" class="o_stat_value"/>
                                     <span class="o_stat_text" attrs="{'invisible': [('meeting_count', '&lt;', 2)]}"> Meetings</span>
@@ -370,7 +370,7 @@
                                     <div class="oe_kanban_bottom_left">
                                         <field name="priority" widget="priority"/>
                                         <t t-if="record.message_needaction_counter.raw_value">
-                                            <span role="alert" class="oe_kanban_mail_new" title="Unread Messages"><i class="far fa-comments" aria-label="Messages" role="img"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
+                                            <span role="alert" class="oe_kanban_mail_new" title="Unread Messages"><i class="fas fa-comments" aria-label="Messages" role="img"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
                                         </t>
                                         <div class="o_kanban_inline_block">
                                             <field name="activity_ids" widget="kanban_activity"/>
@@ -490,7 +490,7 @@
                                         <div class="oe_kanban_bottom_left">
                                             <field name="priority" widget="priority" groups="base.group_user"/>
                                             <t t-if="record.message_needaction_counter.raw_value">
-                                                <span role="alert" class='oe_kanban_mail_new' title='Unread Messages'><i class='far fa-comments' aria-label="Unread messages" role="img"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
+                                                <span role="alert" class='oe_kanban_mail_new' title='Unread Messages'><i class='fas fa-comments' aria-label="Unread messages" role="img"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
                                             </t>
                                             <field name="activity_ids" widget="kanban_activity"/>
                                         </div>

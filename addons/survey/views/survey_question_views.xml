@@ -43,13 +43,13 @@
                                 <!-- Date -->
                                 <div attrs="{'invisible': [('question_type', '!=', 'date')]}">
                                     <p class="o_datetime">YYYY-MM-DD
-                                        <i class="fas fa-calendar-alt fa-2x" role="img" aria-label="Calendar" title="Calendar"/>
+                                        <i class="far fa-calendar-alt fa-2x" role="img" aria-label="Calendar" title="Calendar"/>
                                     </p>
                                 </div>
                                 <!-- Date and Time -->
                                 <div attrs="{'invisible': [('question_type', '!=', 'datetime')]}">
                                     <p class="o_datetime">YYYY-MM-DD hh:mm:ss
-                                        <i class="fas fa-calendar-alt fa-2x" role="img" aria-label="Calendar" title="Calendar"/>
+                                        <i class="far fa-calendar-alt fa-2x" role="img" aria-label="Calendar" title="Calendar"/>
                                     </p>
                                 </div>
                                 <!-- Multiple choice: only one answer -->

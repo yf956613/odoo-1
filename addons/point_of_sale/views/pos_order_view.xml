@@ -19,7 +19,7 @@
                         string="Invoice"
                         type="object"
                         class="oe_stat_button"
-                        icon="fa-edit"
+                        icon="fas fa-edit"
                         attrs="{'invisible':[('state','!=','invoiced')]}">
                     </button>
                 </div>

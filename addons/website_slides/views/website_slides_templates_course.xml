@@ -134,7 +134,7 @@
                                     <button role="button" class="btn text-white pl-0" title="Share Channel"
                                         aria-label="Share Channel"
                                         data-toggle="modal" data-target="#slideChannelShareModal">
-                                        <i class="far fa-share-square"></i> Share
+                                        <i class="fas fa-share-square"></i> Share
                                     </button>
                                 </div>
                             </div>
@@ -296,7 +296,7 @@
                 <button role="button" class="btn btn-link btn-block" title="Share Channel"
                     aria-label="Share Channel"
                     data-toggle="modal" data-target="#slideChannelShareModal">
-                    <i class="far fa-share-square fa-fw"/> Share
+                    <i class="fas fa-share-square fa-fw"/> Share
                 </button>
                 <div class="modal fade" id="slideChannelShareModal" tabindex="-1" role="dialog" aria-labelledby="slideChannelShareModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -442,7 +442,7 @@
             <span t-if="channel.can_publish" class="d-none d-md-inline-block">
                 <a t-if="slide.slide_type == 'webpage'" class="px-2 o_text_link text-primary" target="_blank" t-attf-href="/slides/slide/#{slug(slide)}?enable_editor=1"><span class="fas fa-pencil-alt"/></a>
                 <a t-else="" class="px-2 o_text_link text-primary" target="_blank" t-attf-href="/web#id=#{slide.id}&amp;action=#{slide_action}&amp;model=slide.slide&amp;view_type=form"><span class="fas fa-pencil-alt"/></a>
-                <a href="#" t-att-data-slide-id="slide.id" class="o_text_link text-danger px-2 o_wslides_js_slide_archive"><span class="fas fa-trash-alt"/></a>
+                <a href="#" t-att-data-slide-id="slide.id" class="o_text_link text-danger px-2 o_wslides_js_slide_archive"><span class="far fa-trash-alt"/></a>
             </span>
         </div>
     </li>

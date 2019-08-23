@@ -252,7 +252,7 @@
             </li>
             <li t-if="slide.channel_id.allow_comment" class="nav-item">
                 <a href="#discuss" aria-controls="discuss" class="nav-link" role="tab" data-toggle="tab">
-                    <i class="far fa-comments"></i> Comments (<span t-esc="slide.comments_count"/>)
+                    <i class="fas fa-comments"></i> Comments (<span t-esc="slide.comments_count"/>)
                 </a>
             </li>
             <li class="nav-item">
