@@ -1854,11 +1854,15 @@ class Binary(Field):
         # Detect if the binary content is an SVG for restricting its upload
         # only to system users.
         if value[:1] in (b'P', 'P'):  # Fast detection of first 6 bits of '<' (0x3C)
-            decoded_value = base64.b64decode(value)
-            # Full mimetype detection
-            if (guess_mimetype(decoded_value).startswith('image/svg') and
-                    not record.env.is_system()):
-                raise UserError(_("Only admins can upload SVG files."))
+            try:
+                decoded_value = base64.b64decode(value, validate=True)
+            except:
+                pass
+            else:
+                # Full mimetype detection
+                if (guess_mimetype(decoded_value).startswith('image/svg') and
+                        not record.env.is_system()):
+                    raise UserError(_("Only admins can upload SVG files."))
         if isinstance(value, bytes):
             return psycopg2.Binary(value)
         try:
