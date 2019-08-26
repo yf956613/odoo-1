@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import fields, models, api
 from odoo.tools.float_utils import float_is_zero
 
 class MrpProductProduce(models.TransientModel):
@@ -53,3 +53,8 @@ class MrpProductProduce(models.TransientModel):
                     ml.product_uom_qty = ml.qty_done
                 self.subcontract_move_id._recompute_state()
         return res
+
+    @api.model
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(MrpProductProduce, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['subcontract_move_id']
