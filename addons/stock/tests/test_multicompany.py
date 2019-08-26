@@ -38,7 +38,9 @@ class TestMultiCompany(SavepointCase):
         """As a user of Company A, check it is not possible to use a warehouse of Company B in a
         picking type of Company A.
         """
-        picking_type_company_a = self.env['stock.picking.type'].with_user(self.user_a).search([], limit=1)
+        picking_type_company_a = self.env['stock.picking.type'].search([
+            ('company_id', '=', self.company_a.id)
+        ], limit=1)
         with self.assertRaises(UserError):
             picking_type_company_a.warehouse_id = self.warehouse_b
 
@@ -46,9 +48,11 @@ class TestMultiCompany(SavepointCase):
         """As a user of Company A, check it is not possible to change the company on an existing
         picking type of Company A to Company B.
         """
-        picking_type_company_a = self.env['stock.picking.type'].with_user(self.user_a).search([], limit=1)
+        picking_type_company_a = self.env['stock.picking.type'].search([
+            ('company_id', '=', self.company_a.id)
+        ], limit=1)
         with self.assertRaises(UserError):
-            picking_type_company_a.company_id = self.company_b
+            picking_type_company_a.with_user(self.user_a).company_id = self.company_b
 
     def test_putaway_1(self):
         """As a user of Company A, create a putaway rule with locations of Company A and set the
@@ -96,7 +100,7 @@ class TestMultiCompany(SavepointCase):
             'company_id': False,
         })
         with self.assertRaises(UserError):
-            shared_partner.with_user(self.user_b).with_context(force_company=self.company_b.id).property_stock_customer = self.stock_location_a
+            shared_partner.with_user(self.user_b).property_stock_customer = self.stock_location_a
 
     def test_inventory_1(self):
         """Create an inventory in Company A for a product limited to Company A and, as a user of company
@@ -278,16 +282,68 @@ class TestMultiCompany(SavepointCase):
         """See it is not possible to confirm a stock move of Company A with a picking type of
         Company B.
         """
-        pass
+        product = self.env['product.product'].create({
+            'name': 'p1',
+            'type': 'product'
+        })
+        picking_type_b = self.env['stock.picking.type'].search([
+            ('company_id', '=', self.company_b.id),
+        ], limit=1)
+        move = self.env['stock.move'].create({
+            'company_id': self.company_a.id,
+            'picking_type_id': picking_type_b.id,
+            'location_id': self.stock_location_a.id,
+            'location_dest_id': self.stock_location_a.id,
+            'product_id': product.id,
+            'product_uom': product.uom_id.id,
+            'name': 'stock_move',
+        })
+        with self.assertRaises(UserError):
+            move._action_confirm()
 
     def test_move_2(self):
         """See it is not possible to confirm a stock move of Company A with a destination location
         of Company B.
         """
-        pass
+        product = self.env['product.product'].create({
+            'name': 'p1',
+            'type': 'product'
+        })
+        picking_type_b = self.env['stock.picking.type'].search([
+            ('company_id', '=', self.company_b.id),
+        ], limit=1)
+        move = self.env['stock.move'].create({
+            'company_id': self.company_a.id,
+            'picking_type_id': picking_type_b.id,
+            'location_id': self.stock_location_a.id,
+            'location_dest_id': self.stock_location_b.id,
+            'product_id': product.id,
+            'product_uom': product.uom_id.id,
+            'name': 'stock_move',
+        })
+        with self.assertRaises(UserError):
+            move._action_confirm()
 
     def test_move_3(self):
         """See it is not possible to confirm a stock move of Company A with a product restricted to
         Company B.
         """
-        pass
+        product = self.env['product.product'].create({
+            'name': 'p1',
+            'type': 'product',
+            'company_id': self.company_b.id,
+        })
+        picking_type_b = self.env['stock.picking.type'].search([
+            ('company_id', '=', self.company_b.id),
+        ], limit=1)
+        move = self.env['stock.move'].create({
+            'company_id': self.company_a.id,
+            'picking_type_id': picking_type_b.id,
+            'location_id': self.stock_location_a.id,
+            'location_dest_id': self.stock_location_a.id,
+            'product_id': product.id,
+            'product_uom': product.uom_id.id,
+            'name': 'stock_move',
+        })
+        with self.assertRaises(UserError):
+            move._action_confirm()
