@@ -21,8 +21,7 @@ class MrpRouting(models.Model):
         'mrp.routing.workcenter', 'routing_id', 'Operations',
         copy=True)
     company_id = fields.Many2one(
-        'res.company', 'Company',
-        default=lambda self: self.env.company)
+        'res.company', 'Company', default=lambda self: self.env.company)
 
     @api.model
     def create(self, vals):
@@ -33,11 +32,14 @@ class MrpRouting(models.Model):
 
 class MrpRoutingWorkcenter(models.Model):
     _name = 'mrp.routing.workcenter'
+    _inherit = 'company.consistency.mixin'
     _description = 'Work Center Usage'
     _order = 'sequence, id'
 
     name = fields.Char('Operation', required=True)
-    workcenter_id = fields.Many2one('mrp.workcenter', 'Work Center', required=True)
+    workcenter_id = fields.Many2one(
+        'mrp.workcenter', 'Work Center', required=True,
+        domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]")
     sequence = fields.Integer(
         'Sequence', default=100,
         help="Gives the sequence order when displaying a list of routing Work Centers.")
@@ -97,3 +99,18 @@ class MrpRoutingWorkcenter(models.Model):
         count_data = dict((item['operation_id'][0], item['operation_id_count']) for item in data)
         for operation in self:
             operation.workorder_count = count_data.get(operation.id, 0)
+
+    @api.model_create_multi
+    def create(self, vals):
+        records = super(MrpRoutingWorkcenter, self).create(vals)
+        records._company_consistency_check()
+        return records
+
+    def write(self, vals):
+        res = super(MrpRoutingWorkcenter, self).write(vals)
+        self._company_consistency_check()
+        return res
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpRoutingWorkcenter, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['workcenter_id']

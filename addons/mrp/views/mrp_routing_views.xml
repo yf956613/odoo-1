@@ -21,10 +21,12 @@
             <field name="arch" type="xml">
                 <form string="Routing Work Centers">
                     <sheet>
+                        <field name="routing_id" invisible="1" required="0"/>
+                        <field name="company_id" invisible="1"/>
                         <group>
                             <group name="description">
                                 <field name="name"/>
-                                <field name="workcenter_id"/>
+                                <field name="workcenter_id" context="{'default_company_id': company_id}"/>
                                 <field name="sequence" groups="base.group_no_one"/>
                             </group><group name="workorder">
                                 <field name="workorder_count" invisible="1"/>
@@ -94,7 +96,7 @@
                         </group>
                         <notebook>
                             <page string="Work Center Operations">
-                                <field name="operation_ids"/>
+                                <field name="operation_ids" context="{'default_routing_id': id}"/>
                             </page>
                             <page string="Notes">
                                 <field name="note"/>

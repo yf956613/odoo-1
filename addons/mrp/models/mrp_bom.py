@@ -12,7 +12,7 @@ class MrpBom(models.Model):
     """ Defines bills of material for a product or a product template """
     _name = 'mrp.bom'
     _description = 'Bill of Material'
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread', 'company.consistency.mixin']
     _rec_name = 'product_tmpl_id'
     _order = "sequence"
 
@@ -29,10 +29,10 @@ class MrpBom(models.Model):
         default='normal', required=True)
     product_tmpl_id = fields.Many2one(
         'product.template', 'Product',
-        domain="[('type', 'in', ['product', 'consu'])]", required=True)
+        domain="[('type', 'in', ['product', 'consu']), '|', ('company_id', '=', False), ('company_id', '=', company_id)]", required=True)
     product_id = fields.Many2one(
         'product.product', 'Product Variant',
-        domain="['&', ('product_tmpl_id', '=', product_tmpl_id), ('type', 'in', ['product', 'consu'])]",
+        domain="['&', ('product_tmpl_id', '=', product_tmpl_id), ('type', 'in', ['product', 'consu']),  '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         help="If a product variant is defined the BOM is available only for this product.")
     bom_line_ids = fields.One2many('mrp.bom.line', 'bom_id', 'BoM Lines', copy=True)
     byproduct_ids = fields.One2many('mrp.bom.byproduct', 'bom_id', 'By-products', copy=True)
@@ -47,6 +47,7 @@ class MrpBom(models.Model):
     sequence = fields.Integer('Sequence', help="Gives the sequence order when displaying a list of bills of material.")
     routing_id = fields.Many2one(
         'mrp.routing', 'Routing',
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         help="The operations for producing this BoM.  When a routing is specified, the production orders will "
              " be executed through work orders, otherwise everything is processed in the production order itself. ")
     ready_to_produce = fields.Selection([
@@ -54,14 +55,13 @@ class MrpBom(models.Model):
         ('asap', 'When components for 1st operation are available')], string='Manufacturing Readiness',
         default='asap', help="Defines when a Manufacturing Order is considered as ready to be started", required=True)
     picking_type_id = fields.Many2one(
-        'stock.picking.type', 'Operation Type', domain=[('code', '=', 'mrp_operation')],
+        'stock.picking.type', 'Operation Type', domain="[('code', '=', 'mrp_operation'), ('company_id', '=', company_id)]",
         help=u"When a procurement has a ‘produce’ route with a operation type set, it will try to create "
              "a Manufacturing Order for that product using a BoM of the same operation type. That allows "
              "to define stock rules which trigger different manufacturing orders with different BoMs.")
     company_id = fields.Many2one(
-        'res.company', 'Company',
-        default=lambda self: self.env.company,
-        required=True)
+        'res.company', 'Company', index=True,
+        default=lambda self: self.env.company)
     consumption = fields.Selection([
         ('strict', 'Strict'),
         ('flexible', 'Flexible')],
@@ -113,6 +113,17 @@ class MrpBom(models.Model):
     def name_get(self):
         return [(bom.id, '%s%s' % (bom.code and '%s: ' % bom.code or '', bom.product_tmpl_id.display_name)) for bom in self]
 
+    @api.model_create_multi
+    def create(self, vals):
+        records = super(MrpBom, self).create(vals)
+        records._company_consistency_check()
+        return records
+
+    def write(self, vals):
+        res = super(MrpBom, self).write(vals)
+        self._company_consistency_check()
+        return res
+
     def unlink(self):
         if self.env['mrp.production'].search([('bom_id', 'in', self.ids), ('state', 'not in', ['done', 'cancel'])], limit=1):
             raise UserError(_('You can not delete a Bill of Material with running manufacturing orders.\nPlease close or cancel it first.'))
@@ -132,7 +143,7 @@ class MrpBom(models.Model):
         if picking_type:
             domain += ['|', ('picking_type_id', '=', picking_type.id), ('picking_type_id', '=', False)]
         if company_id or self.env.context.get('company_id'):
-            domain = domain + [('company_id', '=', company_id or self.env.context.get('company_id'))]
+            domain = domain + ['|', ('company_id', '=', False), ('company_id', '=', company_id or self.env.context.get('company_id'))]
         if bom_type:
             domain += [('type', '=', bom_type)]
         # order to prioritize bom with product_id over the one without
@@ -213,9 +224,18 @@ class MrpBom(models.Model):
             'template': '/mrp/static/xls/mrp_bom.xls'
         }]
 
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(MrpBom, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['picking_type_id']
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpBom, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_tmpl_id', 'product_id', 'routing_id']
+
 
 class MrpBomLine(models.Model):
     _name = 'mrp.bom.line'
+    _inherit = 'company.consistency.mixin'
     _order = "sequence, id"
     _rec_name = "product_id"
     _description = 'Bill of Material Line'
@@ -224,8 +244,11 @@ class MrpBomLine(models.Model):
         return self.env['uom.uom'].search([], limit=1, order='id').id
 
     product_id = fields.Many2one(
-        'product.product', 'Component', required=True)
+        'product.product', 'Component', required=True,
+        domain="[ '|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     product_tmpl_id = fields.Many2one('product.template', 'Product Template', related='product_id.product_tmpl_id', readonly=False)
+    company_id = fields.Many2one(
+        related='bom_id.company_id', store=True, index=True, readonly=True)
     product_qty = fields.Float(
         'Quantity', default=1.0,
         digits='Product Unit of Measure', required=True)
@@ -254,6 +277,7 @@ class MrpBomLine(models.Model):
         help="BOM Product Variants needed form apply this line.")
     operation_id = fields.Many2one(
         'mrp.routing.workcenter', 'Consumed in Operation',
+        domain="[('routing_id', '=', routing_id), '|', ('company_id', '=', company_id), ('company_id', '=', False)]",
         help="The operation where the components are consumed, or the finished products created.")
     child_bom_id = fields.Many2one(
         'mrp.bom', 'Sub BoM', compute='_compute_child_bom_id')
@@ -323,7 +347,14 @@ class MrpBomLine(models.Model):
         for values in vals_list:
             if 'product_id' in values and 'product_uom_id' not in values:
                 values['product_uom_id'] = self.env['product.product'].browse(values['product_id']).uom_id.id
-        return super(MrpBomLine, self).create(vals_list)
+        records = super(MrpBomLine, self).create(vals_list)
+        records._company_consistency_check()
+        return records
+
+    def write(self, vals):
+        res = super(MrpBomLine, self).write(vals)
+        self._company_consistency_check()
+        return res
 
     def _skip_bom_line(self, product):
         """ Control if a BoM line should be produce, can be inherited for add
@@ -356,21 +387,34 @@ class MrpBomLine(models.Model):
                         Use this feature to store any files, like drawings or specifications.
                     </p>'''),
             'limit': 80,
-            'context': "{'default_res_model': '%s','default_res_id': %d}" % ('product.product', self.product_id.id)
+            'context': "{'default_res_model': '%s','default_res_id': %d, 'default_company_id': %s}" % ('product.product', self.product_id.id, self.company_id.id)
         }
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpBomLine, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id', 'operation_id']
 
 
 class MrpByProduct(models.Model):
     _name = 'mrp.bom.byproduct'
+    _inherit = 'company.consistency.mixin'
     _description = 'Byproduct'
 
-    product_id = fields.Many2one('product.product', 'By-product', required=True)
+    product_id = fields.Many2one(
+        'product.product', 'By-product', required=True,
+        domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]")
+    company_id = fields.Many2one(related='bom_id.company_id', store=True)
     product_qty = fields.Float(
         'Quantity',
         default=1.0, digits='Product Unit of Measure', required=True)
     product_uom_id = fields.Many2one('uom.uom', 'Unit of Measure', required=True)
     bom_id = fields.Many2one('mrp.bom', 'BoM', ondelete='cascade')
-    operation_id = fields.Many2one('mrp.routing.workcenter', 'Produced in Operation')
+    routing_id = fields.Many2one(
+        'mrp.routing', 'Routing',
+        related='bom_id.routing_id', store=True, readonly=False)
+    operation_id = fields.Many2one(
+        'mrp.routing.workcenter', 'Produced in Operation',
+        domain="[('routing_id', '=', routing_id), '|', ('company_id', '=', company_id), ('company_id', '=', False)]")
 
     @api.onchange('product_id')
     def onchange_product_id(self):
@@ -388,3 +432,18 @@ class MrpByProduct(models.Model):
             }
             self.product_uom_id = self.product_id.uom_id.id
         return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(MrpByProduct, self).create(vals_list)
+        records._company_consistency_check()
+        return records
+
+    def write(self, vals):
+        res = super(MrpByProduct, self).write(vals)
+        self._company_consistency_check()
+        return res
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpByProduct, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id', 'operation_id']

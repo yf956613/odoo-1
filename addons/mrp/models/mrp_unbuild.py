@@ -9,7 +9,7 @@ from odoo.tools import float_compare
 class MrpUnbuild(models.Model):
     _name = "mrp.unbuild"
     _description = "Unbuild Order"
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'company.consistency.mixin']
     _order = 'id desc'
 
     def _get_default_location_id(self):
@@ -31,7 +31,12 @@ class MrpUnbuild(models.Model):
     name = fields.Char('Reference', copy=False, readonly=True, default=lambda x: _('New'))
     product_id = fields.Many2one(
         'product.product', 'Product',
+        domain="[('bom_ids', '!=', False), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         required=True, states={'done': [('readonly', True)]})
+    company_id = fields.Many2one(
+        'res.company', 'Company',
+        default=lambda s: s.env.company,
+        required=True, index=True, states={'done': [('readonly', True)]})
     product_qty = fields.Float(
         'Quantity', default=1.0,
         required=True, states={'done': [('readonly', True)]})
@@ -40,23 +45,36 @@ class MrpUnbuild(models.Model):
         required=True, states={'done': [('readonly', True)]})
     bom_id = fields.Many2one(
         'mrp.bom', 'Bill of Material',
-        domain=[('product_tmpl_id', '=', 'product_id.product_tmpl_id')], #should be more specific
+        domain="""[
+        '|',
+            ('product_id', '=', product_id),
+            '&',
+                ('product_tmpl_id.product_variant_ids', '=', product_id),
+                ('product_id','=',False),
+        ('type', '=', 'normal'),
+        '|',
+            ('company_id', '=', company_id),
+            ('company_id', '=', False)
+        ]
+""",
         required=True, states={'done': [('readonly', True)]})  # Add domain
     mo_id = fields.Many2one(
         'mrp.production', 'Manufacturing Order',
-        domain="[('product_id', '=', product_id), ('state', 'in', ['done', 'cancel'])]",
+        domain="[('product_id', '=', product_id), ('state', 'in', ['done', 'cancel']), ('company_id', '=', company_id)]",
         states={'done': [('readonly', True)]})
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
-        domain="[('product_id', '=', product_id)]",
+        domain="[('product_id', '=', product_id), ('company_id', '=', company_id)]",
         states={'done': [('readonly', True)]}, help="Lot/Serial Number of the product to unbuild.")
     has_tracking=fields.Selection(related='product_id.tracking', readonly=True)
     location_id = fields.Many2one(
         'stock.location', 'Source Location',
+        domain="[('usage','=','internal'), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         default=_get_default_location_id,
         required=True, states={'done': [('readonly', True)]}, help="Location where the product you want to unbuild is.")
     location_dest_id = fields.Many2one(
         'stock.location', 'Destination Location',
+        domain="[('usage','=','internal'), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         default=_get_default_location_dest_id,
         required=True, states={'done': [('readonly', True)]}, help="Location where you want to send the components resulting from the unbuild order.")
     consume_line_ids = fields.One2many(
@@ -78,9 +96,9 @@ class MrpUnbuild(models.Model):
     @api.onchange('product_id')
     def onchange_product_id(self):
         if self.product_id:
-            self.bom_id = self.env['mrp.bom']._bom_find(product=self.product_id)
+            self.bom_id = self.env['mrp.bom']._bom_find(product=self.product_id, company_id=self.company_id.id)
             self.product_uom_id = self.product_id.uom_id.id
-            return {'domain': {'mo_id': [('state', '=', 'done'), ('product_id', '=', self.product_id.id)]}}
+            return {'domain': {'mo_id': [('state', '=', 'done'), ('product_id', '=', self.product_id.id), ('company_id', '=', self.company_id.id)]}}
         return {'domain': {'mo_id': [('state', '=', 'done')]}}
 
     @api.constrains('product_qty')
@@ -101,6 +119,7 @@ class MrpUnbuild(models.Model):
 
     def action_unbuild(self):
         self.ensure_one()
+        self._company_consistency_check()
         if self.product_id.tracking != 'none' and not self.lot_id.id:
             raise UserError(_('You should provide a lot number for the final product.'))
 
@@ -211,6 +230,7 @@ class MrpUnbuild(models.Model):
             'location_id': location_id.id,
             'warehouse_id': location_dest_id.get_warehouse().id,
             'unbuild_id': self.id,
+            'company_id': move.company_id.id,
         })
 
     def _generate_move_from_bom_line(self, product, product_uom, quantity, bom_line_id=False, byproduct_id=False):
@@ -230,6 +250,7 @@ class MrpUnbuild(models.Model):
             'location_id': location_id.id,
             'warehouse_id': warehouse.id,
             'unbuild_id': self.id,
+            'company_id': self.company_id.id,
         })
 
     def action_validate(self):
@@ -252,3 +273,12 @@ class MrpUnbuild(models.Model):
                 },
                 'target': 'new'
             }
+
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(MrpUnbuild, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['mo_id', 'lot_id']
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpUnbuild, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id', 'bom_id', 'location_id', 'location_dest_id']
+

@@ -90,6 +90,7 @@ class TestUnbuild(TestMrpCommon):
         lot = self.env['stock.production.lot'].create({
             'name': 'lot1',
             'product_id': p_final.id,
+            'company_id': self.env.company.id,
         })
 
         self.env['stock.quant']._update_available_quantity(p1, self.stock_location, 100)
@@ -172,6 +173,7 @@ class TestUnbuild(TestMrpCommon):
         lot = self.env['stock.production.lot'].create({
             'name': 'lot1',
             'product_id': p1.id,
+            'company_id': self.env.company.id,
         })
 
         self.env['stock.quant']._update_available_quantity(p1, self.stock_location, 100, lot_id=lot)
@@ -257,14 +259,17 @@ class TestUnbuild(TestMrpCommon):
         lot_final = self.env['stock.production.lot'].create({
             'name': 'lot_final',
             'product_id': p_final.id,
+            'company_id': self.env.company.id,
         })
         lot_1 = self.env['stock.production.lot'].create({
             'name': 'lot_consumed_1',
             'product_id': p1.id,
+            'company_id': self.env.company.id,
         })
         lot_2 = self.env['stock.production.lot'].create({
             'name': 'lot_consumed_2',
             'product_id': p2.id,
+            'company_id': self.env.company.id,
         })
 
         self.env['stock.quant']._update_available_quantity(p1, self.stock_location, 100, lot_id=lot_1)
@@ -353,14 +358,17 @@ class TestUnbuild(TestMrpCommon):
         lot_1 = self.env['stock.production.lot'].create({
             'name': 'lot_1',
             'product_id': p2.id,
+            'company_id': self.env.company.id,
         })
         lot_2 = self.env['stock.production.lot'].create({
             'name': 'lot_2',
             'product_id': p2.id,
+            'company_id': self.env.company.id,
         })
         lot_3 = self.env['stock.production.lot'].create({
             'name': 'lot_3',
             'product_id': p2.id,
+            'company_id': self.env.company.id,
         })
         self.env['stock.quant']._update_available_quantity(p1, self.stock_location, 100)
         self.env['stock.quant']._update_available_quantity(p2, self.stock_location, 1, lot_id=lot_1)
@@ -399,7 +407,6 @@ class TestUnbuild(TestMrpCommon):
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p2, self.stock_location, lot_id=lot_2), 3, 'You should have the 3 basic product for lot 2 in stock')
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p2, self.stock_location, lot_id=lot_3), 2, 'You should have get one product back for lot 3')
 
-
     def test_production_links_with_non_tracked_lots(self):
         """ This test produces an MO in two times and checks that the move lines are linked in a correct way
         """
@@ -407,12 +414,14 @@ class TestUnbuild(TestMrpCommon):
         lot_1 = self.env['stock.production.lot'].create({
             'name': 'lot_1',
             'product_id': p2.id,
+            'company_id': self.env.company.id,
         })
 
         self.env['stock.quant']._update_available_quantity(p2, self.stock_location, 3, lot_id=lot_1)
         lot_finished_1 = self.env['stock.production.lot'].create({
             'name': 'lot_finished_1',
             'product_id': p_final.id,
+            'company_id': self.env.company.id,
         })
 
         produce_form = Form(self.env['mrp.product.produce'].with_context({
@@ -428,12 +437,14 @@ class TestUnbuild(TestMrpCommon):
         lot_2 = self.env['stock.production.lot'].create({
             'name': 'lot_2',
             'product_id': p2.id,
+            'company_id': self.env.company.id,
         })
 
         self.env['stock.quant']._update_available_quantity(p2, self.stock_location, 4, lot_id=lot_2)
         lot_finished_2 = self.env['stock.production.lot'].create({
             'name': 'lot_finished_2',
             'product_id': p_final.id,
+            'company_id': self.env.company.id,
         })
 
         produce_form = Form(self.env['mrp.product.produce'].with_context({

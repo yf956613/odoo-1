@@ -12,7 +12,7 @@ class MrpWorkcenter(models.Model):
     _name = 'mrp.workcenter'
     _description = 'Work Center'
     _order = "sequence, id"
-    _inherit = ['resource.mixin']
+    _inherit = ['resource.mixin', 'company.consistency.mixin']
 
     # resource
     name = fields.Char('Work Center', related='resource_id.name', store=True, readonly=False)
@@ -61,6 +61,7 @@ class MrpWorkcenter(models.Model):
         'mrp_workcenter_alternative_rel',
         'workcenter_id',
         'alternative_workcenter_id',
+        domain="[('id', '!=', id), '|', ('company_id', '=', company_id), ('company_id', '=', False)]",
         string="Alternative Workcenters",
         help="Alternative workcenters that can be substituted to this one in order to dispatch production"
     )
@@ -117,6 +118,8 @@ class MrpWorkcenter(models.Model):
 
     def _compute_blocked_time(self):
         # TDE FIXME: productivity loss type should be only losses, probably count other time logs differently ??
+        if any(not wo.company_id for wo in self):
+            self = self.sudo()
         data = self.env['mrp.workcenter.productivity'].read_group([
             ('date_start', '>=', fields.Datetime.to_string(datetime.datetime.now() - relativedelta.relativedelta(months=1))),
             ('workcenter_id', 'in', self.ids),
@@ -129,6 +132,8 @@ class MrpWorkcenter(models.Model):
 
     def _compute_productive_time(self):
         # TDE FIXME: productivity loss type should be only losses, probably count other time logs differently
+        if any(not wo.company_id for wo in self):
+            self = self.sudo()
         data = self.env['mrp.workcenter.productivity'].read_group([
             ('date_start', '>=', fields.Datetime.to_string(datetime.datetime.now() - relativedelta.relativedelta(months=1))),
             ('workcenter_id', 'in', self.ids),
@@ -165,6 +170,12 @@ class MrpWorkcenter(models.Model):
         if any(workcenter.capacity <= 0.0 for workcenter in self):
             raise exceptions.UserError(_('The capacity must be strictly positive.'))
 
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        if self.resource_calendar_id.company_id and self.resource_calendar_id.company_id != self.company_id:
+            self.resource_calendar_id = False
+        return {'domain': {'resource_calendar_id': ['|', ('company_id', '=', False), ('company_id', '=', self.company_id.id)]}}
+
     def unblock(self):
         self.ensure_one()
         if self.working_state != 'blocked':
@@ -173,16 +184,33 @@ class MrpWorkcenter(models.Model):
         times.write({'date_end': fields.Datetime.now()})
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         # resource_type is 'human' by default. As we are not living in
         # /r/latestagecapitalism, workcenters are 'material'
-        return super(MrpWorkcenter, self.with_context({
+        records = super(MrpWorkcenter, self.with_context({
             'default_resource_type': 'material'})).create(vals)
+        records._company_consistency_check()
+        return records
+
+    def write(self, vals):
+        if 'company_id' in vals:
+            self.mapped('resource_id').write({'company_id': vals['company_id']})
+        res = super(MrpWorkcenter, self).write(vals)
+        self._company_consistency_check()
+        return res
 
     def action_work_order(self):
         action = self.env.ref('mrp.action_work_orders').read()[0]
         return action
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpWorkcenter, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['resource_calendar_id', 'resource_id']
+
+    def _company_consistency_m2m_optional_cid_fields(self):
+        res = super(MrpWorkcenter, self)._company_consistency_m2m_optional_cid_fields()
+        return res + ['alternative_workcenter_ids']
 
 
 class MrpWorkcenterProductivityLossType(models.Model):
@@ -222,16 +250,37 @@ class MrpWorkcenterProductivityLoss(models.Model):
 
 class MrpWorkcenterProductivity(models.Model):
     _name = "mrp.workcenter.productivity"
+    _inherit = 'company.consistency.mixin'
     _description = "Workcenter Productivity Log"
     _order = "id desc"
     _rec_name = "loss_id"
 
+    def _get_default_company_id(self):
+        company_id = False
+        if self.env.context.get('default_company_id'):
+            company_id = self.env.context['default_company_id']
+        if not company_id and self.env.context.get('default_workorder_id'):
+            workorder = self.env['mrp.workorder'].browse(self.env.context['default_workorder_id'])
+            company_id = workorder.company_id
+        if not company_id and self.env.context.get('default_workcenter_id'):
+            workcenter = self.env['mrp.workcenter'].browse(self.env.context['default_workcenter_id'])
+            company_id = workcenter.company_id
+        if not company_id:
+            company_id = self.env.company
+        return company_id
+
     production_id = fields.Many2one('mrp.production', string='Manufacturing Order', related='workorder_id.production_id', readonly='True')
-    workcenter_id = fields.Many2one('mrp.workcenter', "Work Center", required=True)
+    workcenter_id = fields.Many2one(
+        'mrp.workcenter', "Work Center", required=True,
+        domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]")
+    company_id = fields.Many2one(
+        'res.company', required=True, index=True,
+        default=lambda self: self._get_default_company_id())
     workorder_id = fields.Many2one('mrp.workorder', 'Work Order')
     user_id = fields.Many2one(
         'res.users', "User",
-        default=lambda self: self.env.uid)
+        default=lambda self: self.env.uid,
+        domain="[('company_id', '=', company_id)]")
     loss_id = fields.Many2one(
         'mrp.workcenter.productivity.loss', "Loss Reason",
         ondelete='restrict', required=True)
@@ -257,6 +306,25 @@ class MrpWorkcenterProductivity(models.Model):
             else:
                 blocktime.duration = 0.0
 
+    @api.model_create_multi
+    def create(self, vals):
+        records = super(MrpWorkcenterProductivity, self).create(vals)
+        records._company_consistency_check()
+        return records
+
+    def write(self, vals):
+        res = super(MrpWorkcenterProductivity, self).write(vals)
+        self._company_consistency_check()
+        return res
+
     def button_block(self):
         self.ensure_one()
         self.workcenter_id.order_ids.end_all()
+
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpWorkcenterProductivity, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['workcenter_id']
+
+    # def _company_consistency_m2o_required_cid_fields(self):
+    #     res = super(MrpWorkcenterProductivity, self)._company_consistency_m2o_required_cid_fields()
+    #     return res + ['workorder_id']

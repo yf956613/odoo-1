@@ -210,9 +210,9 @@ class StockWarehouse(models.Model):
     def _get_sequence_values(self):
         values = super(StockWarehouse, self)._get_sequence_values()
         values.update({
-            'pbm_type_id': {'name': self.name + ' ' + _('Sequence picking before manufacturing'), 'prefix': self.code + '/PC/', 'padding': 5},
-            'sam_type_id': {'name': self.name + ' ' + _('Sequence stock after manufacturing'), 'prefix': self.code + '/SFP/', 'padding': 5},
-            'manu_type_id': {'name': self.name + ' ' + _('Sequence production'), 'prefix': self.code + '/MO/', 'padding': 5},
+            'pbm_type_id': {'name': self.name + ' ' + _('Sequence picking before manufacturing'), 'prefix': self.code + '/PC/', 'padding': 5, 'company_id': self.company_id.id},
+            'sam_type_id': {'name': self.name + ' ' + _('Sequence stock after manufacturing'), 'prefix': self.code + '/SFP/', 'padding': 5, 'company_id': self.company_id.id},
+            'manu_type_id': {'name': self.name + ' ' + _('Sequence production'), 'prefix': self.code + '/MO/', 'padding': 5, 'company_id': self.company_id.id},
         })
         return values
 
@@ -228,6 +228,7 @@ class StockWarehouse(models.Model):
                 'default_location_dest_id': self.pbm_loc_id.id,
                 'sequence': next_sequence + 1,
                 'sequence_code': 'PC',
+                'company_id': self.company_id.id,
             },
             'sam_type_id': {
                 'name': _('Store Finished Product'),
@@ -238,6 +239,7 @@ class StockWarehouse(models.Model):
                 'default_location_dest_id': self.lot_stock_id.id,
                 'sequence': next_sequence + 3,
                 'sequence_code': 'SFP',
+                'company_id': self.company_id.id,
             },
             'manu_type_id': {
                 'name': _('Manufacturing'),
@@ -246,6 +248,7 @@ class StockWarehouse(models.Model):
                 'use_existing_lots': True,
                 'sequence': next_sequence + 2,
                 'sequence_code': 'MO',
+                'company_id': self.company_id.id,
             },
         })
         return data, max_sequence + 4

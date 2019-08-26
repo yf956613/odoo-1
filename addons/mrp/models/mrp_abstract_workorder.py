@@ -10,13 +10,15 @@ from odoo.tools import float_compare, float_round, float_is_zero
 
 class MrpAbstractWorkorder(models.AbstractModel):
     _name = "mrp.abstract.workorder"
+    _inherit = "company.consistency.mixin"
     _description = "Common code between produce wizards and workorders."
 
     production_id = fields.Many2one('mrp.production', 'Manufacturing Order', required=True)
     product_id = fields.Many2one(related='production_id.product_id', readonly=True, store=True)
     qty_producing = fields.Float(string='Currently Produced Quantity', digits='Product Unit of Measure')
     product_uom_id = fields.Many2one('uom.uom', 'Unit of Measure', required=True, readonly=True)
-    finished_lot_id = fields.Many2one('stock.production.lot', string='Lot/Serial Number', domain="[('product_id', '=', product_id)]")
+    finished_lot_id = fields.Many2one('stock.production.lot', string='Lot/Serial Number',
+        domain="[('product_id', '=', product_id), ('company_id', '=', company_id)]")
     product_tracking = fields.Selection(related="product_id.tracking")
     consumption = fields.Selection([
         ('strict', 'Strict'),
@@ -24,6 +26,7 @@ class MrpAbstractWorkorder(models.AbstractModel):
         required=True,
     )
     use_create_components_lots = fields.Boolean(related="production_id.picking_type_id.use_create_components_lots")
+    company_id = fields.Many2one(related='production_id.company_id')
 
     @api.model
     def _prepare_component_quantity(self, move, qty_producing):
@@ -38,6 +41,22 @@ class MrpAbstractWorkorder(models.AbstractModel):
             uom,
             round=False
         )
+
+    @api.model
+    def create(self, vals):
+        res = super(MrpAbstractWorkorder, self).create(vals)
+        res._company_consistency_check()
+        return res
+
+    @api.model
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpAbstractWorkorder, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id']
+
+    @api.model
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(MrpAbstractWorkorder, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['finished_lot_id', 'production_id']
 
     def _workorder_line_ids(self):
         self.ensure_one()
@@ -298,17 +317,21 @@ class MrpAbstractWorkorder(models.AbstractModel):
 
 class MrpAbstractWorkorderLine(models.AbstractModel):
     _name = "mrp.abstract.workorder.line"
+    _inherit = "company.consistency.mixin"
     _description = "Abstract model to implement product_produce_line as well as\
     workorder_line"
 
     move_id = fields.Many2one('stock.move')
-    product_id = fields.Many2one('product.product', 'Product', required=True)
+    product_id = fields.Many2one('product.product', 'Product', required=True,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     product_tracking = fields.Selection(related="product_id.tracking")
-    lot_id = fields.Many2one('stock.production.lot', 'Lot/Serial Number')
+    lot_id = fields.Many2one('stock.production.lot', 'Lot/Serial Number',
+        domain="[('product_id', '=', product_id), '|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     qty_to_consume = fields.Float('To Consume', digits='Product Unit of Measure')
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
     qty_done = fields.Float('Consumed', digits='Product Unit of Measure')
     qty_reserved = fields.Float('Reserved', digits='Product Unit of Measure')
+    company_id = fields.Many2one('res.company', compute='_compute_company_id')
 
     @api.onchange('lot_id')
     def _onchange_lot_id(self):
@@ -334,6 +357,32 @@ class MrpAbstractWorkorderLine(models.AbstractModel):
                 message = _('You can only process 1.0 %s of products with unique serial number.') % self.product_id.uom_id.name
                 res['warning'] = {'title': _('Warning'), 'message': message}
         return res
+
+    def _compute_company_id(self):
+        for line in self:
+            line.company_id = line._get_production().company_id
+
+    @api.model
+    def create(self, vals):
+        res = super(MrpAbstractWorkorderLine, self).create(vals)
+        res._company_consistency_check()
+        return res
+
+    def write(self, vals):
+        res = super(MrpAbstractWorkorderLine, self).write(vals)
+        if any(field in vals for field in self._company_consistency_fields()):
+            self._company_consistency_check()
+        return res
+
+    @api.model
+    def _company_consistency_m2o_required_cid_fields(self):
+        res = super(MrpAbstractWorkorderLine, self)._company_consistency_m2o_required_cid_fields()
+        return res + ['lot_id', 'move_id']
+
+    @api.model
+    def _company_consistency_m2o_optional_cid_fields(self):
+        res = super(MrpAbstractWorkorderLine, self)._company_consistency_m2o_optional_cid_fields()
+        return res + ['product_id']
 
     def _update_move_lines(self):
         """ update a move line to save the workorder line data"""
