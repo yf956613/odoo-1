@@ -229,7 +229,14 @@ class Warehouse(models.Model):
                     else:
                         warehouse.create_resupply_routes(to_add)
                 if to_remove:
-                    Route.search([('supplied_wh_id', '=', warehouse.id), ('supplier_wh_id', 'in', to_remove.ids)]).write({'active': False})
+                    to_disable_route_ids = Route.search([('supplied_wh_id', '=', warehouse.id), ('supplier_wh_id', 'in', to_remove.ids)])
+                    to_disable_route_ids.write({'active': False})
+                    impacted_transit_locations = to_disable_route_ids.mapped('rule_ids.location_id').filtered(lambda rl: rl.usage == 'transit')
+                    for location in impacted_transit_locations:
+                        active_rules = self.env['stock.rule'].search([('location_id', '=', location), ('active', '=', True)])
+                        current_rules = to_disable_route_ids.mapped('rule_ids').filtered(lambda rl: rl.location_id == location)
+                        if not active_rules - current_rules:
+                            location.active = False
                     # TDE FIXME: shouldn't we remove stock rules also ? because this could make them global (not sure)
 
         return res
@@ -572,6 +579,7 @@ class Warehouse(models.Model):
             transit_location = internal_transit_location if supplier_wh.company_id == self.company_id else external_transit_location
             if not transit_location:
                 continue
+            transit_location.active = True
             output_location = supplier_wh.lot_stock_id if supplier_wh.delivery_steps == 'ship_only' else supplier_wh.wh_output_stock_loc_id
             # Create extra MTO rule (only for 'ship only' because in the other cases MTO rules already exists)
             if supplier_wh.delivery_steps == 'ship_only':
