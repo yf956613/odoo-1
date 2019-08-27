@@ -1,6 +1,7 @@
 odoo.define('mail.AttachmentBox', function (require) {
 "use strict";
 
+var ajax = require('web.ajax');
 var core = require('web.core');
 var Widget = require('web.Widget');
 
@@ -81,6 +82,7 @@ var AttachmentBox = Widget.extend({
         return false;
     },
     _processAttachmentChange: function (files) {
+        var self = this;
         var $form = this.$('form.o_form_binary_form');
         var formData = new FormData();
         $form.find("input").each((index, input) => {
