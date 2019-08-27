@@ -40,9 +40,10 @@ var SplitbillScreenWidget = screens.ScreenWidget.extend({
         });
     },
 
-    lineselect: function($el,order,neworder,splitlines,line_id){
-        var split = splitlines[line_id] || {'quantity': 0, line: null};
-        var line  = order.get_orderline(line_id);
+    lineselect: function(line_id){
+        var split = this.splitlines[line_id] || {'quantity': 0, line: null};
+        var line  = this.order.get_orderline(line_id);
+        this.order.select_orderline(line);
         
         if( !line.get_unit().is_pos_groupable ){
             if( split.quantity !== line.get_quantity()){
@@ -64,23 +65,26 @@ var SplitbillScreenWidget = screens.ScreenWidget.extend({
         if( split.quantity ){
             if ( !split.line ){
                 split.line = line.clone();
-                neworder.add_orderline(split.line);
+                this.neworder.add_orderline(split.line);
             }
-            split.line.set_quantity(split.quantity, 'do not recompute unit price');
         }else if( split.line ) {
-            neworder.remove_orderline(split.line);
+            this.neworder.remove_orderline(split.line);
             split.line = null;
         }
  
-        splitlines[line_id] = split;
+        this.splitlines[line_id] = split;
+        return split
+    },
+
+    render_split_quantities: function ($el, split) {
         $el.replaceWith($(QWeb.render('SplitOrderline',{
             widget: this,
-            line: line,
+            line: split.line,
             selected: split.quantity !== 0,
             quantity: split.quantity,
-            id: line_id,
+            id: split.line.id,
         })));
-        this.$('.order-info .subtotal').text(this.format_currency(neworder.get_subtotal()));
+        this.$('.order-info .subtotal').text(this.format_currency(this.neworder.get_subtotal()));
     },
 
     pay: function(order,neworder,splitlines){
@@ -142,28 +146,37 @@ var SplitbillScreenWidget = screens.ScreenWidget.extend({
             this.pos.set('selectedOrder',neworder);
         }
     },
+
+    _click_orderline: function() {
+        var self = this;
+        this.$('.orderlines').on('click','.orderline',function(){
+            var id = parseInt($(this).data('id'));
+            var $el = $(this);
+            var split = self.lineselect(id);
+            if (split.quantity) {
+                split.line.set_quantity(split.quantity, 'do not recompute unit price');
+                self.render_split_quantities($el, split);
+            }
+        });
+    },
+
     show: function(){
         var self = this;
         this._super();
         this.renderElement();
 
-        var order = this.pos.get_order();
-        var neworder = new models.Order({},{
+        this.order = this.pos.get_order();
+        this.neworder = new models.Order({},{
             pos: this.pos,
             temporary: true,
         });
-        neworder.set('client',order.get('client'));
+        this.neworder.set('client',this.order.get('client'));
 
-        var splitlines = {};
-
-        this.$('.orderlines').on('click','.orderline',function(){
-            var id = parseInt($(this).data('id'));
-            var $el = $(this);
-            self.lineselect($el,order,neworder,splitlines,id);
-        });
-
+        console.log(this.order)
+        this.splitlines = {};
+        this._click_orderline();
         this.$('.paymentmethods .button').click(function(){
-            self.pay(order,neworder,splitlines);
+            self.pay(self.order,self.neworder,self.splitlines);
         });
     },
 });
