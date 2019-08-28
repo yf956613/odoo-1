@@ -28,6 +28,7 @@ class AccountMove(models.Model):
     l10n_in_shipping_port_code_id = fields.Many2one('l10n_in.port.code', 'Shipping port code', states={'draft': [('readonly', False)]})
     l10n_in_reseller_partner_id = fields.Many2one('res.partner', 'Reseller', domain=[('vat', '!=', False)], help="Only Registered Reseller", readonly=True, states={'draft': [('readonly', False)]})
     l10n_in_partner_vat = fields.Char(related="partner_id.vat", readonly=True)
+    l10n_in_gstin_partner_id = fields.Many2one(related="journal_id.l10n_in_gstin_partner_id")
 
     @api.model
     def _get_tax_grouping_key_from_tax_line(self, tax_line):

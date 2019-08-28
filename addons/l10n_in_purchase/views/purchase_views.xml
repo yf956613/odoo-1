@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_form_inherit_l10n_in_purchase" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.l10n.in.purchase</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='other_info']//field[@name='invoice_status']" position="after">
+                <field name="journal_id" domain="[('company_id', '=', company_id)]" options="{'no_create': True}" groups="l10n_in.group_l10n_in_multi_gstin"/>
+                <field name="l10n_in_gstin_partner_id" groups="l10n_in.group_l10n_in_multi_gstin,base.group_no_one"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

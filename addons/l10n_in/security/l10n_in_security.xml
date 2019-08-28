@@ -4,4 +4,8 @@
         <field name="name">Manage Reseller(E-Commerce)</field>
         <field name="category_id" ref="base.module_category_hidden"/>
     </record>
+    <record id="group_l10n_in_multi_gstin" model="res.groups">
+        <field name="name">Manage Multiple GSTIN</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
 </odoo>

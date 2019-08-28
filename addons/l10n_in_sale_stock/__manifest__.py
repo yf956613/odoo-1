@@ -2,18 +2,16 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'Indian - Purchase Report(GST)',
+    'name': 'Indian - Sale Stock',
     'version': '1.0',
-    'description': """GST Purchase Report""",
+    'description': """Sale and Stock For multi GSTIN using warehouse""",
     'category': 'Accounting',
     'depends': [
         'l10n_in',
-        'purchase',
+        'sale_stock'
     ],
-    'data': [
-        'views/report_purchase_order.xml',
-        'views/purchase_views.xml'
-    ],
+    'data': [],
+
     'installable': True,
     'application': False,
     'auto_install': True,

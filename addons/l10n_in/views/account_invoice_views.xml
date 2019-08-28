@@ -24,6 +24,9 @@
                        attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund'))]}"
                        />
             </xpath>
+            <xpath expr="//field[@name='journal_id']" position="after">
+                <field name="l10n_in_gstin_partner_id" groups="l10n_in.group_l10n_in_multi_gstin"/>
+            </xpath>
         </field>
     </record>
 </odoo>

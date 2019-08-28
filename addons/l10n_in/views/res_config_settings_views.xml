@@ -19,6 +19,27 @@
                     </div>
                 </div>
             </div>
+            <div id="analytic" position='after'>
+                <h2>Multi GSTIN</h2>
+                <div class="row mt16 o_settings_container" id="setup">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="group_l10n_in_multi_gstin"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label string="Multiple GSTIN" for="group_l10n_in_multi_gstin"/>
+                            <div class="text-muted">
+                                Manage GST registration in other states
+                            </div>
+                            <div class="content-group" attrs="{'invisible': [('group_l10n_in_multi_gstin','=',False)]}">
+                                <div class="mt16">
+                                    <button type="object" name="action_open_company" icon="fa-arrow-right"  string="Configure Multiple GSTIN" class="btn-link"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 </odoo>
