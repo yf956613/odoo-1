@@ -266,7 +266,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
     """
 
     _auto = False
-    """Whether a database table should be created (default: ``True``)
+    """Whether a database table should be created (default: ``True``).
     If set to ``False``, override :meth:`~odoo.models.BaseModel.init`
     to create the database table.
 

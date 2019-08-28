@@ -110,6 +110,9 @@ class Field(MetaField('DummyField', (object,), {})):
 
     :param bool readonly: whether the field is readonly (default: ``False``)
 
+        This only has an impact on the UI. Any field assignation in code will work
+        (if the field is a stored field or an inversable one).
+
     :param bool required: whether the value of the field is required (default: ``False``)
 
     :param bool index: whether the field is indexed in database. Note: no effect

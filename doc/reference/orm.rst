@@ -23,18 +23,19 @@ Model fields are defined as attributes on the model itself::
 By default, the field's label (user-visible name) is a capitalized version of
 the field name, this can be overridden with the ``string`` parameter::
 
-        field2 = fields.Integer(string="an other field")
+        field2 = fields.Integer(string="Field Label")
 
 For the various field types and parameters, see :ref:`the fields reference
 <reference/fields>`.
 
-Default values are defined as parameters on fields, either a value::
+Default values are defined as parameters on fields, either as a value::
 
     name = fields.Char(default="a value")
 
-or a function called to compute the default value, which should return that
+or as a function called to compute the default value, which should return that
 value::
 
+    # Default method has to be defined before the fields.
     def _default_name(self):
         return self.get_value()
 
@@ -43,13 +44,11 @@ value::
 Recordsets
 ==========
 
-Interaction with models and records is performed through recordsets, a sorted
+Interactions with models and records are performed through recordsets, a sorted
 set of records of the same model.
 
-.. warning:: contrary to what the name implies, it is currently possible for
+.. warning:: Contrary to what the name implies, it is currently possible for
              recordsets to contain duplicates. This may change in the future.
-
-.. todo is it still possible?
 
 Methods defined on a model are executed on a recordset, and their ``self`` is
 a recordset::
@@ -66,9 +65,9 @@ Iterating on a recordset will yield new sets of *a single record*
 single characters::
 
         def do_operation(self):
-            print self # => a.model(1, 2, 3, 4, 5)
+            print(self) # => a.model(1, 2, 3, 4, 5)
             for record in self:
-                print record # => a.model(1), then a.model(2), then a.model(3), ...
+                print(record) # => a.model(1), then a.model(2), then a.model(3), ...
 
 Field access
 ------------
@@ -162,6 +161,10 @@ Models
 .. autoclass:: odoo.models.BaseModel()
 
     .. autoattribute:: _auto
+    .. autoattribute:: _table
+    .. autoattribute:: _sequence
+    .. autoattribute:: _sql_constraints
+
     .. autoattribute:: _register
 
     .. autoattribute:: _name
@@ -173,10 +176,21 @@ Models
     .. autoattribute:: _rec_name
     .. autoattribute:: _order
 
+    .. autoattribute:: _translate
+
+    .. autoattribute:: _parent_name
+    .. autoattribute:: _parent_store
+
+    .. autoattribute:: _abstract
+
+      :class:`odoo.models.AbstractModel`
+
+    .. autoattribute:: _transient
+
+      :class:`odoo.models.TransientModel`
+
     .. autoattribute:: _date_name
     .. autoattribute:: _fold_name
-
-    .. autoattribute:: _translate
 
 AbstractModel
 -------------
@@ -442,16 +456,14 @@ to avoid misusing these fields.
 
 When assigning a value to a Date/Datetime field, the following options are valid:
 
+* A `date` or `datetime` object.
 * A string in the proper server format *(YYYY-MM-DD)* for Date fields,
   *(YYYY-MM-DD HH:MM:SS)* for Datetime fields.
-* A `date` or `datetime` object.
 * `False` or `None`.
 
-If not sure of the type of the value being assigned to a Date/Datetime object,
-the best course of action is to pass the value to
-:func:`~odoo.fields.Date.to_date` or :func:`~odoo.fields.Datetime.to_datetime`
-which will attempt to convert the value to a date or datetime object
-respectively, which can then be assigned to the field in question.
+The Date and Datetime fields class have helper methods to attempt conversion
+into a compatible type: :func:`~odoo.fields.Date.to_date` will convert to a `datetime.date`
+object while :func:`~odoo.fields.Datetime.to_datetime` will convert to a `datetime.datetime`.
 
 .. admonition:: Example
 
@@ -475,7 +487,12 @@ fetching the start/end of a period are exposed through both
 :class:`~odoo.fields.Date` and :class:`~odoo.fields.Datetime`.
 These helpers are also available by importing `odoo.tools.date_utils`.
 
-.. TODO info on timezones?
+.. note:: Timezones
+
+    Datetime fields are stored as `timestamp without timezone` columns in the database and are stored
+    in the UTC timezone. This is by design, as it makes the Odoo database independent from the timezone
+    of the hosting server system. Timezone conversion is made during read and write operation based
+    on the timezone provided in the context of the environment.
 
 .. autoclass:: Date()
     :members: today, context_today, to_date, to_string, start_of, end_of, add, subtract
@@ -933,6 +950,12 @@ A domain is a list of criteria, each criterion being a triple (either a
         is unequal to all of the items from ``value``
     ``child_of``
         is a child (descendant) of a ``value`` record.
+
+        Takes the semantics of the model into account (i.e following the
+        relationship field named by
+        :attr:`~odoo.models.Model._parent_name`).
+    ``parent_of``
+        is a parent (ascendant) of a ``value`` record.
 
         Takes the semantics of the model into account (i.e following the
         relationship field named by
