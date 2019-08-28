@@ -39,8 +39,7 @@ class ParseError(Exception):
         self.lineno = lineno
 
     def __str__(self):
-        return '"%s" while parsing %s:%s, near\n%s' \
-            % (self.msg, self.filename, self.lineno, self.text)
+        return '"%s" while parsing %s:%s' % (self.msg, self.filename, self.lineno) #, self.text)
 
 class RecordDictWrapper(dict):
     """

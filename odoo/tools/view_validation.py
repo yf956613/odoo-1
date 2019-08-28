@@ -543,3 +543,52 @@ def valid_alerts(arch, **kwargs):
     if arch.xpath(xpath):
         return "Warning"
     return True
+
+class Metamorph(dict):
+
+    def __init__(self, defaults={}, name=None):
+        super().__init__()
+        self.meta_name = name or ''
+        self.update(defaults)
+
+    def __getattr__(self, name):
+        name = '%s.%s' % (self.meta_name, name)
+        return Metamorph(name=name)
+
+    def __getitem__(self, name):
+        try:
+            return super().__getitem__(name)
+        except KeyError:
+            name = name if not self.meta_name else ('%s[%s]' % (self.meta_name, name))
+            return Metamorph(name=name)
+
+    def __call__(self, *args, **kwargs):
+        def quote(val):
+            if isinstance(val, str):
+                return "'%s'" % val
+            else:
+                return str(val)
+
+        args_str = [quote(arg) for arg in args]
+        kwargs_str = ['%s=%s' % (key, quote(value)) for key, value in kwargs.items()]
+        params = ', '.join(args_str+kwargs_str)
+        name = '%s(%s)' % (self.meta_name, params)
+        return Metamorph(name=name)
+
+    def __str__(self):
+        return str(self.meta_name)
+
+    def __repr__(self):
+        return str(self)
+
+    def __add__(self, other):
+        name = '%s + %s' % (self.meta_name, other)
+        return Metamorph(name=name)
+
+    def __sub__(self, other):
+        name = '%s + %s' % (self.meta_name, other)
+        return Metamorph(name=name)
+
+    def __mul__(self, other):
+        name = '%s + %s' % (self.meta_name, other)
+        return Metamorph(name=name)

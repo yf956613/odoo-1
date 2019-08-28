@@ -27,7 +27,7 @@ from odoo.tools import config, graph, ConstantMapping, pycompat, apply_inheritan
 from odoo.tools.convert import _fix_multiple_roots
 from odoo.tools.json import scriptsafe as json_scriptsafe
 from odoo.tools.safe_eval import safe_eval
-from odoo.tools.view_validation import valid_view, get_attrs_field_names, field_is_editable
+from odoo.tools.view_validation import valid_view, get_attrs_field_names, field_is_editable, Metamorph
 from odoo.tools.translate import xml_translate, TRANSLATED_ATTRS
 from odoo.tools.image import image_data_uri
 
@@ -755,9 +755,8 @@ actual arch.
         of those information in the architecture.
 
         """
-        result = False
         fields = {}
-        children = True
+        children = list(node)
 
         modifiers = {}
         if model not in self.env:
@@ -770,7 +769,7 @@ actual arch.
                 field = Model._fields.get(node.get('name'))
                 if field:
                     editable = self.env.context.get('view_is_editable', True) and field_is_editable(field, node)
-                    children = False
+                    children = []
                     views = {}
                     for f in node:
                         if f.tag in ('form', 'tree', 'graph', 'kanban', 'calendar'):
@@ -783,6 +782,8 @@ actual arch.
                                 'arch': xarch,
                                 'fields': xfields,
                             }
+                        else:
+                            children.append(f)
                     attrs = {'views': views}
                     if field.comodel_name in self.env and field.type in ('many2one', 'many2many'):
                         Comodel = self.env[field.comodel_name]
@@ -802,7 +803,7 @@ actual arch.
                 if field.type != 'many2one':
                     self.raise_view_error(_('groupby can only target many2one (%(field)s') % dict(field=field.name), view_id)
                 attrs = fields.setdefault(node.get('name'), {})
-                children = False
+                children = []
                 # move all children nodes into a new node <groupby>
                 groupby_node = E.groupby()
                 for child in list(node):
@@ -840,21 +841,50 @@ actual arch.
                     check_field_names=False,  # field validation is a bit more tricky and done apart
                     view_is_editable=False,
                 ).postprocess_and_fields(model, searchpanel[0], view_id)
+            children = [c for c in node if c.tag != 'searchpanel']
+
+        elif node.tag == 'filter':
+            context = node.get('context')
+            domain = node.get('domain')
+            if context:
+                context = safe_eval(context, Metamorph(), nocopy=True)
+                group_by = context.get('group_by')
+                if group_by:
+                    if not group_by.split(':')[0] in self.env[model]._fields:
+                        msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
+                        _logger.error(msg)
+            if domain:
+                domain = safe_eval(domain, Metamorph(), nocopy=True)
+                # get_attrs_field_names(self.env, node, model, False)
+                # TODO this dommain check is correct for filters, but should we merge that with the attrs domain check/others
+                for part in domain:
+                    if type(part) is list or type(part) is tuple:
+                        field_chain = part[0].split('.')
+                        record = self.env[model]
+                        current_field = None
+                        try:
+                            for field in field_chain:
+                                current_field = field
+                                _field = record._fields[current_field]
+                                if not _field._description_searchable:
+                                    msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
+                                    _logger.error(msg)
+
+                                record = record[current_field]
+                        except KeyError as e:
+                            msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
+                            _logger.error(msg)
+
 
         if not self._apply_group(model, node, modifiers, fields):
             # node must be removed, no need to proceed further with its children
             return fields
-
         # The view architeture overrides the python model.
         # Get the attrs before they are (possibly) deleted by check_group below
         transfer_node_to_modifiers(node, modifiers, self._context, in_tree_view)
 
-        for f in node:
-            if node.tag == 'search' and f.tag == 'searchpanel':
-                # searchpanel part has to be validated independently
-                continue
-            if children or (node.tag == 'field' and f.tag in ('filter', 'separator')):
-                fields.update(self.postprocess(model, f, view_id, in_tree_view, model_fields))
+        for f in children:
+            fields.update(self.postprocess(model, f, view_id, in_tree_view, model_fields))
 
         transfer_modifiers_to_node(modifiers, node)
         return fields
