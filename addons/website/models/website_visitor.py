@@ -6,6 +6,7 @@ from hashlib import sha256
 import hmac
 
 from odoo import fields, models, api, _
+from odoo.exceptions import UserError
 from odoo.tools.misc import _consteq, _format_time_ago
 from odoo.http import request
 
@@ -30,18 +31,43 @@ class WebsiteVisitor(models.Model):
     active = fields.Boolean('Active', default=True)
     website_id = fields.Many2one('website', "Website", readonly=True)
     user_partner_id = fields.Many2one('res.partner', string="Linked Partner", help="Partner of the last logged in user.")
-    create_date = fields.Datetime('First connection date', readonly=True)
-    last_connection_datetime = fields.Datetime('Last Connection', help="Last page view date", readonly=True)
+
+    # localisation and info
     country_id = fields.Many2one('res.country', 'Country', readonly=True)
     country_flag = fields.Binary(related="country_id.image", string="Country Flag")
     lang_id = fields.Many2one('res.lang', string='Language', help="Language from the website when visitor has been created")
+    email = fields.Char(string='Email', compute='_compute_email_phone')
+    mobile = fields.Char(string='Mobile Phone', compute='_compute_email_phone')
+
+    # Visit fields
     visit_count = fields.Integer('Number of visits', default=1, readonly=True, help="A new visit is considered if last connection was more than 8 hours ago.")
     visitor_page_ids = fields.One2many('website.visitor.page', 'visitor_id', string='Visited Pages History', readonly=True)
     visitor_page_count = fields.Integer('Page Views', compute="_compute_page_statistics")
     page_ids = fields.Many2many('website.page', string="Visited Pages", compute="_compute_page_statistics", store=True)
     page_count = fields.Integer('# Visited Pages', compute="_compute_page_statistics")
+
+    # Time fields
+    create_date = fields.Datetime('First connection date', readonly=True)
+    last_connection_datetime = fields.Datetime('Last Connection', help="Last page view date", readonly=True)
     time_since_last_action = fields.Char('Last action', compute="_compute_time_statistics", help='Time since last page view. E.g.: 2 minutes ago')
     is_connected = fields.Boolean('Is connected ?', compute='_compute_time_statistics', help='A visitor is considered as connected if his last page view was within the last 5 minutes.')
+
+    @api.depends('user_partner_id.email_normalized', 'user_partner_id.mobile')
+    def _compute_email_phone(self):
+        results = self.env['res.partner'].search_read(
+            [('id', 'in', self.user_partner_id.ids)],
+            ['id', 'email_normalized', 'mobile'],
+        )
+        mapped_data = {
+            result['id']: {
+                'email_normalized': result['email_normalized'],
+                'mobile': result['mobile']
+            } for result in results
+        }
+
+        for visitor in self:
+            visitor.email = mapped_data.get(visitor.user_partner_id.id, {}).get('email_normalized')
+            visitor.mobile = mapped_data.get(visitor.user_partner_id.id, {}).get('mobile')
 
     @api.depends('visitor_page_ids')
     def _compute_page_statistics(self):
@@ -70,6 +96,40 @@ class WebsiteVisitor(models.Model):
             last_connection_date = mapped_data[visitor.id]
             visitor.time_since_last_action = _format_time_ago(self.env, (datetime.now() - last_connection_date))
             visitor.is_connected = (datetime.now() - last_connection_date) < timedelta(minutes=5)
+
+    def _prepare_visitor_send_mail_values(self):
+        if self.user_partner_id.email:
+            return {
+                'res_model': 'res.partner',
+                'res_id': self.user_partner_id.id,
+                'partner_ids': [self.user_partner_id.id],
+            }
+        return {}
+
+    def action_send_mail(self):
+        self.ensure_one()
+        visitor_mail_values = self._prepare_visitor_send_mail_values()
+        if not visitor_mail_values:
+            raise UserError(_("There is no email linked this visitor."))
+        compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
+        ctx = dict(
+            default_model=visitor_mail_values.get('res_model'),
+            default_res_id=visitor_mail_values.get('res_id'),
+            default_use_template=False,
+            default_partner_ids=[(6, 0, visitor_mail_values.get('partner_ids'))],
+            default_composition_mode='comment',
+            default_reply_to=self.env.user.partner_id.email,
+        )
+        return {
+            'name': _('Compose Email'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(compose_form.id, 'form')],
+            'view_id': compose_form.id,
+            'target': 'new',
+            'context': ctx,
+        }
 
     def _get_visitor_sign(self):
         return {visitor.id: "%d-%s" % (visitor.id, self._get_visitor_hash(visitor.id)) for visitor in self}
