@@ -96,8 +96,21 @@ class Http(models.AbstractModel):
 
     @classmethod
     def _dispatch(cls):
+        """
+        In case of rerouting for translate (e.g. when visiting odoo.com/fr_BE/),
+        _dispatch calls reroute() that returns _dispatch with altered request properties.
+        The second _dispatch will continue until end of process. When second _dispatch is finished, the first _dispatch
+        call receive the new altered request and continue.
+        At the end, 2 calls of _dispatch (and this override) are made with exact same request properties, instead of one.
+        As the response has not been sent back to the client, the visitor cookie does not exist yet when second _dispatch call
+        is treated in _handle_webpage_dispatch, leading to create 2 visitors with exact same properties.
+        To avoid this, we check if, !!! before calling super !!!, we are in a rerouting request. If not, it means that we are
+        handling the original request, in which we should create the visitor. We ignore every other rerouting requests.
+        """
+        is_rerouting = hasattr(request, 'routing_iteration')
         response = super(Http, cls)._dispatch()
-        request.env['website.visitor']._handle_webpage_dispatch(response, cls._extract_website_page(response))
+        if not is_rerouting:
+            request.env['website.visitor']._handle_webpage_dispatch(response, cls._extract_website_page(response))
         return response
 
     @classmethod

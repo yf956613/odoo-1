@@ -113,6 +113,7 @@ class WebsiteVisitor(models.Model):
                 vals = {
                     'last_connection_datetime': datetime.now(),
                     'visitor_page_ids': [(0, 0, {'page_id': website_page.id, 'visit_datetime': datetime.now()})],
+                    'lang_id': request.lang.id,
                 }
                 if visitor_sudo.last_connection_datetime < (datetime.now() - timedelta(hours=8)):
                     vals['visit_count'] = visitor_sudo.visit_count + 1
