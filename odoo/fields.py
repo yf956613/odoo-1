@@ -136,6 +136,20 @@ class Field(MetaField('DummyField', (object,), {})):
 
     :param bool company_dependent: whether the field is company-dependent
 
+        The value isn't stored on the model table.  It is registered as ir.property.
+        When the value of the company_dependent field is needed, an ir.property
+        is searched:
+
+            * linked to the current company
+            * linked to the current record if one exists.
+
+        If the value is changed on the record, it either
+            * modifies the existing ir.property if one exists (for the current company and record)
+            * creates a new one for current company and res_id.
+
+        If the value is changed on the company side, it will impact all records on which
+        the value hasn't been changed.
+
     :param bool copy: whether the field value should be copied when the record
         is duplicated (default: ``True`` for normal fields, ``False`` for
         ``one2many`` and computed fields, including property fields and
