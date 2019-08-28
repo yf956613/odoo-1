@@ -289,6 +289,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
 
     _needaction = False         # whether the model supports "need actions" (see mail)
     _translate = True           # False disables translations export for this model
+    _check_company_auto = False
 
     # default values for _transient_vacuum()
     _transient_check_count = 0
@@ -3029,6 +3030,66 @@ Fields:
                 # mention the first one only to keep the error message readable
                 raise ValidationError(_('A document was modified since you last viewed it (%s:%d)') % (self._description, res[0]))
 
+    def _check_company(self, fnames=None):
+        check_company_fields = {k: v for k, v in self._fields.items() if v.relational and v.check_company and v.relational and (fnames is None or k in fnames)}
+        if not check_company_fields:
+            return
+
+        many2one_fields = []
+        many2one_property_fields = []
+        many2many_fields = []
+        for name, field in check_company_fields.items():
+            if field.type == 'many2one':
+                if self.env[field.comodel_name]._fields['company_id']:
+                    if not field.company_dependent:
+                        many2one_fields.append(name)
+                    else:
+                        many2one_property_fields.append(name)
+            elif field.type == 'many2many':
+                if self.env[field.comodel_name]._fields['company_id']:
+                    many2many_fields.append(name)
+
+        inconsistent_fields = set()
+        inconsistent_recs = self.browse()
+        for rec in self:
+            company_to_compare_to = rec.company_id if rec._name != 'res.company' else rec
+            # The first part of the check verifies that all records linked via relation fields are compatible
+            # with the company of the origin document, i.e. `self.account_id.company_id == self.company_id`
+            for field in many2one_fields:
+                if rec[field] and not (rec[field]['company_id'] == company_to_compare_to or not rec[field]['company_id'].id):
+                    inconsistent_fields.add(field)
+                    inconsistent_recs |= rec
+            for field in many2many_fields:
+                for item in rec[field]:
+                    if item and not (item['company_id'] == company_to_compare_to or not item['company_id'].id):
+                        inconsistent_fields.add(field)
+                        inconsistent_recs |= rec
+            # The second part of the check (for property / company-dependent fields) verifies that the records
+            # linked via those relation fields are compatible with the company that owns the property value, i.e.
+            # the company for which the value is being assigned, i.e:
+            #      `self.property_account_payable_id.company_id == self.env.context['force_company']`
+            if self.env.context.get('force_company'):
+                property_company_to_compare_to = self.env['res.company'].browse(self.env.context['force_company'])
+            else:
+                property_company_to_compare_to = self.env.company
+            for field in many2one_property_fields:
+                if rec[field] and not (rec[field]['company_id'] == property_company_to_compare_to or not rec[field]['company_id'].id):
+                    inconsistent_fields.add(field)
+                    inconsistent_recs |= rec
+
+        if inconsistent_fields:
+            message = _("""Some records are incompatible with the company of the %(document_descr)s.
+
+Incompatibilities:
+Fields: %(fields)s
+Record ids: %(records)s
+""")
+            raise UserError(message % {
+                'document_descr': self.env['ir.model']._get(self._name).name,
+                'fields': ', '.join(sorted(list(inconsistent_fields))),
+                'records': ', '.join([str(a) for a in inconsistent_recs.ids[:6]]),
+            })
+
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
         """ Verifies that the operation given by ``operation`` is allowed for
@@ -3306,6 +3367,7 @@ Fields:
         records_to_inverse = {}                     # {field: records}
         relational_names = []
         protected = set()
+        check_company = False
         for fname in vals:
             field = self._fields[fname]
             if field.inverse:
@@ -3315,6 +3377,8 @@ Fields:
                 records_to_inverse[field] = self.filtered('id')
             if field.relational or self._field_inverses[field]:
                 relational_names.append(fname)
+            if fname == 'company_id' or (field.relational and field.check_company):
+                check_company = True
             protected.update(self._field_computed.get(field, [field]))
 
         # protect fields being written against recomputation
@@ -3386,6 +3450,8 @@ Fields:
             # validate inversed fields
             real_recs._validate_fields(inverse_fields)
 
+        if check_company and self._check_company_auto:
+            self._check_company()
         return True
 
     def _write(self, vals):
@@ -3583,6 +3649,8 @@ Fields:
         for data in data_list:
             data['record']._validate_fields(set(data['inversed']) - set(data['stored']))
 
+        if self._check_company_auto:
+            records._check_company()
         return records
 
     @api.model
