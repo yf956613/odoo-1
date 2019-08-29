@@ -769,7 +769,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_61334
-msgid "Charges for electronic means of paiment"
+msgid "Charges for electronic means of payment"
 msgstr ""
 
 #. module: l10n_lu
@@ -1676,7 +1676,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_212152
-msgid "Greenhous gas and similar emission quotas"
+msgid "Greenhouse gas and similar emission quotas"
 msgstr ""
 
 #. module: l10n_lu
@@ -1736,7 +1736,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_1_intra_community_goods_pi_vat
-msgid "I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (art.43/1/d,e et f) (3)"
+msgid "I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (art.43/1/d,e et f) (3)"
 msgstr ""
 
 #. module: l10n_lu
@@ -3838,7 +3838,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6083
-msgid "Purchase of greenhous gas and similar emission quotas"
+msgid "Purchase of greenhouse gas and similar emission quotas"
 msgstr ""
 
 #. module: l10n_lu
@@ -4493,7 +4493,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_483
-msgid "State - Greenhous gas and similar emission quotas received"
+msgid "State - Greenhouse gas and similar emission quotas received"
 msgstr ""
 
 #. module: l10n_lu
