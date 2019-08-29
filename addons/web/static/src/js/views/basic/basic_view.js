@@ -289,7 +289,7 @@ var BasicView = AbstractView.extend({
                 }
                 var mode = attrs.mode;
                 if (!mode) {
-                    if (attrs.views.tree && attrs.views.kanban) {
+                    if (attrs.views.list && !attrs.views.kanban) {
                         mode = 'tree';
                     } else if (!attrs.views.tree && attrs.views.kanban) {
                         mode = 'kanban';
