@@ -342,23 +342,23 @@
     </record>
 
     <record id="account_tax_report_line_1b_2_export" model="account.tax.report.line">
-      <field name="name">I.B.2. Exports (art.43/1/a et b)</field>
-      <field name="tag_name">I.B.2. Exports (art.43/1/a et b)</field>
+      <field name="name">I.B.2. Exports (Art.43(1)(a) and (b))</field>
+      <field name="tag_name">I.B.2. Exports (Art.43(1)(a) and (b))</field>
       <field name="sequence">2</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
     <record id="account_tax_report_line_1b_1_intra_community_goods_pi_vat" model="account.tax.report.line">
-      <field name="name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (art.43/1/d,e et f) (3)</field>
-      <field name="tag_name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (art.43/1/d,e et f) (3)</field>
+      <field name="name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (Art.43(1)(d),(e) and (f)) (3)</field>
+      <field name="tag_name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (Art.43(1)(d),(e) and (f)) (3)</field>
       <field name="sequence">1</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
     <record id="account_tax_report_line_1b_3_other_exemptions_art_43" model="account.tax.report.line">
-      <field name="name">I.B.3. Other exemptions (art.43 et 60bis)</field>
+      <field name="name">I.B.3. Other exemptions (Art.43 and 60bis)</field>
       <field name="tag_name">I.B.3. Other exemptions (art.43 et 60bis)</field>
       <field name="sequence">3</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
@@ -366,8 +366,8 @@
     </record>
 
     <record id="account_tax_report_line_1b_4_other_exemptions_art_44_et_56quater" model="account.tax.report.line">
-      <field name="name">I.B.4. Other exemptions (art.44 et 56quater)</field>
-      <field name="tag_name">I.B.4. Other exemptions (art.44 et 56quater)</field>
+      <field name="name">I.B.4. Other exemptions (Art.44 and 56quater)</field>
+      <field name="tag_name">I.B.4. Other exemptions (Art.44 and 56quater)</field>
       <field name="sequence">4</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
       <field name="country_id" ref="base.lu"/>
@@ -390,16 +390,16 @@
     </record>
 
     <record id="account_tax_report_line_1b_6_b1_non_exempt_customer_vat" model="account.tax.report.line">
-      <field name="name">I.B.6.b)1) not exempt in the MS where the customer is liable for payment of VAT</field>
-      <field name="tag_name">I.B.6.b)1) not exempt in the MS where the customer is liable for payment of VAT</field>
+      <field name="name">I.B.6.b)1) not exempt in the MS where the customer is liable for payment of VAT (Art.17(1)(b)) (5)</field>
+      <field name="tag_name">I.B.6.b)1) not exempt in the MS where the customer is liable for payment of VAT (Art.17(1)(b)) (5)</field>
       <field name="sequence">7</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
     <record id="account_tax_report_line_1b_6_b2_exempt_ms_customer" model="account.tax.report.line">
-      <field name="name">I.B.6.b)2) exempt in the MS where the customer is identified</field>
-      <field name="tag_name">I.B.6.b)2) exempt in the MS where the customer is identified</field>
+      <field name="name">I.B.6.b)2) exempt in the MS where the customer is identified (Art.17(1)(b))</field>
+      <field name="tag_name">I.B.6.b)2) exempt in the MS where the customer is identified (Art.17(1)(b))</field>
       <field name="sequence">8</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
       <field name="country_id" ref="base.lu"/>
@@ -536,7 +536,7 @@
     </record>
 
     <record id="account_tax_report_line_2g_special_arrangement" model="account.tax.report.line">
-      <field name="name">II.G. Special arrangement for tax suspension: adjustment (art.60bis, par.5 et 8)</field>
+      <field name="name">II.G. Special arrangement for tax suspension: adjustment (Art.60bis, (5) and (8))</field>
       <field name="sequence">12</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
@@ -841,8 +841,8 @@
     </record>
 
     <record id="account_tax_report_line_3a_4_due_respect_application_goods" model="account.tax.report.line">
-      <field name="name">III.A.4. Due in respect of the application of goods for business purposes (art.48/1/d)</field>
-      <field name="tag_name">III.A.4. Due in respect of the application of goods for business purposes (art.48/1/d)</field>
+      <field name="name">III.A.4. Due in respect of the application of goods for business purposes (Art.48(1)(d))</field>
+      <field name="tag_name">III.A.4. Due in respect of the application of goods for business purposes (Art.48(1)(d))</field>
       <field name="sequence">4</field>
       <field name="parent_id" ref="account_tax_report_line_3a_total_input_tax"/>
       <field name="country_id" ref="base.lu"/>
@@ -857,8 +857,8 @@
     </record>
 
     <record id="account_tax_report_line_3a_7_adjusted_tax_special_arrangement" model="account.tax.report.line">
-      <field name="name">III.A.7. Adjusted tax - special arrangement for tax suspension (art.60bis/9, al. 2)</field>
-      <field name="tag_name">III.A.7. Adjusted tax - special arrangement for tax suspension (art.60bis/9, al. 2)</field>
+      <field name="name">III.A.7. Adjusted tax - special arrangement for tax suspension (Art.60bis(9), subpar. 2)</field>
+      <field name="tag_name">III.A.7. Adjusted tax - special arrangement for tax suspension (Art.60bis(9), subpar. 2)</field>
       <field name="sequence">7</field>
       <field name="parent_id" ref="account_tax_report_line_3a_total_input_tax"/>
       <field name="country_id" ref="base.lu"/>
@@ -873,16 +873,16 @@
     </record>
 
     <record id="account_tax_report_line_3a_2_due_respect_intra_comm_goods" model="account.tax.report.line">
-      <field name="name">III.A.2. Due in respect of intra-Community acquisitions of goods (art.48/1/b)</field>
-      <field name="tag_name">III.A.2. Due in respect of intra-Community acquisitions of goods (art.48/1/b)</field>
+      <field name="name">III.A.2. Due in respect of intra-Community acquisitions of goods (Art.48(1)(b))</field>
+      <field name="tag_name">III.A.2. Due in respect of intra-Community acquisitions of goods (Art.48(1)(b))</field>
       <field name="sequence">2</field>
       <field name="parent_id" ref="account_tax_report_line_3a_total_input_tax"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
     <record id="account_tax_report_line_3a_3_due_paid_respect_importation_goods" model="account.tax.report.line">
-      <field name="name">III.A.3. Due or paid in respect of importation of goods (art.48/1/c)</field>
-      <field name="tag_name">III.A.3. Due or paid in respect of importation of goods (art.48/1/c)</field>
+      <field name="name">III.A.3. Due or paid in respect of importation of goods (Art.48(1)(c))</field>
+      <field name="tag_name">III.A.3. Due or paid in respect of importation of goods (Art.48(1)(c))</field>
       <field name="sequence">3</field>
       <field name="parent_id" ref="account_tax_report_line_3a_total_input_tax"/>
       <field name="country_id" ref="base.lu"/>

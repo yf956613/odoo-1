@@ -1736,22 +1736,22 @@ msgstr "I.B. Steuerbefreiungen und abzugsfähige Beträge"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_1_intra_community_goods_pi_vat
-msgid "I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (art.43/1/d,e et f) (3)"
+msgid "I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (Art.43(1)(d),(e) and (f)) (3)"
 msgstr "I.B.1. Innergemeinschaftliche Lieferungen an Personen, die eine Id.-Nummer in einem anderen Mitgliedstaat besitzen (Art.43/1/d, e und f) (3)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_2_export
-msgid "I.B.2. Exports (art.43/1/a et b)"
+msgid "I.B.2. Exports (Art.43(1)(a) and (b))"
 msgstr "I.B.2. Ausfuhren (Art.43/1/a und b)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_3_other_exemptions_art_43
-msgid "I.B.3. Other exemptions (art.43 et 60bis)"
+msgid "I.B.3. Other exemptions (Art.43 and 60bis)"
 msgstr "I.B.3. Andere Befreiungen (Art.43 und 60bis)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_4_other_exemptions_art_44_et_56quater
-msgid "I.B.4. Other exemptions (art.44 et 56quater)"
+msgid "I.B.4. Other exemptions (Art.44 and 56quater)"
 msgstr "I.B.4. Andere Befreiungen (Art.44 und 56quater)"
 
 #. module: l10n_lu
@@ -1766,12 +1766,12 @@ msgstr "I.B.6.a) An innergemeinschaftliche Erwerbe anschließende Lieferungen im
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_6_b1_non_exempt_customer_vat
-msgid "I.B.6.b)1) not exempt in the MS where the customer is liable for payment of VAT"
+msgid "I.B.6.b)1) not exempt in the MS where the customer is liable for payment of VAT (Art.17(1)(b)) (5)"
 msgstr "I.B.6.b)1) nicht steuerbefreit im Mitgliedstaat des Empfängers, der Steuerschuldner ist (Art.17/1/b) (5)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_1b_6_b2_exempt_ms_customer
-msgid "I.B.6.b)2) exempt in the MS where the customer is identified"
+msgid "I.B.6.b)2) exempt in the MS where the customer is identified (Art.17(1)(b))"
 msgstr "I.B.6.b)2) steuerbefreit im Mitgliedstaat des Empfängers (Art.17/1/b)"
 
 #. module: l10n_lu
@@ -2281,7 +2281,7 @@ msgstr "II.F. tax 8%"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2g_special_arrangement
-msgid "II.G. Special arrangement for tax suspension: adjustment (art.60bis, par.5 et 8)"
+msgid "II.G. Special arrangement for tax suspension: adjustment (Art.60bis, (5) and (8))"
 msgstr "II.G. Sonderregelung zur Steueraussetzung: Berichtigung (Art.60bis, Abs.5 und 8)"
 
 #. module: l10n_lu
@@ -2306,18 +2306,18 @@ msgstr "III.A.1. Gezahlte MwSt. bei Bezug von Gegenständen und Dienstleistungen
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_2_due_respect_intra_comm_goods
-msgid "III.A.2. Due in respect of intra-Community acquisitions of goods (art.48/1/b)"
-msgstr "III.A.2. Geschuldete MwSt. auf innergemeinschaftlichen Erwerben von Gegenständen (Art.48/1/b)"
+msgid "III.A.2. Due in respect of intra-Community acquisitions of goods (Art.48(1)(b))"
+msgstr "III.A.2. Geschuldete MwSt. auf innergemeinschaftlichen Erwerben von Gegenständen (Art.48/1/a)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_3_due_paid_respect_importation_goods
-msgid "III.A.3. Due or paid in respect of importation of goods (art.48/1/c)"
+msgid "III.A.3. Due or paid in respect of importation of goods (Art.48(1)(c))"
 msgstr "III.A.3. Geschuldete oder gezahlte MwSt. auf Einfuhren von Gegenständen (Art.48/1/c)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_4_due_respect_application_goods
-msgid "III.A.4. Due in respect of the application of goods for business purposes (art.48/1/d)"
-msgstr "III.A.4. Geschuldete MwSt. auf Zuordnung von Gegenständen zu Zwecken des Unternehmens(Art.48/1/d)"
+msgid "III.A.4. Due in respect of the application of goods for business purposes (Art.48(1)(d))"
+msgstr "III.A.4. Geschuldete MwSt. auf Zuordnung von Gegenständen zu Zwecken des Unternehmens (Art.48/1/d)"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_5_due_under_reverse_charge
@@ -2331,7 +2331,7 @@ msgstr "III.A.6. Als Solidarschuldner erklärte Steuer"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_7_adjusted_tax_special_arrangement
-msgid "III.A.7. Adjusted tax - special arrangement for tax suspension (art.60bis/9, al. 2)"
+msgid "III.A.7. Adjusted tax - special arrangement for tax suspension (Art.60bis(9), subpar. 2)"
 msgstr "III.A.7. Berichtigte Steuer - Sonderregelung zur Steueraussetzung (Art. 60bis/9, Unterabs. 2)"
 
 #. module: l10n_lu
