@@ -264,21 +264,6 @@
       <field name="country_id" ref="base.lu"/>
     </record>
 
-    <record id="account_tax_report_line_2e_3_tax" model="account.tax.report.line">
-      <field name="name">II.E.3. tax</field>
-      <field name="sequence">3</field>
-      <field name="parent_id" ref="account_tax_report_line_2e_supply_of_service_for_customer_liable_for_payment_tax"/>
-      <field name="country_id" ref="base.lu"/>
-    </record>
-
-    <record id="account_tax_report_line_2e_3_tax_17" model="account.tax.report.line">
-      <field name="name">II.E.3. suppliers established within the territory: tax 17%</field>
-      <field name="tag_name">II.E.3. suppliers established within the territory: tax 17%</field>
-      <field name="sequence">2</field>
-      <field name="parent_id" ref="account_tax_report_line_2e_3_tax"/>
-      <field name="country_id" ref="base.lu"/>
-    </record>
-
     <record id="account_tax_report_line_1_assessment_taxable_turnover" model="account.tax.report.line">
       <field name="name">I. ASSESSMENT OF TAXABLE TURNOVER</field>
       <field name="sequence">1</field>
@@ -788,6 +773,21 @@
       <field name="tag_name">II.E.2. not established or residing within the Community: tax 8%</field>
       <field name="sequence">7</field>
       <field name="parent_id" ref="account_tax_report_line_2e_2_tax"/>
+      <field name="country_id" ref="base.lu"/>
+    </record>
+
+    <record id="account_tax_report_line_2e_3_tax" model="account.tax.report.line">
+      <field name="name">II.E.3. tax</field>
+      <field name="sequence">3</field>
+      <field name="parent_id" ref="account_tax_report_line_2e_supply_of_service_for_customer_liable_for_payment_tax"/>
+      <field name="country_id" ref="base.lu"/>
+    </record>
+
+    <record id="account_tax_report_line_2e_3_tax_17" model="account.tax.report.line">
+      <field name="name">II.E.3. suppliers established within the territory: tax 17%</field>
+      <field name="tag_name">II.E.3. suppliers established within the territory: tax 17%</field>
+      <field name="sequence">2</field>
+      <field name="parent_id" ref="account_tax_report_line_2e_3_tax"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
