@@ -2260,13 +2260,28 @@ msgid "II.E.3. suppliers established within the territory: tax 17%"
 msgstr ""
 
 #. module: l10n_lu
-#: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods
-msgid "II.F. Supply of goods for which the purchaser is liable for the payment of VAT"
+#: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_base
+msgid "II.F. Supply of goods for which the purchaser is liable for the payment of VAT - base"
+msgstr ""
+
+#. module: l10n_lu
+#: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_base_8
+msgid "II.F. base 8%"
+msgstr ""
+
+#. module: l10n_lu
+#: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_tax
+msgid "II.F. Supply of goods for which the purchaser is liable for the payment of VAT - tax"
+msgstr ""
+
+#. module: l10n_lu
+#: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_tax_8
+msgid "II.F. tax 8%"
 msgstr ""
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2g_special_arrangement
-msgid "II.G. Special arrangement for tax suspension(art.60bis, par.5 et 8)"
+msgid "II.G. Special arrangement for tax suspension: adjustment (art.60bis, par.5 et 8)"
 msgstr ""
 
 #. module: l10n_lu
@@ -2286,7 +2301,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_1_invoiced_by_other_taxable_person
-msgid "III.A.1. Invoiced by other taxable persons for goods or services supplied (art.48/1/a)"
+msgid "III.A.1. Invoiced by other taxable persons for goods or services supplied (Art.48(1)(a))"
 msgstr ""
 
 #. module: l10n_lu
@@ -2306,7 +2321,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_3a_5_due_under_reverse_charge
-msgid "III.A.5. Due under the reverse charge (voir points II.E et F) "
+msgid "III.A.5. Due under the reverse charge (see points II.E and F)"
 msgstr ""
 
 #. module: l10n_lu

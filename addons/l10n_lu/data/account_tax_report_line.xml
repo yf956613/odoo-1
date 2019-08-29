@@ -8,7 +8,7 @@
 
     <record id="account_tax_report_line_2b_intra_community_acqui_of_goods_base" model="account.tax.report.line">
       <field name="name">II.B. Intra-Community acquisitions of goods – base</field>
-      <field name="sequence">4</field>
+      <field name="sequence">3</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -56,7 +56,7 @@
 
     <record id="account_tax_report_line_2d_importation_of_goods_base" model="account.tax.report.line">
       <field name="name">II.D. Importation of goods – base</field>
-      <field name="sequence">7</field>
+      <field name="sequence">6</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -150,7 +150,7 @@
 
     <record id="account_tax_report_line_2e_supply_of_service_for_customer" model="account.tax.report.line">
       <field name="name">II.E. Supply of services for which the customer is liable for the payment of VAT – base</field>
-      <field name="sequence">9</field>
+      <field name="sequence">8</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -251,7 +251,7 @@
 
     <record id="account_tax_report_line_2e_3_base" model="account.tax.report.line">
       <field name="name">II.E.3. base</field>
-      <field name="sequence">4</field>
+      <field name="sequence">3</field>
       <field name="parent_id" ref="account_tax_report_line_2e_supply_of_service_for_customer"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -266,8 +266,8 @@
 
     <record id="account_tax_report_line_2e_3_tax" model="account.tax.report.line">
       <field name="name">II.E.3. tax</field>
-      <field name="sequence">4</field>
-      <field name="parent_id" ref="account_tax_report_line_2e_supply_of_service_for_customer"/>
+      <field name="sequence">3</field>
+      <field name="parent_id" ref="account_tax_report_line_2e_supply_of_service_for_customer_liable_for_payment_tax"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
@@ -350,8 +350,8 @@
     </record>
 
     <record id="account_tax_report_line_1b_1_intra_community_goods_pi_vat" model="account.tax.report.line">
-      <field name="name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (art.43/1/d,e et f) (3)</field>
-      <field name="tag_name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (art.43/1/d,e et f) (3)</field>
+      <field name="name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (art.43/1/d,e et f) (3)</field>
+      <field name="tag_name">I.B.1. Intra-Community supply of goods to persons identified for VAT purposes in another Member State (MS) (art.43/1/d,e et f) (3)</field>
       <field name="sequence">1</field>
       <field name="parent_id" ref="account_tax_report_line_1b_exemptions_deductible_amounts"/>
       <field name="country_id" ref="base.lu"/>
@@ -438,7 +438,7 @@
 
     <record id="account_tax_report_line_2a_breakdown_taxable_turnover_base" model="account.tax.report.line">
       <field name="name">II.A. Breakdown of taxable turnover – base</field>
-      <field name="sequence">2</field>
+      <field name="sequence">1</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -505,30 +505,53 @@
       <field name="country_id" ref="base.lu"/>
     </record>
 
-    <record id="account_tax_report_line_2f_supply_goods" model="account.tax.report.line">
-      <field name="name">II.F. Supply of goods for which the purchaser is liable for the payment of VAT</field>
+    <record id="account_tax_report_line_2f_supply_goods_base" model="account.tax.report.line">
+      <field name="name">II.F. Supply of goods for which the purchaser is liable for the payment of VAT - base</field>
       <field name="sequence">10</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
-    <record id="account_tax_report_line_2g_special_arrangement" model="account.tax.report.line">
-      <field name="name">II.G. Special arrangement for tax suspension(art.60bis, par.5 et 8)</field>
+    <record id="account_tax_report_line_2f_supply_goods_base_8" model="account.tax.report.line">
+      <field name="name">II.F. base 8%</field>
+      <field name="tag_name">II.F. base 8%</field>
+      <field name="sequence">1</field>
+      <field name="parent_id" ref="account_tax_report_line_2f_supply_goods_base"/>
+      <field name="country_id" ref="base.lu"/>
+    </record>
+
+    <record id="account_tax_report_line_2f_supply_goods_tax" model="account.tax.report.line">
+      <field name="name">II.F. Supply of goods for which the purchaser is liable for the payment of VAT - tax</field>
       <field name="sequence">11</field>
+      <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
+      <field name="country_id" ref="base.lu"/>
+    </record>
+
+    <record id="account_tax_report_line_2f_supply_goods_tax_8" model="account.tax.report.line">
+      <field name="name">II.F. tax 8%</field>
+      <field name="tag_name">II.F. tax 8%</field>
+      <field name="sequence">1</field>
+      <field name="parent_id" ref="account_tax_report_line_2f_supply_goods_tax"/>
+      <field name="country_id" ref="base.lu"/>
+    </record>
+
+    <record id="account_tax_report_line_2g_special_arrangement" model="account.tax.report.line">
+      <field name="name">II.G. Special arrangement for tax suspension: adjustment (art.60bis, par.5 et 8)</field>
+      <field name="sequence">12</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
     <record id="account_tax_report_line_2h_total_tax_due" model="account.tax.report.line">
       <field name="name">II.H. Total tax due</field>
-      <field name="sequence">12</field>
+      <field name="sequence">13</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
 
     <record id="account_tax_report_line_2a_breakdown_taxable_turnover_tax" model="account.tax.report.line">
       <field name="name">II.A. Breakdown of taxable turnover – tax</field>
-      <field name="sequence">1</field>
+      <field name="sequence">2</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -575,7 +598,7 @@
 
     <record id="account_tax_report_line_2b_intra_community_acquisitions_goods_tax" model="account.tax.report.line">
       <field name="name">II.B. Intra-Community acquisitions of goods – tax</field>
-      <field name="sequence">3</field>
+      <field name="sequence">4</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -614,7 +637,7 @@
 
     <record id="account_tax_report_line_2d_importation_of_goods_tax" model="account.tax.report.line">
       <field name="name">II.D. Importation of goods – tax</field>
-      <field name="sequence">6</field>
+      <field name="sequence">7</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -685,7 +708,7 @@
 
     <record id="account_tax_report_line_2e_supply_of_service_for_customer_liable_for_payment_tax" model="account.tax.report.line">
       <field name="name">II.E. Supply of services for which the customer is liable for the payment of VAT – tax</field>
-      <field name="sequence">8</field>
+      <field name="sequence">9</field>
       <field name="parent_id" ref="account_tax_report_line_2_assesment_of_tax_due"/>
       <field name="country_id" ref="base.lu"/>
     </record>
@@ -842,8 +865,8 @@
     </record>
 
     <record id="account_tax_report_line_3a_1_invoiced_by_other_taxable_person" model="account.tax.report.line">
-      <field name="name">III.A.1. Invoiced by other taxable persons for goods or services supplied (art.48/1/a)</field>
-      <field name="tag_name">III.A.1. Invoiced by other taxable persons for goods or services supplied (art.48/1/a)</field>
+      <field name="name">III.A.1. Invoiced by other taxable persons for goods or services supplied (Art.48(1)(a))</field>
+      <field name="tag_name">III.A.1. Invoiced by other taxable persons for goods or services supplied (Art.48(1)(a))</field>
       <field name="sequence">1</field>
       <field name="parent_id" ref="account_tax_report_line_3a_total_input_tax"/>
       <field name="country_id" ref="base.lu"/>
@@ -866,8 +889,8 @@
     </record>
 
     <record id="account_tax_report_line_3a_5_due_under_reverse_charge" model="account.tax.report.line">
-      <field name="name">III.A.5. Due under the reverse charge (voir points II.E et F) </field>
-      <field name="tag_name">III.A.5. Due under the reverse charge (voir points II.E et F)</field>
+      <field name="name">III.A.5. Due under the reverse charge (see points II.E and F)</field>
+      <field name="tag_name">III.A.5. Due under the reverse charge (see points II.E and F)</field>
       <field name="sequence">5</field>
       <field name="parent_id" ref="account_tax_report_line_3a_total_input_tax"/>
       <field name="country_id" ref="base.lu"/>
