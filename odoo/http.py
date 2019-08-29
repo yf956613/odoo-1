@@ -331,14 +331,18 @@ class WebRequest(object):
         if self.endpoint.first_arg_is_req:
             args = (request,) + args
 
+        needs_cleanup = False
+
         # Correct exception handling and concurency retry
         @service_model.check
         def checked_call(___dbname, *a, **kw):
+            nonlocal needs_cleanup
             # The decorator can call us more than once if there is an database error. In this
             # case, the request cursor is unusable. Rollback transaction to create a new one.
-            if self._cr:
+            if self._cr and needs_cleanup:
                 self._cr.rollback()
                 self.env.clear()
+            needs_cleanup = True
             result = self.endpoint(*a, **kw)
             if isinstance(result, Response) and result.is_qweb:
                 # Early rendering of lazy responses to benefit from @service_model.check protection
