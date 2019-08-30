@@ -2152,7 +2152,7 @@ msgstr "II.E.1.a) nicht steuerbefreit im Inland: base 3%"
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2e_1_a_base_8
 msgid "II.E.1.a) not exempt within the territory: base 8%"
-msgstr "II.E.1.a) nicht steuerbefreit im Inland": base 8%
+msgstr "II.E.1.a) nicht steuerbefreit im Inland: base 8%"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2e_1_a_tax
