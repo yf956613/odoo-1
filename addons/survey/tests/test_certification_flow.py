@@ -108,8 +108,11 @@ class TestCertificationFlow(common.SurveyCase, HttpCase):
         self.authenticate('user_emp', 'user_emp')
 
         # Employee opens start page
+        print('ok1')
         response = self._access_start(certification)
+        print('ok2')
         self.assertResponse(response, 200, [certification.title, 'Time limit for this survey', '10 minutes'])
+        print('ok3')
 
         # -> this should have generated a new user_input with a token
         user_inputs = self.env['survey.user_input'].search([('survey_id', '=', certification.id)])
