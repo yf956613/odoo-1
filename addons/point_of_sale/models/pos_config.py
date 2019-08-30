@@ -3,9 +3,11 @@
 
 from datetime import datetime
 from uuid import uuid4
+from lxml import etree
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
+from odoo.tools.safe_eval import safe_eval
 
 
 class AccountBankStmtCashWizard(models.Model):
@@ -448,6 +450,23 @@ class PosConfig(models.Model):
             pos_config.sequence_id.unlink()
             pos_config.sequence_line_id.unlink()
         return super(PosConfig, self).unlink()
+
+    @api.model
+    def _fields_view_get(self, view_id, view_type, toolbar, submenu):
+        """Make the fields readonly if there is an open session linked to this pos.config."""
+        ret_val = super(PosConfig, self)._fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type != 'form':
+            return ret_val
+
+        doc = etree.XML(ret_val['arch'])
+        for field in list(self.fields_get()):
+            for node in doc.xpath("//field[@name='%s']" % field):
+                attrs = safe_eval(node.get("attrs") or "{}")
+                attrs['readonly'] = [('current_session_id', '!=', False)]
+                node.set("attrs", str(attrs))
+
+        ret_val['arch'] = etree.tostring(doc, encoding='unicode')
+        return ret_val
 
     def _set_fiscal_position(self):
         for config in self:
