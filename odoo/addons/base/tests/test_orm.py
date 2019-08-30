@@ -3,7 +3,7 @@
 
 from collections import defaultdict
 
-from odoo.exceptions import AccessError, MissingError
+from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
 
@@ -34,10 +34,6 @@ class TestORM(TransactionCase):
 
         # Deleting an already deleted record should be simply ignored
         self.assertTrue(p1.unlink(), "Re-deleting should be a no-op")
-
-        # Updating an already deleted record should raise, even as admin
-        with self.assertRaises(MissingError):
-            p1.write({'name': 'foo'})
 
     @mute_logger('odoo.models')
     def test_access_filtered_records(self):
