@@ -443,8 +443,8 @@ class account_payment(models.Model):
             for move in rec.move_line_ids.mapped('move_id'):
                 if rec.reconciled_invoice_ids:
                     move.line_ids.remove_move_reconcile()
-                move.button_cancel()
-                move.unlink()
+                move.button_draft()
+                move.with_context(force_delete=True).unlink()
             rec.write({
                 'state': 'cancelled',
                 'move_name': False,

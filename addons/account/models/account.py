@@ -628,7 +628,7 @@ class AccountJournal(models.Model):
     default_debit_account_id = fields.Many2one('account.account', string='Default Debit Account',
         domain="[('deprecated', '=', False), ('company_id', '=', company_id)]", help="It acts as a default account for debit amount", ondelete='restrict')
     restrict_mode_hash_table = fields.Boolean(string="Strict Mode By Hash Table",
-        help="Check this box if you want to restrict modification on entries related to this journal or on invoice related to this journal", default=False)
+        help="Check this box if you want to restrict modification on entries related to this journal or on invoices related to this journal", default=False)
     sequence_id = fields.Many2one('ir.sequence', string='Entry Sequence',
         help="This field contains the information related to the numbering of the journal entries of this journal.", required=True, copy=False)
     refund_sequence_id = fields.Many2one('ir.sequence', string='Credit Note Entry Sequence',
@@ -769,11 +769,6 @@ class AccountJournal(models.Model):
     @api.onchange('type')
     def _onchange_type(self):
         self.refund_sequence = self.type in ('sale', 'purchase')
-
-    @api.onchange('restrict_mode_hash_table')
-    def onchange_restrict_mode_hash_table(self):
-        if self.restrict_mode_hash_table and not self.company_id.secure_sequence_id:
-            self.company_id._create_secure_sequence(['secure_sequence_id'])
 
     def _get_alias_values(self, type, alias_name=None):
         if not alias_name:

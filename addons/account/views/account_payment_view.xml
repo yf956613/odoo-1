@@ -127,7 +127,8 @@
                     <header>
                         <button name="post" class="oe_highlight" states="draft" string="Confirm" type="object"/>
                         <button name="action_draft" class="oe_highlight" states="cancelled" string="Set To Draft" type="object"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,posted,reconciled"/>
+                        <button name="cancel" attrs="{'invisible': [('state', '=', 'cancelled')]}" string="Cancel" type="object"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,posted,reconciled,cancelled"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">

@@ -13,6 +13,11 @@ class ResCompany(models.Model):
     siret = fields.Char(related='partner_id.siret', string='SIRET', size=14, readonly=False)
     ape = fields.Char(string='APE')
 
+    @api.model
+    def _get_unalterable_country(self):
+        res = super(ResCompany, self)._get_unalterable_country()
+        return res + ['FR', 'MF', 'MQ', 'NC', 'PF', 'RE', 'GF', 'GP', 'TF']
+
     def _is_vat_french(self):
         return self.vat and self.vat.startswith('FR') and len(self.vat) == 13
 

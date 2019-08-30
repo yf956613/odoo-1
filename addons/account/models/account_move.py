@@ -247,7 +247,6 @@ class AccountMove(models.Model):
         help="Technical field used to display an alert on invoices if there is at least a matching amount in any supsense account.")
     # Technical field to hide Reconciled Entries stat button
     has_reconciled_entries = fields.Boolean(compute="_compute_has_reconciled_entries")
-
     # ==== Hash Fields ====
     restrict_mode_hash_table = fields.Boolean(related='journal_id.restrict_mode_hash_table')
     secure_sequence_number = fields.Integer(string="Inalteralbility No Gap Sequence #", readonly=True, copy=False)
@@ -1468,9 +1467,9 @@ class AccountMove(models.Model):
         not_paid_invoices = self.filtered(lambda move: move.is_invoice(include_receipts=True) and move.invoice_payment_state not in ('paid', 'in_payment'))
 
         for move in self:
-            if (move.state == "posted" and set(vals).intersection(INTEGRITY_HASH_MOVE_FIELDS)):
-                raise UserError(_("You cannot modify a journal entry in order for its posted data to be updated or deleted. Unauthorized field: %s.") % ', '.join(INTEGRITY_HASH_MOVE_FIELDS))
-            if (move.inalterable_hash and 'inalterable_hash' in vals) or (move.secure_sequence_number and 'secure_sequence_number' in vals):
+            if (move.restrict_mode_hash_table and move.state == "posted" and set(vals).intersection(INTEGRITY_HASH_MOVE_FIELDS)):
+                raise UserError(_("You cannot edit the following fields due to restrict mode being activated on the journal: %s.") % ', '.join(INTEGRITY_HASH_MOVE_FIELDS))
+            if (move.restrict_mode_hash_table and move.inalterable_hash and 'inalterable_hash' in vals) or (move.secure_sequence_number and 'secure_sequence_number' in vals):
                 raise UserError(_('You cannot overwrite the values ensuring the inalterability of the accounting.'))
 
         if self._move_autocomplete_invoice_lines_write(vals):
@@ -1498,6 +1497,9 @@ class AccountMove(models.Model):
 
     def unlink(self):
         for move in self:
+            if move.name != '/':
+                if self._context.get('force_delete') != True:
+                    raise UserError(_("You cannot delete an entry which has been posted once."))
             # check the lock date + check if some entries are reconciled
             move.line_ids._update_check()
             move.line_ids.unlink()
@@ -1965,10 +1967,6 @@ class AccountMove(models.Model):
         return lines.reconcile()
 
     def button_draft(self):
-        self.button_cancel() # Cancel before setting to draft
-        self.write({'state': 'draft'})
-
-    def button_cancel(self):
         if self.company_id._is_accounting_unalterable():
             raise UserError(_('You cannot modify a posted journal entry. This ensures its inalterability.'))
 
@@ -1979,18 +1977,23 @@ class AccountMove(models.Model):
             excluded_move_ids = AccountMoveLine.search(AccountMoveLine._get_suspense_moves_domain() + [('move_id', 'in', self.ids)]).mapped('move_id').ids
 
         for move in self:
-            if move.state == 'posted' and move.restrict_mode_hash_table and move.id not in excluded_move_ids:
+            if move.restrict_mode_hash_table and move.state == 'posted' and move.id not in excluded_move_ids:
                 raise UserError(_('You cannot modify a posted entry of this journal.\nYou must disable strict mode by hash table on the journal in order to do that.'))
             # We remove all the analytics entries for this journal
             move.mapped('line_ids.analytic_line_ids').unlink()
+
+        self.check_access_rights('write')
+        self.check_access_rule('write')
+        self._check_fiscalyear_lock_date()
+        
+        self.mapped('line_ids').remove_move_reconcile()
+
+        self.write({'state': 'draft'})
+
+    def button_cancel(self):
         if self.ids:
-            self.check_access_rights('write')
-            self.check_access_rule('write')
-            self._check_fiscalyear_lock_date()
             self._cr.execute('UPDATE account_move SET state=%s WHERE id IN %s', ('cancel', tuple(self.ids)))
             self.invalidate_cache()
-        self._check_fiscalyear_lock_date()
-        self.mapped('line_ids').remove_move_reconcile()
         return True
 
     def action_invoice_sent(self):
@@ -2082,7 +2085,7 @@ class AccountMove(models.Model):
                             order="secure_sequence_number ASC")
 
         if not moves:
-            raise UserError(_('There isn\'t any journal entry flagged for data inalterability yet for the company %s. This mechanism only runs for journal entries generated after the installation of the module France - Certification CGI 286 I-3 bis.') % self.env.company.name)
+            raise UserError(_('There isn\'t any journal entry flagged for data inalterability yet for the company %s.') % self.env.company.name)
         previous_hash = u''
         start_move_info = []
         for move in moves:
@@ -3036,6 +3039,8 @@ class AccountMoveLine(models.Model):
             self._update_check()
         # when making a reconciliation on an existing liquidity journal item, mark the payment as reconciled
         for record in self:
+            if record.parent_state == 'posted' and any(key in vals for key in ('tax_ids', 'tax_line_ids')):
+                raise UserError(_('You cannot modify the taxes related to a posted journal item.'))
             if 'statement_line_id' in vals and record.payment_id:
                 # In case of an internal transfer, there are 2 liquidity move lines to match with a bank statement
                 if all(line.statement_id for line in record.payment_id.move_line_ids.filtered(

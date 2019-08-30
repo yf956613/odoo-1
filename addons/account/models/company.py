@@ -599,7 +599,7 @@ class ResCompany(models.Model):
 
     @api.model
     def _get_unalterable_country(self):
-        return ['FR', 'MF', 'MQ', 'NC', 'PF', 'RE', 'GF', 'GP', 'TF']
+        return []
 
     def _is_accounting_unalterable(self):
         if not self.vat and not self.country_id:
