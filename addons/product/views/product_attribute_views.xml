@@ -24,22 +24,23 @@
                     <field name="name" nolabel="1"/>
                     <field name="create_variant" widget="radio" attrs="{'readonly': [('is_used_on_products', '=', True)]}"/>
                 </group>
-                <group name="values_ids">
-                    <label for="value_ids" string="Attribute Values"/>
-                    <field name="value_ids" widget="one2many" nolabel="1">
-                        <tree string="Values" editable="bottom">
-                            <field name="sequence" widget="handle"/>
-                            <field name="name"/>
-                        </tree>
-                    </field>
-                </group>
-                <group name="product_tmpl_ids" attrs="{'invisible': [('is_used_on_products', '=', False)]}">
-                    <field name="product_tmpl_ids">
-                        <tree>
-                            <field name="name"/>
-                        </tree>
-                    </field>
-                </group>
+                <notebook>
+                    <page string="Attribute Values">
+                        <field name="value_ids" widget="one2many" nolabel="1">
+                            <tree string="Values" editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page string="Related products" attrs="{'invisible': [('is_used_on_products', '=', False)]}">
+                        <field name="product_tmpl_ids">
+                            <tree>
+                                <field name="name"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
             </sheet>
             </form>
         </field>
@@ -123,7 +124,7 @@
                         <field name="exclude_for" widget="one2many" mode="tree">
                             <tree editable="bottom">
                                 <field name="product_tmpl_id" />
-                                <field name="value_ids" widget="many2many_tags" options="{'no_create': true}" />
+                                <field name="value_ids" widget="many2many_tags" options="{'no_create': True}" />
                             </tree>
                         </field>
                     </group>
