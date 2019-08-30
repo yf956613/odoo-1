@@ -82,8 +82,6 @@ class AccountLuFaia(models.TransientModel):
         if not company.company_registry:
             raise UserError(_('Define `Company Registry` for %s company.' % (company.name,)))
         company_contacts = company.partner_id.child_ids.filtered(lambda partner: partner.type == 'contact')
-        if not company_contacts:
-            raise UserError(_('Define atleast one `Contact` for %s company.' % (company.name,)))
         addresses = company.partner_id.child_ids.filtered(lambda partner: partner.type != 'contact')
         company_addresses = self._prepare_address_structure(addresses or company.partner_id)
 
@@ -92,7 +90,7 @@ class AccountLuFaia(models.TransientModel):
             'company_registry': company.company_registry,
             'name': company.name,
             'addresses': company_addresses,
-            'contacts': self._prepare_contact_information_structure(company_contacts),
+            'contacts': self._prepare_contact_information_structure(company_contacts or company.partner_id),
             'vat': company.vat,
             'bank_accounts': self._prepare_bank_account_structure(company.bank_ids),
         }
