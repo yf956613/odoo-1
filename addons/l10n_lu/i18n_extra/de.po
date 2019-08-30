@@ -2409,7 +2409,7 @@ msgstr "II.F. Vom Erwerber als Steuerschuldner zu erklärende Lieferungen - base
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_tax
 msgid "II.F. Supply of goods for which the purchaser is liable for the payment of "
 "VAT - tax"
-msgstr ""
+msgstr "II.F. Vom Erwerber als Steuerschuldner zu erklärende Lieferungen - MwSt."
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_base_8
@@ -2421,7 +2421,7 @@ msgstr ""
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_tax_8
 #: model:account.tax.report.line,tag_name:l10n_lu.account_tax_report_line_2f_supply_goods_tax_8
 msgid "II.F. tax 8%"
-msgstr ""
+msgstr "II.F. MwSt. 8%"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2g_special_arrangement

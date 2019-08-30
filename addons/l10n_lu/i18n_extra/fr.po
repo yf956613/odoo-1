@@ -1977,7 +1977,7 @@ msgstr "II.A. Ventilation du chiffre d'affaires imposable – base"
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2a_breakdown_taxable_turnover_tax
 msgid "II.A. Breakdown of taxable turnover – tax"
-msgstr ""
+msgstr "II.A. Ventilation du chiffre d'affaires imposable - taxe"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2a_base_0
@@ -2401,7 +2401,7 @@ msgstr "II.F. Livraisons de biens à déclarer par l'acquéreur redevable de la 
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_tax
 msgid "II.F. Supply of goods for which the purchaser is liable for the payment of "
 "VAT - tax"
-msgstr ""
+msgstr "II.F. Livraisons de biens à déclarer par l'acquéreur redevable de la taxe - taxe"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_base_8
@@ -2413,7 +2413,7 @@ msgstr ""
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2f_supply_goods_tax_8
 #: model:account.tax.report.line,tag_name:l10n_lu.account_tax_report_line_2f_supply_goods_tax_8
 msgid "II.F. tax 8%"
-msgstr ""
+msgstr "II.F. taxe 8%"
 
 #. module: l10n_lu
 #: model:account.tax.report.line,name:l10n_lu.account_tax_report_line_2g_special_arrangement
