@@ -10,7 +10,7 @@
                 <div name="button_box" position="inside">
                     <button string="Putaway Rules"
                         class="oe_stat_button"
-                        icon="fa-rebelndom" name="%(category_open_putaway)d" type="action"
+                        icon="fas fa-random" name="%(category_open_putaway)d" type="action"
                         groups="stock.group_stock_multi_locations"/>
                 </div>
                 <group name="first" position="after">
