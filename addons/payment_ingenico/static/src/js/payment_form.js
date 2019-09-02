@@ -45,8 +45,7 @@ odoo.define('payment_ogone.payment_form', function (require) {
             delete processData['csrf_token'];
             delete processData['cc_number'];
 
-
-            debugger;
+//            debugger;
 //            problem= need to serialize the form...
 //            var ProcessingForm = this.getFormData($.find('.o_payment_form'))
 

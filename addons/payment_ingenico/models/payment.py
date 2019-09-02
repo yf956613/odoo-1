@@ -245,6 +245,110 @@ class PaymentAcquirerOgone(models.Model):
         pm_id = self.env['payment.token'].sudo().create(values)
         return pm_id
 
+    def ogone_alias_feedback(self, *args, **post ):
+        """
+        Handle the parameters provided by the Alias gateway after the Alias creation
+        :param args:
+        :type args:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
+        # If you have configured an SHA-OUT passphrase for these feedback requests,
+        # you need to take the ALIAS parameter into account for your signature.
+        print(post)
+        print("===== STEP ALIAS =====")
+        # TODO: url parameters to dict
+        # post parameters are available to the server. We need an rpc call to give them to javascript that will send the direct link form
+        # We have created the token. We can now make the payment and create the transaction.
+        # Here we can try to perform the request to perform the direct link transaction
+        url = "https://ogone.test.v-psp.com/ncol/test/orderdirect.asp"
+        payload = {}
+        ret = ""
+        for key, value in post.items():
+            ret += key + ":" + value + "</br>"
+        # return ret
+        for key in ['FLAG3D', 'WIN3DS', 'browserColorDepth', 'browserJavaEnabled', 'browserLanguage',
+                    'browserScreenHeight', 'browserScreenWidth', 'browserTimeZone', 'browserAcceptHeader',
+                    'browserUserAgent', 'Alias', ]:
+            # TODO : not robust because sensible to case
+            try:
+                payload[key] = post[key]
+            except KeyError as e:
+                _logger.error(str(e))
+                pass
+        acquirer = request.env['payment.acquirer'].search([('provider', '=', 'ogone')])
+        # DATA VALIDATION
+        data_clean = {}
+        for key, value in post.items():
+            data_clean[key.upper()] = value
+        # TODO do something if the sha is bad. NOTE: IT IS RECHECKED in add_payment_transaction
+        shasign = acquirer._ogone_generate_shasign('out', data_clean)
+        print(data_clean['SHASIGN'])
+        print(shasign.upper())
+        if data_clean['SHASIGN'] != shasign.upper():
+            ret = "<h1>ERROR BAD SHA</h1>" + ret
+            return ret
+        ret += "<strong>OK SHA</strong>"
+        # PREPARE TRANSACTION
+        # TEST
+        url_feedback = "http://arj-odoo.agayon.be/payment/ogone/feedback/"
+        payload['USERID'] = acquirer.ogone_userid
+        payload['PSWD'] = acquirer.ogone_password
+        payload['PSPID'] = acquirer.ogone_pspid
+        payload['ACCEPTURL'] = url_feedback
+        payload['DECLINEURL'] = url_feedback
+        payload['EXCEPTIONURL'] = url_feedback
+        payload['browserAcceptHeader'] = request.httprequest.headers.environ['HTTP_ACCEPT']
+        payload['PARAMPLUS'] = urls.url_encode(
+            {'return_url': data_clean['RETURN_URL'], 'partner_id': post.get('partner_id')})
+        # payload['HTTP_ACCEPT'] =  '*/*'
+        # payload['COMPLUS'] = None
+        payload['LANGUAGE'] = 'en_US'
+
+        # *HTTP_ACCEPT and HTTP_USER_AGENT
+        # don't have to be sent with browserAcceptHeader and browserUserAgent, otherwise we will fill it with the browser parameters.
+        payload = {k.upper(): v for k, v in payload.items()}
+        # ONLY TESTS
+        # payload['SHASIGN'] = acquirer._ogone_generate_shasign('in', payload)
+        print(payload)
+        if post.get('partner_id'):
+            cvc_masked = 'XXX'
+            card_number_masked = post['CardNo']
+
+            # Could be done in _ogone_form_get_tx_from_data ?
+            token_parameters = {
+                'cc_number': card_number_masked,
+                'cc_cvc': cvc_masked,
+                'cc_holder_name': data_clean.get('CN'),
+                'cc_expiry': data_clean.get('ED'),
+                'cc_brand': data_clean.get('BRAND'),
+                'acquirer_id': acquirer.id,
+                'partner_id': int(post.get('partner_id')),
+                'alias_gateway': True,
+                'alias': data_clean.get('ALIAS'),
+                'acquirer_ref': data_clean.get('ALIAS'),
+                'ogone_params': dumps(payload, ensure_ascii=True, indent=None)
+            }
+            try:
+                token = request.env['payment.token'].create(token_parameters, )
+                print(token)
+            except Exception as e:
+                _logger.error(e)
+                _logger.error("no token created")
+                pass
+            return_url = unquote(data_clean['RETURN_URL'])
+            print(return_url)
+            """
+            TODO: 
+            - ajouter JS associé à cette page
+            + récupérer le form et form action depuis le paramplus
+            + soumettre ça par JS avec tous les attributs hidden
+                    avec les paramatres propres au browser etc auquel on a accès via param+ ?
+
+            """
+
 
 class PaymentTxOgone(models.Model):
     _inherit = 'payment.transaction'
@@ -650,3 +754,5 @@ class PaymentToken(models.Model):
         #     data['partner_id'] =  1 #self.env['res_partner'].browse()
         data['SHASIGN'] = shasign
         return data
+
+
