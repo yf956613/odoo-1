@@ -668,7 +668,7 @@
                     </span>
                 </div>
                 <t t-if="channel.is_member and channel_progress[slide.id].get('completed')">
-                    <span class="badge badge-pill badge-success"><i class="fa fa-check"/> Completed</span>
+                    <span class="badge badge-pill badge-success"><i class="fas fa-check"/> Completed</span>
                 </t>
             </div>
         </div>

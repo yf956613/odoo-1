@@ -726,7 +726,7 @@
                         </t>
                         <t t-if='widget.pos.config.tip_product_id'>
                             <div class='button js_tip'>
-                                <i class='far fa-heart' /> Tip
+                                <i class='fas fa-heart' /> Tip
                             </div>
                         </t>
                         <t t-if='widget.pos.config.iface_cashdrawer'>

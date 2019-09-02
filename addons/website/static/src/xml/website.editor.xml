@@ -75,7 +75,7 @@
         <div class="o_theme_customize_input"
             t-att-data-variable="variable"
             t-att-data-unit="unit">
-            <i class="fa fa-edit"/>
+            <i class="fas fa-edit"/>
             <span/>
         </div>
     </t>

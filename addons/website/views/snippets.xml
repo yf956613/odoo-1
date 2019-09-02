@@ -1012,9 +1012,9 @@
         <div class="dropdown-submenu">
             <a tabindex="-1" href="#" class="dropdown-item">Icon</a>
             <div class="dropdown-menu" role="menu">
-                <a href="#" class="dropdown-item" data-select-class="s_rating_stars"><i class="fa fa-star"/>Stars</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_stars"><i class="fas fa-star"/>Stars</a>
                 <a href="#" class="dropdown-item" data-select-class="s_rating_squares"><i class="far fa-square"/>Squares</a>
-                <a href="#" class="dropdown-item" data-select-class="s_rating_hearts"><i class="far fa-heart"/>Hearts</a>
+                <a href="#" class="dropdown-item" data-select-class="s_rating_hearts"><i class="fas fa-heart"/>Hearts</a>
                 <a href="#" class="dropdown-item" data-select-class="s_rating_bar"><i class="fa fa-tasks"/>Progress Bar</a>
             </div>
         </div>

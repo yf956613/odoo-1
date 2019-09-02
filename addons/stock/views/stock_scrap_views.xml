@@ -92,7 +92,7 @@
                                         <span t-esc="record.name.value"/>
                                     </strong>
                                     <strong t-if="record.date_done.value" class="col-6 text-right">
-                                        <i class="fa fa-clock" role="img" aria-label="Date" title="Date"/><span t-esc="record.date_done.value"/>
+                                        <i class="far fa-clock" role="img" aria-label="Date" title="Date"/><span t-esc="record.date_done.value"/>
                                     </strong>
                                     <div class="col-12">
                                         <span t-esc="record.product_id.value"/>
