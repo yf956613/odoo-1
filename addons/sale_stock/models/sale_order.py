@@ -31,7 +31,7 @@ class SaleOrder(models.Model):
     warehouse_id = fields.Many2one(
         'stock.warehouse', string='Warehouse',
         required=True, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
-        default=_default_warehouse_id, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+        default=_default_warehouse_id, check_company=True)
     picking_ids = fields.One2many('stock.picking', 'sale_id', string='Transfers')
     delivery_count = fields.Integer(string='Delivery Orders', compute='_compute_picking_ids')
     procurement_group_id = fields.Many2one('procurement.group', 'Procurement Group', copy=False)
@@ -195,7 +195,7 @@ class SaleOrderLine(models.Model):
 
     qty_delivered_method = fields.Selection(selection_add=[('stock_move', 'Stock Moves')])
     product_packaging = fields.Many2one( 'product.packaging', string='Package', default=False, check_company=True)
-    route_id = fields.Many2one('stock.location.route', string='Route', domain=[('sale_selectable', '=', True)], ondelete='restrict')
+    route_id = fields.Many2one('stock.location.route', string='Route', domain=[('sale_selectable', '=', True)], ondelete='restrict', check_company=True)
     move_ids = fields.One2many('stock.move', 'sale_line_id', string='Stock Moves')
     product_type = fields.Selection(related='product_id.type')
     virtual_available_at_date = fields.Float(compute='_compute_qty_at_date')
