@@ -97,6 +97,7 @@ class WebsiteSlides(WebsiteProfile):
         values = {
             # slide
             'slide': slide,
+            'main_object': slide,
             'most_viewed_slides': most_viewed_slides,
             'related_slides': related_slides,
             'previous_slide': previous_slide,
@@ -398,6 +399,7 @@ class WebsiteSlides(WebsiteProfile):
 
         values = {
             'channel': channel,
+            'main_object': channel,
             'active_tab': kw.get('active_tab', 'home'),
             # search
             'search_category': category,

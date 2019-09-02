@@ -28,7 +28,6 @@ class WebsiteEventController(http.Controller):
         searches.setdefault('type', 'all')
         searches.setdefault('country', 'all')
 
-
         def sdn(date):
             return fields.Datetime.to_string(date.replace(hour=23, minute=59, second=59))
 

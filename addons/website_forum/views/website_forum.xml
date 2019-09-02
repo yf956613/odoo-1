@@ -50,7 +50,7 @@
 <!-- Page Index -->
 <template id="header" name="Forum Index">
     <t t-if="forum.active" t-call="website_forum.layout">
-        <div t-if="is_public_user and not forum_welcome_message" class="forum_intro">
+        <div t-if="editable or (is_public_user and not forum_welcome_message)" t-att-class="'css_non_editable_mode_hidden' if editable else 'forum_intro'">
             <div t-field="forum.welcome_message"/>
         </div>
 
@@ -185,25 +185,9 @@
                     </ul>
                     <form class="form-inline" role="search" t-attf-action="/forum/#{ slug(forum) }" method="get">
                         <t t-call="website.website_search_box"/>
-                        <div class="dropdown ml-1" groups="base.group_erp_manager">
-                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-                                <i class="fa fa-cog" role="img" aria-label="Dropdown menu" title="Dropdown menu"/>
-                            </button>
-                            <div class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                                <a role="menuitem" tabindex="-1" t-attf-href="/forum/#{slug(forum)}/edit_welcome_message?enable_editor=1" class="dropdown-item">Design Welcome Message</a>
-                                <a role="menuitem" tabindex="-1" t-attf-href="/web#id=#{forum.id}&amp;view_type=form&amp;model=forum.forum" class="dropdown-item">Forum Settings</a>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>
-</template>
-
-<!-- Template use to edit the welcome_message -->
-<template id="edit_welcome_message">
-    <t t-call="website.layout">
-        <div t-field="forum.welcome_message"/>
-    </t>
 </template>
 
 <!-- Display a post -->
