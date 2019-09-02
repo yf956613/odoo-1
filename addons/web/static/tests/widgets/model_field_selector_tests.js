@@ -167,6 +167,52 @@ QUnit.module('ModelFieldSelector', {
             }).join(" -> ");
         }
     });
+
+    QUnit.test("passing default field-chain and checking field-page", function (assert) {
+        assert.expect(5);
+
+        var $target = $("#qunit-fixture");
+
+        // Create the field selector and its mock environment
+        // passing 'product_id' as a prefilled field-chain
+        var fieldSelector = new ModelFieldSelector(null, "partner", ['product_id'], {
+            readonly: false,
+            debugMode: true,
+        });
+        testUtils.addMockEnvironment(fieldSelector, {data: this.data});
+        fieldSelector.appendTo($target);
+        var $value = fieldSelector.$("> .o_field_selector_value");
+
+        // Focusing the field selector input should open a field selector popover
+        fieldSelector.$el.trigger('focusin');
+        var $fieldSelectorPopover = fieldSelector.$(".o_field_selector_popover:visible");
+        assert.strictEqual($fieldSelectorPopover.length, 1,
+            "field selector popover should be visible");
+
+        // The field selector popover should contain the list of "product"
+        // fields. "Product Name" should be among them.
+        var $lis = $fieldSelectorPopover.find("li");
+        assert.strictEqual($lis.length, 1,
+            "there should be only one field proposition for 'product' model");
+        assert.ok($lis.first().html().indexOf("Product Name") >= 0,
+            "the name of the only suggestion should be 'Product Name'");
+
+        // Clicking on "Product Name" should close the popover and set the chain
+        // to "product_id.name"
+        $lis.first().click();
+        assert.notOk($fieldSelectorPopover.is("visible"),
+            "field selector popover should be closed now");
+        assert.strictEqual(getValueFromDOM($value), "Product -> Product Name",
+            "field selector value should be displayed with two tags: 'Product' and 'Product Name'");
+
+        fieldSelector.destroy();
+
+        function getValueFromDOM($dom) {
+            return _.map($dom.find(".o_field_selector_chain_part"), function (part) {
+                return $(part).text().trim();
+            }).join(" -> ");
+        }
+    });
 });
 });
 });
