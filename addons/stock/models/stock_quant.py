@@ -635,7 +635,7 @@ class QuantPackage(models.Model):
     quant_ids = fields.One2many('stock.quant', 'package_id', 'Bulk Content', readonly=True,
         domain=['|', ('quantity', '!=', 0), ('reserved_quantity', '!=', 0)])
     packaging_id = fields.Many2one(
-        'product.packaging', 'Package Type', index=True)
+        'product.packaging', 'Package Type', index=True, check_company=True)
     location_id = fields.Many2one(
         'stock.location', 'Location', compute='_compute_package_info',
         index=True, readonly=True, store=True)
