@@ -331,9 +331,9 @@ class View(models.Model):
                 qcontext['main_object'] = self
 
             cur = Website.get_current_website()
-            qcontext['multi_website_websites_current'] = {'website_id': cur.id, 'name': cur.name, 'domain': cur.domain}
+            qcontext['multi_website_websites_current'] = {'website_id': cur.id, 'name': cur.name, 'domain': cur._get_http_domain()}
             qcontext['multi_website_websites'] = [
-                {'website_id': website.id, 'name': website.name, 'domain': website.domain}
+                {'website_id': website.id, 'name': website.name, 'domain': website._get_http_domain()}
                 for website in Website.search([]) if website != cur
             ]
 
