@@ -27,6 +27,7 @@ class TestSale(AccountingTestCase):
             'notification_type': 'email',
             'groups_id': [(6, 0, [group_user.id])]
         })
+
         # create quotation with differend kinds of products (all possible combinations)
         service_delivery = self.env['product.product'].create({
             'name': 'Cost-plus Contract',
