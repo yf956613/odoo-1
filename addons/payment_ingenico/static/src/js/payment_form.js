@@ -62,7 +62,7 @@ odoo.define('payment_ogone.payment_form', function (require) {
             param_plus['WIN3DS'] = 'POPUP',
             param_plus['return_url'] = formData['return_url'];
             param_plus['form_values'] = processData;
-            param_plus['form_action_url'] = this.el["action"];
+            param_plus[' '] = this.el["action"];
             kwargs['paramplus'] = param_plus;
 
             self._rpc({

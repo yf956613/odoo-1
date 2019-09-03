@@ -130,4 +130,5 @@ class OgoneController(http.Controller):
 
         """ Ogone contacts using GET, at least for accept """
         _logger.info('Ogone: feeback Alias gateway with post data %s', pprint.pformat(post))  # debug)
-        return request.render("payment_ingenico.payment_feedback_page",)
+
+        return request.render("payment_ingenico.payment_feedback_page", {'token_id': 2, 'json-route': '/plop'})

@@ -247,7 +247,7 @@ class PaymentAcquirerOgone(models.Model):
         return pm_id
 
     # @api.model
-    def ogone_alias_feedback(self, *args, **post):
+    def ogone_alias_feedback(self, *args, **kwargs):
         """
         Handle the parameters provided by the Alias gateway after the Alias creation
         :param post:
@@ -258,15 +258,19 @@ class PaymentAcquirerOgone(models.Model):
         self.ensure_one()
         # If you have configured an SHA-OUT passphrase for these feedback requests,
         # you need to take the ALIAS parameter into account for your signature.
+        post_parameters = kwargs.get('parameters', False).replace('?', '')
+        post_parameters = urlparse.parse_qsl(post_parameters)
+        post = {}
+        for param in post_parameters:
+            post[param[0]] = param[1]
         print(post)
         print("===== STEP ALIAS =====")
         # TODO: url parameters to dict
         # post parameters are available to the server. We need an rpc call to give them to javascript that will send the direct link form
         # We have created the token. We can now make the payment and create the transaction.
         # Here we can try to perform the request to perform the direct link transaction
-        url = "https://ogone.test.v-psp.com/ncol/test/orderdirect.asp"
         payload = {}
-        post = post.get('parameters', False)
+        # TODO HERE
         for key in ['FLAG3D', 'WIN3DS', 'browserColorDepth', 'browserJavaEnabled', 'browserLanguage',
                     'browserScreenHeight', 'browserScreenWidth', 'browserTimeZone', 'browserAcceptHeader',
                     'browserUserAgent', 'Alias', ]:
@@ -285,29 +289,44 @@ class PaymentAcquirerOgone(models.Model):
         print(data_clean['SHASIGN'])
         print(shasign.upper())
         if data_clean['SHASIGN'] != shasign.upper():
-            ret = {'ERROR': 'Cannot verify the signature'}
-            return ret
+            msg = {'ERROR': 'Cannot verify the signature'}
+            _logger.error(msg)
+            # return ret
         # PREPARE TRANSACTION
         # TEST
-        url_feedback = "http://arj-odoo.agayon.be/payment/ogone/feedback/"
+        # unquote the form
+        for f in ['BROWSERUSERAGENT', 'FORM_ACTION_URL', 'FORM_VALUES', 'RETURN_URL']:
+            data_clean[f] = urlparse.unquote(data_clean[f])
+        url_feedback = "http://arj-odoo.agayon.be/shop/payment/validate"
+        data_odoo = data_clean['FORM_VALUES'].split(',')
+        data_odoo_form = {}
+        for val in data_odoo:
+            val = val.replace('\\', '').replace('+', '').replace('{', '').replace('}', '').replace("\'", '')
+            key, value = val.split(':')
+            data_odoo_form[key] = value
+        paramplus = {'return_url': data_clean['RETURN_URL'],
+                     'partner_id': post.get('partner_id'),
+                     'pm_id': data_odoo_form['pm_id'],
+                     'prepare_tx_url': data_odoo_form['prepare_tx_url']}
+        paramplus = url_encode(paramplus)
+
         payload['USERID'] = acquirer.ogone_userid
         payload['PSWD'] = acquirer.ogone_password
         payload['PSPID'] = acquirer.ogone_pspid
-        payload['ACCEPTURL'] = url_feedback
-        payload['DECLINEURL'] = url_feedback
-        payload['EXCEPTIONURL'] = url_feedback
+        payload['ACCEPTURL'] = url_feedback,
+        payload['DECLINEURL'] = url_feedback,
+        payload['EXCEPTIONURL'] = url_feedback,
+        payload['ORDERID'] = 'TEST_JS',
+        payload['AMOUNT'] = 7800,
+        payload['CURRENCY'] = 'EUR',
         payload['browserAcceptHeader'] = request.httprequest.headers.environ['HTTP_ACCEPT']
-        payload['PARAMPLUS'] = urls.url_encode(
-            {'return_url': data_clean['RETURN_URL'], 'partner_id': post.get('partner_id')})
-        # payload['HTTP_ACCEPT'] =  '*/*'
-        # payload['COMPLUS'] = None
+        payload['PARAMPLUS'] = paramplus
         payload['LANGUAGE'] = 'en_US'
-
         # *HTTP_ACCEPT and HTTP_USER_AGENT
         # don't have to be sent with browserAcceptHeader and browserUserAgent, otherwise we will fill it with the browser parameters.
         payload = {k.upper(): v for k, v in payload.items()}
-        # ONLY TESTS
-        # payload['SHASIGN'] = acquirer._ogone_generate_shasign('in', payload)
+        payload['SHASIGN'] = acquirer._ogone_generate_shasign('in', payload)
+
         if post.get('partner_id'):
             cvc_masked = 'XXX'
             card_number_masked = post['CardNo']
@@ -333,9 +352,22 @@ class PaymentAcquirerOgone(models.Model):
                 _logger.error(e)
                 _logger.error("no token created")
                 pass
-            return_url = urlparse.unquote(data_clean['RETURN_URL'])
-
-            return payload
+            # Prepare result
+            action_url = "https://ogone.test.v-psp.com/ncol/test/orderdirect.asp"
+            result = {'payload': payload, 'action_url': action_url}
+            # -----------------------------
+            import requests
+            r = requests.get(action_url, params=payload)
+            print("python request: ", r.text)
+            # https://stackoverflow.com/questions/20475552/python-requests-library-redirect-new-url
+            # request can trace history and be redirected.
+            for resp in r.history:
+                print(resp.status_code, resp.url)
+            # -----------------------------
+            # Attention ici pas bon.
+            # Il faut faire le formulaire qui renvoie chez Odoo sur la page qui fait la transaction
+            # C'est odoo python qui se rend sur le 3DS'
+            return result
 
 
 class PaymentTxOgone(models.Model):
