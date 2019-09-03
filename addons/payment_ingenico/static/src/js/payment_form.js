@@ -50,6 +50,7 @@ odoo.define('payment_ogone.payment_form', function (require) {
 //            var ProcessingForm = this.getFormData($.find('.o_payment_form'))
 
             var param_plus = {};
+            param_plus['acquirerId'] = acquirerID ;
             param_plus['browserColorDepth'] = screen.colorDepth;
             param_plus['browserJavaEnabled'] =  navigator.javaEnabled() ;
             param_plus['browserLanguage'] = navigator.language;

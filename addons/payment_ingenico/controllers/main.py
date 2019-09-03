@@ -2,9 +2,6 @@
 import logging
 import pprint
 import werkzeug
-from werkzeug import urls
-from json import dumps
-from urllib.parse import unquote
 
 from odoo import http
 from odoo.http import request
@@ -133,9 +130,4 @@ class OgoneController(http.Controller):
 
         """ Ogone contacts using GET, at least for accept """
         _logger.info('Ogone: feeback Alias gateway with post data %s', pprint.pformat(post))  # debug)
-        # FIXME useful ?
-        # viewarg = {
-        #     'feedback': self,
-        #     # 'testing': self._testing,  # You need to add this line
-        # }
         return request.render("payment_ingenico.payment_feedback_page",)

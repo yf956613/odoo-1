@@ -7,6 +7,7 @@ from hashlib import sha1
 from pprint import pformat
 from unicodedata import normalize
 import urllib.parse as urlparse
+from json import dumps
 import json
 
 import requests
@@ -245,16 +246,16 @@ class PaymentAcquirerOgone(models.Model):
         pm_id = self.env['payment.token'].sudo().create(values)
         return pm_id
 
-    def ogone_alias_feedback(self, *args, **post ):
+    # @api.model
+    def ogone_alias_feedback(self, *args, **post):
         """
         Handle the parameters provided by the Alias gateway after the Alias creation
-        :param args:
-        :type args:
-        :param kwargs:
-        :type kwargs:
+        :param post:
+        :type post:
         :return:
         :rtype:
         """
+        self.ensure_one()
         # If you have configured an SHA-OUT passphrase for these feedback requests,
         # you need to take the ALIAS parameter into account for your signature.
         print(post)
@@ -265,20 +266,16 @@ class PaymentAcquirerOgone(models.Model):
         # Here we can try to perform the request to perform the direct link transaction
         url = "https://ogone.test.v-psp.com/ncol/test/orderdirect.asp"
         payload = {}
-        ret = ""
-        for key, value in post.items():
-            ret += key + ":" + value + "</br>"
-        # return ret
+        post = post.get('parameters', False)
         for key in ['FLAG3D', 'WIN3DS', 'browserColorDepth', 'browserJavaEnabled', 'browserLanguage',
                     'browserScreenHeight', 'browserScreenWidth', 'browserTimeZone', 'browserAcceptHeader',
                     'browserUserAgent', 'Alias', ]:
-            # TODO : not robust because sensible to case
             try:
                 payload[key] = post[key]
             except KeyError as e:
                 _logger.error(str(e))
                 pass
-        acquirer = request.env['payment.acquirer'].search([('provider', '=', 'ogone')])
+        acquirer = self
         # DATA VALIDATION
         data_clean = {}
         for key, value in post.items():
@@ -288,9 +285,8 @@ class PaymentAcquirerOgone(models.Model):
         print(data_clean['SHASIGN'])
         print(shasign.upper())
         if data_clean['SHASIGN'] != shasign.upper():
-            ret = "<h1>ERROR BAD SHA</h1>" + ret
+            ret = {'ERROR': 'Cannot verify the signature'}
             return ret
-        ret += "<strong>OK SHA</strong>"
         # PREPARE TRANSACTION
         # TEST
         url_feedback = "http://arj-odoo.agayon.be/payment/ogone/feedback/"
@@ -312,7 +308,6 @@ class PaymentAcquirerOgone(models.Model):
         payload = {k.upper(): v for k, v in payload.items()}
         # ONLY TESTS
         # payload['SHASIGN'] = acquirer._ogone_generate_shasign('in', payload)
-        print(payload)
         if post.get('partner_id'):
             cvc_masked = 'XXX'
             card_number_masked = post['CardNo']
@@ -338,16 +333,9 @@ class PaymentAcquirerOgone(models.Model):
                 _logger.error(e)
                 _logger.error("no token created")
                 pass
-            return_url = unquote(data_clean['RETURN_URL'])
-            print(return_url)
-            """
-            TODO: 
-            - ajouter JS associé à cette page
-            + récupérer le form et form action depuis le paramplus
-            + soumettre ça par JS avec tous les attributs hidden
-                    avec les paramatres propres au browser etc auquel on a accès via param+ ?
+            return_url = urlparse.unquote(data_clean['RETURN_URL'])
 
-            """
+            return payload
 
 
 class PaymentTxOgone(models.Model):
