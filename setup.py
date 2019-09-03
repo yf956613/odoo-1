@@ -51,7 +51,7 @@ setup(
         'reportlab',  # windows binary pypi.python.org/pypi/reportlab
         'requests',
         'zeep',
-        'vatnumber',
+        'python-stdnum',
         'vobject',
         'werkzeug',
         'xlsxwriter',

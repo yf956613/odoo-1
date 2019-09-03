@@ -2,63 +2,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import datetime
-import logging
 import string
 import re
-
-_logger = logging.getLogger(__name__)
-try:
-    import vatnumber
-except ImportError:
-    _logger.warning("VAT validation partially unavailable because the `vatnumber` Python library cannot be found. "
-                    "Install it to support more countries, for example with `easy_install vatnumber`.")
-    vatnumber = None
-
-# Although stdnum is a dependency of vatnumber, the import of the latter is surrounded by a try/except
-# if it is not installed. Therefore, we cannot be sure stdnum is installed in all cases.
-try:
-    import stdnum
-except ImportError:
-    stdnum = None
+import stdnum
 
 from odoo import api, models, _
 from odoo.tools.misc import ustr
 from odoo.exceptions import ValidationError
-from stdnum.at.uid import compact as compact_at
-from stdnum.be.vat import compact as compact_be
-from stdnum.bg.vat import compact as compact_bg
-from stdnum.ch.vat import compact as compact_ch
-from stdnum.cy.vat import compact as compact_cy
-from stdnum.cz.dic import compact as compact_cz
-from stdnum.de.vat import compact as compact_de
-from stdnum.ee.kmkr import compact as compact_ee
-# el not in stdnum
-from stdnum.es.nif import compact as compact_es
-from stdnum.fi.alv import compact as compact_fi
-from stdnum.fr.tva import compact as compact_fr
-from stdnum.gb.vat import compact as compact_gb
-from stdnum.gr.vat import compact as compact_gr
-from stdnum.hu.anum import compact as compact_hu
-from stdnum.hr.oib import compact as compact_hr
-from stdnum.ie.vat import compact as compact_ie
-from stdnum.it.iva import compact as compact_it
-from stdnum.lt.pvm import compact as compact_lt
-from stdnum.lu.tva import compact as compact_lu
-from stdnum.lv.pvn import compact as compact_lv
-from stdnum.mt.vat import compact as compact_mt
-from stdnum.mx.rfc import compact as compact_mx
-from stdnum.nl.btw import compact as compact_nl
-from stdnum.no.mva import compact as compact_no
-# pe is not in stdnum
-from stdnum.pl.nip import compact as compact_pl
-from stdnum.pt.nif import compact as compact_pt
-from stdnum.ro.cf import compact as compact_ro
-from stdnum.se.vat import compact as compact_se
-from stdnum.si.ddv import compact as compact_si
-from stdnum.sk.dph import compact as compact_sk
-from stdnum.ar.cuit import compact as compact_ar
-# tr compact vat is not in stdnum
-
 
 _eu_country_vat = {
     'GR': 'EL'
@@ -67,6 +17,8 @@ _eu_country_vat = {
 _eu_country_vat_inverse = {v: k for k, v in _eu_country_vat.items()}
 
 _ref_vat = {
+    'al': 'AL J 91402501 L',
+    'ar': '200-5536168-2',
     'at': 'ATU12345675',
     'be': 'BE0477472701',
     'bg': 'BG1234567892',
@@ -77,6 +29,8 @@ _ref_vat = {
     'cz': 'CZ12345679',
     'de': 'DE123456788',
     'dk': 'DK12345674',
+    'do': '1-01-85004-3',
+    'ec': '1792060346-001',
     'ee': 'EE123456780',
     'el': 'EL12345670',
     'es': 'ESA12345674',
@@ -91,6 +45,7 @@ _ref_vat = {
     'lt': 'LT123456715',
     'lu': 'LU12345613',
     'lv': 'LV41234567891',
+    'mc': '53 0000 04605',
     'mt': 'MT12345634',
     'mx': 'ABC123456T1B',
     'nl': 'NL123456782B90',
@@ -99,9 +54,12 @@ _ref_vat = {
     'pl': 'PL1234567883',
     'pt': 'PT123456789',
     'ro': 'RO1234567897',
+    'rs': '101134702',
+    'ru': '123456789047',
     'se': 'SE123456789701',
     'si': 'SI12345679',
     'sk': 'SK0012345675',
+    'sm': '024165',
     'tr': 'TR1234567890 (VERGINO) veya TR12345678901 (TCKIMLIKNO)'  # Levent Karakas @ Eska Yazilim A.S.
 }
 
@@ -121,8 +79,8 @@ class ResPartner(models.Model):
         '''
         if not ustr(country_code).encode('utf-8').isalpha():
             return False
-        check_func_name = 'check_vat_' + country_code
-        check_func = getattr(self, check_func_name, None) or getattr(vatnumber, check_func_name, None)
+        check_func_name = 'validate'
+        check_func = getattr(self, check_func_name, None) or getattr(stdnum.util.get_cc_module(country_code, 'vat'), check_func_name, None)
         if not check_func:
             # No VAT validation available, default to check that the country code exists
             if country_code.upper() == 'EU':
@@ -131,14 +89,14 @@ class ResPartner(models.Model):
                 return True
             country_code = _eu_country_vat_inverse.get(country_code, country_code)
             return bool(self.env['res.country'].search([('code', '=ilike', country_code)]))
-        return check_func(vat_number)
+        return check_func(country_code + vat_number)
 
     @api.model
     def vies_vat_check(self, country_code, vat_number):
         try:
             # Validate against  VAT Information Exchange System (VIES)
             # see also http://ec.europa.eu/taxation_customs/vies/
-            return vatnumber.check_vies(country_code.upper() + vat_number)
+            return stdnum.eu.vat.check_vies(country_code.upper() + vat_number)
         except Exception:
             # see http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl
             # Fault code may contain INVALID_INPUT, SERVICE_UNAVAILABLE, MS_UNAVAILABLE,
@@ -408,12 +366,6 @@ class ResPartner(models.Model):
         except ImportError:
             return True
 
-    def check_vat_cl(self, vat):
-        return stdnum.util.get_cc_module('cl', 'vat').is_valid(vat) if stdnum else True
-
-    def check_vat_co(self, vat):
-        return stdnum.util.get_cc_module('co', 'vat').is_valid(vat) if stdnum else True
-
     # Argentinian VAT validation, contributed by ADHOC
     def check_vat_ar(self, vat):
         try:
@@ -427,8 +379,8 @@ class ResPartner(models.Model):
 
     def _fix_vat_number(self, vat):
         vat_country, vat_number = self._split_vat(vat)
-        check_func_name = 'compact_' + vat_country
-        check_func = globals().get(check_func_name) or getattr(self, 'default_compact')
+        check_func_name = 'compact'
+        check_func = stdnum.util.get_cc_module(vat_country, 'vat') and getattr(stdnum.util.get_cc_module(vat_country, 'vat'), check_func_name) or getattr(self, 'default_compact')
         vat_number = check_func(vat_number)
         return vat_country.upper() + vat_number
 
