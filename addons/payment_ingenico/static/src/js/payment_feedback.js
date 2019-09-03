@@ -14,48 +14,26 @@ odoo.define('payment_ingenico.payment_feedback', function (require) {
         },
 
         feedback: function() {
-            var pm_id = this.$el.data('token-id');
-            console.log("OGONE feedback JS LOADED");
+            var action_url = this.$el.data('json-route');
+            var form_data = this.$el.data('form');
+            console.log(form_data)
             var self = this;
-            var feedback_arguments_str = document.location.search;
-//           https://css-tricks.com/snippets/jquery/get-query-params-object/
-            // FIXME BETTER DO IT in python.
-            // FIXME We only need the acquirer id here.
-            var GetParameters = function(str) {
-	                return (str || document.location.search).replace(/(^\?)/,'').split("&").map(function(n){return n = n.split("="),this[n[0]] = n[1],this}.bind({}))[0];
-            }
-            var feedback_arguments = GetParameters();
-            var id =  parseInt(feedback_arguments['acquirerId'],10)
-            var kwargs = {'parameters': feedback_arguments_str};
-            self._rpc({
-                model: 'payment.acquirer',
-                method: 'ogone_alias_feedback',
-                args: [id],
-                context: self.context,
-                kwargs: kwargs,
-            }).then(function (result) {
-                console.log(result);
-                if (result.hasOwnProperty("error")){
-                    console.error('error SHA')
-                }
-                var ogoneForm = document.createElement("form");
-                ogoneForm.method = "POST";
-                ogoneForm.action = result['action_url'];
+            var odooForm = document.createElement("form");
+            odooForm.method = "POST";
+            odooForm.action = action_url;
+            var el = document.createElement("input");
+            el.setAttribute('type', 'submit');
+            el.setAttribute('name', "Submit");
+            odooForm.appendChild(el);
+            _.each(form_data, function (value, key) {
                 var el = document.createElement("input");
-                el.setAttribute('type', 'submit');
-                el.setAttribute('name', "Submit");
-                ogoneForm.appendChild(el);
-                console.log(result);
-                _.each(result['payload'], function (value, key) {
-                    var el = document.createElement("input");
-                    el.setAttribute('type', 'hidden');
-                    el.setAttribute('value', value);
-                    el.setAttribute('name', key);
-                    ogoneForm.appendChild(el);
-                });
-                document.body.appendChild(ogoneForm);;
-                ogoneForm.submit();
+                el.setAttribute('type', 'hidden');
+                el.setAttribute('value', value);
+                el.setAttribute('name', key);
+                odooForm.appendChild(el);
             });
-        },
+            document.body.appendChild(odooForm);;
+            odooForm.submit();
+            },
     });
 });
