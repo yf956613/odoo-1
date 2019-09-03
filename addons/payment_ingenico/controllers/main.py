@@ -131,43 +131,45 @@ class OgoneController(http.Controller):
     def ogone_alias_gateway_feedback(self, **post):
 
         print("===== STEP ALIAS =====")
-        # TODO: url parameters to dict
-        # post parameters are available to the server. We need an rpc call to give them to javascript that will send the direct link form
-        # We have created the token. We can now make the payment and create the transaction.
+        # We have created the Ingenico token. We can now make the payment and create the transaction.
         # Here we can try to perform the request to perform the direct link transaction
+        post = {key.upper(): value for key, value in post.items()}
         payload = {}
-        for key in ['FLAG3D', 'WIN3DS', 'browserColorDepth', 'browserJavaEnabled', 'browserLanguage',
-                    'browserScreenHeight', 'browserScreenWidth', 'browserTimeZone', 'browserAcceptHeader',
-                    'browserUserAgent', 'Alias', ]:
+        for key in ['FLAG3D', 'WIN3DS', 'BROWSERCOLORDEPTH', 'BROWSERJAVAENABLED', 'BROWSERLANGUAGE',
+                    'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE', 'BROWSERACCEPTHEADER',
+                    'BROWSERUSERAGENT', 'ALIAS']:
             try:
                 payload[key] = post[key]
             except KeyError as e:
                 _logger.error(str(e))
                 pass
 
-        data_clean = {}
-        for key, value in post.items():
-            data_clean[key.upper()] = value
-
+        validation_keys = ['ALIASPERSISTEDAFTERUSE', 'ORDERID', 'CN', 'NCERRORCN', 'CARDNO', 'BRAND', 'NCERRORCARDNO',
+                           'CVC', 'NCERROR', 'CVC', 'ED', 'NCERRORED', 'NCERROR', 'ALIAS', 'STATUS',
+                           'ACQUIRERID', 'BROWSERCOLORDEPTH', 'BROWSERJAVAENABLED', 'BROWSERLANGUAGE',
+                           'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE', 'BROWSERUSERAGENT',
+                           'FLAG3D', 'WIN3DS', 'RETURN_URL', 'FORM_VALUES', 'FORM_ACTION_URL', 'PARTNER_ID']
+        validation_dict = dict((k,post[k]) for k in validation_keys if k in post)
         acquirer = request.env['payment.acquirer'].search([('provider', '=', 'ogone')])
-        shasign = acquirer.sudo()._ogone_generate_shasign('out', data_clean)
+        shasign = acquirer.sudo()._ogone_generate_shasign('out', validation_dict)
         try:
-            print(data_clean['SHASIGN'])
+            print(post['SHASIGN'])
             print(shasign.upper())
-            if data_clean['SHASIGN'] != shasign.upper():
+            if post['SHASIGN'] != shasign.upper():
                 msg = {'ERROR': 'Cannot verify the signature'}
                 _logger.error(msg)
-                return msg
+                return str(msg)
         except KeyError:
             msg = {'ERROR': 'Cannot verify the signature'}
             return msg
 
         for f in ['BROWSERUSERAGENT', 'FORM_ACTION_URL', 'FORM_VALUES', 'RETURN_URL']:
-            data_clean[f] = urlparse.unquote(data_clean[f])
+            post[f] = urlparse.unquote(post[f])
 
-        data_odoo = data_clean['FORM_VALUES'].split(',')
+        data_odoo = post['FORM_VALUES'].split(',')
         form_data = {}
         for val in data_odoo:
+            # Fixme regex ?
             val = val.replace('\\', '').replace('+', '').replace('{', '').replace('}', '').replace("\'", '')
             key, value = val.split(':')
             form_data[key] = value
@@ -182,21 +184,21 @@ class OgoneController(http.Controller):
             token_parameters = {
                 'cc_number': card_number_masked,
                 'cc_cvc': cvc_masked,
-                'cc_holder_name': data_clean.get('CN'),
-                'cc_expiry': data_clean.get('ED'),
-                'cc_brand': data_clean.get('BRAND'),
+                'cc_holder_name': post.get('CN'),
+                'cc_expiry': post.get('ED'),
+                'cc_brand': post.get('BRAND'),
                 'acquirer_id': acquirer.id,
-                'partner_id': int(post.get('partner_id')),
+                'partner_id': int(post.get('PARTNER_ID')),
                 'alias_gateway': True,
-                'alias': data_clean.get('ALIAS'),
-                'acquirer_ref': data_clean.get('ALIAS'),
+                'alias': post.get('ALIAS'),
+                'acquirer_ref': post.get('ALIAS'),
                 'ogone_params': dumps(payload, ensure_ascii=True, indent=None)
             }
             try:
                 token = request.env['payment.token'].sudo().create(token_parameters, )
                 print(token)
                 form_data['pm_id'] = token.id
-                parameters = {'json_route': data_clean['FORM_ACTION_URL'],
+                parameters = {'json_route': post['FORM_ACTION_URL'],
                                        'form_data': dumps(form_data, ensure_ascii=True, indent=None)}
                 return request.render("payment_ingenico.payment_feedback_page", parameters)
             except Exception as e:
