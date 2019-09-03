@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import json
 import logging
+from math import floor
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.urls import url_parse, url_decode, url_encode
 
@@ -165,7 +166,7 @@ class WebsiteSale(http.Controller):
         order = post.get('order') or 'website_sequence ASC'
         return 'is_published desc, %s, id desc' % order
 
-    def _get_search_domain(self, search, attrib_values, search_in_description=True):
+    def _get_search_domain(self, search, attrib_values, min_rating, search_in_description=True):
         domains = [request.website.sale_product_domain()]
         if search:
             for srch in search.split(" "):
@@ -193,6 +194,8 @@ class WebsiteSale(http.Controller):
                     ids = [value[1]]
             if attrib:
                 domains.append([('attribute_line_ids.value_ids', 'in', ids)])
+        if min_rating:
+            domains.append([('rating_avg', '>=', min_rating)])
 
         return expression.AND(domains)
 
@@ -236,11 +239,12 @@ class WebsiteSale(http.Controller):
         ppr = request.env['website'].get_current_website().shop_ppr or 4
 
         attrib_list = request.httprequest.args.getlist('attrib')
+        min_rating = request.httprequest.args.get('min_rating') or 0
         attrib_values = [[int(x) for x in v.split("-")] for v in attrib_list if v]
         attributes_ids = {v[0] for v in attrib_values}
         attrib_set = {v[1] for v in attrib_values}
 
-        keep = QueryURL('/shop', category=category and int(category), search=search, attrib=attrib_list, min_price=min_price, max_price=max_price, order=post.get('order'))
+        keep = QueryURL('/shop', category=category and int(category), search=search, attrib=attrib_list, min_price=min_price, max_price=max_price, min_rating=min_rating, order=post.get('order'))
 
         pricelist_context, pricelist = self._get_pricelist_context()
         request.context = dict(request.context, pricelist=pricelist.id, partner=request.env.user.partner_id)
@@ -250,8 +254,10 @@ class WebsiteSale(http.Controller):
             post["search"] = search
         if attrib_list:
             post['attrib'] = attrib_list
+        if min_rating:
+            post['min_rating'] = min_rating
 
-        domain = self._get_search_domain(search, attrib_values)
+        domain = self._get_search_domain(search, attrib_values, min_rating)
         if not request.env.user._is_admin():
             domain = expression.AND([domain, [('website_published', '=', True)]])
 
@@ -328,6 +334,7 @@ class WebsiteSale(http.Controller):
             'ppr': ppr,
             'categories': categs,
             'attributes': attributes,
+            'min_rating': floor(float(min_rating) / 2),
             'compute_currency': compute_currency,
             'keep': keep,
             'layout_mode': layout_mode,
@@ -361,10 +368,11 @@ class WebsiteSale(http.Controller):
         attrib_list = request.httprequest.args.getlist('attrib')
         min_price = request.httprequest.args.getlist('min_price')
         max_price = request.httprequest.args.getlist('max_price')
+        min_rating = request.httprequest.args.get('min_rating')
         attrib_values = [[int(x) for x in v.split("-")] for v in attrib_list if v]
         attrib_set = {v[1] for v in attrib_values}
 
-        keep = QueryURL('/shop', category=category and category.id, search=search, attrib=attrib_list, min_price=min_price, max_price=max_price)
+        keep = QueryURL('/shop', category=category and category.id, search=search, attrib=attrib_list, min_price=min_price, max_price=max_price, min_rating=min_rating)
 
         categs = ProductCategory.search([('parent_id', '=', False)])
 
