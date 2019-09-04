@@ -26,6 +26,7 @@ var ListController = BasicController.extend({
         activate_next_widget: '_onActivateNextWidget',
         add_record: '_onAddRecord',
         button_clicked: '_onButtonClicked',
+        change_mode: '_onChangeMode',
         group_edit_button_clicked: '_onEditGroupClicked',
         edit_line: '_onEditLine',
         save_line: '_onSaveLine',
@@ -392,12 +393,13 @@ var ListController = BasicController.extend({
                 let message;
                 if (nbInvalid === 0) {
                     message = _.str.sprintf(
-                        _t("Do you want to set the value on the %d selected records?"),
+                        _t(`Are you sure that you want to update the %d selected records with this value ?`),
                         validRecordIds.length);
                 } else {
                     message = _.str.sprintf(
-                        _t("Do you want to set the value on the %d valid selected records? (%d invalid)"),
-                        validRecordIds.length, nbInvalid);
+                        _t(`Among the %d selected records, %d are valid for this update.
+                        Are you sure that you want to update those %d records with this value ?`),
+                        recordIds.length, validRecordIds.length, validRecordIds.length);
                 }
                 Dialog.confirm(this, message, {
                     confirm_callback: () => {
@@ -470,7 +472,7 @@ var ListController = BasicController.extend({
     _toggleCreateButton: function () {
         if (this.$buttons) {
             var state = this.model.get(this.handle);
-            var createHidden = this.editable && state.groupedBy.length && state.data.length;
+            var createHidden = this.renderer.isEditable() && state.groupedBy.length && state.data.length;
             this.$buttons.find('.o_list_button_add').toggleClass('o_hidden', !!createHidden);
         }
     },
@@ -518,7 +520,7 @@ var ListController = BasicController.extend({
      */
     _onActivateNextWidget: function (ev) {
         ev.stopPropagation();
-        this.renderer.editFirstRecord();
+        this.renderer.editFirstRecord(ev);
     },
     /**
      * Add a record to the list
@@ -546,6 +548,23 @@ var ListController = BasicController.extend({
     _onButtonClicked: function (ev) {
         ev.stopPropagation();
         this._callButtonAction(ev.data.attrs, ev.data.record);
+    },
+    /**
+     * Toggles list mode between edit and readonly
+     *
+     * @private
+     * @param {OdooEvent} ev
+     */
+    _onChangeMode: function (ev) {
+        ev.stopPropagation();
+        this.mode = ev.data.mode;
+        const recordID = ev.data.recordID;
+        if (recordID) {
+            this.model.discardChanges(recordID);
+            this._confirmSave(recordID).then(ev.data.onSuccess);
+        } else {
+            ev.data.onSuccess();
+        }
     },
     /**
      * When the user clicks on the 'create' button, two things can happen. We

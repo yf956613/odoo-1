@@ -994,6 +994,7 @@ var ListRenderer = BasicRenderer.extend({
      * the aggregates.
      *
      * @private
+     * @returns {Promise}
      */
     _updateSelection: function () {
         var $selectedRows = this.$('tbody .o_list_record_selector input:checked')
@@ -1003,6 +1004,8 @@ var ListRenderer = BasicRenderer.extend({
         });
         this.trigger_up('selection_changed', { selection: this.selection });
         this._updateFooter();
+
+        return Promise.resolve();
     },
 
     //--------------------------------------------------------------------------
@@ -1185,10 +1188,11 @@ var ListRenderer = BasicRenderer.extend({
      */
     _onSelectRecord: function (ev) {
         ev.stopPropagation();
-        this._updateSelection();
-        if (!$(ev.currentTarget).find('input').prop('checked')) {
-            this.$('thead .o_list_record_selector input').prop('checked', false);
-        }
+        this._updateSelection().then(() => {
+            if (!$(ev.currentTarget).find('input').prop('checked')) {
+                this.$('thead .o_list_record_selector input').prop('checked', false);
+            }
+        });
     },
     /**
      * @private

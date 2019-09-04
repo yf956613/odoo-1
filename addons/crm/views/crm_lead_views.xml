@@ -592,7 +592,7 @@
                     <field name="state_id" optional="hide"/>
                     <field name="country_id" optional="show"/>
                     <field name="activity_date_deadline" optional="show"/>
-                    <field name="activity_summary" optional="show"/>
+                    <field name="activity_summary" optional="show" readonly="1"/>
                     <field name="medium_id" invisible="1"/>
                     <field name="campaign_id" invisible="1"/>
                     <field name="source_id" invisible="1"/>
