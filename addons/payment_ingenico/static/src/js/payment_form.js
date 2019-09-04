@@ -58,6 +58,7 @@ odoo.define('payment_ogone.payment_form', function (require) {
             param_plus['browserScreenWidth'] = screen.width;
             param_plus['browserTimeZone'] =  new Date().getTimezoneOffset();
             param_plus['browserUserAgent'] = navigator.userAgent;
+
             param_plus['FLAG3D'] = 'Y',
             param_plus['WIN3DS'] = 'POPUP',
             param_plus['return_url'] = formData['return_url'];
@@ -76,7 +77,8 @@ odoo.define('payment_ogone.payment_form', function (require) {
                 result['ED'] = formData.cc_expiry.replace(/\s\/\s/g, '');
                 result['CN'] = formData.cc_holder_name;
                 // TEST if INPUT FORM IS VALID
-                var APIUrl = "https://ogone.test.v-psp.com/ncol/test/Alias_gateway_utf8.asp";
+                var APIUrl = "https://ogone.test.v-psp.com/ncol/test/alias_gateway_utf8.asp";
+                var APIUrl = "https://ogone.test.v-psp.com/ncol/test/alias_gateway.asp"
                 var ogoneForm = document.createElement("form");
                 ogoneForm.method = "POST";
                 ogoneForm.action = APIUrl;

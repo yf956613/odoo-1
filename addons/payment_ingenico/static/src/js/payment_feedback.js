@@ -6,6 +6,7 @@ odoo.define('payment_ingenico.payment_feedback', function (require) {
     var publicWidget = require('web.public.widget');
     var _t = core._t;
     var qweb = core.qweb;
+    var csrf_value = require('web.core').csrf_token
 
     publicWidget.registry.ogoneFeedback = publicWidget.Widget.extend({
         selector: '.o_payment_feedback',
@@ -24,7 +25,11 @@ odoo.define('payment_ingenico.payment_feedback', function (require) {
             var el = document.createElement("input");
             el.setAttribute('type', 'submit');
             el.setAttribute('name', "Submit");
-            odooForm.appendChild(el);
+            var csrf_el = document.createElement("input");
+            csrf_el.setAttribute('type', 'hidden');
+            csrf_el.setAttribute('name', "csrf_token");
+            csrf_el.setAttribute('value', csrf_value);
+            odooForm.appendChild(csrf_el);
             _.each(form_data, function (value, key) {
                 var el = document.createElement("input");
                 el.setAttribute('type', 'hidden');

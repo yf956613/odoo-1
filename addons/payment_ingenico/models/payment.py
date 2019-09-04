@@ -155,15 +155,17 @@ class PaymentAcquirerOgone(models.Model):
     def ogone_form_constantes_values(self, partner_id, paramplus):
         # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         base_url = "http://arj-odoo.agayon.be" # testing purpose
+        # base_url = "https://arj-odoo.localtunnel.me"
         path_url = "payment/ogone/feedback/"
         # print(paramplus)
         paramplus['partner_id'] = partner_id
         ogone_tx_values = {'PSPID': self.ogone_pspid,
                            'ACCEPTURL': urls.url_join(base_url, path_url),
+                           # 'ORDERID': "ALIAS-CREATTION-%s" % time.time(), not needed
                            # 'DECLINEURL': urls.url_join(base_url,path_url),
                            'EXCEPTIONURL':  urls.url_join(base_url, path_url),
                            # 'CANCELURL': urls.url_join(base_url,path_url),
-                           'ALIASPERSISTEDAFTERUSE': 'N', 'ALIAS': 'ARJ-TEST-NEW-ALIAS-0819-%s' % time.time(),
+                           'ALIASPERSISTEDAFTERUSE': 'N', 'ALIAS': 'ARJ-JS-NEW-ALIAS-0819-%s' % time.time(),
                            'PARAMPLUS': url_encode(paramplus),
                            }
 
@@ -245,29 +247,29 @@ class PaymentAcquirerOgone(models.Model):
         pm_id = self.env['payment.token'].sudo().create(values)
         return pm_id
 
-    # @api.model
-    def ogone_alias_feedback(self, *args, **kwargs):
-        """
-        Handle the parameters provided by the Alias gateway after the Alias creation
-        :param post:
-        :type post:
-        :return:
-        :rtype:
-        """
-        self.ensure_one()
-        # If you have configured an SHA-OUT passphrase for these feedback requests,
-        # you need to take the ALIAS parameter into account for your signature.
-        acquirer = self
-
-        # Prepare result
-        action_url = ""
-        fom_data = None
-        result = {'payload': fom_data, 'action_url': action_url}
-        # Attention ici pas bon.
-        # Il faut faire le formulaire qui renvoie chez Odoo sur la page qui fait la transaction
-        # C'est odoo python qui se rend sur le 3DS'
-        # inutile ?
-        return result
+    # # @api.model
+    # def ogone_alias_feedback(self, *args, **kwargs):
+    #     """
+    #     Handle the parameters provided by the Alias gateway after the Alias creation
+    #     :param post:
+    #     :type post:
+    #     :return:
+    #     :rtype:
+    #     """
+    #     self.ensure_one()
+    #     # If you have configured an SHA-OUT passphrase for these feedback requests,
+    #     # you need to take the ALIAS parameter into account for your signature.
+    #     acquirer = self
+    #
+    #     # Prepare result
+    #     action_url = ""
+    #     fom_data = None
+    #     result = {'payload': fom_data, 'action_url': action_url}
+    #     # Attention ici pas bon.
+    #     # Il faut faire le formulaire qui renvoie chez Odoo sur la page qui fait la transaction
+    #     # C'est odoo python qui se rend sur le 3DS'
+    #     # inutile ?
+    #     return result
 
 
 class PaymentTxOgone(models.Model):

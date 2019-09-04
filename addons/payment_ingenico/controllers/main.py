@@ -129,34 +129,39 @@ class OgoneController(http.Controller):
 
     @http.route(['/payment/ogone/feedback', ], type='http', auth='public', website=True)
     def ogone_alias_gateway_feedback(self, **post):
-
-        print("===== STEP ALIAS =====")
-        # We have created the Ingenico token. We can now make the payment and create the transaction.
-        # Here we can try to perform the request to perform the direct link transaction
-        post = {key.upper(): value for key, value in post.items()}
-        acquirer = request.env['payment.acquirer'].search([('provider', '=', 'ogone')])
-        shasign = acquirer.sudo()._ogone_generate_shasign('out', post)
         try:
+            post = {key.upper(): value for key, value in post.items()}
+            acquirer = request.env['payment.acquirer'].search([('provider', '=', 'ogone')])
+            shasign = acquirer.sudo()._ogone_generate_shasign('out', post)
+
             print(post['SHASIGN'])
             print(shasign.upper())
+            # FIXME values with maj are not correctly verified !
             if post['SHASIGN'] != shasign.upper():
                 msg = {'ERROR': 'Cannot verify the signature'}
                 _logger.error(msg)
                 return str(msg)
         except KeyError:
-            msg = {'ERROR': 'Cannot verify the signature'}
+            # TODO: redirect with error message
+            msg = 'ERROR: Cannot verify the signature'
+            return msg
+        except TypeError:
+            # TODO: redirect with error messag
+            msg = "Error : bad arguments"
             return msg
 
         post = {key.upper(): value for key, value in post.items()}
         payload = {}
         for key in ['FLAG3D', 'WIN3DS', 'BROWSERCOLORDEPTH', 'BROWSERJAVAENABLED', 'BROWSERLANGUAGE',
-                    'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE', 'BROWSERACCEPTHEADER',
+                    'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE',
                     'BROWSERUSERAGENT', 'ALIAS']:
             try:
                 payload[key] = post[key]
             except KeyError as e:
                 _logger.error(str(e))
+                print('error : ', key)
                 pass
+        payload['BROWSERACCEPTHEADER'] = request.httprequest.headers.environ['HTTP_ACCEPT']
         # Unquote the urls values
         for f in ['BROWSERUSERAGENT', 'FORM_ACTION_URL', 'FORM_VALUES', 'RETURN_URL']:
             post[f] = urlparse.unquote(post[f])
@@ -171,9 +176,9 @@ class OgoneController(http.Controller):
 
         """ Ogone contacts using GET, at least for accept """
         _logger.info('Ogone: feeback Alias gateway with post data %s', pprint.pformat(post))  # debug)
-        if post.get('partner_id'):
+        if post.get('PARTNER_ID'):
             cvc_masked = 'XXX'
-            card_number_masked = post['CardNo']
+            card_number_masked = post['CARDNO']
 
             # Could be done in _ogone_form_get_tx_from_data ?
             token_parameters = {
@@ -200,4 +205,6 @@ class OgoneController(http.Controller):
                 _logger.error(e)
                 _logger.error("no token created")
                 return "FAIL"
-
+        else:
+            msg = "An error occured, contact the webmaster"
+            return ret
