@@ -947,7 +947,6 @@ actual arch.
         fields_def = self.postprocess(model, node, view_id, False, fields)
         self._postprocess_access_rights(model, node)
 
-        arch = etree.tostring(node, encoding="unicode").replace('\t', '')
         for k in list(fields):
             if k not in fields_def:
                 del fields[k]
@@ -971,7 +970,7 @@ actual arch.
                     msg_lines.append(line_fmt % line)
             self.raise_view_error("\n".join(msg_lines), view_id)
 
-        return arch, fields
+        return etree.tostring(node, encoding="unicode").replace('\t', ''), fields
 
     def _postprocess_access_rights(self, model, node):
         """ Compute and set on node access rights based on view type. Specific
