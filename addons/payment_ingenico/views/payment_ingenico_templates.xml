@@ -63,7 +63,6 @@
             <div class="wrap">
                 <div class="container payment_feedback">
                     <div class="o_payment_feedback" t-att-data-json-route="json_route" t-att-data-form="form_data">
-<!--                    <div class="o_payment_feedback">-->
                         <div class="row">
                             <!-- The content here is handled by JS -->
                         </div>

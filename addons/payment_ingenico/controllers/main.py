@@ -40,7 +40,6 @@ class OgoneController(http.Controller):
 
     @http.route(['/payment/ogone/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
     def ogone_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
-        # CREATE THE TOKEN. WE ALREADY HAVE IT
         if not kwargs.get('partner_id'):
             kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
         token = False
@@ -207,4 +206,4 @@ class OgoneController(http.Controller):
                 return "FAIL"
         else:
             msg = "An error occured, contact the webmaster"
-            return ret
+            return msg

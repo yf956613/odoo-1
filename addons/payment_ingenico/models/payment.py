@@ -6,7 +6,6 @@ import time
 from hashlib import sha1
 from pprint import pformat
 from unicodedata import normalize
-import urllib.parse as urlparse
 import json
 
 import requests
@@ -142,7 +141,7 @@ class PaymentAcquirerOgone(models.Model):
                     'SUBBRAND',
                     'SUBSCRIPTION_ID',
                     'TRXDATE',
-                    'VC',
+                    'VC'
                 ]
                 return key.upper() in keys
 
@@ -155,9 +154,8 @@ class PaymentAcquirerOgone(models.Model):
     def ogone_form_constantes_values(self, partner_id, paramplus):
         # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         base_url = "http://arj-odoo.agayon.be" # testing purpose
-        # base_url = "https://arj-odoo.localtunnel.me"
+        base_url = "https://arj-odoo.localtunnel.me"
         path_url = "payment/ogone/feedback/"
-        # print(paramplus)
         paramplus['partner_id'] = partner_id
         ogone_tx_values = {'PSPID': self.ogone_pspid,
                            'ACCEPTURL': urls.url_join(base_url, path_url),
@@ -175,9 +173,7 @@ class PaymentAcquirerOgone(models.Model):
         # Generate sha sign here.
         # https://payment-services.ingenico.com/int/en/ogone/support/guides/integration%20
         #  guides/e-commerce/security-pre-payment-check#shainsignature
-        # # TODO: try the upper function
         shasign = self._ogone_generate_shasign('in', ogone_tx_values)
-
         return ogone_tx_values, shasign
 
 
@@ -187,8 +183,6 @@ class PaymentAcquirerOgone(models.Model):
         param_plus = {
             'return_url': ogone_tx_values.pop('return_url', False)
         }
-
-
         temp_ogone_tx_values = {
             'PSPID': self.ogone_pspid,
             'ORDERID': values['reference'],
@@ -246,30 +240,6 @@ class PaymentAcquirerOgone(models.Model):
         }
         pm_id = self.env['payment.token'].sudo().create(values)
         return pm_id
-
-    # # @api.model
-    # def ogone_alias_feedback(self, *args, **kwargs):
-    #     """
-    #     Handle the parameters provided by the Alias gateway after the Alias creation
-    #     :param post:
-    #     :type post:
-    #     :return:
-    #     :rtype:
-    #     """
-    #     self.ensure_one()
-    #     # If you have configured an SHA-OUT passphrase for these feedback requests,
-    #     # you need to take the ALIAS parameter into account for your signature.
-    #     acquirer = self
-    #
-    #     # Prepare result
-    #     action_url = ""
-    #     fom_data = None
-    #     result = {'payload': fom_data, 'action_url': action_url}
-    #     # Attention ici pas bon.
-    #     # Il faut faire le formulaire qui renvoie chez Odoo sur la page qui fait la transaction
-    #     # C'est odoo python qui se rend sur le 3DS'
-    #     # inutile ?
-    #     return result
 
 
 class PaymentTxOgone(models.Model):
@@ -402,8 +372,9 @@ class PaymentTxOgone(models.Model):
         # TODO: create tx with s2s type
         account = self.acquirer_id
         reference = self.reference or "ODOO-%s-%s" % (datetime.datetime.now().strftime('%y%m%d_%H%M%S'), self.partner_id.id)
+
         param_plus = {
-            'return_url': kwargs.get('return_url', False),
+            'return_url': kwargs.get('return_url', False)
         }
         ogone_params = json.loads(self.payment_token_id.ogone_params)
         data = {
@@ -604,7 +575,6 @@ class PaymentToken(models.Model):
             # create a alias via batch
             values['cc_number'] = values['cc_number'].replace(' ', '')
             acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
-            # TODO alias ou value[acquirer_ref]
             alias = values.get('alias') or 'ODOO-NEW-ALIAS-%s' % time.time()
 
             expiry = str(values['cc_expiry'][:2]) + str(values['cc_expiry'][-2:])
