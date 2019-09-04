@@ -134,24 +134,8 @@ class OgoneController(http.Controller):
         # We have created the Ingenico token. We can now make the payment and create the transaction.
         # Here we can try to perform the request to perform the direct link transaction
         post = {key.upper(): value for key, value in post.items()}
-        payload = {}
-        for key in ['FLAG3D', 'WIN3DS', 'BROWSERCOLORDEPTH', 'BROWSERJAVAENABLED', 'BROWSERLANGUAGE',
-                    'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE', 'BROWSERACCEPTHEADER',
-                    'BROWSERUSERAGENT', 'ALIAS']:
-            try:
-                payload[key] = post[key]
-            except KeyError as e:
-                _logger.error(str(e))
-                pass
-
-        validation_keys = ['ALIASPERSISTEDAFTERUSE', 'ORDERID', 'CN', 'NCERRORCN', 'CARDNO', 'BRAND', 'NCERRORCARDNO',
-                           'CVC', 'NCERROR', 'CVC', 'ED', 'NCERRORED', 'NCERROR', 'ALIAS', 'STATUS',
-                           'ACQUIRERID', 'BROWSERCOLORDEPTH', 'BROWSERJAVAENABLED', 'BROWSERLANGUAGE',
-                           'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE', 'BROWSERUSERAGENT',
-                           'FLAG3D', 'WIN3DS', 'RETURN_URL', 'FORM_VALUES', 'FORM_ACTION_URL', 'PARTNER_ID']
-        validation_dict = dict((k,post[k]) for k in validation_keys if k in post)
         acquirer = request.env['payment.acquirer'].search([('provider', '=', 'ogone')])
-        shasign = acquirer.sudo()._ogone_generate_shasign('out', validation_dict)
+        shasign = acquirer.sudo()._ogone_generate_shasign('out', post)
         try:
             print(post['SHASIGN'])
             print(shasign.upper())
@@ -163,6 +147,17 @@ class OgoneController(http.Controller):
             msg = {'ERROR': 'Cannot verify the signature'}
             return msg
 
+        post = {key.upper(): value for key, value in post.items()}
+        payload = {}
+        for key in ['FLAG3D', 'WIN3DS', 'BROWSERCOLORDEPTH', 'BROWSERJAVAENABLED', 'BROWSERLANGUAGE',
+                    'BROWSERSCREENHEIGHT', 'BROWSERSCREENWIDTH', 'BROWSERTIMEZONE', 'BROWSERACCEPTHEADER',
+                    'BROWSERUSERAGENT', 'ALIAS']:
+            try:
+                payload[key] = post[key]
+            except KeyError as e:
+                _logger.error(str(e))
+                pass
+        # Unquote the urls values
         for f in ['BROWSERUSERAGENT', 'FORM_ACTION_URL', 'FORM_VALUES', 'RETURN_URL']:
             post[f] = urlparse.unquote(post[f])
 
