@@ -999,8 +999,15 @@ class GroupsView(models.Model):
         return user
 
     def write(self, values):
+        if 'category_id' in values:
+            init_category = self.category_id
         res = super(GroupsView, self).write(values)
-        self._update_user_groups_view()
+        # todo do something better. Implied ids may have impact?
+        no_update_fields = ['name', 'comment']
+        if ('category_id' in values and init_category.id == values.get('category_id')):
+            no_update_fields.append('category_id')
+        if set(values) - set(no_update_fields):
+            self._update_user_groups_view()
         # actions.get_bindings() depends on action records
         self.env['ir.actions.actions'].clear_caches()
         return res
@@ -1017,6 +1024,8 @@ class GroupsView(models.Model):
 
     @api.model
     def _update_user_groups_view(self):
+        # note todo: this is called at each group creation/change. maybe we could disable this during install and add a post
+        # update regen
         """ Modify the view with xmlid ``base.user_groups_view``, which inherits
             the user form view, and introduces the reified group fields.
         """
@@ -1094,7 +1103,10 @@ class GroupsView(models.Model):
             new_context = dict(view._context)
             new_context.pop('install_mode_data', None)  # don't set arch_fs for this computed view
             new_context['lang'] = None
-            view.with_context(new_context).write({'arch': xml_content})
+            if xml_content != view.arch: # avoid usefull xml validation if no change
+                view.with_context(new_context).write({'arch': xml_content})
+            else:
+                print('useless generation')
 
     def get_application_groups(self, domain):
         """ Return the non-share groups that satisfy ``domain``. """
