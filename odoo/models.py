@@ -1454,7 +1454,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             View = View.with_context(base_model_name=result['base_model'])
 
         # Apply post processing, groups and modifiers etc...
-        xarch, xfields = View.postprocess_and_fields(self._name, etree.fromstring(result['arch']), view_id)
+        xarch, xfields = View.postprocess_and_fields(self._name, etree.fromstring(result['arch']), view_id, validate=False)
         result['arch'] = xarch
         result['fields'] = xfields
 

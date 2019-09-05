@@ -61,7 +61,7 @@ class FormatAddressMixin(models.AbstractModel):
                 #(e.g fields not present on the model). In that case we just return arch
                 if self._name != 'res.partner':
                     try:
-                        self.env['ir.ui.view'].postprocess_and_fields(self._name, sub_view_node, None)
+                        self.env['ir.ui.view'].postprocess_and_fields(self._name, sub_view_node, None, validate=False)
                     except ValueError:
                         return arch
                 address_node.getparent().replace(address_node, sub_view_node)

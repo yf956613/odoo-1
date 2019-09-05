@@ -3,10 +3,28 @@
 
 import ast
 import logging
+from lxml import etree
 from odoo.tests import common, tagged
+from odoo.tools.view_validation import get_attrs_field_names, Metamorph
 
 _logger = logging.getLogger(__name__)
 
+
+@tagged('post_install', '-at_install', 'migration')
+class ToolTest(common.TransactionCase):
+    def test_get_attrs_field_names(self):
+        def test_arch(model, arch):
+            node = etree.fromstring(arch)
+            attrs_fields = get_attrs_field_names(self.env, node, self.env[model], False)
+            for elem in attrs_fields:
+                print(elem)
+        test_arch('res.partner', """<filter name="test_filter" domain="[('fielsd1.test', '=', is_1 or accept(is_2) and True), ('fielsd2', '=', company_id.property)]"/>""")
+        #test_arch('res.partner', """<filter name="test_filter" domain="[['fielsd1', '=', True], ['fielsd2', '=', company_id]]"/>""")
+        #test_arch('res.partner', """<filter name="test_filter" domain="[('fielsd1', '=', is_1 or is_2)]"/>""")
+        #test_arch('res.partner', """<filter name="test_filter" domain="[('fielsd1', '=', True), ('fielsd2', '=', company_id)]" context="{'group_by':'state'}"/>""")
+        #test_arch('account.account', """<field name="asset_model" domain="[('state', '=', 'model')]" attrs="{'invisible': ['|', ('create_asset', '=', 'no'), ('can_create_asset', '=', False)], 'required': ['&amp;', ('create_asset', '=', 'validate'), ('can_create_asset', '=', True)]}" nolabel="1" context="{'default_state': 'model', 'form_view_ref': form_view_ref, 'default_asset_type': asset_type}"/>""")
+        #test_arch('res.config.settings', """<field name="sale_tax_id" domain="[('type_tax_usea', 'in', ('sale', 'all')), ('company_ida', '=', company_id)]"/>""")
+   
 
 @tagged('post_install', '-at_install', 'migration')
 class TestDatabase(common.SingleTransactionCase):

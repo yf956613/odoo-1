@@ -74,6 +74,42 @@ def field_is_editable(field, node):
         (node.get('readonly') != "1" or READONLY.search(node.get('attrs') or ""))
     )
 
+def process_domain_values(value):
+        values = []
+        # maybe just perform a ast.walk here
+        for node in ast.walk(ast.parse(value, mode='eval')):
+            if isinstance(node, ast.Name):
+                values.append(node.id)
+            #elif isinstance(node, ast.NameConstant):
+            #    values.append(('constant', node.value))
+            elif not isinstance(node, (ast.NameConstant, ast.Load, ast.BoolOp, ast.Or, ast.And, ast.Str, ast.Tuple)):
+                print(node)
+        return values
+
+def process_dict(expr):
+    pass
+
+def process_domain(expr):
+    fields = collections.defaultdict(list)
+    assert isinstance(expr, ast.Expression)
+    list_node = list(ast.iter_child_nodes(expr))
+    assert len(list_node) == 1 and isinstance(list_node[0], ast.List)
+    leaves = list(ast.iter_child_nodes(list_node[0]))
+    assert isinstance(leaves.pop(), ast.Load)
+    for leaf in leaves:
+        if isinstance(leaf, ast.Str):
+            assert leaf.s in ['&', '|', '!'] # weak check of operaor, doesn't check structure
+        elif isinstance(leaf, (ast.List, ast.Tuple)):
+            tupple = list(ast.iter_child_nodes(leaf))
+            assert isinstance(tupple.pop(), ast.Load)
+            assert len(tupple) == 3
+            [field, operator, value] = tupple
+            assert isinstance(field, ast.Str)
+            assert isinstance(operator, ast.Str)
+            fields[field.s].append((operator.s, process_domain_values(value)))
+        else:
+            assert False
+    return dict(fields)
 
 def get_attrs_field_names(env, arch, model, editable):
     """ Retrieve the field names appearing in context, domain and attrs, and
@@ -95,6 +131,7 @@ def get_attrs_field_names(env, arch, model, editable):
 
     def process_expr(expr, get, key, val):
         """ parse `expr` and collect triples """
+        #print('______process expr____ %s ' % expr)
         for node in ast.walk(ast.parse(expr.strip(), mode='eval')):
             name = get(node)
             if name not in symbols:
@@ -102,12 +139,14 @@ def get_attrs_field_names(env, arch, model, editable):
 
     def process_attrs(expr, get, key, val):
         """ parse `expr` and collect field names in lhs of conditions. """
-        for domain in safe_eval(expr).values():
+
+        #print('______process attr____ %s ' % expr)
+        for domain in safe_eval(expr).values(): #{'invisible': [('feedback','=',False)]} 
             if not isinstance(domain, list):
                 continue
-            for arg in domain:
+            for arg in domain:  # ('feedback','=',False)
                 if isinstance(arg, (tuple, list)):
-                    process_expr(str(arg[0]), get, key, expr)
+                    process_expr(str(arg[0]), get, key, expr) # 'feedback'
 
     def process(node, model, editable, get=get_name):
         """ traverse `node` and collect triples """
@@ -121,10 +160,15 @@ def get_attrs_field_names(env, arch, model, editable):
                 editable = editable and field_is_editable(field, node)
 
         for key, val in node.items():
+            #print('item', key, val)
             if not val:
                 continue
             if key in ATTRS_WITH_FIELD_NAMES:
+                #if key == 'domain':
+                #    import pprint
+                #    pprint.pprint(process_domain(ast.parse(val.strip(), mode='eval')))
                 process_expr(val, get, key, val)
+
             elif key == 'attrs':
                 process_attrs(val, get, key, val)
 
@@ -138,7 +182,7 @@ def get_attrs_field_names(env, arch, model, editable):
             model = env[field.comodel_name]
             get = partial(get_subname, get)
 
-        for child in node:
+        for child in node: # wont this be called multiple times on same node due to nested recusions? 
             if node.tag == 'search' and child.tag == 'searchpanel':
                 # searchpanel part has to be validated independently
                 continue
