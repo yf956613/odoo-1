@@ -212,6 +212,7 @@
     <template id="products" name="Products">
         <t t-call="website.layout">
             <t t-set="additional_title">Shop</t>
+            <t t-set="images_full" t-value="request.website.viewref('website_sale.products_images_full').active"/>
             <div id="wrap" class="js_sale">
                 <div class="oe_structure" id="oe_structure_website_sale_products_1"/>
                 <div class="container oe_website_sale">
@@ -246,7 +247,7 @@
                                                     <t t-set="product" t-value="td_product['product']" />
                                                     <td t-att-colspan="td_product['x'] != 1 and td_product['x']"
                                                         t-att-rowspan="td_product['y'] != 1 and td_product['y']"
-                                                        t-attf-class="oe_product #{td_product['class']}">
+                                                        t-attf-class="oe_product #{td_product['class']} #{images_full and 'oe_image_full'}">
                                                         <div t-attf-class="o_wsale_product_grid_wrapper o_wsale_product_grid_wrapper_#{td_product['x']}_#{td_product['y']}">
                                                             <t t-call="website_sale.products_item">
                                                                 <t t-set="product_image_big" t-value="td_product['x'] + td_product['y'] &gt; 2"/>
@@ -370,6 +371,9 @@
             </div>
         </xpath>
     </template>
+
+    <!-- (Option) Products: Enable image full for all products : Images Full -->
+    <template id="products_images_full" name="Images Full" inherit_id="website_sale.products" active="False" customize_show="True"/>
 
     <template id="option_collapse_categories_recursive" name="Collapse Category Recursive">
         <li class="nav-item">
