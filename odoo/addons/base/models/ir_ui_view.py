@@ -790,28 +790,32 @@ actual arch.
         field = Model._fields.get(node.get('name'))
         fields = {}
         errors = []
-        if field:
-            if field.type != 'many2one':
-                self.raise_view_error(_('groupby can only target many2one (%(field)s') % dict(field=field.name), view_id)
-            attrs = fields.setdefault(node.get('name'), {})
-            # move all children nodes into a new node <groupby>
-            groupby_node = E.groupby()
-            for child in list(node):
-                node.remove(child)
-                groupby_node.append(child)
-            # validate the new node as a nested view, and associate it to the field
-            xarch, xfields = self.with_context(
-                base_model_name=Model._name,
-                view_is_editable=False,
-            ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate)
-            attrs['views'] = {'groupby': {
-                'arch': xarch,
-                'fields': xfields,
-            }}
+        name = node.get('name')
+        if name:
+            field = Model._fields.get(name)
+            if field:
+                if field.type != 'many2one':
+                    self.raise_view_error(_('groupby can only target many2one (%(field)s') % dict(field=field.name), view_id)
+                attrs = fields.setdefault(node.get('name'), {})
+                # move all children nodes into a new node <groupby>
+                groupby_node = E.groupby()
+                for child in list(node):
+                    node.remove(child)
+                    groupby_node.append(child)
+                children = [] # processed as a nested view
+                # validate the new node as a nested view, and associate it to the field
+                xarch, xfields = self.with_context(
+                    base_model_name=Model._name,
+                    view_is_editable=False,
+                ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate)
+                attrs['views'] = {'groupby': {
+                    'arch': xarch,
+                    'fields': xfields,
+                }}
+            elif validate:
+                errors.append('field %s does not exist in model %s', (name, Model._name))
         else:
-            errors.append('name not found in field node')
-
-        children = [] # processed as a nested view
+            children = [c for c in node] # group_by is root of sub postprocess_and_fields, no name
         return children, fields
 
     def _postprocess_form(self, Model, node):
@@ -831,6 +835,51 @@ actual arch.
             if f.tag == 'filter':
                 fields[f.get('name')] = {}
         return fields
+
+    def _postprocess_search(self, node, Model):
+        searchpanel = [c for c in node if c.tag == 'searchpanel']
+        if searchpanel:
+            self.with_context(
+                base_model_name=Model._name,
+                check_field_names=False,  # field validation is a bit more tricky and done apart
+                view_is_editable=False,
+            ).postprocess_and_fields(Model._name, searchpanel[0], view_id, validate)
+
+        children = [c for c in node if c.tag != 'searchpanel']
+        return children
+
+    def _postprocess_filter(self, node, Model, validate):
+        if validate:
+            context = node.get('context')
+            domain = node.get('domain')
+            if context:
+                context = safe_eval(context, Metamorph(), nocopy=True)
+                group_by = context.get('group_by')
+                if group_by:
+                    if not group_by.split(':')[0] in Model._fields:
+                        msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
+                        _logger.error(msg)
+            if domain:
+                domain = safe_eval(domain, Metamorph(), nocopy=True)
+                # get_attrs_field_names(self.env, node, model, False)
+                # TODO this dommain check is correct for filters, but should we merge that with the attrs domain check/others
+                for part in domain:
+                    if type(part) is list or type(part) is tuple:
+                        field_chain = part[0].split('.')
+                        record = Model
+                        current_field = None
+                        try:
+                            for field in field_chain:
+                                current_field = field
+                                _field = record._fields[current_field]
+                                if not _field._description_searchable:
+                                    msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
+                                    _logger.error(msg)
+
+                                record = record[current_field]
+                        except KeyError as e:
+                            msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
+                            _logger.error(msg)
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate):
         """Return the description of the fields in the node.
@@ -858,6 +907,7 @@ actual arch.
 
         elif node.tag == 'form':
             self._postprocess_form(Model, node)
+
         elif node.tag == 'tree':
             self._postprocess_tree(Model, node)
             in_tree_view = True
@@ -866,48 +916,10 @@ actual arch.
             fields = self._postprocess_calendar(node)
 
         elif node.tag == 'search':
-            searchpanel = [c for c in node if c.tag == 'searchpanel']
-            if searchpanel:
-                self.with_context(
-                    base_model_name=model,
-                    check_field_names=False,  # field validation is a bit more tricky and done apart
-                    view_is_editable=False,
-                ).postprocess_and_fields(model, searchpanel[0], view_id, validate)
-            children = [c for c in node if c.tag != 'searchpanel']
+            children = self._postprocess_search(node, Model)
 
         elif node.tag == 'filter':
-            if validate:
-                context = node.get('context')
-                domain = node.get('domain')
-                if context:
-                    context = safe_eval(context, Metamorph(), nocopy=True)
-                    group_by = context.get('group_by')
-                    if group_by:
-                        if not group_by.split(':')[0] in self.env[model]._fields:
-                            msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
-                            _logger.error(msg)
-                if domain:
-                    domain = safe_eval(domain, Metamorph(), nocopy=True)
-                    # get_attrs_field_names(self.env, node, model, False)
-                    # TODO this dommain check is correct for filters, but should we merge that with the attrs domain check/others
-                    for part in domain:
-                        if type(part) is list or type(part) is tuple:
-                            field_chain = part[0].split('.')
-                            record = self.env[model]
-                            current_field = None
-                            try:
-                                for field in field_chain:
-                                    current_field = field
-                                    _field = record._fields[current_field]
-                                    if not _field._description_searchable:
-                                        msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
-                                        _logger.error(msg)
-
-                                    record = record[current_field]
-                            except KeyError as e:
-                                msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
-                                _logger.error(msg)
-
+            self._postprocess_filter(node, Model, validate)
 
         if not self._apply_group(model, node, modifiers, fields):
             # node must be removed, no need to proceed further with its children
@@ -976,9 +988,8 @@ actual arch.
             editable = self.env.context.get('view_is_editable', True)
             attrs_fields = get_attrs_field_names(self.env, node, Model, editable)
 
-        print(etree.tostring(nodeq, encoding="unicode"))
         fields_def = self.postprocess(model, node, view_id, False, fields, validate)
-        print(fields_def)
+
         self._postprocess_access_rights(model, node)
 
         for k in list(fields):
