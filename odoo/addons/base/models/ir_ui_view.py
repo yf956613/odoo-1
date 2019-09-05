@@ -778,7 +778,7 @@ actual arch.
             if field:
                 transfer_field_to_modifiers(field, modifiers)
             elif validate:
-                errors.append('field %s does not exist in model %s', (node.get('name'), Model._name))
+                errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
 
@@ -848,7 +848,8 @@ actual arch.
         children = [c for c in node if c.tag != 'searchpanel']
         return children
 
-    def _postprocess_filter(self, node, Model, validate):
+    def _postprocess_filter(self, node, Model, view_id, validate):
+        model = Model._name
         if validate:
             context = node.get('context')
             domain = node.get('domain')
@@ -858,10 +859,9 @@ actual arch.
                 if group_by:
                     if not group_by.split(':')[0] in Model._fields:
                         msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
-                        _logger.error(msg)
+                        self.raise_view_error(_(msg), view_id)
             if domain:
                 domain = safe_eval(domain, Metamorph(), nocopy=True)
-                # get_attrs_field_names(self.env, node, model, False)
                 # TODO this dommain check is correct for filters, but should we merge that with the attrs domain check/others
                 for part in domain:
                     if type(part) is list or type(part) is tuple:
@@ -873,13 +873,13 @@ actual arch.
                                 current_field = field
                                 _field = record._fields[current_field]
                                 if not _field._description_searchable:
-                                    msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
-                                    _logger.error(msg)
+                                    msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'))
+                                    self.raise_view_error(_(msg), view_id)
 
                                 record = record[current_field]
                         except KeyError as e:
-                            msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s" from view %s' % (record._name, current_field, part, domain, model, node.get('name'), view_id)
-                            _logger.error(msg)
+                            msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'), )
+                            self.raise_view_error(_(msg), view_id)
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate):
         """Return the description of the fields in the node.
@@ -894,7 +894,7 @@ actual arch.
 
         """
         fields = {}
-        children = list(node)
+        children = list(node) # by default, keep all children
 
         modifiers = {}
         Model = self.env[model]
@@ -919,7 +919,12 @@ actual arch.
             children = self._postprocess_search(node, Model)
 
         elif node.tag == 'filter':
-            self._postprocess_filter(node, Model, validate)
+            self._postprocess_filter(node, Model, view_id, validate)
+        else:
+            pass
+            # separator, footer, button, p, div, ...
+            # separator, check invisible
+            #_logger.warning('no specific handler for %s in view %s', node.tag, node)
 
         if not self._apply_group(model, node, modifiers, fields):
             # node must be removed, no need to proceed further with its children
@@ -932,6 +937,7 @@ actual arch.
             fields.update(self.postprocess(model, f, view_id, in_tree_view, model_fields, validate))
 
         transfer_modifiers_to_node(modifiers, node)
+        
         return fields
 
     def add_on_change(self, model_name, arch):

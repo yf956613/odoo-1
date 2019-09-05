@@ -1664,6 +1664,33 @@ class TestViews(ViewCase):
             })
 
     @mute_logger('odoo.addons.base.models.ir_ui_view')
+    def test_domain_in_filter(self):
+        arch = """
+            <search string="Search">
+                <field name="%s"/>
+                <filter string="Dummy" name="draft" domain="[('%s', '=', 'dummy')]"/>
+            </search>
+        """
+        self.View.create({
+            'name': 'valid domain',
+            'model': 'ir.ui.view',
+            'arch': arch % ('name', 'name'),
+        })
+        with self.assertRaises(ValidationError):
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('invalid_field', 'name'),
+            })
+        with self.assertRaises(ValidationError):
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('name', 'invalid_field'),
+            })
+        # todo add check for non searchable fields and group by
+
+    @mute_logger('odoo.addons.base.models.ir_ui_view')
     def test_attrs_field(self):
         arch = """
             <form string="View">
