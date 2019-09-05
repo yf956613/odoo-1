@@ -131,7 +131,7 @@ class TestMrpOrder(TestMrpCommon):
         self.env['stock.quant'].with_context(inventory_mode=True).create({
             'product_id': self.product_2.id,
             'inventory_quantity': 2.0,
-            'location_id': self.ref('stock.stock_location_14')
+            'location_id': self.location_to_use_1.id
         })
 
         production_2.action_assign()
@@ -142,7 +142,7 @@ class TestMrpOrder(TestMrpCommon):
         self.env['stock.quant'].with_context(inventory_mode=True).create({
             'product_id': self.product_2.id,
             'inventory_quantity': 5.0,
-            'location_id': self.ref('stock.stock_location_14')
+            'location_id': self.location_to_use_1.id
         })
 
         production_2.action_assign()
@@ -163,7 +163,7 @@ class TestMrpOrder(TestMrpCommon):
 
         # create a bom for `custom_laptop` with components that aren't tracked
         unit = self.ref("uom.product_uom_unit")
-        custom_laptop = self.env.ref("product.product_product_27")
+        custom_laptop = self.product_to_use_3
         custom_laptop.tracking = 'none'
         product_charger = self.env['product.product'].create({
             'name': 'Charger',
@@ -191,7 +191,7 @@ class TestMrpOrder(TestMrpCommon):
         })
 
         # put the needed products in stock
-        source_location_id = self.ref('stock.stock_location_14')
+        source_location_id = self.location_to_use_1.id
         quant_before = custom_laptop.qty_available
         inventory = self.env['stock.inventory'].create({
             'name': 'Inventory Product Table',
@@ -377,8 +377,8 @@ class TestMrpOrder(TestMrpCommon):
         """
         # FIXME: some asserts on the quants after overproducing would be nice
         self.stock_location = self.env.ref('stock.stock_location_stock')
-        self.stock_shelf_1 = self.env.ref('stock.stock_location_components')
-        self.stock_shelf_2 = self.env.ref('stock.stock_location_14')
+        self.stock_shelf_1 = self.location_to_use_2
+        self.stock_shelf_2 = self.location_to_use_1
         mo, _, p_final, p1, p2 = self.generate_mo(tracking_base_1='lot', qty_base_1=10, qty_final=1)
         self.assertEqual(len(mo), 1, 'MO should have been created')
 
@@ -441,8 +441,8 @@ class TestMrpOrder(TestMrpCommon):
         """ Possibility to produce with a given raw material in multiple locations. """
         # FIXME sle: how is it possible to consume before producing in the interface?
         self.stock_location = self.env.ref('stock.stock_location_stock')
-        self.stock_shelf_1 = self.env.ref('stock.stock_location_components')
-        self.stock_shelf_2 = self.env.ref('stock.stock_location_14')
+        self.stock_shelf_1 = self.location_to_use_2
+        self.stock_shelf_2 = self.location_to_use_1
         mo, _, p_final, p1, p2 = self.generate_mo(qty_final=1, qty_base_1=5)
 
         self.env['stock.quant']._update_available_quantity(p1, self.stock_shelf_1, 2)
@@ -612,8 +612,8 @@ class TestMrpOrder(TestMrpCommon):
         self.assertEqual(len(mo), 1, 'MO should have been created')
 
         self.stock_location = self.env.ref('stock.stock_location_stock')
-        self.stock_shelf_1 = self.env.ref('stock.stock_location_components')
-        self.stock_shelf_2 = self.env.ref('stock.stock_location_14')
+        self.stock_shelf_1 = self.location_to_use_2
+        self.stock_shelf_2 = self.location_to_use_1
 
         self.env['stock.quant']._update_available_quantity(p1, self.stock_shelf_1, 3)
         self.env['stock.quant']._update_available_quantity(p1, self.stock_location, 3)
@@ -932,12 +932,29 @@ class TestMrpOrder(TestMrpCommon):
         UoM on the bom. The produce wizard should keep the UoM of the product (unit)
         and quantity = 1."""
 
-        plastic_laminate = self.env.ref('mrp.product_product_plastic_laminate')
-        bom = self.env.ref('mrp.mrp_bom_plastic_laminate')
+        unit = self.env.ref("uom.product_uom_unit")
         dozen = self.env.ref('uom.product_uom_dozen')
-        unit = self.env.ref('uom.product_uom_unit')
 
-        plastic_laminate.tracking = 'serial'
+        plastic_laminate = self.env['product.product'].create({
+            'name': 'Plastic Laminate',
+            'standard_price': 3000,
+            'list_price': 1000,
+            'type': 'product',
+            'weight': 0.01,
+            'default_code': 'FURN_8621',
+            'tracking': 'serial',
+            'uom_id': unit.id,
+            'uom_po_id': unit.id
+        })
+        mrp_routing_1 = self.env['mrp.routing'].create({
+            'name': 'Secondary Assembly'
+            })
+        bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': plastic_laminate.product_tmpl_id.id,
+            'product_uom_id': unit.id,
+            'sequence': 1,
+            'routing_id': mrp_routing_1.id
+            })
 
         mo_form = Form(self.env['mrp.production'])
         mo_form.product_id = plastic_laminate

@@ -25,8 +25,8 @@ class TestWorkOrderProcess(TestMrpCommon):
     @classmethod
     def setUpClass(cls):
         super(TestWorkOrderProcess, cls).setUpClass()
-        cls.source_location_id = cls.env.ref('stock.stock_location_14').id
-        cls.warehouse = cls.env.ref('stock.warehouse0')
+        cls.source_location_id = cls.location_to_use_1.id
+        cls.warehouse = cls.warehouse0.id
         # setting up alternative workcenters
         cls.wc_alt_1 = cls.env['mrp.workcenter'].create({
             'name': 'Nuclear Workcenter bis',
@@ -351,18 +351,18 @@ class TestWorkOrderProcess(TestMrpCommon):
                 'product_uom_id': self.product_2.uom_id.id,
                 'product_qty': 30,
                 'prod_lot_id': lot_product_2.id,
-                'location_id': self.ref('stock.stock_location_14')
+                'location_id': self.location_to_use_1.id
             }), (0, 0, {
                 'product_id': self.product_3.id,
                 'product_uom_id': self.product_3.uom_id.id,
                 'product_qty': 60,
-                'location_id': self.ref('stock.stock_location_14')
+                'location_id': self.location_to_use_1.id
             }), (0, 0, {
                 'product_id': self.product_4.id,
                 'product_uom_id': self.product_4.uom_id.id,
                 'product_qty': 60,
                 'prod_lot_id': lot_product_4.id,
-                'location_id': self.ref('stock.stock_location_14')
+                'location_id': self.location_to_use_1.id
             })]
         })
         inventory.action_start()
@@ -425,7 +425,7 @@ class TestWorkOrderProcess(TestMrpCommon):
     def test_01_without_workorder(self):
         """ Testing consume quants and produced quants without workorder """
         unit = self.ref("uom.product_uom_unit")
-        custom_laptop = self.env.ref("product.product_product_27")
+        custom_laptop = self.product_to_use_3
         custom_laptop.tracking = 'lot'
 
         # Create new product charger and keybord
@@ -707,8 +707,8 @@ class TestWorkOrderProcess(TestMrpCommon):
 
     def test_03_test_serial_number_defaults(self):
         """ Test that the correct serial number is suggested on consecutive work orders. """
-        laptop = self.env.ref("product.product_product_25")
-        graphics_card = self.env.ref("product.product_product_24")
+        laptop = self.laptop
+        graphics_card = self.graphics_card
         unit = self.env.ref("uom.product_uom_unit")
         three_step_routing = self.env.ref("mrp.mrp_routing_1")
 

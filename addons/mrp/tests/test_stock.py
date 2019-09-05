@@ -4,6 +4,7 @@
 from . import common
 from odoo.exceptions import except_orm
 from odoo.tests import Form
+from odoo.addons.mrp.tests.common import TestMrpCommon
 
 
 class TestWarehouse(common.TestMrpCommon):
@@ -22,10 +23,12 @@ class TestWarehouse(common.TestMrpCommon):
             'category_id': self.env.ref('product.product_category_all').id,
         })
 
-        self.laptop = self.env.ref("product.product_product_25")
-        graphics_card = self.env.ref("product.product_product_24")
+        self.laptop = self.laptop
+        graphics_card = self.graphics_card
         unit = self.env.ref("uom.product_uom_unit")
-        mrp_routing = self.env.ref("mrp.mrp_routing_0")
+        mrp_routing = self.env['mrp.routing'].create({
+            'name': 'Primary Assembly'
+            })
 
         self.bom_laptop = self.env['mrp.bom'].create({
             'product_tmpl_id': self.laptop.product_tmpl_id.id,
@@ -100,14 +103,14 @@ class TestWarehouse(common.TestMrpCommon):
             'name': 'Stock Inventory for Stick',
             'product_ids': [(4, self.product_4.id)],
             'line_ids': [
-                (0, 0, {'product_id': self.product_4.id, 'product_uom_id': self.product_4.uom_id.id, 'product_qty': 8, 'prod_lot_id': lot_product_4.id, 'location_id': self.ref('stock.stock_location_14')}),
+                (0, 0, {'product_id': self.product_4.id, 'product_uom_id': self.product_4.uom_id.id, 'product_qty': 8, 'prod_lot_id': lot_product_4.id, 'location_id': self.location_to_use_1.id}),
             ]})
 
         stock_inv_product_2 = self.env['stock.inventory'].create({
             'name': 'Stock Inventory for Stone Tools',
             'product_ids': [(4, self.product_2.id)],
             'line_ids': [
-                (0, 0, {'product_id': self.product_2.id, 'product_uom_id': self.product_2.uom_id.id, 'product_qty': 12, 'prod_lot_id': lot_product_2.id, 'location_id': self.ref('stock.stock_location_14')})
+                (0, 0, {'product_id': self.product_2.id, 'product_uom_id': self.product_2.uom_id.id, 'product_qty': 12, 'prod_lot_id': lot_product_2.id, 'location_id': self.location_to_use_1.id})
             ]})
         (stock_inv_product_4 | stock_inv_product_2)._action_start()
         stock_inv_product_2.action_validate()

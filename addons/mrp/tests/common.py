@@ -56,6 +56,8 @@ class TestMrpCommon(common2.TestStockCommon):
         user_group_mrp_manager = cls.env.ref('mrp.group_mrp_manager')
         user_group_mrp_byproducts = cls.env.ref('mrp.group_mrp_byproducts')
 
+        unit = cls.env.ref("uom.product_uom_unit")
+
         # Update demo products
         (cls.product_2 | cls.product_3 | cls.product_4 | cls.product_5 | cls.product_6 | cls.product_7_3 | cls.product_8).write({
             'type': 'product',
@@ -84,6 +86,58 @@ class TestMrpCommon(common2.TestStockCommon):
                 user_group_mrp_byproducts.id
             ])]})
 
+        cls.product_to_use_3 = cls.env['product.product'].create({
+            'name': 'Drawer',
+            'type': 'product',
+            'tracking': 'none',
+            'default_code': 'FURN_8855',
+        })
+        cls.graphics_card = cls.env['product.product'].create({
+            'name': 'Individual Workplace',
+            'type': 'product',
+            'tracking': 'none',
+            'default_code': 'FURN_8855',
+            'standard_price': 876.0,
+            'list_price': 885.0,
+            'type': 'consu',
+            'weight': 0.01,
+            'uom_id': unit.id,
+            'uom_po_id': unit.id,
+            'default_code': 'FURN_0789'
+        })
+        cls.laptop = cls.env['product.product'].create({
+            'name': 'Acoustic Bloc Screens',
+            'type': 'product',
+            'tracking': 'none',
+            'default_code': 'FURN_8855',
+            'standard_price': 2870.0,
+            'list_price': 2950.0,
+            'type': 'consu',
+            'weight': 0.01,
+            'uom_id': unit.id,
+            'uom_po_id': unit.id,
+            'default_code': 'FURN_6666'
+        })
+        cls.partner = cls.env['res.partner'].create({
+            'name': 'Partner'
+            })
+        cls.warehouse0 = cls.env['stock.warehouse'].create({
+            'name': 'wwarehouse',
+            'partner_id': cls.partner.id,
+            'code': 'WHR'
+            })
+        cls.location_to_use_1 = cls.env['stock.location'].create({
+            'name': 'Shelf 2',
+            'posx': '0',
+            'barcode': '2601985',
+            'location_id': cls.warehouse0.id
+        })
+        cls.location_to_use_2 = cls.env['stock.location'].create({
+            'name': 'Shelf 1',
+            'posx': '0',
+            'barcode': '2601892',
+            'location_id': cls.warehouse0.id
+        })
         cls.workcenter_1 = cls.env['mrp.workcenter'].create({
             'name': 'Nuclear Workcenter',
             'capacity': 2,
