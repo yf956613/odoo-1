@@ -416,15 +416,26 @@ return AbstractRenderer.extend({
                     element.find('.fc-content').after($('<div/>', {class: 'fc-bg'}));
                 }
 
-                // For month view: Show background for all-day/multidate events only
-                if (view.name === 'month' && event.record) {
+                if (['agendaWeek', 'month'].indexOf(view.name) !== -1 && event.record) {
                     var start = event.r_start || event.start;
                     var end = event.r_end || event.end;
                     // Detect if the event occurs in just one day
                     // note: add & remove 1 min to avoid issues with 00:00
                     var isSameDayEvent = start.clone().add(1, 'minute').isSame(end.clone().subtract(1, 'minute'), 'day');
-                    if (!event.record.allday && isSameDayEvent) {
-                        element.addClass('o_cw_nobg');
+                    if (isSameDayEvent) {
+                        let displayTime = '';
+                        if (start.format('HH:mm') === '00:00' && end.format('HH:mm') === '00:00') {
+                            displayTime = _t('All day');
+                        } else {
+                            // Note: used fixed time format to display time in 12 hour format, we can
+                            // use time format from language configuration
+                            displayTime = start.format('hh:mm A');
+                        }
+                        element.find('.fc-content .fc-time').text(displayTime);
+                        // For month view: Show background for all-day/multidate events only
+                        if (view.name === 'month' && !event.record.allday) {
+                            element.addClass('o_cw_nobg');
+                        }
                     }
                 }
 
