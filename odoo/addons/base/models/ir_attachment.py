@@ -11,7 +11,7 @@ from collections import defaultdict
 import uuid
 
 from odoo import api, fields, models, tools, _
-from odoo.exceptions import AccessError, ValidationError, MissingError
+from odoo.exceptions import AccessError, ValidationError, MissingError, UserError
 from odoo.tools import config, human_size, ustr, html_escape
 from odoo.tools.mimetypes import guess_mimetype
 
@@ -88,6 +88,15 @@ class IrAttachment(models.Model):
         dirname = os.path.dirname(full_path)
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
+        # prevent sha-1 collision
+        if os.path.isfile(full_path):
+            stored_sha2 = self._compute_file_checksum(full_path, hashlib.sha512)
+            new_sha2 = hashlib.sha512(bin_data or b'').hexdigest()
+            if stored_sha2 != new_sha2:
+                raise UserError(
+                    ("The attachment is colliding with an existing file. "
+                     "SHA-1 of both files: {}, SHA-2 of stored file: {}, "
+                     "SHA-2 of new file: {}").format(sha, stored_sha2, new_sha2))
         return fname, full_path
 
     @api.model
@@ -222,6 +231,21 @@ class IrAttachment(models.Model):
         """
         # an empty file has a checksum too (for caching)
         return hashlib.sha1(bin_data or b'').hexdigest()
+
+    @api.model
+    def _compute_file_checksum(self, filepath, hash_method=hashlib.sha1):
+        """ compute the checksum of the given file
+            :param filepath : full path of the file
+            :param hash_method : hashlib algorithm to use
+        """
+        hash_ = hash_method()
+        with open(filepath, "rb") as fd:
+            while True:
+                data = fd.read(1024)
+                if not data:
+                    break
+                hash_.update(data)
+        return hash_.hexdigest()
 
     def _compute_mimetype(self, values):
         """ compute the mimetype of the given values
