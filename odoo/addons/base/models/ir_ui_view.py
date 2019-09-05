@@ -743,6 +743,95 @@ actual arch.
     # TODO: remove group processing from ir_qweb
     #------------------------------------------------------
     @api.model
+    def _postprocess_field(self, Model, node, view_id, model_fields, validate):
+        children = []
+        fields = {}
+        modifiers = {}
+        errors = []
+        if node.get('name'):
+            attrs = {}
+            field = Model._fields.get(node.get('name')) # todo try to remove model_fields or Model._fields
+            if field:
+                editable = self.env.context.get('view_is_editable', True) and field_is_editable(field, node)
+                children = []
+                views = {}
+                for f in node:
+                    if f.tag in ('form', 'tree', 'graph', 'kanban', 'calendar'):
+                        node.remove(f)
+                        xarch, xfields = self.with_context(
+                            base_model_name=Model._name,
+                            view_is_editable=editable,
+                        ).postprocess_and_fields(field.comodel_name, f, view_id, validate)
+                        views[str(f.tag)] = {
+                            'arch': xarch,
+                            'fields': xfields,
+                        }
+                    else:
+                        children.append(f)
+                attrs = {'views': views}
+                if not validate and field.comodel_name in self.env and field.type in ('many2one', 'many2many'):
+                    Comodel = self.env[field.comodel_name]
+                    node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
+                    node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
+            fields[node.get('name')] = attrs
+            field = model_fields.get(node.get('name'))
+            if field:
+                transfer_field_to_modifiers(field, modifiers)
+            elif validate:
+                errors.append('field %s does not exist in model %s', (node.get('name'), Model._name))
+        elif validate:
+            errors.append('name not found in field node ')
+
+        return children, fields, modifiers
+
+    def _postprocess_groupby(self, Model, node, view_id, validate):
+        # groupby nodes should be considered as nested view because they may
+        # contain fields on the comodel
+        field = Model._fields.get(node.get('name'))
+        fields = {}
+        errors = []
+        if field:
+            if field.type != 'many2one':
+                self.raise_view_error(_('groupby can only target many2one (%(field)s') % dict(field=field.name), view_id)
+            attrs = fields.setdefault(node.get('name'), {})
+            # move all children nodes into a new node <groupby>
+            groupby_node = E.groupby()
+            for child in list(node):
+                node.remove(child)
+                groupby_node.append(child)
+            # validate the new node as a nested view, and associate it to the field
+            xarch, xfields = self.with_context(
+                base_model_name=Model._name,
+                view_is_editable=False,
+            ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate)
+            attrs['views'] = {'groupby': {
+                'arch': xarch,
+                'fields': xfields,
+            }}
+        else:
+            errors.append('name not found in field node')
+
+        children = [] # processed as a nested view
+        return children, fields
+
+    def _postprocess_form(self, Model, node):
+        result = Model.view_header_get(False, node.tag)
+        if result:
+            node.set('string', result)
+
+    def _postprocess_tree(self, Model, node):
+        self._postprocess_form(Model, node)
+
+    def _postprocess_calendar(self, node):
+        fields = {}
+        for additional_field in ('date_start', 'date_delay', 'date_stop', 'color', 'all_day'):
+            if node.get(additional_field):
+                fields[node.get(additional_field).split('.', 1)[0]] = {}
+        for f in node:
+            if f.tag == 'filter':
+                fields[f.get('name')] = {}
+        return fields
+    @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate):
         """Return the description of the fields in the node.
 
@@ -762,74 +851,19 @@ actual arch.
         Model = self.env[model]
 
         if node.tag == 'field':
-            if node.get('name'):
-                attrs = {}
-                field = Model._fields.get(node.get('name'))
-                if field:
-                    editable = self.env.context.get('view_is_editable', True) and field_is_editable(field, node)
-                    children = []
-                    views = {}
-                    for f in node:
-                        if f.tag in ('form', 'tree', 'graph', 'kanban', 'calendar'):
-                            node.remove(f)
-                            xarch, xfields = self.with_context(
-                                base_model_name=model,
-                                view_is_editable=editable,
-                            ).postprocess_and_fields(field.comodel_name, f, view_id, validate)
-                            views[str(f.tag)] = {
-                                'arch': xarch,
-                                'fields': xfields,
-                            }
-                        else:
-                            children.append(f)
-                    attrs = {'views': views}
-                    if field.comodel_name in self.env and field.type in ('many2one', 'many2many'):
-                        Comodel = self.env[field.comodel_name]
-                        node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
-                        node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
-                fields[node.get('name')] = attrs
-
-                field = model_fields.get(node.get('name'))
-                if field:
-                    transfer_field_to_modifiers(field, modifiers)
+            children, fields, modifiers = self._postprocess_field(Model, node, view_id, model_fields, validate)
 
         elif node.tag == 'groupby':
-            # groupby nodes should be considered as nested view because they may
-            # contain fields on the comodel
-            field = Model._fields.get(node.get('name'))
-            if field:
-                if field.type != 'many2one':
-                    self.raise_view_error(_('groupby can only target many2one (%(field)s') % dict(field=field.name), view_id)
-                attrs = fields.setdefault(node.get('name'), {})
-                children = []
-                # move all children nodes into a new node <groupby>
-                groupby_node = E.groupby()
-                for child in list(node):
-                    node.remove(child)
-                    groupby_node.append(child)
-                # validate the new node as a nested view, and associate it to the field
-                xarch, xfields = self.with_context(
-                    base_model_name=model,
-                    view_is_editable=False,
-                ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate)
-                attrs['views'] = {'groupby': {
-                    'arch': xarch,
-                    'fields': xfields,
-                }}
+            children, fields = self._postprocess_groupby(Model, node, view_id, validate)
 
-        elif node.tag in ('form', 'tree'):
-            result = Model.view_header_get(False, node.tag)
-            if result:
-                node.set('string', result)
-            in_tree_view = node.tag == 'tree'
+        elif node.tag == 'form':
+            self._postprocess_form(Model, node)
+        elif node.tag == 'tree':
+            self._postprocess_tree(Model, node)
+            in_tree_view = True
 
         elif node.tag == 'calendar':
-            for additional_field in ('date_start', 'date_delay', 'date_stop', 'color', 'all_day'):
-                if node.get(additional_field):
-                    fields[node.get(additional_field).split('.', 1)[0]] = {}
-            for f in node:
-                if f.tag == 'filter':
-                    fields[f.get('name')] = {}
+            fields = self._postprocess_calendar(node)
 
         elif node.tag == 'search':
             searchpanel = [c for c in node if c.tag == 'searchpanel']
@@ -942,7 +976,9 @@ actual arch.
             editable = self.env.context.get('view_is_editable', True)
             attrs_fields = get_attrs_field_names(self.env, node, Model, editable)
 
+        print(etree.tostring(nodeq, encoding="unicode"))
         fields_def = self.postprocess(model, node, view_id, False, fields, validate)
+        print(fields_def)
         self._postprocess_access_rights(model, node)
 
         for k in list(fields):
