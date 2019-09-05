@@ -48,20 +48,20 @@ class StockPicking(models.Model):
         # product_uom_qty. This context will be used by _action_confirm and it
         # will not create a subcontract order. Instead the existing order will
         # be updated in the stock.move write during the merge move.
-        res = super(StockPicking, self.with_context(do_not_create_subcontract_order=True)).action_done()
+        res = super(StockPicking, self).action_done()
         productions = self.env['mrp.production']
         for picking in self:
             for move in picking.move_lines:
                 if not move.is_subcontract:
                     continue
-                production = move.move_orig_ids.production_id
+                production = move.move_orig_ids._get_production_id()
                 if move._has_tracked_subcontract_components():
                     move.move_orig_ids.move_line_ids.unlink()
                     move_finished_ids = move.move_orig_ids
                     for ml in move.move_line_ids:
                         ml.copy({
                             'picking_id': False,
-                            'production_id': move_finished_ids.production_id.id,
+                            'production_id': move_finished_ids._get_production_id().id,
                             'move_id': move_finished_ids.id,
                             'qty_done': ml.qty_done,
                             'result_package_id': False,
@@ -95,7 +95,7 @@ class StockPicking(models.Model):
         for move in self.move_lines:
             if not move._has_tracked_subcontract_components():
                 continue
-            production = move.move_orig_ids.production_id
+            production = move.move_orig_ids._get_production_id()
             if not production or production.state in ('done', 'to_close'):
                 continue
             return move._action_record_components()

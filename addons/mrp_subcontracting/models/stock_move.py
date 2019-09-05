@@ -11,7 +11,7 @@ from odoo.tools.float_utils import float_compare, float_is_zero
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    is_subcontract = fields.Boolean('The move is a subcontract receipt', copy=False)
+    is_subcontract = fields.Boolean('The move is a subcontract receipt')
     show_subcontracting_details_visible = fields.Boolean(
         compute='_compute_show_subcontracting_details_visible'
     )
@@ -38,6 +38,15 @@ class StockMove(models.Model):
             move.show_details_visible = True
         return res
 
+    def copy(self, default=None):
+        self.ensure_one()
+        if not self.is_subcontract or 'location_id' in default:
+            return super(StockMove, self).copy(default=default)
+        if not default:
+            default = {}
+        default['location_id'] = self.picking_id.location_id.id
+        return super(StockMove, self).copy(default=default)
+
     def write(self, values):
         """ If the initial demand is updated then also update the linked
         subcontract order to the new quantity.
@@ -55,7 +64,7 @@ class StockMove(models.Model):
         self.ensure_one()
         if self.is_subcontract:
             rounding = self.product_uom.rounding
-            production = self.move_orig_ids.production_id
+            production = self.move_orig_ids._get_production_id()
             if self._has_tracked_subcontract_components() and\
                     float_compare(production.qty_produced, production.product_uom_qty, precision_rounding=rounding) < 0 and\
                     float_compare(self.quantity_done, self.product_uom_qty, precision_rounding=rounding) < 0:
@@ -71,7 +80,7 @@ class StockMove(models.Model):
 
     def action_show_subcontract_details(self):
         """ Display moves raw for subcontracted product self. """
-        moves = self.move_orig_ids.production_id.move_raw_ids
+        moves = self.move_orig_ids._get_production_id().move_raw_ids
         tree_view = self.env.ref('mrp_subcontracting.mrp_subcontracting_move_tree_view')
         form_view = self.env.ref('mrp_subcontracting.mrp_subcontracting_move_form_view')
         return {
@@ -88,7 +97,7 @@ class StockMove(models.Model):
         for move in self:
             if move.location_id.usage != 'supplier' or move.location_dest_id.usage == 'supplier':
                 continue
-            if not move.picking_id or self.env.context.get('do_not_create_subcontract_order'):
+            if not move.picking_id:
                 continue
             bom = move._get_subcontract_bom()
             if not bom:
@@ -109,7 +118,7 @@ class StockMove(models.Model):
     def _action_record_components(self):
         action = self.env.ref('mrp.act_mrp_product_produce').read()[0]
         action['context'] = dict(
-            default_production_id=self.move_orig_ids.production_id.id,
+            default_production_id=self.move_orig_ids._get_production_id().id,
             default_subcontract_move_id=self.id
         )
         return action
@@ -128,7 +137,7 @@ class StockMove(models.Model):
             if not move._has_tracked_subcontract_components():
                 continue
             rounding = move.product_uom.rounding
-            if float_compare(move.quantity_done, move.move_orig_ids.production_id.qty_produced, precision_rounding=rounding) > 0:
+            if float_compare(move.quantity_done, move.move_orig_ids._get_production_id().qty_produced, precision_rounding=rounding) > 0:
                 overprocessed_moves |= move
         if overprocessed_moves:
             raise UserError(_("""
@@ -138,6 +147,9 @@ subcontracted product(s) with tracked component(s):
 If you want to process more than initially planned, you
 can use the edit + unlock buttons in order to adapt the initial demand on the
 operations.""") % ('\n'.join(overprocessed_moves.mapped('product_id.display_name'))))
+
+    def _get_production_id(self):
+        return self.production_id.filtered(lambda p: p.state not in ('done', 'cancel'))
 
     def _get_subcontract_bom(self):
         self.ensure_one()
@@ -152,7 +164,12 @@ operations.""") % ('\n'.join(overprocessed_moves.mapped('product_id.display_name
 
     def _has_tracked_subcontract_components(self):
         self.ensure_one()
-        return any(m.has_tracking != 'none' for m in self.move_orig_ids.production_id.move_raw_ids)
+        return any(m.has_tracking != 'none' for m in self.move_orig_ids._get_production_id().move_raw_ids)
+
+    def _prepare_extra_move_vals(self, qty):
+        vals = super(StockMove, self)._prepare_extra_move_vals(qty)
+        vals['location_id'] = self.location_id.id
+        return vals
 
     def _should_bypass_reservation(self):
         """ If the move is subcontracted then ignore the reservation. """
@@ -163,7 +180,7 @@ operations.""") % ('\n'.join(overprocessed_moves.mapped('product_id.display_name
 
     def _update_subcontract_order_qty(self):
         for move in self:
-            production = move.move_orig_ids.production_id
+            production = move.move_orig_ids._get_production_id()
             if production:
                 self.env['change.production.qty'].with_context(skip_activity=True).create({
                     'mo_id': production.id,
