@@ -23,8 +23,7 @@ class ToolTest(common.TransactionCase):
         #test_arch('res.partner', """<filter name="test_filter" domain="[('fielsd1', '=', is_1 or is_2)]"/>""")
         #test_arch('res.partner', """<filter name="test_filter" domain="[('fielsd1', '=', True), ('fielsd2', '=', company_id)]" context="{'group_by':'state'}"/>""")
         #test_arch('account.account', """<field name="asset_model" domain="[('state', '=', 'model')]" attrs="{'invisible': ['|', ('create_asset', '=', 'no'), ('can_create_asset', '=', False)], 'required': ['&amp;', ('create_asset', '=', 'validate'), ('can_create_asset', '=', True)]}" nolabel="1" context="{'default_state': 'model', 'form_view_ref': form_view_ref, 'default_asset_type': asset_type}"/>""")
-        #test_arch('res.config.settings', """<field name="sale_tax_id" domain="[('type_tax_usea', 'in', ('sale', 'all')), ('company_ida', '=', company_id)]"/>""")
-   
+
 
 @tagged('post_install', '-at_install', 'migration')
 class TestDatabase(common.SingleTransactionCase):

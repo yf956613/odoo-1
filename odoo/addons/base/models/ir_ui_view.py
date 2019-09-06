@@ -27,7 +27,7 @@ from odoo.tools import config, graph, ConstantMapping, pycompat, apply_inheritan
 from odoo.tools.convert import _fix_multiple_roots
 from odoo.tools.json import scriptsafe as json_scriptsafe
 from odoo.tools.safe_eval import safe_eval
-from odoo.tools.view_validation import valid_view, get_attrs_field_names, field_is_editable, Metamorph
+from odoo.tools.view_validation import valid_view, get_attrs_field_names, field_is_editable, process_domain_str
 from odoo.tools.translate import xml_translate, TRANSLATED_ATTRS
 from odoo.tools.image import image_data_uri
 
@@ -769,10 +769,14 @@ actual arch.
                     else:
                         children.append(f)
                 attrs = {'views': views}
-                if not validate and field.comodel_name in self.env and field.type in ('many2one', 'many2many'):
+                if field.comodel_name in self.env and field.type in ('many2one', 'many2many'):
                     Comodel = self.env[field.comodel_name]
                     node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
                     node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
+                    if validate:
+                        self._domain_check(Comodel, node)
+                elif validate and node.get('domain'):
+                    errors.append('Domain on field without comodel makes no sence %s for' % (node.get('name')))
             fields[node.get('name')] = attrs
             field = model_fields.get(node.get('name'))
             if field:
@@ -781,7 +785,6 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
-
         return children, fields, modifiers
 
     def _postprocess_groupby(self, Model, node, view_id, validate):
@@ -852,34 +855,37 @@ actual arch.
         model = Model._name
         if validate:
             context = node.get('context')
-            domain = node.get('domain')
             if context:
-                context = safe_eval(context, Metamorph(), nocopy=True)
+                context = safe_eval(context, {}, nocopy=True)
                 group_by = context.get('group_by')
                 if group_by:
                     if not group_by.split(':')[0] in Model._fields:
                         msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
                         self.raise_view_error(_(msg), view_id)
-            if domain:
-                domain = safe_eval(domain, Metamorph(), nocopy=True)
-                # TODO this dommain check is correct for filters, but should we merge that with the attrs domain check/others
-                for part in domain:
-                    if type(part) is list or type(part) is tuple:
-                        field_chain = part[0].split('.')
-                        record = Model
-                        current_field = None
-                        try:
-                            for field in field_chain:
-                                current_field = field
-                                _field = record._fields[current_field]
-                                if not _field._description_searchable:
-                                    msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'))
-                                    self.raise_view_error(_(msg), view_id)
+            self._domain_check(Model, node)
 
-                                record = record[current_field]
-                        except KeyError as e:
-                            msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'), )
-                            self.raise_view_error(_(msg), view_id)
+    def _domain_check(self, Model, node):
+        domain_str = node.get('domain')
+        if domain_str:
+            self._check_server_domain(Model, domain_str)
+
+    def _check_server_domain(self, Model, domain_str):
+        domain_fields = process_domain_str(domain_str)
+        for domain_field in domain_fields:
+            field_chain = domain_field.split('.')
+            field_Model = Model
+            current_field = None
+            try:
+                for field in field_chain:
+                    current_field = field
+                    _field = field_Model._fields[current_field]
+                    if not _field._description_searchable:
+                        msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'))
+                        self.raise_view_error(_(msg), view_id)
+                    field_Model = field_Model[current_field]
+            except KeyError as e:
+                msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'), )
+                self.raise_view_error(_(msg), view_id)
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate):
         """Return the description of the fields in the node.

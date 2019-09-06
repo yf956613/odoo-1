@@ -1425,6 +1425,21 @@ class TestViews(ViewCase):
             })
 
     @mute_logger('odoo.addons.base.models.ir_ui_view')
+    def test_domain_field_exist(self):
+        arch = """
+            <form string="View">
+                <field name="name"/>
+                <field name="inherit_id" domain="[('invalid_field', '=', 'res.users')]"/>
+            </form>
+        """
+        with self.assertRaises(ValidationError):
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch,
+            })
+
+    @mute_logger('odoo.addons.base.models.ir_ui_view')
     def test_domain_in_subview(self):
         arch = """
             <form string="View">
@@ -1676,6 +1691,11 @@ class TestViews(ViewCase):
             'model': 'ir.ui.view',
             'arch': arch % ('name', 'name'),
         })
+        self.View.create({
+            'name': 'valid domain',
+            'model': 'ir.ui.view',
+            'arch': arch % ('name', 'inherit_children_ids.name'),
+        })
         with self.assertRaises(ValidationError):
             self.View.create({
                 'name': 'valid domain',
@@ -1688,7 +1708,26 @@ class TestViews(ViewCase):
                 'model': 'ir.ui.view',
                 'arch': arch % ('name', 'invalid_field'),
             })
+        with self.assertRaises(ValidationError):
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('name', 'inherit_children_ids.invalid_field'),
+            })
         # todo add check for non searchable fields and group by
+    def test_domain_invalid_in_filter(self):
+        arch = """
+            <search string="Search">
+                <filter string="Dummy" name="draft" domain="['name', '=', 'dummy']"/>
+            </search>
+        """
+
+        with self.assertRaises(ValidationError): # need to improve error message
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch,
+            })
 
     @mute_logger('odoo.addons.base.models.ir_ui_view')
     def test_attrs_field(self):

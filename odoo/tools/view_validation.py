@@ -82,12 +82,16 @@ def process_domain_values(value):
                 values.append(node.id)
             #elif isinstance(node, ast.NameConstant):
             #    values.append(('constant', node.value))
-            elif not isinstance(node, (ast.NameConstant, ast.Load, ast.BoolOp, ast.Or, ast.And, ast.Str, ast.Tuple)):
+            elif not isinstance(node, (ast.NameConstant, ast.Load, ast.BoolOp, ast.Or, ast.And, ast.Str, ast.Tuple, ast.Attribute)):
                 print(node)
+                #todocheck attribute
         return values
 
 def process_dict(expr):
     pass
+
+def process_domain_str(domain_str):
+    return process_domain(ast.parse(domain_str.strip(), mode='eval'))
 
 def process_domain(expr):
     fields = collections.defaultdict(list)
@@ -98,7 +102,7 @@ def process_domain(expr):
     assert isinstance(leaves.pop(), ast.Load)
     for leaf in leaves:
         if isinstance(leaf, ast.Str):
-            assert leaf.s in ['&', '|', '!'] # weak check of operaor, doesn't check structure
+            assert leaf.s in ['&', '|', '!'] # weak check of operator, doesn't check structure
         elif isinstance(leaf, (ast.List, ast.Tuple)):
             tupple = list(ast.iter_child_nodes(leaf))
             assert isinstance(tupple.pop(), ast.Load)
