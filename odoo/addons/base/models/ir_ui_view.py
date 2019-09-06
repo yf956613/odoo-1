@@ -784,7 +784,8 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
-        return children, fields, modifiers
+
+        return {'children': children, 'fields': fields, 'modifiers': modifiers}
 
     def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None):
         # groupby nodes should be considered as nested view because they may
@@ -818,15 +819,19 @@ actual arch.
                 errors.append('field %s does not exist in model %s', (name, Model._name))
         else:
             children = [c for c in node] # group_by is root of sub postprocess_and_fields, no name
-        return children, fields
+
+        return {'children': children, 'fields': fields}
 
     def _postprocess_form(self, Model=None, node=None):
         result = Model.view_header_get(False, node.tag)
         if result:
             node.set('string', result)
+        return {}
 
     def _postprocess_tree(self, Model=None, node=None):
-        self._postprocess_form(Model, node)
+        res = self._postprocess_form(Model, node)
+        res.update({'in_tree_view': True})
+        return res
 
     def _postprocess_calendar(self, node=None):
         fields = {}
@@ -836,7 +841,7 @@ actual arch.
         for f in node:
             if f.tag == 'filter':
                 fields[f.get('name')] = {}
-        return fields
+        return {'fields': fields}
 
     def _postprocess_search(self, Model=None, node=None):
         searchpanel = [c for c in node if c.tag == 'searchpanel']
@@ -847,8 +852,7 @@ actual arch.
                 view_is_editable=False,
             ).postprocess_and_fields(Model._name, searchpanel[0], view_id, validate)
 
-        children = [c for c in node if c.tag != 'searchpanel']
-        return children
+        return {'children': [c for c in node if c.tag != 'searchpanel']}
 
     def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None):
         model = Model._name
@@ -862,6 +866,7 @@ actual arch.
                         msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
                         self.raise_view_error(_(msg), view_id)
             self._domain_check(Model, node)
+        return {}
 
     def _domain_check(self, Model, node):
         domain_str = node.get('domain')
@@ -898,53 +903,60 @@ actual arch.
         of those information in the architecture.
 
         """
-        fields = {}
-        children = list(node) # by default, keep all children
-
-        modifiers = {}
         Model = self.env[model]
-
+        # compute default
+        node_infos = dict(
+            fields={},
+            children=list(node),
+            modifiers={},
+            in_tree_view=in_tree_view
+        )
         if node.tag == 'field':
-            children, fields, modifiers = self._postprocess_field(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate)
+            res = self._postprocess_field(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate)
+            node_infos.update(res)
             if not fields and not children and not modifiers:
                 return {}
 
         elif node.tag == 'groupby':
-            children, fields = self._postprocess_groupby(Model=Model, node=node, view_id=view_id, validate=validate)
+            res = self._postprocess_groupby(Model=Model, node=node, view_id=view_id, validate=validate)
+            node_infos.update(res)
 
         elif node.tag == 'form':
-            self._postprocess_form(Model=Model, node=node)
+            res = self._postprocess_form(Model=Model, node=node)
+            node_infos.update(res)
 
         elif node.tag == 'tree':
-            self._postprocess_tree(Model=Model, node=node)
-            in_tree_view = True
+            res = self._postprocess_tree(Model=Model, node=node)
+            node_infos.update(res)
 
         elif node.tag == 'calendar':
-            fields = self._postprocess_calendar(node=node)
-
+            res = self._postprocess_calendar(node=node)
+            node_infos.update(res)
         elif node.tag == 'search':
-            children = self._postprocess_search(Model=Model, node=node)
+            res = self._postprocess_search(Model=Model, node=node)
+            node_infos.update(res)
 
         elif node.tag == 'filter':
-            self._postprocess_filter(Model=Model, node=node, view_id=view_id, validate=validate)
+            res = self._postprocess_filter(Model=Model, node=node, view_id=view_id, validate=validate)
+            node_infos.update(res)
         else:
             pass
             # separator, footer, button, p, div, ...
             # separator, check invisible
             #_logger.warning('no specific handler for %s in view %s', node.tag, node)
 
-        self._apply_group(model, node, modifiers)
+        self._apply_group(model, node, node_infos['modifiers'])
 
         # The view architeture overrides the python model.
         # Get the attrs before they are (possibly) deleted by check_group below
-        transfer_node_to_modifiers(node, modifiers, self._context, in_tree_view)
+        transfer_node_to_modifiers(node, node_infos['modifiers'], self._context, node_infos['in_tree_view'])
 
-        for f in children:
-            fields.update(self.postprocess(model, f, view_id, in_tree_view, model_fields, validate))
+        for f in node_infos['children']:
+            node_infos['fields'].update(self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate))
 
-        transfer_modifiers_to_node(modifiers, node)
+        transfer_modifiers_to_node(node_infos['modifiers'], node)
         
-        return fields
+        return node_infos['fields']
 
     def add_on_change(self, model_name, arch):
         """ Add attribute on_change="1" on fields that are dependencies of
