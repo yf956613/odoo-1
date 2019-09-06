@@ -736,7 +736,7 @@ actual arch.
     # TODO: remove group processing from ir_qweb
     #------------------------------------------------------
     @api.model
-    def _postprocess_field(self, Model=None, node=None, view_id=None, model_fields=None, validate=None):
+    def _postprocess_field(self, Model=None, node=None, view_id=None, model_fields=None, validate=None, **kwargs):
         children = []
         fields = {}
         modifiers = {}
@@ -750,7 +750,7 @@ actual arch.
                     node.getparent().remove(node)
                     fields.pop(node.get('name'), None)
                     # no point processing view-level ``groups`` anymore, return
-                    return [], {}, []
+                    return False
                 editable = self.env.context.get('view_is_editable', True) and field_is_editable(field, node)
                 children = []
                 views = {}
@@ -787,7 +787,7 @@ actual arch.
 
         return {'children': children, 'fields': fields, 'modifiers': modifiers}
 
-    def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None):
+    def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
         # groupby nodes should be considered as nested view because they may
         # contain fields on the comodel
         field = Model._fields.get(node.get('name'))
@@ -822,18 +822,18 @@ actual arch.
 
         return {'children': children, 'fields': fields}
 
-    def _postprocess_form(self, Model=None, node=None):
+    def _postprocess_form(self, Model=None, node=None, **kwargs):
         result = Model.view_header_get(False, node.tag)
         if result:
             node.set('string', result)
         return {}
 
-    def _postprocess_tree(self, Model=None, node=None):
+    def _postprocess_tree(self, Model=None, node=None, **kwargs):
         res = self._postprocess_form(Model, node)
         res.update({'in_tree_view': True})
         return res
 
-    def _postprocess_calendar(self, node=None):
+    def _postprocess_calendar(self, node=None, **kwargs):
         fields = {}
         for additional_field in ('date_start', 'date_delay', 'date_stop', 'color', 'all_day'):
             if node.get(additional_field):
@@ -843,7 +843,7 @@ actual arch.
                 fields[f.get('name')] = {}
         return {'fields': fields}
 
-    def _postprocess_search(self, Model=None, node=None):
+    def _postprocess_search(self, Model=None, node=None, **kwargs):
         searchpanel = [c for c in node if c.tag == 'searchpanel']
         if searchpanel:
             self.with_context(
@@ -854,7 +854,7 @@ actual arch.
 
         return {'children': [c for c in node if c.tag != 'searchpanel']}
 
-    def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None):
+    def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
         model = Model._name
         if validate:
             context = node.get('context')
@@ -890,6 +890,7 @@ actual arch.
             except KeyError as e:
                 msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'), )
                 self.raise_view_error(_(msg), view_id)
+
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate):
         """Return the description of the fields in the node.
@@ -911,39 +912,14 @@ actual arch.
             modifiers={},
             in_tree_view=in_tree_view
         )
-        if node.tag == 'field':
-            res = self._postprocess_field(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate)
-            node_infos.update(res)
-            if not fields and not children and not modifiers:
+
+        tag = node.tag
+        postprocessor = getattr(self, '_postprocess_%s' % tag, False)
+        if postprocessor:
+            res = postprocessor(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate)
+            if res is False: # node is removed, ignore him
                 return {}
-
-        elif node.tag == 'groupby':
-            res = self._postprocess_groupby(Model=Model, node=node, view_id=view_id, validate=validate)
             node_infos.update(res)
-
-        elif node.tag == 'form':
-            res = self._postprocess_form(Model=Model, node=node)
-            node_infos.update(res)
-
-        elif node.tag == 'tree':
-            res = self._postprocess_tree(Model=Model, node=node)
-            node_infos.update(res)
-
-        elif node.tag == 'calendar':
-            res = self._postprocess_calendar(node=node)
-            node_infos.update(res)
-        elif node.tag == 'search':
-            res = self._postprocess_search(Model=Model, node=node)
-            node_infos.update(res)
-
-        elif node.tag == 'filter':
-            res = self._postprocess_filter(Model=Model, node=node, view_id=view_id, validate=validate)
-            node_infos.update(res)
-        else:
-            pass
-            # separator, footer, button, p, div, ...
-            # separator, check invisible
-            #_logger.warning('no specific handler for %s in view %s', node.tag, node)
 
         self._apply_group(model, node, node_infos['modifiers'])
 
