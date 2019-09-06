@@ -708,7 +708,7 @@ actual arch.
 
         return dict(view_data, arch=etree.tostring(arch, encoding='unicode'))
 
-    def _apply_group(self, model, node, modifiers, fields):
+    def _apply_group(self, model, node, modifiers):
         """Apply group restrictions,  may be set at view level or model level::
            * at view level this means the element should be made invisible to
              people who are not members
@@ -720,13 +720,6 @@ actual arch.
         """
         Model = self.env[model]
 
-        if node.tag == 'field' and node.get('name') in Model._fields:
-            field = Model._fields[node.get('name')]
-            if field.groups and not self.user_has_groups(groups=field.groups):
-                node.getparent().remove(node)
-                fields.pop(node.get('name'), None)
-                # no point processing view-level ``groups`` anymore, return
-                return False
         if node.get('groups'):
             can_see = self.user_has_groups(groups=node.get('groups'))
             if not can_see:
@@ -752,6 +745,12 @@ actual arch.
             attrs = {}
             field = Model._fields.get(node.get('name')) # todo try to remove model_fields or Model._fields
             if field:
+                # apply groups (no tested)
+                if field.groups and not self.user_has_groups(groups=field.groups):
+                    node.getparent().remove(node)
+                    fields.pop(node.get('name'), None)
+                    # no point processing view-level ``groups`` anymore, return
+                    return [], {}, []
                 editable = self.env.context.get('view_is_editable', True) and field_is_editable(field, node)
                 children = []
                 views = {}
@@ -907,6 +906,8 @@ actual arch.
 
         if node.tag == 'field':
             children, fields, modifiers = self._postprocess_field(Model, node, view_id, model_fields, validate)
+            if not fields and not children and not modifiers:
+                return {}
 
         elif node.tag == 'groupby':
             children, fields = self._postprocess_groupby(Model, node, view_id, validate)
@@ -932,9 +933,8 @@ actual arch.
             # separator, check invisible
             #_logger.warning('no specific handler for %s in view %s', node.tag, node)
 
-        if not self._apply_group(model, node, modifiers, fields):
-            # node must be removed, no need to proceed further with its children
-            return fields
+        self._apply_group(model, node, modifiers)
+
         # The view architeture overrides the python model.
         # Get the attrs before they are (possibly) deleted by check_group below
         transfer_node_to_modifiers(node, modifiers, self._context, in_tree_view)
