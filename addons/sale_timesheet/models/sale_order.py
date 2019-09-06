@@ -139,7 +139,8 @@ class SaleOrder(models.Model):
         self.ensure_one()
         action = self.env.ref('hr_timesheet.timesheet_action_all').read()[0]
         action['context'] = self.env.context  # erase default filters
-
+        action['view_mode'] = 'tree,form'
+        action['views'] = [(self.env.ref('hr_timesheet.timesheet_view_tree_user').id, 'tree'), (self.env.ref('hr_timesheet.timesheet_view_form_user').id, 'form')]
         if self.timesheet_count > 0:
             action['domain'] = [('so_line', 'in', self.order_line.ids)]
         else:
