@@ -281,10 +281,10 @@ class IrHttp(models.AbstractModel):
             cls._routing_map = {}
         if key not in cls._routing_map:
             _logger.info("Generating routing map for key %s" % str(key))
-            installed = request.registry._init_modules - {'web'}
+            installed = request.registry._init_modules | set(odoo.conf.server_wide_modules)
             if tools.config['test_enable'] and odoo.modules.module.current_test:
                 installed.add(odoo.modules.module.current_test)
-            mods = [''] + odoo.conf.server_wide_modules + sorted(installed)
+            mods = sorted(installed)
             # Note : when routing map is generated, we put it on the class `cls`
             # to make it available for all instance. Since `env` create an new instance
             # of the model, each instance will regenared its own routing map and thus

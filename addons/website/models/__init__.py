@@ -11,8 +11,8 @@ from . import mixins
 from . import website
 from . import website_menu
 from . import website_page
-from . import ir_rule
 from . import website_rewrite
+from . import ir_rule
 from . import ir_ui_view
 from . import res_company
 from . import res_partner

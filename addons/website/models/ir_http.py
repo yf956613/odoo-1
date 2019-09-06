@@ -65,8 +65,7 @@ class Http(models.AbstractModel):
 
     @classmethod
     def routing_map(cls, key=None):
-        if request:
-            key = request.website_routing
+        key = key or (request and request.website_routing)
         return super(Http, cls).routing_map(key=key)
 
     @classmethod
@@ -84,7 +83,8 @@ class Http(models.AbstractModel):
         for arg in kw:
             if isinstance(kw[arg], models.BaseModel):
                 kw[arg] = kw[arg].sudo()  # requestUID
-        return adapter.build(endpoint, kw)
+        qs = request.httprequest.query_string.decode('utf-8')
+        return adapter.build(endpoint, kw) + (qs and '?%s' % qs or '')
 
     @classmethod
     def _find_handler(cls, return_rule=False, key=None):
@@ -100,21 +100,21 @@ class Http(models.AbstractModel):
         rewrites = dict([(x.url_from, x) for x in request.env['website.rewrite'].search(domain)])  # website = False or current
 
         for u, e, r in super(Http, cls)._generate_routing_rules(modules, converters):
-            #print(u, "\t==>", 'def %s' % e.method.__name__)
+            r = dict(r)
             if u in rewrites:
                 rewrite = rewrites[u]
                 url_to = rewrite.url_to
                 if rewrite.redirect_type == 'rewrite' and u != url_to:
-                    logger.warning('Add rule %s for %s' % (url_to, website_id))
+                    logger.debug('Add rule %s for %s' % (url_to, website_id))
                     yield url_to, e, r  # yield new url
 
-                    logger.warning('Redirect from %s to %s for website %s' % (u, url_to, website_id))
+                    logger.debug('Redirect from %s to %s for website %s' % (u, url_to, website_id))
 
                     _slug_matching = partial(cls._slug_matching, endpoint=e)
-                    r['redirect_to'] = _slug_matching  # cl
+                    r['redirect_to'] = _slug_matching
                     yield u, e, r  # yield original redirected to new url
                 elif rewrite.redirect_type == 'not_found':
-                    logger.warning('Return 404 for %s for website %s' % (u, website_id))
+                    logger.debug('Return 404 for %s for website %s' % (u, website_id))
                     continue
             else:
                 yield u, e, r

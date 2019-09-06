@@ -128,7 +128,7 @@ def unslug_url(s):
 # Language tools
 # ------------------------------------------------------------
 
-def url_for(path_or_uri, lang_code=None):
+def url_lang(path_or_uri, lang_code=None):
     ''' Given a relative URL, make it absolute and add the required lang or
         remove useless lang.
         Nothing will be done for absolute URL.
@@ -166,6 +166,40 @@ def url_for(path_or_uri, lang_code=None):
             location = u'/'.join(ps)
 
     return location
+
+
+def url_for(url_from, lang_code=None, no_rewrite=False):
+    ''' Return the url with the rewriting applied.
+        Nothing will be done for absolute URL, or short URL from 1 char.
+
+        :param url_from: The URL to convert.
+        :param lang_code: Must be the lang `code`. It could also be something
+                          else, such as `'[lang]'` (used for url_return).
+    '''
+    new_url = False
+
+    # avoid useless check for 1 char URL '/', '#', ... and absolute URL
+    if len(url_from) > 1 or not url_from.startswith('http') and not no_rewrite:
+        mapper = request.httprequest.app.get_db_router(request.db).bind('')
+        qs = False
+        try:
+            # call find_handler
+            if '?' in url_from:
+                path, qs = url_from.split('?', 1)
+            else:
+                path = url_from
+            _ = mapper.match(path)
+        except werkzeug.routing.RequestRedirect as e:
+            # remove query string from current env
+            new_url = e.new_url.split('?')[0]
+            # remove scheme and add query_string from url_from
+            new_url = new_url[7:] + (qs and '?%s' % qs or '')
+        except werkzeug.exceptions.NotFound as e:
+            new_url = url_from
+        except Exception as e:
+            raise e
+
+    return url_lang(new_url or url_from, lang_code=lang_code)
 
 
 def is_multilang_url(local_url, lang_url_codes=None):
@@ -375,7 +409,6 @@ class IrHttp(models.AbstractModel):
         func = None
         routing_error = None
 
-
         # handle // in url
         if request.httprequest.method == 'GET' and '//' in request.httprequest.path:
             new_url = request.httprequest.path.replace('//', '/') + '?' + request.httprequest.query_string.decode('utf-8')
@@ -394,7 +427,6 @@ class IrHttp(models.AbstractModel):
 
         request.is_frontend_multilang = not func or (func and request.is_frontend and func.routing.get('multilang', func.routing['type'] == 'http'))
 
-
         # check authentication level
         try:
             if func:
@@ -409,7 +441,7 @@ class IrHttp(models.AbstractModel):
 
         # For website routes (only), add website params on `request`
         if request.is_frontend:
-            request.redirect = lambda url, code=302: werkzeug.utils.redirect(url_for(url), code)
+            request.redirect = lambda url, code=302: werkzeug.utils.redirect(url_lang(url), code)
 
             cls._add_dispatch_parameters(func)
 
