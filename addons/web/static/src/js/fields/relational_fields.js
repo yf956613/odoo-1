@@ -102,6 +102,7 @@ var FieldMany2One = AbstractField.extend({
     }),
     events: _.extend({}, AbstractField.prototype.events, {
         'click input': '_onInputClick',
+        'focusin input': '_onInputFocusin',
         'focusout input': '_onInputFocusout',
         'keyup input': '_onInputKeyup',
         'click .o_external_button': '_onExternalButtonClick',
@@ -150,6 +151,7 @@ var FieldMany2One = AbstractField.extend({
         // is pending quick create operation
         this.dp = new concurrency.DropPrevious();
         this.createDef = undefined;
+        this.m2oDialogFocused = false;
     },
     start: function () {
         // booleean indicating that the content of the input isn't synchronized
@@ -588,6 +590,7 @@ var FieldMany2One = AbstractField.extend({
      */
     _searchCreatePopup: function (view, ids, context, dynamicFilters) {
         var self = this;
+        this.m2oDialogFocused = true;
         return new dialogs.SelectCreateDialog(this, _.extend({}, this.nodeOptions, {
             res_model: this.field.relation,
             domain: this.record.getDomain({fieldName: this.name}),
@@ -600,8 +603,10 @@ var FieldMany2One = AbstractField.extend({
             no_create: !self.can_create,
             on_selected: function (records) {
                 self.reinitialize(records[0]);
+            },
+            on_closed: function () {
                 self.activate();
-            }
+            },
         })).open();
     },
     /**
@@ -694,6 +699,12 @@ var FieldMany2One = AbstractField.extend({
         } else {
             this.$input.autocomplete("search", ''); // search with the empty string
         }
+    },
+    /**
+     * @private
+     */
+    _onInputFocusin: function () {
+        this.m2oDialogFocused = false;
     },
     /**
      * @private
@@ -802,6 +813,38 @@ var ListFieldMany2One = FieldMany2One.extend({
      */
     _renderReadonly: function () {
         this.$el.text(this.m2o_value);
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * In list views, we don't want to try to trigger a fieldChange when the field
+     * is being emptied. Instead, it will be triggered as the user leaves the field
+     * while it is empty.
+     *
+     * @override
+     * @private
+     */
+    _onInputFocusout: function () {
+        this._super.apply(this, arguments);
+        if (!this.m2oDialogFocused && this.$input.val() === "") {
+        // if (this.$input.val() === "") {
+            this.reinitialize(false);
+        }
+    },
+
+    /**
+     * Prevents the triggering of an immediate _onFieldChanged when emptying the field.
+     *
+     * @override
+     * @private
+     */
+    _onInputKeyup: function () {
+        if (this.$input.val() !== "") {
+            this._super.apply(this, arguments);
+        }
     },
 });
 
