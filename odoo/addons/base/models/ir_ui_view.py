@@ -773,7 +773,7 @@ actual arch.
                     node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
                     node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
                     if validate:
-                        self._domain_check(Comodel, node)
+                        self._domain_check(Comodel, node, view_id)
                 elif validate and node.get('domain'):
                     errors.append('Domain on field without comodel makes no sence %s for' % (node.get('name')))
             fields[node.get('name')] = attrs
@@ -843,7 +843,7 @@ actual arch.
                 fields[f.get('name')] = {}
         return {'fields': fields}
 
-    def _postprocess_search(self, Model=None, node=None, **kwargs):
+    def _postprocess_search(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
         searchpanel = [c for c in node if c.tag == 'searchpanel']
         if searchpanel:
             self.with_context(
@@ -865,15 +865,15 @@ actual arch.
                     if not group_by.split(':')[0] in Model._fields:
                         msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
                         self.raise_view_error(_(msg), view_id)
-            self._domain_check(Model, node)
+            self._domain_check(Model, node, view_id)
         return {}
 
-    def _domain_check(self, Model, node):
+    def _domain_check(self, Model, node, view_id):
         domain_str = node.get('domain')
         if domain_str:
-            self._check_server_domain(Model, domain_str)
+            self._check_server_domain(Model, domain_str, view_id)
 
-    def _check_server_domain(self, Model, domain_str):
+    def _check_server_domain(self, Model, domain_str, view_id):
         domain_fields = process_domain_str(domain_str)
         for domain_field in domain_fields:
             field_chain = domain_field.split('.')
@@ -884,11 +884,11 @@ actual arch.
                     current_field = field
                     _field = field_Model._fields[current_field]
                     if not _field._description_searchable:
-                        msg = 'Unsearchable field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'))
+                        msg = 'Unsearchable field "%s:%s" in path %s while cheking domain %s on model "%s"' % (field_Model._name, current_field, domain_field, domain_str, Model._name)
                         self.raise_view_error(_(msg), view_id)
                     field_Model = field_Model[current_field]
             except KeyError as e:
-                msg = 'Unknow field "%s:%s" in leaf %s while cheking domain %s on model "%s" in filter "%s"' % (record._name, current_field, part, domain, model, node.get('name'), )
+                msg = 'Unknow field "%s:%s" in path %s while cheking domain %s on model "%s"' % (field_Model._name, current_field, domain_field, domain_str, Model._name)
                 self.raise_view_error(_(msg), view_id)
 
     @api.model
