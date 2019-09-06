@@ -736,7 +736,7 @@ actual arch.
     # TODO: remove group processing from ir_qweb
     #------------------------------------------------------
     @api.model
-    def _postprocess_field(self, Model=None, node=None, view_id=None, model_fields=None, validate=None, **kwargs):
+    def _postprocess_field(self, Model=None, node=None, view_id=None, model_fields=None, validate=None, editable=True, **kwargs):
         children = []
         fields = {}
         modifiers = {}
@@ -751,7 +751,7 @@ actual arch.
                     fields.pop(node.get('name'), None)
                     # no point processing view-level ``groups`` anymore, return
                     return False
-                editable = self.env.context.get('view_is_editable', True) and field_is_editable(field, node)
+                editable = editable and field_is_editable(field, node)
                 children = []
                 views = {}
                 for f in node:
@@ -759,8 +759,7 @@ actual arch.
                         node.remove(f)
                         xarch, xfields = self.with_context(
                             base_model_name=Model._name,
-                            view_is_editable=editable,
-                        ).postprocess_and_fields(field.comodel_name, f, view_id, validate)
+                        ).postprocess_and_fields(field.comodel_name, f, view_id, validate, editable=editable)
                         views[str(f.tag)] = {
                             'arch': xarch,
                             'fields': xfields,
@@ -784,7 +783,6 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
-
         return {'children': children, 'fields': fields, 'modifiers': modifiers}
 
     def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
@@ -809,8 +807,7 @@ actual arch.
                 # validate the new node as a nested view, and associate it to the field
                 xarch, xfields = self.with_context(
                     base_model_name=Model._name,
-                    view_is_editable=False,
-                ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate)
+                ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate, editable=False)
                 attrs['views'] = {'groupby': {
                     'arch': xarch,
                     'fields': xfields,
@@ -849,8 +846,7 @@ actual arch.
             self.with_context(
                 base_model_name=Model._name,
                 check_field_names=False,  # field validation is a bit more tricky and done apart
-                view_is_editable=False,
-            ).postprocess_and_fields(Model._name, searchpanel[0], view_id, validate)
+            ).postprocess_and_fields(Model._name, searchpanel[0], view_id, validate, editable=False)
 
         return {'children': [c for c in node if c.tag != 'searchpanel']}
 
@@ -892,7 +888,7 @@ actual arch.
                 self.raise_view_error(_(msg), view_id)
 
     @api.model
-    def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate):
+    def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate, editable):
         """Return the description of the fields in the node.
 
         In a normal call to this method, node is a complete view architecture
@@ -916,7 +912,7 @@ actual arch.
         tag = node.tag
         postprocessor = getattr(self, '_postprocess_%s' % tag, False)
         if postprocessor:
-            res = postprocessor(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate)
+            res = postprocessor(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate, editable=editable)
             if res is False: # node is removed, ignore him
                 return {}
             node_infos.update(res)
@@ -928,7 +924,7 @@ actual arch.
         transfer_node_to_modifiers(node, node_infos['modifiers'], self._context, node_infos['in_tree_view'])
 
         for f in node_infos['children']:
-            node_infos['fields'].update(self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate))
+            node_infos['fields'].update(self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate, editable))
 
         transfer_modifiers_to_node(node_infos['modifiers'], node)
         
@@ -965,7 +961,7 @@ actual arch.
         return arch
 
     @api.model
-    def postprocess_and_fields(self, model, node, view_id, validate=True):
+    def postprocess_and_fields(self, model, node, view_id, validate=True, editable=True):
         """ Return an architecture and a description of all the fields.
 
         The field description combines the result of fields_get() and
@@ -985,10 +981,9 @@ actual arch.
         node = self.add_on_change(model, node)
 
         if validate:
-            editable = self.env.context.get('view_is_editable', True)
             attrs_fields = get_attrs_field_names(self.env, node, Model, editable)
 
-        fields_def = self.postprocess(model, node, view_id, False, fields, validate)
+        fields_def = self.postprocess(model, node, view_id, False, fields, validate, editable)
 
         self._postprocess_access_rights(model, node)
 
