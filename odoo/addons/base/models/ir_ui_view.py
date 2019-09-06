@@ -736,7 +736,7 @@ actual arch.
     # TODO: remove group processing from ir_qweb
     #------------------------------------------------------
     @api.model
-    def _postprocess_field(self, Model, node, view_id, model_fields, validate):
+    def _postprocess_field(self, Model=None, node=None, view_id=None, model_fields=None, validate=None):
         children = []
         fields = {}
         modifiers = {}
@@ -786,7 +786,7 @@ actual arch.
             errors.append('name not found in field node ')
         return children, fields, modifiers
 
-    def _postprocess_groupby(self, Model, node, view_id, validate):
+    def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None):
         # groupby nodes should be considered as nested view because they may
         # contain fields on the comodel
         field = Model._fields.get(node.get('name'))
@@ -820,15 +820,15 @@ actual arch.
             children = [c for c in node] # group_by is root of sub postprocess_and_fields, no name
         return children, fields
 
-    def _postprocess_form(self, Model, node):
+    def _postprocess_form(self, Model=None, node=None):
         result = Model.view_header_get(False, node.tag)
         if result:
             node.set('string', result)
 
-    def _postprocess_tree(self, Model, node):
+    def _postprocess_tree(self, Model=None, node=None):
         self._postprocess_form(Model, node)
 
-    def _postprocess_calendar(self, node):
+    def _postprocess_calendar(self, node=None):
         fields = {}
         for additional_field in ('date_start', 'date_delay', 'date_stop', 'color', 'all_day'):
             if node.get(additional_field):
@@ -838,7 +838,7 @@ actual arch.
                 fields[f.get('name')] = {}
         return fields
 
-    def _postprocess_search(self, node, Model):
+    def _postprocess_search(self, Model=None, node=None):
         searchpanel = [c for c in node if c.tag == 'searchpanel']
         if searchpanel:
             self.with_context(
@@ -850,7 +850,7 @@ actual arch.
         children = [c for c in node if c.tag != 'searchpanel']
         return children
 
-    def _postprocess_filter(self, node, Model, view_id, validate):
+    def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None):
         model = Model._name
         if validate:
             context = node.get('context')
@@ -905,28 +905,28 @@ actual arch.
         Model = self.env[model]
 
         if node.tag == 'field':
-            children, fields, modifiers = self._postprocess_field(Model, node, view_id, model_fields, validate)
+            children, fields, modifiers = self._postprocess_field(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate)
             if not fields and not children and not modifiers:
                 return {}
 
         elif node.tag == 'groupby':
-            children, fields = self._postprocess_groupby(Model, node, view_id, validate)
+            children, fields = self._postprocess_groupby(Model=Model, node=node, view_id=view_id, validate=validate)
 
         elif node.tag == 'form':
-            self._postprocess_form(Model, node)
+            self._postprocess_form(Model=Model, node=node)
 
         elif node.tag == 'tree':
-            self._postprocess_tree(Model, node)
+            self._postprocess_tree(Model=Model, node=node)
             in_tree_view = True
 
         elif node.tag == 'calendar':
-            fields = self._postprocess_calendar(node)
+            fields = self._postprocess_calendar(node=node)
 
         elif node.tag == 'search':
-            children = self._postprocess_search(node, Model)
+            children = self._postprocess_search(Model=Model, node=node)
 
         elif node.tag == 'filter':
-            self._postprocess_filter(node, Model, view_id, validate)
+            self._postprocess_filter(Model=Model, node=node, view_id=view_id, validate=validate)
         else:
             pass
             # separator, footer, button, p, div, ...
