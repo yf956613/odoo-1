@@ -132,6 +132,11 @@ class ThreadedWSGIServerReloadable(LoggingBaseWSGIServerMixIn, werkzeug.serving.
     socket open when a reload happens.
     """
     def __init__(self, host, port, app):
+        # The limit of concurrent http threads is set to half the size of db_maxconn
+        # because while most requests will borrow only one cursor there are some
+        # exceptions where some controllers might allocate two or more cursors.
+        max_concurrency = config['db_maxconn'] // 2
+        self.threads_limit = threading.Semaphore(max_concurrency)
         super(ThreadedWSGIServerReloadable, self).__init__(host, port, app,
                                                            handler=RequestHandler)
 
@@ -179,8 +184,14 @@ class ThreadedWSGIServerReloadable(LoggingBaseWSGIServerMixIn, werkzeug.serving.
         """
         if self._BaseServer__shutdown_request:
             return
+        if not self.threads_limit.acquire(timeout=0.1):
+            return
+        # upstream _handle_request_noblock will handle errors and call shutdown_request in any cases
         super(ThreadedWSGIServerReloadable, self)._handle_request_noblock()
 
+    def shutdown_request(self, request):
+        self.threads_limit.release()
+        super().shutdown_request(request)
 
 #----------------------------------------------------------
 # FileSystem Watcher for autoreload and cache invalidation
