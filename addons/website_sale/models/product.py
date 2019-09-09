@@ -148,6 +148,7 @@ class ProductPublicCategory(models.Model):
     parent_path = fields.Char(index=True)
     child_id = fields.One2many('product.public.category', 'parent_id', string='Children Categories')
     parents_and_self = fields.Many2many('product.public.category', compute='_compute_parents_and_self')
+    nbr_product = fields.Integer('Number of product', compute='_compute_nbr_product')
     sequence = fields.Integer(help="Gives the sequence order when displaying a list of product categories.", index=True)
     website_description = fields.Html('Category Description', sanitize_attributes=False, translate=html_translate)
     product_tmpl_ids = fields.Many2many('product.template', relation='product_public_category_product_template_rel')
@@ -169,6 +170,25 @@ class ProductPublicCategory(models.Model):
                 category.parents_and_self = self.env['product.public.category'].browse([int(p) for p in category.parent_path.split('/')[:-1]])
             else:
                 category.parents_and_self = category
+
+    def _compute_nbr_product(self):
+        self.flush()
+        if 'prod_dom' in self.env.context:
+            where, args = expression.expression(self.env.context['prod_dom'], self.env['product.template']).to_sql()
+        else:
+            where = "c.id IN %s"
+            args = [tuple(self.ids)]
+        query = """
+            SELECT c.id, COUNT(product_template)
+            FROM product_template, product_public_category c, product_public_category_product_template_rel
+            WHERE product_template_id = product_template.id AND
+            (SELECT parent_path FROM product_public_category WHERE id = product_public_category_id) LIKE CONCAT(c.parent_path, '%%') AND """ + where + """
+            GROUP BY c.id
+        """
+        self.env.cr.execute(query, args)
+        categs_nbr_prod = dict(self.env.cr.fetchall())
+        for category in self:
+            category.nbr_product = categs_nbr_prod.get(category.id, 0)
 
 
 class ProductTemplate(models.Model):
