@@ -607,9 +607,10 @@ class ProductProduct(models.Model):
                 continue
             if seller.product_id and seller.product_id != self:
                 continue
-            if not res or res.name == seller.name:
-                res |= seller
-        return res.sorted('price')[:1]
+
+            res |= seller
+            break
+        return res
 
     def price_compute(self, price_type, uom=False, currency=False, company=False):
         # TDE FIXME: delegate to template or not ? fields are reencoded here ...
