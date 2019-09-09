@@ -767,6 +767,32 @@ var FieldMany2One = AbstractField.extend({
 
 var ListFieldMany2One = FieldMany2One.extend({
 
+    /**
+     * Should never be allowed to be opened while in readonly mode in a list
+     *
+     * @override
+     */
+    init: function () {
+        this._super.apply(this, arguments);
+        this.noOpen = this.mode === 'readonly' || this.noOpen;
+    },
+
+    //--------------------------------------------------------------------------
+    // Public
+    //--------------------------------------------------------------------------
+
+    /**
+     * If in readonly, will never be considered as an active widget.
+     *
+     * @override
+     */
+    activate: function () {
+        if (this.mode === 'readonly') {
+            return false;
+        }
+        return this._super.apply(this, arguments);
+    },
+
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
