@@ -7,6 +7,9 @@ from odoo import fields, models
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
+    expiration_date = fields.Boolean(string='Expiration Date',
+        help='When this box is ticked, you have the possibility to specify dates to manage'
+        ' product expiration, on the product and on the corresponding lot/serial numbers')
     life_time = fields.Integer(string='Product Life Time',
         help='Number of days before the goods may become dangerous and must not be consumed. It will be computed on the lot/serial number.')
     use_time = fields.Integer(string='Product Use Time',

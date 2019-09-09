@@ -7,6 +7,8 @@ from odoo import api, fields, models, SUPERUSER_ID, _
 class StockProductionLot(models.Model):
     _inherit = 'stock.production.lot'
 
+    expiration_date = fields.Boolean(
+        string='Use Expiration Date', related='product_id.expiration_date')
     life_date = fields.Datetime(string='End of Life Date',
         help='This is the date on which the goods with this Serial Number may become dangerous and must not be consumed.')
     use_date = fields.Datetime(string='Best before Date',
