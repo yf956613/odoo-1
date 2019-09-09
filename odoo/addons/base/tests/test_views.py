@@ -9,7 +9,7 @@ from psycopg2 import IntegrityError
 
 from odoo.exceptions import ValidationError
 from odoo.tests import common
-from odoo.tools import mute_logger
+from odoo.tools import mute_logger, view_validation
 from odoo.addons.base.models.ir_ui_view import (
     transfer_field_to_modifiers, transfer_node_to_modifiers, simplify_modifiers,
 )
@@ -1440,6 +1440,27 @@ class TestViews(ViewCase):
             })
 
     @mute_logger('odoo.addons.base.models.ir_ui_view')
+    def test_domain_field_searchable(self):
+        arch = """
+            <form string="View">
+                <field name="name"/>
+                <field name="inherit_id" domain="[('%s', '=', 'test')]"/>
+            </form>
+        """
+        # todo add asserts on fields params or create test model?
+        self.View.create({
+            'name': 'valid domain',
+            'model': 'ir.ui.view',
+            'arch': arch % 'model_data_id',  # computed with search
+        })
+        with self.assertRaises(ValidationError):
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch % 'xml_id',  # computed, not stored, no search
+            })
+
+    @mute_logger('odoo.addons.base.models.ir_ui_view')
     def test_domain_in_subview(self):
         arch = """
             <form string="View">
@@ -1480,25 +1501,30 @@ class TestViews(ViewCase):
                         <field name="name"/>%s
                         <field name="inherit_id" domain="[('model', '=', parent.model)]"/>
                     </form>
-                </field>
+                </field>%s
             </form>
         """
         self.View.create({
             'name': 'valid domain',
             'model': 'ir.ui.view',
-            'arch': arch % ('<field name="model"/>', ''),
+            'arch': arch % ('<field name="model"/>', '', ''),
+        })
+        self.View.create({
+            'name': 'valid domain',
+            'model': 'ir.ui.view',
+            'arch': arch % ('', '', '<field name="model"/>'),
         })
         with self.assertRaises(ValidationError):
             self.View.create({
                 'name': 'valid domain',
                 'model': 'ir.ui.view',
-                'arch': arch % ('', ''),
+                'arch': arch % ('', '', ''),
             })
         with self.assertRaises(ValidationError):
             self.View.create({
                 'name': 'valid domain',
                 'model': 'ir.ui.view',
-                'arch': arch % ('', '<field name="model"/>'),
+                'arch': arch % ('', '<field name="model"/>', ''),
             })
 
     @mute_logger('odoo.addons.base.models.ir_ui_view')
@@ -2354,3 +2380,13 @@ class TestQWebRender(ViewCase):
         content3 = self.env['ir.qweb'].with_context(check_view_ids=[view1.id, view2.id, view3.id]).render('base.dummy_primary_ext')
 
         self.assertNotEqual(content1, content3)
+
+class TestViewValidation(common.BaseCase):
+
+    def test_process_domain(self):
+        res = view_validation.process_domain_str("['|', ('model', '=', parent.model or need_model), ('need_model', '=', False)]")
+        self.assertEqual(res, {'model': [('=', ['parent.model', 'need_model'])], 'need_model': [('=', [])]})
+
+    def test_process_2_level_parents(self):
+        res = view_validation.process_domain_str("['|', ('model', '=', parent.parent.model)]")
+        self.assertEqual(res, {'model': [('=', ['parent.parent.model'])]})

@@ -68,18 +68,25 @@ def field_is_editable(field, node):
         (node.get('readonly') != "1" or READONLY.search(node.get('attrs') or ""))
     )
 
-def process_domain_values(value):
-        values = []
-        # maybe just perform a ast.walk here
-        for node in ast.walk(ast.parse(value, mode='eval')):
-            if isinstance(node, ast.Name):
-                values.append(node.id)
-            #elif isinstance(node, ast.NameConstant):
-            #    values.append(('constant', node.value))
-            elif not isinstance(node, (ast.NameConstant, ast.Load, ast.BoolOp, ast.Or, ast.And, ast.Str, ast.Tuple, ast.Attribute)):
-                print(node)
-                #todocheck attribute
-        return values
+def process_value(value):
+    # maybe just perform a ast.walk here
+    values = []
+    def get(node):
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            return "%s.%s" % (get(node.value), node.attr)
+        return False
+
+    def process(node):
+        res = get(node)
+        if res:
+            values.append(res)
+        else:
+            for child in ast.iter_child_nodes(node):
+                process(child)
+    process(ast.parse(value, mode='eval'))
+    return values
 
 def process_dict(expr):
     pass
@@ -104,7 +111,7 @@ def process_domain(expr):
             [field, operator, value] = tupple
             assert isinstance(field, ast.Str)
             assert isinstance(operator, ast.Str)
-            fields[field.s].append((operator.s, process_domain_values(value)))
+            fields[field.s].append((operator.s, process_value(value)))
         else:
             assert False
     return dict(fields)
@@ -129,7 +136,6 @@ def get_attrs_field_names(env, arch, model, editable):
 
     def process_expr(expr, get, key, val):
         """ parse `expr` and collect triples """
-        #print('______process expr____ %s ' % expr)
         for node in ast.walk(ast.parse(expr.strip(), mode='eval')):
             name = get(node)
             if name not in symbols:
@@ -162,9 +168,6 @@ def get_attrs_field_names(env, arch, model, editable):
             if not val:
                 continue
             if key in ATTRS_WITH_FIELD_NAMES:
-                #if key == 'domain':
-                #    import pprint
-                #    pprint.pprint(process_domain(ast.parse(val.strip(), mode='eval')))
                 process_expr(val, get, key, val)
 
             elif key == 'attrs':
@@ -180,7 +183,7 @@ def get_attrs_field_names(env, arch, model, editable):
             model = env[field.comodel_name]
             get = partial(get_subname, get)
 
-        for child in node: # wont this be called multiple times on same node due to nested recusions? 
+        for child in node: # wont this be called multiple times on same node due to nested recusions?
             if node.tag == 'search' and child.tag == 'searchpanel':
                 # searchpanel part has to be validated independently
                 continue

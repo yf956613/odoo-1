@@ -757,9 +757,9 @@ actual arch.
                 for f in node:
                     if f.tag in ('form', 'tree', 'graph', 'kanban', 'calendar'):
                         node.remove(f)
-                        xarch, xfields = self.with_context(
+                        xarch, xfields, mandatory_fields = self.with_context(
                             base_model_name=Model._name,
-                        ).postprocess_and_fields(field.comodel_name, f, view_id, validate, editable=editable)
+                        ).postprocess_view(field.comodel_name, f, view_id, validate, editable=editable)
                         views[str(f.tag)] = {
                             'arch': xarch,
                             'fields': xfields,
@@ -805,9 +805,9 @@ actual arch.
                     groupby_node.append(child)
                 children = [] # processed as a nested view
                 # validate the new node as a nested view, and associate it to the field
-                xarch, xfields = self.with_context(
+                xarch, xfields, mandatory_fields = self.with_context(
                     base_model_name=Model._name,
-                ).postprocess_and_fields(field.comodel_name, groupby_node, view_id, validate, editable=False)
+                ).postprocess_view(field.comodel_name, groupby_node, view_id, validate, editable=False)
                 attrs['views'] = {'groupby': {
                     'arch': xarch,
                     'fields': xfields,
@@ -846,7 +846,7 @@ actual arch.
             self.with_context(
                 base_model_name=Model._name,
                 check_field_names=False,  # field validation is a bit more tricky and done apart
-            ).postprocess_and_fields(Model._name, searchpanel[0], view_id, validate, editable=False)
+            ).postprocess_view(Model._name, searchpanel[0], view_id, validate, editable=False)
 
         return {'children': [c for c in node if c.tag != 'searchpanel']}
 
@@ -861,17 +861,19 @@ actual arch.
                     if not group_by.split(':')[0] in Model._fields:
                         msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
                         self.raise_view_error(_(msg), view_id)
-            self._domain_check(Model, node, view_id)
-        return {}
+            mandatory_fields = self._domain_check(Model, node, view_id)
+        return {'mandatory_fields': mandatory_fields}
 
     def _domain_check(self, Model, node, view_id):
         domain_str = node.get('domain')
         if domain_str:
-            self._check_server_domain(Model, domain_str, view_id)
+            return self._check_server_domain(Model, domain_str, view_id)
+        return []
 
     def _check_server_domain(self, Model, domain_str, view_id):
         domain_fields = process_domain_str(domain_str)
-        for domain_field in domain_fields:
+        mandatory_fields = []
+        for domain_field, domain_values in domain_fields.items():
             field_chain = domain_field.split('.')
             field_Model = Model
             current_field = None
@@ -886,6 +888,10 @@ actual arch.
             except KeyError as e:
                 msg = 'Unknow field "%s:%s" in path %s while cheking domain %s on model "%s"' % (field_Model._name, current_field, domain_field, domain_str, Model._name)
                 self.raise_view_error(_(msg), view_id)
+            for operator, name_list in domain_values:
+                for name in name_list:
+                    mandatory_fields.append((name, 'domain', domain_str))
+        return mandatory_fields
 
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate, editable):
@@ -906,7 +912,8 @@ actual arch.
             fields={},
             children=list(node),
             modifiers={},
-            in_tree_view=in_tree_view
+            in_tree_view=in_tree_view,
+            mandatory_fields=[]
         )
 
         tag = node.tag
@@ -924,11 +931,12 @@ actual arch.
         transfer_node_to_modifiers(node, node_infos['modifiers'], self._context, node_infos['in_tree_view'])
 
         for f in node_infos['children']:
-            node_infos['fields'].update(self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate, editable))
-
+            fields, mandatory_fields = self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate, editable)
+            node_infos['fields'].update(fields)
+            node_infos['mandatory_fields'] += mandatory_fields
         transfer_modifiers_to_node(node_infos['modifiers'], node)
-        
-        return node_infos['fields']
+
+        return node_infos['fields'], node_infos['mandatory_fields']
 
     def add_on_change(self, model_name, arch):
         """ Add attribute on_change="1" on fields that are dependencies of
@@ -962,6 +970,29 @@ actual arch.
 
     @api.model
     def postprocess_and_fields(self, model, node, view_id, validate=True, editable=True):
+        arch, fields, mandatory_fields = self.postprocess_view(model, node, view_id, validate=True, editable=True)
+        if mandatory_fields:
+            self.raise_view_error("All parent.field should have been consummed at root level.", view_id) # TODO xdo better error message
+        return arch, fields
+
+    @api.model
+    def check_mandatory_fields(self, available_fields, mandatory_fields, Model, view_id):
+        parent_fields = []
+        for field, typ, description in mandatory_fields:
+            parts = field.split('.')
+            if len(parts) > 1 and parts[0] == 'parent':
+                parent_fields.append('.'.join(parts[1:]))
+            elif len(parts) > 1:
+                self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
+            elif field not in available_fields:
+                if field not in Model._fields:
+                    self.raise_view_error('Field %s does not exist on model %s in %s %s' % (field, Model._name, typ, description), view_id)
+                else:
+                    self.raise_view_error('Field %s used in  %s %s must be present in view but is missing.' % (field, typ, description), view_id)
+        return parent_fields
+
+    @api.model
+    def postprocess_view(self, model, node, view_id, validate=True, editable=True):
         """ Return an architecture and a description of all the fields.
 
         The field description combines the result of fields_get() and
@@ -983,7 +1014,9 @@ actual arch.
         if validate:
             attrs_fields = get_attrs_field_names(self.env, node, Model, editable)
 
-        fields_def = self.postprocess(model, node, view_id, False, fields, validate, editable)
+        fields_def, mandatory_fields = self.postprocess(model, node, view_id, False, fields, validate, editable)
+        if validate:
+            parent_fields = self.check_mandatory_fields(fields_def, mandatory_fields, Model, view_id)
 
         self._postprocess_access_rights(model, node)
 
@@ -1011,7 +1044,7 @@ actual arch.
                         msg_lines.append(line_fmt % line)
                 self.raise_view_error("\n".join(msg_lines), view_id)
 
-        return etree.tostring(node, encoding="unicode").replace('\t', ''), fields
+        return etree.tostring(node, encoding="unicode").replace('\t', ''), fields, parent_fields
 
     def _postprocess_access_rights(self, model, node):
         """ Compute and set on node access rights based on view type. Specific
