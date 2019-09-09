@@ -153,7 +153,7 @@ class WebsiteSale(http.Controller):
         order = post.get('order') or 'website_sequence ASC'
         return 'is_published desc, %s, id desc' % order
 
-    def _get_search_domain(self, search, category, attrib_values, search_in_description=True):
+    def _get_search_domain(self, search, attrib_values, search_in_description=True):
         domains = [request.website.sale_product_domain()]
         if search:
             for srch in search.split(" "):
@@ -165,9 +165,6 @@ class WebsiteSale(http.Controller):
                     subdomains.append([('description', 'ilike', srch)])
                     subdomains.append([('description_sale', 'ilike', srch)])
                 domains.append(expression.OR(subdomains))
-
-        if category:
-            domains.append([('public_categ_ids', 'child_of', int(category))])
 
         if attrib_values:
             attrib = None
@@ -231,12 +228,9 @@ class WebsiteSale(http.Controller):
         attributes_ids = {v[0] for v in attrib_values}
         attrib_set = {v[1] for v in attrib_values}
 
-        domain = self._get_search_domain(search, category, attrib_values)
-
         keep = QueryURL('/shop', category=category and int(category), search=search, attrib=attrib_list, order=post.get('order'))
 
         pricelist_context, pricelist = self._get_pricelist_context()
-
         request.context = dict(request.context, pricelist=pricelist.id, partner=request.env.user.partner_id)
 
         url = "/shop"
@@ -245,21 +239,34 @@ class WebsiteSale(http.Controller):
         if attrib_list:
             post['attrib'] = attrib_list
 
-        Product = request.env['product.template'].with_context(bin_size=True)
+        domain = self._get_search_domain(search, attrib_values)
 
-        search_product = Product.search(domain)
         website_domain = request.website.website_domain()
-        categs_domain = [('parent_id', '=', False)] + website_domain
-        if search:
-            search_categories = Category.search([('product_tmpl_ids', 'in', search_product.ids)] + website_domain).parents_and_self
-            categs_domain.append(('id', 'in', search_categories.ids))
-        else:
-            search_categories = Category
-        categs = Category.search(categs_domain)
+        categ_domain = expression.AND([domain, website_domain])
+        if not request.env.user._is_admin():
+            categ_domain = expression.AND([categ_domain, [('website_published', '=', True)]])
+
+        Category.flush()
+        Product = request.env['product.template'].with_context(bin_size=True)
+        where, args = expression.expression(categ_domain, Product).to_sql()
+        query = """
+            SELECT c.id, COUNT(product_template)
+            FROM product_template, product_public_category c, product_public_category_product_template_rel
+            WHERE product_template_id = product_template.id AND
+            (SELECT parent_path FROM product_public_category WHERE id = product_public_category_id) LIKE CONCAT(c.parent_path, '%%') AND """ + where + """
+            GROUP BY c.id
+        """
+        request.env.cr.execute(query, args)
+        categs_nbr_prod = dict(request.env.cr.fetchall())
+        categs_ids = list(categs_nbr_prod.keys())
+
+        categs = Category.search([('id', 'in', categs_ids)])
 
         if category:
+            domain = expression.AND([domain, [('public_categ_ids', 'child_of', int(category))]])
             url = "/shop/category/%s" % slug(category)
 
+        search_product = Product.search(domain)
         product_count = len(search_product)
         pager = request.website.pager(url=url, total=product_count, page=page, step=ppg, scope=7, url_args=post)
         products = Product.search(domain, limit=ppg, offset=pager['offset'], order=self._get_search_order(post))
@@ -292,9 +299,9 @@ class WebsiteSale(http.Controller):
             'ppg': ppg,
             'ppr': ppr,
             'categories': categs,
+            'categs_nbr_prod': categs_nbr_prod,
             'attributes': attributes,
             'keep': keep,
-            'search_categories_ids': search_categories.ids,
             'layout_mode': layout_mode,
         }
         if category:
@@ -1166,10 +1173,13 @@ class WebsiteSale(http.Controller):
         order = self._get_search_order(options)
         max_nb_chars = options.get('max_nb_chars', 999)
 
-        category = options.get('category')
         attrib_values = options.get('attrib_values')
 
-        domain = self._get_search_domain(term, category, attrib_values, display_description)
+        domain = self._get_search_domain(term, attrib_values, display_description)
+        category = options.get('category')
+        if category:
+            domain = expression.AND([domain, [('public_categ_ids', 'child_of', int(category))]])
+
         products = ProductTemplate.search(
             domain,
             limit=min(20, options.get('limit', 5)),
