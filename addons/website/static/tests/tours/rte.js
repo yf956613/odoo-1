@@ -27,7 +27,7 @@ tour.register('rte_translator', {
     trigger: '.modal-footer button:first',
     extra_trigger: '.modal select[name="lang"]:propValueContains(fr_BE)',
 }, {
-    content : "click language dropdown",
+    content : "click language dropdown to swith english version after loading language",
     trigger : '.js_language_selector .dropdown-toggle',
     timeout: 60000,
 }, {
@@ -68,9 +68,10 @@ tour.register('rte_translator', {
     trigger: 'button[data-action=save]',
     extra_trigger: '#wrap p:first b',
 }, {
-    content : "click language dropdown",
+    content : "click language dropdown to switch in french after save snippet+edit",
     trigger : '.js_language_selector .dropdown-toggle',
     extra_trigger: 'body:not(.o_wait_reload):not(:has(.note-editor)) a[data-action="edit"]',
+    timeout: 10000,
 }, {
     content: "click on french version",
     trigger: '.js_language_selector a[data-url_code="fr_BE"]',
@@ -169,7 +170,7 @@ tour.register('rte_translator', {
     extra_trigger: '#wrap.o_dirty p u',
 
     }, {
-    content : "click language dropdown",
+    content : "click language dropdown to switch in fren after new changes",
     trigger : '.js_language_selector .dropdown-toggle',
     extra_trigger: 'body:not(.o_wait_reload):not(:has(.note-editor)) a[data-action="edit"]',
 }, {
