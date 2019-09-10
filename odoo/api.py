@@ -133,16 +133,16 @@ def constrains(*args):
 def onchange(*args):
     """Return a decorator to decorate an onchange method for given fields.
 
+    In the form views where the field appears, the method will be called
+    when one of the given fields is modified. The method is invoked on a
+    pseudo-record that contains the values present in the form. Field
+    assignments on that record are automatically sent back to the client.
+
     Each argument must be a field name::
 
         @api.onchange('partner_id')
         def _onchange_partner(self):
             self.message = "Dear %s" % (self.partner_id.name or "")
-
-    In the form views where the field appears, the method will be called
-    when one of the given fields is modified. The method is invoked on a
-    pseudo-record that contains the values present in the form. Field
-    assignments on that record are automatically sent back to the client.
 
     .. code-block:: python
 
@@ -159,6 +159,17 @@ def onchange(*args):
         ``@onchange`` only supports simple field names, dotted names
         (fields of relational fields e.g. ``partner_id.tz``) are not
         supported and will be ignored
+
+    .. note::
+
+        ``onchange`` methods work on virtual records. Assignment on these records
+        is not written to the database, just used to know which value to send back
+        to the client
+
+    .. warning::
+
+        It is not possible for a ``one2many`` or ``many2many`` field to modify
+        itself via onchange. This is a webclient limitation - see `#2693 <https://github.com/odoo/odoo/issues/2693>`_.
 
     """
     return attrsetter('_onchange', args)

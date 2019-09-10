@@ -247,6 +247,101 @@ Fields/Views
 
 .. automethod:: Model.fields_view_get
 
+.. _reference/orm/domains:
+
+Search Domains
+''''''''''''''
+
+A domain is a list of criteria, each criterion being a triple (either a
+``list`` or a ``tuple``) of ``(field_name, operator, value)`` where:
+
+``field_name`` (``str``)
+    a field name of the current model, or a relationship traversal through
+    a :class:`~odoo.fields.Many2one` using dot-notation e.g. ``'street'``
+    or ``'partner_id.country'``
+
+``operator`` (``str``)
+    an operator used to compare the ``field_name`` with the ``value``. Valid
+    operators are:
+
+    ``=``
+        equals to
+    ``!=``
+        not equals to
+    ``>``
+        greater than
+    ``>=``
+        greater than or equal to
+    ``<``
+        less than
+    ``<=``
+        less than or equal to
+    ``=?``
+        unset or equals to (returns true if ``value`` is either ``None`` or
+        ``False``, otherwise behaves like ``=``)
+    ``=like``
+        matches ``field_name`` against the ``value`` pattern. An underscore
+        ``_`` in the pattern stands for (matches) any single character; a
+        percent sign ``%`` matches any string of zero or more characters.
+    ``like``
+        matches ``field_name`` against the ``%value%`` pattern. Similar to
+        ``=like`` but wraps ``value`` with '%' before matching
+    ``not like``
+        doesn't match against the ``%value%`` pattern
+    ``ilike``
+        case insensitive ``like``
+    ``not ilike``
+        case insensitive ``not like``
+    ``=ilike``
+        case insensitive ``=like``
+    ``in``
+        is equal to any of the items from ``value``, ``value`` should be a
+        list of items
+    ``not in``
+        is unequal to all of the items from ``value``
+    ``child_of``
+        is a child (descendant) of a ``value`` record.
+
+        Takes the semantics of the model into account (i.e following the
+        relationship field named by
+        :attr:`~odoo.models.Model._parent_name`).
+
+``value``
+    variable type, must be comparable (through ``operator``) to the named
+    field
+
+Domain criteria can be combined using logical operators in *prefix* form:
+
+``'&'``
+    logical *AND*, default operation to combine criteria following one
+    another. Arity 2 (uses the next 2 criteria or combinations).
+``'|'``
+    logical *OR*, arity 2.
+``'!'``
+    logical *NOT*, arity 1.
+
+    .. note:: Mostly to negate combinations of criteria
+        Individual criterion generally have a negative form (e.g. ``=`` ->
+        ``!=``, ``<`` -> ``>=``) which is simpler than negating the positive.
+
+.. admonition:: Example
+
+    To search for partners named *ABC*, from belgium or germany, whose language
+    is not english::
+
+        [('name','=','ABC'),
+         ('language.code','!=','en_US'),
+         '|',('country_id.code','=','be'),
+             ('country_id.code','=','de')]
+
+    This domain is interpreted as:
+
+    .. code-block:: text
+
+            (name is 'ABC')
+        AND (language is NOT english)
+        AND (country is Belgium OR Germany)
+
 Unlink
 ------
 
@@ -723,50 +818,15 @@ Method decorators
 
 .. todo:: With sphinx 2.0 : autodecorator
 
-.. _reference/api/onchange:
+.. todo:: Add in Views reference
+  * It is possible to suppress the trigger from a specific field by adding
+    ``on_change="0"`` in a view::
 
-onchange: updating UI on the fly
---------------------------------
+      <field name="name" on_change="0"/>
 
-When a user changes a field's value in a form (but hasn't saved the form yet),
-it can be useful to automatically update other fields based on that value
-e.g. updating a final total when the tax is changed or a new invoice line is
-added.
-
-* computed fields are automatically checked and recomputed, they do not need
-  an ``onchange``
-* for non-computed fields, the :func:`~odoo.api.onchange` decorator is used
-  to provide new field values::
-
-    @api.onchange('field1', 'field2') # if these fields are changed, call method
-    def check_change(self):
-        if self.field1 < self.field2:
-            self.field3 = True
-
-  the changes performed during the method are then sent to the client program
-  and become visible to the user
-
-* Both computed fields and onchanges are automatically called by the
-  client without having to add them in views
-* It is possible to suppress the trigger from a specific field by adding
-  ``on_change="0"`` in a view::
-
-    <field name="name" on_change="0"/>
-
-  will not trigger any interface update when the field is edited by the user,
-  even if there are function fields or explicit onchange depending on that
-  field.
-
-.. note::
-
-    ``onchange`` methods work on virtual records assignment on these records
-    is not written to the database, just used to know which value to send back
-    to the client
-
-.. warning::
-
-    It is not possible for a ``one2many`` or ``many2many`` field to modify
-    itself via onchange. This is a webclient limitation - see `#2693 <https://github.com/odoo/odoo/issues/2693>`_.
+    will not trigger any interface update when the field is edited by the user,
+    even if there are function fields or explicit onchange depending on that
+    field.
 
 .. _reference/orm/inheritance:
 
@@ -896,106 +956,6 @@ For instance, the second class below only adds a tooltip on the field
         _inherit = 'foo'
         state = fields.Selection(help="Blah blah blah")
 
-.. _reference/orm/domains:
-
-Search Domains
-==============
-
-A domain is a list of criteria, each criterion being a triple (either a
-``list`` or a ``tuple``) of ``(field_name, operator, value)`` where:
-
-``field_name`` (``str``)
-    a field name of the current model, or a relationship traversal through
-    a :class:`~odoo.fields.Many2one` using dot-notation e.g. ``'street'``
-    or ``'partner_id.country'``
-
-``operator`` (``str``)
-    an operator used to compare the ``field_name`` with the ``value``. Valid
-    operators are:
-
-    ``=``
-        equals to
-    ``!=``
-        not equals to
-    ``>``
-        greater than
-    ``>=``
-        greater than or equal to
-    ``<``
-        less than
-    ``<=``
-        less than or equal to
-    ``=?``
-        unset or equals to (returns true if ``value`` is either ``None`` or
-        ``False``, otherwise behaves like ``=``)
-    ``=like``
-        matches ``field_name`` against the ``value`` pattern. An underscore
-        ``_`` in the pattern stands for (matches) any single character; a
-        percent sign ``%`` matches any string of zero or more characters.
-    ``like``
-        matches ``field_name`` against the ``%value%`` pattern. Similar to
-        ``=like`` but wraps ``value`` with '%' before matching
-    ``not like``
-        doesn't match against the ``%value%`` pattern
-    ``ilike``
-        case insensitive ``like``
-    ``not ilike``
-        case insensitive ``not like``
-    ``=ilike``
-        case insensitive ``=like``
-    ``in``
-        is equal to any of the items from ``value``, ``value`` should be a
-        list of items
-    ``not in``
-        is unequal to all of the items from ``value``
-    ``child_of``
-        is a child (descendant) of a ``value`` record.
-
-        Takes the semantics of the model into account (i.e following the
-        relationship field named by
-        :attr:`~odoo.models.Model._parent_name`).
-    ``parent_of``
-        is a parent (ascendant) of a ``value`` record.
-
-        Takes the semantics of the model into account (i.e following the
-        relationship field named by
-        :attr:`~odoo.models.Model._parent_name`).
-
-``value``
-    variable type, must be comparable (through ``operator``) to the named
-    field
-
-Domain criteria can be combined using logical operators in *prefix* form:
-
-``'&'``
-    logical *AND*, default operation to combine criteria following one
-    another. Arity 2 (uses the next 2 criteria or combinations).
-``'|'``
-    logical *OR*, arity 2.
-``'!'``
-    logical *NOT*, arity 1.
-
-    .. note:: Mostly to negate combinations of criteria
-        Individual criterion generally have a negative form (e.g. ``=`` ->
-        ``!=``, ``<`` -> ``>=``) which is simpler than negating the positive.
-
-.. admonition:: Example
-
-    To search for partners named *ABC*, from belgium or germany, whose language
-    is not english::
-
-        [('name','=','ABC'),
-         ('language.code','!=','en_US'),
-         '|',('country_id.code','=','be'),
-             ('country_id.code','=','de')]
-
-    This domain is interpreted as:
-
-    .. code-block:: text
-
-            (name is 'ABC')
-        AND (language is NOT english)
-        AND (country is Belgium OR Germany)
 
 .. _reference/exceptions:
 
