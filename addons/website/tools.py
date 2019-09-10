@@ -97,6 +97,7 @@ class MockRequest(object):
             'context': context,
             'db': None,
             'env': env,
+            'registry': env,
             'httprequest': {
                 'path': '/hello/',
                 'app': app,
