@@ -743,7 +743,7 @@ actual arch.
         modifiers = {}
         errors = []
         attr_model = False
-        mandatory_fields = []
+        mandatory_fields = {}
         if node.get('name'):
             attrs = {}
             field = Model._fields.get(node.get('name')) # todo try to remove model_fields or Model._fields
@@ -794,7 +794,7 @@ actual arch.
         fields = {}
         errors = []
         name = node.get('name')
-        mandatory_fields = []
+        mandatory_fields = {}
         if name:
             field = Model._fields.get(name)
             if field:
@@ -865,28 +865,29 @@ actual arch.
     #                    msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
     #                    self.raise_view_error(_(msg), view_id)
     #    return {}
+
     @api.model
-    def _group_by_check(self, domain, Model):
-        assert isinstance(domain, ast.Str)
-        group_by = domain.s
+    def _group_by_check(self, value, Model, expr, view_id):
+        assert isinstance(value, ast.Str)
+        group_by = value.s
         if not group_by.split(':')[0] in Model._fields:
-            msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
+            msg = 'Unknow fields "%s" in group_by while cheking %s on model "%s""' % (group_by, expr, Model._name)
             self.raise_view_error(_(msg), view_id)
 
     @api.model
     def _attr_check(self, Model, node, view_id):
-        mandatory_fields = [] # todo make dict of mandatory to avoid duplication
+        mandatory_fields = {} # todo make dict of mandatory to avoid duplication
         for attr, expr in node.items():
             if attr == 'domain':
                 domain_fields = view_validation.process_domain_str(expr)
                 # would be better to have a part of this logic as a 'check method' given in parameter. Receive a leaf and check it while parsing.
                 # this would give some ease to replace values latter by giving appropriare checker
-                mandatory_fields += self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'domain', expr)
+                mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'domain', expr))
             elif attr == 'attrs':
                 for key, value in view_validation.process_dict_str(expr).items():
                     if node.tag == 'widget': # todo remove dirty hack,
                         if key == 'groupby':
-                            self._group_by_check(value, Model) # todo check maybe need it in mandatory
+                            self._group_by_check(value, Model, expr, view_id) # todo check maybe need it in mandatory
                         elif key == 'domain':
                             continue
                             # todo
@@ -894,20 +895,18 @@ actual arch.
                         _logger.error('not a domain %s in %s', key, expr)
                     else:
                         domain_fields = view_validation.process_domain(value)
-                        res = self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
-                        #print('adding attr mandatory: %s' % res)
-                        mandatory_fields += res
+                        mandatory_fields.update(self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
             elif attr == 'context':
                 for key, value in view_validation.process_dict_str(expr).items():
                     if key == 'group_by':
                         self._group_by_check(value, Model)
                     elif isinstance(value, ast.List):
                         domain_fields = view_validation.process_domain(value)
-                        mandatory_fields += self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
+                        mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
                     elif isinstance(value, (ast.Attribute, ast.Name, ast.BoolOp)):
                         for value in view_validation.process_value(value):
                             if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
-                                mandatory_fields.append((value, 'context', expr))
+                                mandatory_fields[value] = ('context', expr)
                     elif isinstance(value, (ast.Str, ast.NameConstant, ast.Num)):
                         continue
                     else:
@@ -925,7 +924,7 @@ actual arch.
         return mandatory_fields
 
     def _get_server_domain_mandatory_fields(self, Model, domain_fields, view_id, key, domain_str):
-        mandatory_fields = []
+        mandatory_fields = {}
         for domain_field, domain_values in domain_fields.items():
             field_chain = domain_field.split('.')
             field_Model = Model
@@ -944,16 +943,16 @@ actual arch.
             for operator, name_list in domain_values:
                 for name in name_list:
                     if name not in view_validation._get_attrs_symbols(): # to check
-                        mandatory_fields.append((name, key, domain_str))
+                        mandatory_fields[name] = (key, domain_str)
         return mandatory_fields
 
     def _get_client_domain_mandatory_fields(self, Model, domain_fields, view_id, key, domain_str):
-        mandatory_fields = []
+        mandatory_fields = {}
         for domain_field, domain_values in domain_fields.items():
-            mandatory_fields.append((domain_field, key, domain_str))
+            mandatory_fields[domain_field] = (key, domain_str)
             for operator, name_list in domain_values:
                 for name in name_list:
-                    mandatory_fields.append((name, key, domain_str))
+                    mandatory_fields[name] = (key, domain_str)
         return mandatory_fields
 
 
@@ -977,7 +976,7 @@ actual arch.
             children=list(node),
             modifiers={},
             in_tree_view=in_tree_view,
-            mandatory_fields=[],
+            mandatory_fields={},
             attr_model=Model
         )
 
@@ -986,9 +985,9 @@ actual arch.
         if postprocessor:
             res = postprocessor(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate, editable=editable)
             if res is False: # node is removed, ignore him
-                return {}, []
+                return {}, {}
             node_infos.update(res)
-        node_infos['mandatory_fields'] += self._attr_check(node_infos['attr_model'], node, view_id)
+        node_infos['mandatory_fields'].update(self._attr_check(node_infos['attr_model'], node, view_id))
         self._apply_group(model, node, node_infos['modifiers'])
 
         # The view architeture overrides the python model.
@@ -998,7 +997,7 @@ actual arch.
         for f in node_infos['children']:
             fields, mandatory_fields = self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate, editable)
             node_infos['fields'].update(fields)
-            node_infos['mandatory_fields'] += mandatory_fields
+            node_infos['mandatory_fields'].update(mandatory_fields)
         transfer_modifiers_to_node(node_infos['modifiers'], node)
 
         return node_infos['fields'], node_infos['mandatory_fields']
@@ -1034,11 +1033,11 @@ actual arch.
         return arch
     @api.model
     def check_mandatory_fields(self, available_fields, mandatory_fields, Model, view_id):
-        parent_fields = []
-        for field, typ, description in mandatory_fields:
+        parent_fields = {}
+        for field, (typ, description) in mandatory_fields.items():
             parts = field.split('.')
             if len(parts) > 1 and parts[0] == 'parent':
-                parent_fields.append(('.'.join(parts[1:]), typ, description))
+                parent_fields['.'.join(parts[1:])] = (typ, description)
             elif len(parts) > 1:
                 if parts[0] not in view_validation._get_attrs_symbols():
                     self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
