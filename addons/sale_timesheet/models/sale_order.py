@@ -24,9 +24,7 @@ class SaleOrder(models.Model):
         help='Select a non billable project on which tasks can be created.')
     project_ids = fields.Many2many('project.project', compute="_compute_project_ids", string='Projects', copy=False, groups="project.group_project_user", help="Projects used in this sales order.")
     timesheet_encode_uom_id = fields.Many2one('uom.uom', related='company_id.timesheet_encode_uom_id')
-    timesheet_encoded_in_hours = fields.Boolean(compute='_compute_timesheet_total', readonly=True)
     timesheet_uom_total = fields.Float(compute='_compute_timesheet_total', readonly=True)
-    timesheet_hours_total = fields.Float(compute='_compute_timesheet_total', readonly=True)
 
     @api.depends('analytic_account_id.line_ids')
     def _compute_timesheet_ids(self):
@@ -68,9 +66,7 @@ class SaleOrder(models.Model):
         timesheet_system_uom = self.env.ref('uom.product_uom_hour')
         for sale_order in self:
             timesheet_qty = sum(sale_order.mapped('timesheet_ids.unit_amount'))
-            sale_order.timesheet_hours_total = timesheet_qty
             sale_order.timesheet_uom_total = timesheet_qty * timesheet_system_uom.factor_inv * sale_order.timesheet_encode_uom_id.factor
-            sale_order.timesheet_encoded_in_hours = sale_order.timesheet_encode_uom_id == timesheet_system_uom
 
     @api.onchange('project_id')
     def _onchange_project_id(self):
