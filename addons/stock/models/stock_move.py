@@ -619,13 +619,12 @@ class StockMove(models.Model):
             move_lines_commands.append((0, 0, {
                 'lot_name': lot_name,
                 'qty_done': 1,
-                'product_id': self.product_id.id,
                 'product_uom_id': self.product_id.uom_id.id,
                 'location_id': self.location_id.id,
                 'location_dest_id': location_dest.id,
                 'picking_id': self.picking_id.id,
             }))
-        self.write({'move_line_ids': move_lines_commands})
+        self.with_context(default_product_id=self.product_id.id).write({'move_line_ids': move_lines_commands})
         return True
 
     def _push_apply(self):

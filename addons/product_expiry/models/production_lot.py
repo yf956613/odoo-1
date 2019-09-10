@@ -102,6 +102,17 @@ class StockProductionLot(models.Model):
             'product_expiry_reminded': True
         })
 
+    def _update_date_values(self, new_date):
+        time_delta = new_date - self.life_date
+        vals = {'life_date': new_date}
+        if self.use_date:
+            vals['use_date'] = self.use_date + time_delta
+        if self.removal_date:
+            vals['removal_date'] = self.removal_date + time_delta
+        if self.alert_date:
+            vals['alert_date'] = self.alert_date + time_delta
+        self.write(vals)
+
 
 class ProcurementGroup(models.Model):
     _inherit = 'procurement.group'
