@@ -434,11 +434,11 @@ class Environment(Mapping):
         """
         cls._local.environments = Environments()
 
-    def __new__(cls, cr, uid, context, su=False):
+    def __new__(cls, cr, uid, context, cid=1, su=False):  # No default company? all env creation in orm to check then :x.
         if uid == SUPERUSER_ID:
             su = True
         assert context is not None
-        args = (cr, uid, context, su)
+        args = (cr, uid, cid, context, su)
 
         # if env already exists, return it
         env, envs = None, cls.envs
@@ -448,8 +448,8 @@ class Environment(Mapping):
 
         # otherwise create environment, and add it in the set
         self = object.__new__(cls)
-        args = (cr, uid, frozendict(context), su)
-        self.cr, self.uid, self.context, self.su = self.args = args
+        args = (cr, uid, cid, frozendict(context), su)
+        self.cr, self.uid, self.cid, self.context, self.su = self.args = args
         self.registry = Registry(cr.dbname)
         self.cache = envs.cache
         self._protected = envs.protected        # proxy to shared data structure
@@ -486,7 +486,7 @@ class Environment(Mapping):
     def __hash__(self):
         return object.__hash__(self)
 
-    def __call__(self, cr=None, user=None, context=None, su=None):
+    def __call__(self, cr=None, user=None, company=None, context=None, su=None):
         """ Return an environment based on ``self`` with modified parameters.
 
             :param cr: optional database cursor to change the current cursor
@@ -496,9 +496,10 @@ class Environment(Mapping):
         """
         cr = self.cr if cr is None else cr
         uid = self.uid if user is None else int(user)
+        cid = self.cid if company is None else int(company)
         context = self.context if context is None else context
         su = (user is None and self.su) if su is None else su
-        return Environment(cr, uid, context, su)
+        return Environment(cr, uid, context, cid, su)
 
     def ref(self, xml_id, raise_if_not_found=True):
         """ return the record corresponding to the given ``xml_id`` """
@@ -525,10 +526,12 @@ class Environment(Mapping):
 
     @property
     def company(self):
-        """ return the company in which the user is logged in (as an instance) """
+        """Return the current company (as an instance).
+
+        By default, the company in which the user is logged in."""
         try:
-            company_id = int(self.context.get('allowed_company_ids')[0])
-            if company_id in self.user.company_ids.ids:
+            company_id = self.cid or int(self.context.get('allowed_company_ids')[0])
+            if (company_id in self.user.company_ids.ids) or self.is_superuser():
                 return self['res.company'].browse(company_id)
             return self.user.company_id
         except Exception:

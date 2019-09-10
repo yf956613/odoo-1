@@ -2880,7 +2880,7 @@ Fields:
                 _logger.warning("%s.read() with unknown field '%s'", self._name, name)
 
         env = self.env
-        cr, user, context, su = env.args
+        cr, user, company, context, su = env.args
 
         # make a query object for selecting ids, and apply security rules to it
         param_ids = object()
@@ -4834,6 +4834,18 @@ Fields:
         superuser is always in superuser mode.)
         """
         return self.with_env(self.env(user=user, su=False))
+
+    def with_company(self, company):
+        """
+
+        """
+        if not self.env.is_superuser() and company not in self.env.user.company_ids:
+            # Better Error msg?
+            raise AccessError(
+                _("The user %s doesn't have access to company %s.") % (
+                    self.env.user.display_name,
+                    company.display_name))
+        return self.with_env(self.env(company=company))
 
     def with_context(self, *args, **kwargs):
         """ with_context([context][, **overrides]) -> records
