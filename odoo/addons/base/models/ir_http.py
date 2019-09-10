@@ -88,11 +88,7 @@ class IrHttp(models.AbstractModel):
 
     @classmethod
     def _match(cls, path_info, key=None):
-        # !!! test           
-        request.httprequest.environ['PATH_INFO'] = path_info
-        return cls.routing_map().bind_to_environ(request.httprequest.environ).match(return_rule=True)
-
-        # return cls.routing_map(key=key).bind('').match(return_rule=True, method='POST', path_info=path_info)
+        return cls.routing_map(key=key).bind('').match(return_rule=True, method='POST', path_info=path_info)
 
     @classmethod
     def _auth_method_user(cls):
