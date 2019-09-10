@@ -186,7 +186,8 @@ def url_for(url_from, lang_code=None, no_rewrite=False):
                 path, qs = url_from.split('?', 1)
             else:
                 path = url_from
-            _ = request.registry['ir.http']._match(path)
+            #_ = request.env['ir.http']._match(path)
+            _ = request.httprequest.app.get_db_router(request.db).bind('').match(path, method='POST')
         except werkzeug.routing.RequestRedirect as e:
             # remove query string from current env
             new_url = e.new_url.split('?')[0]
