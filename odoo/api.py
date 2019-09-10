@@ -440,11 +440,11 @@ class Environment(Mapping):
         """
         cls._local.environments = Environments()
 
-    def __new__(cls, cr, uid, context, su=False):
+    def __new__(cls, cr, uid, context, cid=0, su=False):
         if uid == SUPERUSER_ID:
             su = True
         assert context is not None
-        args = (cr, uid, context, su)
+        args = (cr, uid, cid, context, su)
 
         # if env already exists, return it
         env, envs = None, cls.envs
@@ -454,8 +454,8 @@ class Environment(Mapping):
 
         # otherwise create environment, and add it in the set
         self = object.__new__(cls)
-        args = (cr, uid, frozendict(context), su)
-        self.cr, self.uid, self.context, self.su = self.args = args
+        args = (cr, uid, cid, frozendict(context), su)
+        self.cr, self.uid, self.cid, self.context, self.su = self.args = args
         self.registry = Registry(cr.dbname)
         self.cache = envs.cache
         self._protected = envs.protected        # proxy to shared data structure
@@ -492,7 +492,7 @@ class Environment(Mapping):
     def __hash__(self):
         return object.__hash__(self)
 
-    def __call__(self, cr=None, user=None, context=None, su=None):
+    def __call__(self, cr=None, user=None, company=None, context=None, su=None):
         """ Return an environment based on ``self`` with modified parameters.
 
             :param cr: optional database cursor to change the current cursor
@@ -503,8 +503,9 @@ class Environment(Mapping):
         cr = self.cr if cr is None else cr
         uid = self.uid if user is None else int(user)
         context = self.context if context is None else context
+        cid = self.cid if company is None else int(company)
         su = (user is None and self.su) if su is None else su
-        return Environment(cr, uid, context, su)
+        return Environment(cr, uid, context, cid, su)
 
     def ref(self, xml_id, raise_if_not_found=True):
         """ return the record corresponding to the given ``xml_id`` """
@@ -531,7 +532,11 @@ class Environment(Mapping):
 
     @lazy_property
     def company(self):
-        """ return the company in which the user is logged in (as an instance) """
+        """Return the current company (as an instance).
+
+        By default, the company in which the user is logged in."""
+        if self.cid:
+            return self['res.company'].browse(self.cid)
         company_ids = self.context.get('allowed_company_ids', False)
         if company_ids:
             company_id = int(company_ids[0])
@@ -546,7 +551,12 @@ class Environment(Mapping):
             allowed_company_ids = self.context.get('allowed_company_ids')
             # Prevent the user to enable companies for which he doesn't have any access
             users_company_ids = self.user.company_ids.ids
-            allowed_company_ids = [company_id for company_id in allowed_company_ids if company_id in users_company_ids]
+            allowed_company_ids = [cid for cid in allowed_company_ids if cid in users_company_ids]
+            if self.cid and self.cid not in allowed_company_ids:
+                # If environment is company focused, force the focused company to be in companies.
+                # Even if given company isn't one of the user companies !
+                # VFE TODO if company focused, shouldn't companies only return this one ???
+                allowed_company_ids.insert(0, self.cid)
         except Exception:
             # By setting the default companies to all user companies instead of the main one
             # we save a lot of potential trouble in all "out of context" calls, such as
@@ -559,6 +569,11 @@ class Environment(Mapping):
             #   - when accessing to a record from the notification email template
             #   - when loading an binary image on a template
             allowed_company_ids = self.user.company_ids.ids
+            if self.cid and self.cid not in allowed_company_ids:
+                # If environment is company focused, force the focused company to be in companies.
+                # Even if given company isn't one of the user companies !
+                # VFE TODO if company focused, shouldn't companies only return this one ???
+                allowed_company_ids.insert(0, self.cid)
         return self['res.company'].browse(allowed_company_ids)
 
     @property

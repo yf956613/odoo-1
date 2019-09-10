@@ -2898,7 +2898,7 @@ Fields:
                 _logger.warning("%s.read() with unknown field '%s'", self._name, name)
 
         env = self.env
-        cr, user, context, su = env.args
+        cr, user, company, context, su = env.args
 
         # make a query object for selecting ids, and apply security rules to it
         param_ids = object()
@@ -4922,6 +4922,16 @@ Record ids: %(records)s
         superuser is always in superuser mode.)
         """
         return self.with_env(self.env(user=user, su=False))
+
+    def with_company(self, company):
+        """
+
+        """
+        if not company:
+            # With company = None/False/0: keep current company
+            return self
+
+        return self.with_env(self.env(company=company))
 
     def with_context(self, *args, **kwargs):
         """ with_context([context][, **overrides]) -> records
