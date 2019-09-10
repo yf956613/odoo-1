@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
+# Part of Odoo. See LICENSE file for full copyright and licensing details
+import ast
 import collections
 import datetime
 import fnmatch
@@ -27,7 +28,7 @@ from odoo.tools import config, graph, ConstantMapping, pycompat, apply_inheritan
 from odoo.tools.convert import _fix_multiple_roots
 from odoo.tools.json import scriptsafe as json_scriptsafe
 from odoo.tools.safe_eval import safe_eval
-from odoo.tools.view_validation import valid_view, get_attrs_field_names, field_is_editable, process_domain_str
+from odoo.tools import view_validation
 from odoo.tools.translate import xml_translate, TRANSLATED_ATTRS
 from odoo.tools.image import image_data_uri
 
@@ -392,7 +393,7 @@ actual arch.
                     # A <data> element is a wrapper for multiple root nodes
                     view_docs = view_docs[0]
                 for view_arch in view_docs:
-                    check = valid_view(view_arch, env=self.env, model=view.model)
+                    check = view_validation.valid_view(view_arch, env=self.env, model=view.model)
                     view_name = ('%s (%s)' % (view.name, view.xml_id)) if view.xml_id else view.name
                     if not check:
                         raise ValidationError(_('Invalid view %s definition in %s') % (view_name, view.arch_fs))
@@ -741,6 +742,8 @@ actual arch.
         fields = {}
         modifiers = {}
         errors = []
+        attr_model = False
+        mandatory_fields = []
         if node.get('name'):
             attrs = {}
             field = Model._fields.get(node.get('name')) # todo try to remove model_fields or Model._fields
@@ -751,7 +754,7 @@ actual arch.
                     fields.pop(node.get('name'), None)
                     # no point processing view-level ``groups`` anymore, return
                     return False
-                editable = editable and field_is_editable(field, node)
+                editable = editable and view_validation.field_is_editable(field, node)
                 children = []
                 views = {}
                 for f in node:
@@ -771,8 +774,7 @@ actual arch.
                     Comodel = self.env[field.comodel_name]
                     node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
                     node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
-                    if validate:
-                        self._domain_check(Comodel, node, view_id)
+                    attr_model = Comodel
                 elif validate and node.get('domain'):
                     errors.append('Domain on field without comodel makes no sence %s for' % (node.get('name')))
             fields[node.get('name')] = attrs
@@ -783,7 +785,7 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
-        return {'children': children, 'fields': fields, 'modifiers': modifiers}
+        return {'children': children, 'fields': fields, 'modifiers': modifiers, 'attr_model': attr_model, 'mandatory_fields': mandatory_fields}
 
     def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
         # groupby nodes should be considered as nested view because they may
@@ -792,6 +794,7 @@ actual arch.
         fields = {}
         errors = []
         name = node.get('name')
+        mandatory_fields = []
         if name:
             field = Model._fields.get(name)
             if field:
@@ -817,7 +820,7 @@ actual arch.
         else:
             children = [c for c in node] # group_by is root of sub postprocess_and_fields, no name
 
-        return {'children': children, 'fields': fields}
+        return {'children': children, 'fields': fields, 'mandatory_fields': mandatory_fields}
 
     def _postprocess_form(self, Model=None, node=None, **kwargs):
         result = Model.view_header_get(False, node.tag)
@@ -850,28 +853,68 @@ actual arch.
 
         return {'children': [c for c in node if c.tag != 'searchpanel']}
 
-    def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
-        model = Model._name
-        if validate:
-            context = node.get('context')
-            if context:
-                context = safe_eval(context, {}, nocopy=True)
-                group_by = context.get('group_by')
-                if group_by:
-                    if not group_by.split(':')[0] in Model._fields:
-                        msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
-                        self.raise_view_error(_(msg), view_id)
-            mandatory_fields = self._domain_check(Model, node, view_id)
-        return {'mandatory_fields': mandatory_fields}
+    #def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
+    #    model = Model._name
+    #    if validate:
+    #        context = node.get('context')
+    #        if context:
+    #            context = safe_eval(context, {}, nocopy=True)
+    #            group_by = context.get('group_by')
+    #            if group_by:
+    #                if not group_by.split(':')[0] in Model._fields:
+    #                    msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
+    #                    self.raise_view_error(_(msg), view_id)
+    #    return {}
 
-    def _domain_check(self, Model, node, view_id):
-        domain_str = node.get('domain')
-        if domain_str:
-            return self._check_server_domain(Model, domain_str, view_id)
-        return []
+    def _attr_check(self, Model, node, view_id):
+        mandatory_fields = []
+        for attr, expr in node.items():
+            if attr == 'domain':
+                domain_fields = view_validation.process_domain_str(expr)
+                # would be better to have a part of this logic as a 'check method' given in parameter. Receive a leaf and check it while parsing.
+                # this would give some ease to replace values latter by giving appropriare checker
+                mandatory_fields += self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'domain', expr)
+            elif attr == 'attrs':
+                for key, domain in view_validation.process_dict_str(expr).items():
+                    if not isinstance(domain, ast.List):
+                        logging.getLogger('testaaa').error('not a domain %s in %s', key, expr)
+                    else:
+                        domain_fields = view_validation.process_domain(domain)
+                        mandatory_fields += self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
+            elif attr == 'context':
+                for key, domain in view_validation.process_dict_str(expr).items():
+                    if key == 'group_by':
+                        assert isinstance(domain, ast.Str)
+                        group_by = domain.s
+                        if not group_by.split(':')[0] in Model._fields:
+                            msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
+                            self.raise_view_error(_(msg), view_id)
 
-    def _check_server_domain(self, Model, domain_str, view_id):
-        domain_fields = process_domain_str(domain_str)
+                    elif isinstance(domain, ast.List):
+                        try:
+                            domain_fields = view_validation.process_domain(domain)
+                            mandatory_fields += self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
+                        except:
+                            print('####### error while checking %s, %s' % (key, expr))
+                            raise
+                    elif isinstance(domain, (ast.Attribute, ast.Name)):
+                        for value in view_validation.process_value(domain):
+                            mandatory_fields.append((value, 'context', expr))
+                    else:
+                        print('*******', key, domain)
+
+            #else: # attr(invisible), groups, name, context, decoration-*
+            #    print(key, expr)
+            #if not expr:
+            #    continue
+            #if key in ATTRS_WITH_FIELD_NAMES:
+            #    process_expr(expr, get, key, expr)
+#
+            #elif key == 'attrs':
+            #    process_attrs(expr, get, key, expr)
+        return mandatory_fields
+
+    def _get_server_domain_mandatory_fields(self, Model, domain_fields, view_id, key, domain_str):
         mandatory_fields = []
         for domain_field, domain_values in domain_fields.items():
             field_chain = domain_field.split('.')
@@ -882,16 +925,26 @@ actual arch.
                     current_field = field
                     _field = field_Model._fields[current_field]
                     if not _field._description_searchable:
-                        msg = 'Unsearchable field "%s:%s" in path %s while cheking domain %s on model "%s"' % (field_Model._name, current_field, domain_field, domain_str, Model._name)
+                        msg = 'Unsearchable field "%s:%s" in path %s while cheking %s %s on model "%s"' % (field_Model._name, current_field, key, domain_field, domain_str, Model._name)
                         self.raise_view_error(_(msg), view_id)
                     field_Model = field_Model[current_field]
             except KeyError as e:
-                msg = 'Unknow field "%s:%s" in path %s while cheking domain %s on model "%s"' % (field_Model._name, current_field, domain_field, domain_str, Model._name)
+                msg = 'Unknow field "%s:%s" in path %s while cheking %s %s on model "%s"' % (field_Model._name, current_field, domain_field, key, domain_str, Model._name)
                 self.raise_view_error(_(msg), view_id)
             for operator, name_list in domain_values:
                 for name in name_list:
-                    mandatory_fields.append((name, 'domain', domain_str))
+                    mandatory_fields.append((name, key, domain_str))
         return mandatory_fields
+
+    def _get_client_domain_mandatory_fields(self, Model, domain_fields, view_id, key, domain_str):
+        mandatory_fields = []
+        for domain_field, domain_values in domain_fields.items():
+            mandatory_fields.append((domain_field, key, domain_str))
+            for operator, name_list in domain_values:
+                for name in name_list:
+                    mandatory_fields.append((name, key, domain_str))
+        return mandatory_fields
+
 
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate, editable):
@@ -913,7 +966,8 @@ actual arch.
             children=list(node),
             modifiers={},
             in_tree_view=in_tree_view,
-            mandatory_fields=[]
+            mandatory_fields=[],
+            attr_model=Model
         )
 
         tag = node.tag
@@ -923,7 +977,7 @@ actual arch.
             if res is False: # node is removed, ignore him
                 return {}
             node_infos.update(res)
-
+        node_infos['mandatory_fields'] += self._attr_check(node_infos['attr_model'], node, view_id)
         self._apply_group(model, node, node_infos['modifiers'])
 
         # The view architeture overrides the python model.
@@ -967,21 +1021,13 @@ actual arch.
                         node.set('on_change', '1')
 
         return arch
-
-    @api.model
-    def postprocess_and_fields(self, model, node, view_id, validate=True, editable=True):
-        arch, fields, mandatory_fields = self.postprocess_view(model, node, view_id, validate=True, editable=True)
-        if mandatory_fields:
-            self.raise_view_error("All parent.field should have been consummed at root level.", view_id) # TODO xdo better error message
-        return arch, fields
-
     @api.model
     def check_mandatory_fields(self, available_fields, mandatory_fields, Model, view_id):
         parent_fields = []
         for field, typ, description in mandatory_fields:
             parts = field.split('.')
             if len(parts) > 1 and parts[0] == 'parent':
-                parent_fields.append('.'.join(parts[1:]))
+                parent_fields.append(('.'.join(parts[1:]), typ, description))
             elif len(parts) > 1:
                 self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
             elif field not in available_fields:
@@ -1012,9 +1058,10 @@ actual arch.
         node = self.add_on_change(model, node)
 
         if validate:
-            attrs_fields = get_attrs_field_names(self.env, node, Model, editable)
+            attrs_fields = view_validation.get_attrs_field_names(self.env, node, Model, editable)
 
         fields_def, mandatory_fields = self.postprocess(model, node, view_id, False, fields, validate, editable)
+        parent_fields = []
         if validate:
             parent_fields = self.check_mandatory_fields(fields_def, mandatory_fields, Model, view_id)
 
@@ -1045,6 +1092,13 @@ actual arch.
                 self.raise_view_error("\n".join(msg_lines), view_id)
 
         return etree.tostring(node, encoding="unicode").replace('\t', ''), fields, parent_fields
+
+    @api.model
+    def postprocess_and_fields(self, model, node, view_id, validate=True, editable=True):
+        arch, fields, mandatory_fields = self.postprocess_view(model, node, view_id, validate=validate, editable=editable)
+        if mandatory_fields:
+            self.raise_view_error("All parent.field should have been consummed at root level.", view_id) # TODO xdo better error message
+        return arch, fields
 
     def _postprocess_access_rights(self, model, node):
         """ Compute and set on node access rights based on view type. Specific

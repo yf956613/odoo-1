@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import ast
 
 from functools import partial
 
@@ -1741,6 +1742,26 @@ class TestViews(ViewCase):
                 'arch': arch % ('name', 'inherit_children_ids.invalid_field'),
             })
         # todo add check for non searchable fields and group by
+
+    @mute_logger('odoo.addons.base.models.ir_ui_view')
+    def test_group_by_in_filter(self):
+        arch = """
+            <search string="Search">
+                <filter string="Date" name="month" domain="[]" context="{'group_by':'%s'}"/>
+            </search>
+        """
+        self.View.create({
+            'name': 'valid domain',
+            'model': 'ir.ui.view',
+            'arch': arch % 'name',
+        })
+        with self.assertRaises(ValidationError):
+            self.View.create({
+                'name': 'valid domain',
+                'model': 'ir.ui.view',
+                'arch': arch % 'invalid_field'
+            })
+       
     def test_domain_invalid_in_filter(self):
         arch = """
             <search string="Search">
@@ -1754,6 +1775,25 @@ class TestViews(ViewCase):
                 'model': 'ir.ui.view',
                 'arch': arch,
             })
+
+    #@mute_logger('odoo.addons.base.models.ir_ui_view')
+    #def test_groups_field(self):
+    #    arch = """
+    #        <form string="View">
+    #            <field name="name" groups="%s""/>
+    #        </form>
+    #    """
+    #    self.View.create({
+    #        'name': 'valid attrs',
+    #        'model': 'ir.ui.view',
+    #        'arch': arch % 'base.group_no_one',
+    #    })
+    #    with self.assertRaises(ValidationError):
+    #        self.View.create({
+    #            'name': 'valid attrs',
+    #            'model': 'ir.ui.view',
+    #            'arch': arch % 'base.dummy',
+    #        })
 
     @mute_logger('odoo.addons.base.models.ir_ui_view')
     def test_attrs_field(self):
@@ -2390,3 +2430,12 @@ class TestViewValidation(common.BaseCase):
     def test_process_2_level_parents(self):
         res = view_validation.process_domain_str("['|', ('model', '=', parent.parent.model)]")
         self.assertEqual(res, {'model': [('=', ['parent.parent.model'])]})
+
+    def test_process_dict(self):
+        res = view_validation.process_dict_str("{'test': False, 'required': [('model', '!=', False)], 'invisible': ['|', ('model', '=', parent.model or need_model), ('need_model', '=', False)]}")
+        self.assertEqual(set(res.keys()), set(['test', 'required', 'invisible']))
+        self.assertIsInstance(res['test'], ast.NameConstant)
+        self.assertIsInstance(res['required'], ast.List)
+        self.assertIsInstance(res['invisible'], ast.List)
+        self.assertEqual(view_validation.process_domain(res['invisible']), {'model': [('=', ['parent.model', 'need_model'])], 'need_model': [('=', [])]})
+

@@ -85,21 +85,51 @@ def process_value(value):
         else:
             for child in ast.iter_child_nodes(node):
                 process(child)
-    process(ast.parse(value, mode='eval'))
+    process(value)
     return values
 
-def process_dict(expr):
-    pass
+def process_dict_str(dict_str):
+    """
+    Take an str python expression in param. See process_dict for more info.
+    """
+    expr = ast.parse(dict_str.strip(), mode='eval')
+    assert isinstance(expr, ast.Expression)
+    dict_node = list(ast.iter_child_nodes(expr))
+    assert len(dict_node) == 1 and isinstance(dict_node[0], ast.Dict)
+    return process_dict(dict_node[0])
+
+def process_dict(dict_node):
+    """
+    Proccess an ast.dict node, check that it is a correct dict format
+    and returs a dict of {'key': ast_value}
+     example: {'invisible': <_ast.List object>}
+    """
+    result = {}
+    for key, value in zip(dict_node.keys, dict_node.values):
+        assert isinstance(key, ast.Str)
+        result[key.s] = value
+    return result
+
 
 def process_domain_str(domain_str):
-    return process_domain(ast.parse(domain_str.strip(), mode='eval'))
+    """
+    Take an str python expression in param. See process_domain for more info.
+    """
+    expr = ast.parse(domain_str.strip(), mode='eval')
 
-def process_domain(expr):
-    fields = collections.defaultdict(list)
     assert isinstance(expr, ast.Expression)
     list_node = list(ast.iter_child_nodes(expr))
     assert len(list_node) == 1 and isinstance(list_node[0], ast.List)
-    leaves = list(ast.iter_child_nodes(list_node[0]))
+    return process_domain(list_node[0])
+
+def process_domain(list_node):
+    """
+    Proccess either an ast.List, check that it is a correct domain format
+    and returs a dict of {'model': [(operator, [fields])]}
+     example: {'model': [('=', ['parent.model', 'need_model'])], 'need_model': [('=', [])]}
+    """
+    fields = collections.defaultdict(list)
+    leaves = list(ast.iter_child_nodes(list_node))
     assert isinstance(leaves.pop(), ast.Load)
     for leaf in leaves:
         if isinstance(leaf, ast.Str):
