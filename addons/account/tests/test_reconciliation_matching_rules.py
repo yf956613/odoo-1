@@ -30,7 +30,7 @@ class TestReconciliationMatchingRules(AccountingTestCase):
             self.assertDictEqual(values, expected_values[st_line_id])
 
     def setUp(self):
-        super(AccountingTestCase, self).setUp()
+        super(TestReconciliationMatchingRules, self).setUp()
 
         self.account_pay = self.env['account.account'].search([('internal_type', '=', 'payable')], limit=1)
         self.account_liq = self.env['account.account'].search([('internal_type', '=', 'liquidity')], limit=1)
