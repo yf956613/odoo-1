@@ -838,6 +838,7 @@ class ChromeBrowser():
                 log_type = res.get('params', {}).get('type')
                 content = " ".join([str(log.get('value', '')) for log in logs])
                 if log_type == 'error':
+                    odoo.tools.misc.dumpstacks()
                     self.take_screenshot()
                     self._save_screencast()
                     raise ChromeBrowserException(content)
