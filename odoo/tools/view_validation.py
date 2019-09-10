@@ -68,6 +68,14 @@ def field_is_editable(field, node):
         (node.get('readonly') != "1" or READONLY.search(node.get('attrs') or ""))
     )
 
+
+def process_value_str(str_value):
+    expr = ast.parse(str_value.strip(), mode='eval')
+    assert isinstance(expr, ast.Expression)
+    value_node = list(ast.iter_child_nodes(expr))
+    assert len(value_node) == 1
+    return process_value(value_node[0])
+
 def process_value(value):
     # maybe just perform a ast.walk here
     values = []
@@ -75,7 +83,8 @@ def process_value(value):
         if isinstance(node, ast.Name):
             return node.id
         elif isinstance(node, ast.Attribute):
-            return "%s.%s" % (get(node.value), node.attr)
+            left = get(node.value)
+            return left and "%s.%s" % (get(node.value), node.attr)
         return False
 
     def process(node):
@@ -85,6 +94,7 @@ def process_value(value):
         else:
             for child in ast.iter_child_nodes(node):
                 process(child)
+
     process(value)
     return values
 

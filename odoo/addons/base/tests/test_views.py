@@ -2439,3 +2439,21 @@ class TestViewValidation(common.BaseCase):
         self.assertIsInstance(res['invisible'], ast.List)
         self.assertEqual(view_validation.process_domain(res['invisible']), {'model': [('=', ['parent.model', 'need_model'])], 'need_model': [('=', [])]})
 
+
+    def test_process_value(self):
+        self.assertEqual(
+            view_validation.process_value_str("context_today().strftime('%Y-%m-%d')"),
+            ['context_today']
+        )
+        self.assertEqual(
+            view_validation.process_value_str("field or not field2"),
+            ['field', 'field2']
+        )
+        self.assertEqual(
+            view_validation.process_value_str("context_today().strftime('%Y-%m-%d') or field"),
+            ['context_today', 'field']
+        )
+        self.assertEqual(
+            view_validation.process_value_str("(datetime.datetime.combine(context_today(), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S')"),
+            ['datetime.datetime.combine', 'context_today', 'datetime.time']
+        )

@@ -865,9 +865,17 @@ actual arch.
     #                    msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
     #                    self.raise_view_error(_(msg), view_id)
     #    return {}
+    @api.model
+    def _group_by_check(self, domain, Model):
+        assert isinstance(domain, ast.Str)
+        group_by = domain.s
+        if not group_by.split(':')[0] in Model._fields:
+            msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
+            self.raise_view_error(_(msg), view_id)
 
+    @api.model
     def _attr_check(self, Model, node, view_id):
-        mandatory_fields = []
+        mandatory_fields = [] # todo make dict of mandatory to avoid duplication
         for attr, expr in node.items():
             if attr == 'domain':
                 domain_fields = view_validation.process_domain_str(expr)
@@ -875,35 +883,37 @@ actual arch.
                 # this would give some ease to replace values latter by giving appropriare checker
                 mandatory_fields += self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'domain', expr)
             elif attr == 'attrs':
-                for key, domain in view_validation.process_dict_str(expr).items():
-                    if not isinstance(domain, ast.List):
-                        logging.getLogger('testaaa').error('not a domain %s in %s', key, expr)
+                for key, value in view_validation.process_dict_str(expr).items():
+                    if node.tag == 'widget': # todo remove dirty hack,
+                        if key == 'groupby':
+                            self._group_by_check(value, Model) # todo check maybe need it in mandatory
+                        elif key == 'domain':
+                            continue
+                            # todo
+                    elif not isinstance(value, ast.List):
+                        _logger.error('not a domain %s in %s', key, expr)
                     else:
-                        domain_fields = view_validation.process_domain(domain)
-                        mandatory_fields += self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
+                        domain_fields = view_validation.process_domain(value)
+                        res = self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
+                        #print('adding attr mandatory: %s' % res)
+                        mandatory_fields += res
             elif attr == 'context':
-                for key, domain in view_validation.process_dict_str(expr).items():
+                for key, value in view_validation.process_dict_str(expr).items():
                     if key == 'group_by':
-                        assert isinstance(domain, ast.Str)
-                        group_by = domain.s
-                        if not group_by.split(':')[0] in Model._fields:
-                            msg = 'Unknow fields "%s" while cheking context %s on model "%s" in filter "%s from view %s"' % (group_by, context, model, node.get('name'), view_id)
-                            self.raise_view_error(_(msg), view_id)
-
-                    elif isinstance(domain, ast.List):
-                        try:
-                            domain_fields = view_validation.process_domain(domain)
-                            mandatory_fields += self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
-                        except:
-                            print('####### error while checking %s, %s' % (key, expr))
-                            raise
-                    elif isinstance(domain, (ast.Attribute, ast.Name)):
-                        for value in view_validation.process_value(domain):
-                            mandatory_fields.append((value, 'context', expr))
+                        self._group_by_check(value, Model)
+                    elif isinstance(value, ast.List):
+                        domain_fields = view_validation.process_domain(value)
+                        mandatory_fields += self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr)
+                    elif isinstance(value, (ast.Attribute, ast.Name, ast.BoolOp)):
+                        for value in view_validation.process_value(value):
+                            if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
+                                mandatory_fields.append((value, 'context', expr))
+                    elif isinstance(value, (ast.Str, ast.NameConstant, ast.Num)):
+                        continue
                     else:
-                        print('*******', key, domain)
+                        print('*******', key, value)
 
-            #else: # attr(invisible), groups, name, context, decoration-*
+            #else: # attr(invisible), groups, name, context, decoration-*+
             #    print(key, expr)
             #if not expr:
             #    continue
@@ -933,7 +943,8 @@ actual arch.
                 self.raise_view_error(_(msg), view_id)
             for operator, name_list in domain_values:
                 for name in name_list:
-                    mandatory_fields.append((name, key, domain_str))
+                    if name not in view_validation._get_attrs_symbols(): # to check
+                        mandatory_fields.append((name, key, domain_str))
         return mandatory_fields
 
     def _get_client_domain_mandatory_fields(self, Model, domain_fields, view_id, key, domain_str):
@@ -975,7 +986,7 @@ actual arch.
         if postprocessor:
             res = postprocessor(Model=Model, node=node, view_id=view_id, model_fields=model_fields, validate=validate, editable=editable)
             if res is False: # node is removed, ignore him
-                return {}
+                return {}, []
             node_infos.update(res)
         node_infos['mandatory_fields'] += self._attr_check(node_infos['attr_model'], node, view_id)
         self._apply_group(model, node, node_infos['modifiers'])
@@ -1029,7 +1040,8 @@ actual arch.
             if len(parts) > 1 and parts[0] == 'parent':
                 parent_fields.append(('.'.join(parts[1:]), typ, description))
             elif len(parts) > 1:
-                self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
+                if parts[0] not in view_validation._get_attrs_symbols():
+                    self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
             elif field not in available_fields:
                 if field not in Model._fields:
                     self.raise_view_error('Field %s does not exist on model %s in %s %s' % (field, Model._name, typ, description), view_id)
