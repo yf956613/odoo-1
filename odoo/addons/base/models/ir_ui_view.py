@@ -755,14 +755,16 @@ actual arch.
                     # no point processing view-level ``groups`` anymore, return
                     return False
                 editable = editable and view_validation.field_is_editable(field, node)
+                mandatory_fields.update(self.get_field_mandatory_field(node, field, editable))
                 children = []
                 views = {}
                 for f in node:
                     if f.tag in ('form', 'tree', 'graph', 'kanban', 'calendar'):
                         node.remove(f)
-                        xarch, xfields, mandatory_fields = self.with_context(
+                        xarch, xfields, sub_mandatory_fields = self.with_context(
                             base_model_name=Model._name,
                         ).postprocess_view(field.comodel_name, f, view_id, validate, editable=editable)
+                        mandatory_fields.update(sub_mandatory_fields)
                         views[str(f.tag)] = {
                             'arch': xarch,
                             'fields': xfields,
@@ -787,7 +789,7 @@ actual arch.
             errors.append('name not found in field node ')
         return {'children': children, 'fields': fields, 'modifiers': modifiers, 'attr_model': attr_model, 'mandatory_fields': mandatory_fields}
 
-    def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
+    def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, editable=None, **kwargs):
         # groupby nodes should be considered as nested view because they may
         # contain fields on the comodel
         field = Model._fields.get(node.get('name'))
@@ -808,13 +810,15 @@ actual arch.
                     groupby_node.append(child)
                 children = [] # processed as a nested view
                 # validate the new node as a nested view, and associate it to the field
-                xarch, xfields, mandatory_fields = self.with_context(
+                xarch, xfields, sub_mandatory_fields = self.with_context(
                     base_model_name=Model._name,
                 ).postprocess_view(field.comodel_name, groupby_node, view_id, validate, editable=False)
+                mandatory_fields.update(sub_mandatory_fields)
                 attrs['views'] = {'groupby': {
                     'arch': xarch,
                     'fields': xfields,
                 }}
+                mandatory_fields.update(self.get_field_mandatory_field(node, field, editable))
             elif validate:
                 errors.append('field %s does not exist in model %s', (name, Model._name))
         else:
@@ -877,6 +881,7 @@ actual arch.
     @api.model
     def _attr_check(self, Model, node, view_id):
         mandatory_fields = {} # todo make dict of mandatory to avoid duplication
+
         for attr, expr in node.items():
             if attr == 'domain':
                 domain_fields = view_validation.process_domain_str(expr)
@@ -955,6 +960,13 @@ actual arch.
                     mandatory_fields[name] = (key, domain_str)
         return mandatory_fields
 
+    @api.model
+    def get_field_mandatory_field(self, node, field, editable):
+        if editable and not node.get('domain') and field.relational:
+            domain = field._description_domain(self.env)
+            domain_fields = view_validation.process_domain_str(domain)
+            return self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'field default domain', domain)
+        return {}
 
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields, validate, editable):
@@ -988,6 +1000,7 @@ actual arch.
                 return {}, {}
             node_infos.update(res)
         node_infos['mandatory_fields'].update(self._attr_check(node_infos['attr_model'], node, view_id))
+
         self._apply_group(model, node, node_infos['modifiers'])
 
         # The view architeture overrides the python model.
