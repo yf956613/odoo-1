@@ -179,7 +179,7 @@ def url_for(url_from, lang_code=None, no_rewrite=False):
     new_url = False
 
     # avoid useless check for 1 char URL '/', '#', ... and absolute URL
-    if len(url_from) > 1 or not url_from.startswith('http') and not no_rewrite:
+    if not no_rewrite and url_from and (len(url_from) > 1 or not url_from.startswith('http')):
         qs = False
         try:
             if '?' in url_from:
