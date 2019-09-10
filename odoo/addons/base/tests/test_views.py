@@ -1693,11 +1693,15 @@ class TestViews(ViewCase):
                 </field>
             </form>
         """
+
+        print('_1__________________________')
         self.View.create({
             'name': 'valid domain',
             'model': 'ir.ui.view',
             'arch': arch % ' readonly="1"',
         })
+
+        print('_2__________________________')
         with self.assertRaises(ValidationError):
             self.View.create({
                 'name': 'valid domain',

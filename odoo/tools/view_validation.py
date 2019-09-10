@@ -183,8 +183,6 @@ def get_attrs_field_names(env, arch, model, editable):
 
     def process_attrs(expr, get, key, val):
         """ parse `expr` and collect field names in lhs of conditions. """
-
-        #print('______process attr____ %s ' % expr)
         for domain in safe_eval(expr).values(): #{'invisible': [('feedback','=',False)]} 
             if not isinstance(domain, list):
                 continue
@@ -194,6 +192,7 @@ def get_attrs_field_names(env, arch, model, editable):
 
     def process(node, model, editable, get=get_name):
         """ traverse `node` and collect triples """
+        #print('process', node.tag, editable, node.get('editable'))
         if node.tag in VIEW_TYPES:
             # determine whether this view is editable
             editable = editable and (node.tag == 'form' or node.tag == 'tree' and node.get('editable'))

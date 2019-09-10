@@ -755,7 +755,7 @@ actual arch.
                     # no point processing view-level ``groups`` anymore, return
                     return False
                 editable = editable and view_validation.field_is_editable(field, node)
-                mandatory_fields.update(self.get_field_mandatory_field(node, field, editable))
+                mandatory_fields.update(self.get_field_mandatory_field(node, field, Model, editable, view_id))
                 children = []
                 views = {}
                 for f in node:
@@ -787,7 +787,7 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
-        return {'children': children, 'fields': fields, 'modifiers': modifiers, 'attr_model': attr_model, 'mandatory_fields': mandatory_fields}
+        return {'children': children, 'fields': fields, 'modifiers': modifiers, 'attr_model': attr_model, 'mandatory_fields': mandatory_fields, 'editable': editable}
 
     def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, editable=None, **kwargs):
         # groupby nodes should be considered as nested view because they may
@@ -818,7 +818,7 @@ actual arch.
                     'arch': xarch,
                     'fields': xfields,
                 }}
-                mandatory_fields.update(self.get_field_mandatory_field(node, field, editable))
+                mandatory_fields.update(self.get_field_mandatory_field(node, field, Model, editable, view_id))
             elif validate:
                 errors.append('field %s does not exist in model %s', (name, Model._name))
         else:
@@ -826,15 +826,17 @@ actual arch.
 
         return {'children': children, 'fields': fields, 'mandatory_fields': mandatory_fields}
 
-    def _postprocess_form(self, Model=None, node=None, **kwargs):
+    def _postprocess_form(self, Model=None, node=None, editable=None, **kwargs):
         result = Model.view_header_get(False, node.tag)
         if result:
             node.set('string', result)
-        return {}
+        # print('____ editable: %s node_editable: %s' % (editable, node.get('editable')))
+        # todo fixme: root form node does not have tag editable. 
+        return {'editable': True}
 
-    def _postprocess_tree(self, Model=None, node=None, **kwargs):
+    def _postprocess_tree(self, Model=None, node=None, editable=None, **kwargs):
         res = self._postprocess_form(Model, node)
-        res.update({'in_tree_view': True})
+        res.update({'in_tree_view': True, 'editable': editable and node.get('editable')})
         return res
 
     def _postprocess_calendar(self, node=None, **kwargs):
@@ -890,7 +892,7 @@ actual arch.
                 mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'domain', expr))
             elif attr == 'attrs':
                 for key, value in view_validation.process_dict_str(expr).items():
-                    if node.tag == 'widget': # todo remove dirty hack,
+                    if node.tag == 'widget' and node.get('name') == 'pie_chart': # todo remove dirty hack,
                         if key == 'groupby':
                             self._group_by_check(value, Model, expr, view_id) # todo check maybe need it in mandatory
                         elif key == 'domain':
@@ -916,6 +918,11 @@ actual arch.
                         continue
                     else:
                         print('*******', key, value)
+            elif attr.startswith('decoration-'):
+                for value in view_validation.process_value(value):
+                    if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
+                        mandatory_fields[value] = ('context', expr)
+
 
             #else: # attr(invisible), groups, name, context, decoration-*+
             #    print(key, expr)
@@ -961,9 +968,11 @@ actual arch.
         return mandatory_fields
 
     @api.model
-    def get_field_mandatory_field(self, node, field, editable):
+    def get_field_mandatory_field(self, node, field, Model, editable, view_id):
         if editable and not node.get('domain') and field.relational:
             domain = field._description_domain(self.env)
+            if not domain:  # []
+                return {}
             domain_fields = view_validation.process_domain_str(domain)
             return self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'field default domain', domain)
         return {}
@@ -989,9 +998,9 @@ actual arch.
             modifiers={},
             in_tree_view=in_tree_view,
             mandatory_fields={},
-            attr_model=Model
+            attr_model=Model,
+            editable=editable
         )
-
         tag = node.tag
         postprocessor = getattr(self, '_postprocess_%s' % tag, False)
         if postprocessor:
@@ -999,6 +1008,8 @@ actual arch.
             if res is False: # node is removed, ignore him
                 return {}, {}
             node_infos.update(res)
+        elif tag in {item[0] for item in type(self.env['ir.ui.view']).type.selection}:
+            node_infos['editable'] = False
         node_infos['mandatory_fields'].update(self._attr_check(node_infos['attr_model'], node, view_id))
 
         self._apply_group(model, node, node_infos['modifiers'])
@@ -1008,7 +1019,7 @@ actual arch.
         transfer_node_to_modifiers(node, node_infos['modifiers'], self._context, node_infos['in_tree_view'])
 
         for f in node_infos['children']:
-            fields, mandatory_fields = self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate, editable)
+            fields, mandatory_fields = self.postprocess(model, f, view_id, node_infos['in_tree_view'], model_fields, validate, node_infos['editable'])
             node_infos['fields'].update(fields)
             node_infos['mandatory_fields'].update(mandatory_fields)
         transfer_modifiers_to_node(node_infos['modifiers'], node)
@@ -1081,7 +1092,8 @@ actual arch.
 
         node = self.add_on_change(model, node)
 
-        if validate:
+        old = True
+        if old and validate:
             attrs_fields = view_validation.get_attrs_field_names(self.env, node, Model, editable)
 
         fields_def, mandatory_fields = self.postprocess(model, node, view_id, False, fields, validate, editable)
@@ -1101,7 +1113,7 @@ actual arch.
                 message = _("Field `%(field_name)s` does not exist") % dict(field_name=field)
                 self.raise_view_error(message, view_id)
 
-        if validate:
+        if old and validate:
             missing = [item for item in attrs_fields if item[0] not in fields]
             if missing:
                 msg_lines = []
