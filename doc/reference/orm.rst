@@ -209,7 +209,7 @@ TransientModel
 
 .. _reference/orm/models/crud:
 
-Common ORM Methods
+Common ORM methods
 ==================
 
 .. currentmodule:: odoo.models
@@ -227,18 +227,20 @@ Create/update
 
 .. automethod:: Model.write
 
-Read/search
+Search/Read
 -----------
 
 .. automethod:: Model.browse
 
-.. automethod:: Model.name_search
-
-.. automethod:: Model.read_group
-
 .. automethod:: Model.search
 
 .. automethod:: Model.search_count
+
+.. automethod:: Model.name_search
+
+.. automethod:: Model.read
+
+.. automethod:: Model.read_group
 
 Fields/Views
 ''''''''''''

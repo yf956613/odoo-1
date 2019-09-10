@@ -239,7 +239,7 @@ VALID_AGGREGATE_FUNCTIONS = {
 class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
     """Base class for Odoo models.
 
-    Odoo models are created by inheriting:
+    Odoo models are created by inheriting one of the followings:
 
     *   :class:`Model` for regular database-persisted models
 
@@ -2076,7 +2076,8 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
         """Get the list of records in list view grouped by the given ``groupby`` fields.
 
-        :param list domain: list specifying search criteria [['field_name', 'operator', 'value'], ...]
+        :param list domain: :ref:`A search domain <reference/orm/domains>`. Use an empty
+                     list to match all records.
         :param list fields: list of fields present in the list view specified on the object.
                 Each element is either 'field' (field name, using the default aggregation),
                 or 'field:agg' (aggregate field with aggregation function 'agg'),
