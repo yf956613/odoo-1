@@ -161,9 +161,11 @@ class Field(MetaField('DummyField', (object,), {})):
     :param str oldname: the previous name of this field, so that ORM can rename
         it automatically at migration
 
-    .. rubric:: Computed fields
+    .. rubric:: Computed Fields
 
     :param str compute: name of a method that computes the field
+
+        .. seealso:: :ref:`Advanced Fields/Compute fields <reference/fields/compute>`
 
     :param bool compute_sudo: whether the field should be recomputed as superuser
         to bypass access rights (by default ``False``)
@@ -175,7 +177,10 @@ class Field(MetaField('DummyField', (object,), {})):
 
     :param str related: sequence of field names
 
-            .. note:: Related fields are always computed as sudo user.
+        .. seealso:: :ref:`Advanced fields/Related fields <reference/fields/related>`
+
+    :param bool related_sudo: whether a related field has to be recomputed as superuser
+        (by default, ``True``)
     """
 
     type = None                         # type of the field (string)

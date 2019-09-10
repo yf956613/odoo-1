@@ -251,7 +251,7 @@ Fields/Views
 
 .. _reference/orm/domains:
 
-Search Domains
+Search domains
 ''''''''''''''
 
 A domain is a list of criteria, each criterion being a triple (either a
@@ -822,13 +822,13 @@ Method decorators
 
 .. todo:: Add in Views reference
   * It is possible to suppress the trigger from a specific field by adding
-    ``on_change="0"`` in a view::
+  ``on_change="0"`` in a view::
 
-      <field name="name" on_change="0"/>
+    <field name="name" on_change="0"/>
 
-    will not trigger any interface update when the field is edited by the user,
-    even if there are function fields or explicit onchange depending on that
-    field.
+  will not trigger any interface update when the field is edited by the user,
+  even if there are function fields or explicit onchange depending on that
+  field.
 
 .. _reference/orm/inheritance:
 
