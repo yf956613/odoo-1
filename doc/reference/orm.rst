@@ -6,8 +6,11 @@ ORM API
 
 .. automodule:: odoo.models
 
-Creating Models
-===============
+.. _reference/orm/models:
+.. _reference/orm/model:
+
+Models
+======
 
 Model fields are defined as attributes on the model itself::
 
@@ -41,122 +44,7 @@ value::
 
     name = fields.Char(default=_default_name)
 
-Recordsets
-==========
-
-Interactions with models and records are performed through recordsets, a sorted
-set of records of the same model.
-
-.. warning:: Contrary to what the name implies, it is currently possible for
-             recordsets to contain duplicates. This may change in the future.
-
-Methods defined on a model are executed on a recordset, and their ``self`` is
-a recordset::
-
-    class AModel(models.Model):
-        _name = 'a.model'
-        def a_method(self):
-            # self can be anywhere between 0 records and all records in the
-            # database
-            self.do_operation()
-
-Iterating on a recordset will yield new sets of *a single record*
-("singletons"), much like iterating on a Python string yields strings of a
-single characters::
-
-        def do_operation(self):
-            print(self) # => a.model(1, 2, 3, 4, 5)
-            for record in self:
-                print(record) # => a.model(1), then a.model(2), then a.model(3), ...
-
-Field access
-------------
-
-Recordsets provide an "Active Record" interface: model fields can be read and
-written directly from the record as attributes, but only on singletons
-(single-record recordsets).
-Field values can also be accessed like dict items, which is more elegant and
-safer than ``getattr()`` for dynamic field names.
-Setting a field's value triggers an update to the database::
-
-    >>> record.name
-    Example Name
-    >>> record.company_id.name
-    Company Name
-    >>> record.name = "Bob"
-    >>> field = "name"
-    >>> record[field]
-    Bob
-
-Trying to read or write a field on multiple records will raise an error.
-
-Accessing a relational field (:class:`~odoo.fields.Many2one`,
-:class:`~odoo.fields.One2many`, :class:`~odoo.fields.Many2many`)
-*always* returns a recordset, empty if the field is not set.
-
-.. danger::
-
-    each assignment to a field triggers a database update, when setting
-    multiple fields at the same time or setting fields on multiple records
-    (to the same value), use :meth:`~odoo.models.Model.write`::
-
-        # 3 * len(records) database updates
-        for record in records:
-            record.a = 1
-            record.b = 2
-            record.c = 3
-
-        # len(records) database updates
-        for record in records:
-            record.write({'a': 1, 'b': 2, 'c': 3})
-
-        # 1 database update
-        records.write({'a': 1, 'b': 2, 'c': 3})
-
-Record cache and prefetching
-----------------------------
-
-Odoo maintains a cache for the fields of the records, so that not every field
-access issues a database request, which would be terrible for performance. The
-following example queries the database only for the first statement::
-
-    record.name             # first access reads value from database
-    record.name             # second access gets value from cache
-
-To avoid reading one field on one record at a time, Odoo *prefetches* records
-and fields following some heuristics to get good performance. Once a field must
-be read on a given record, the ORM actually reads that field on a larger
-recordset, and stores the returned values in cache for later use. The prefetched
-recordset is usually the recordset from which the record comes by iteration.
-Moreover, all simple stored fields (boolean, integer, float, char, text, date,
-datetime, selection, many2one) are fetched altogether; they correspond to the
-columns of the model's table, and are fetched efficiently in the same query.
-
-Consider the following example, where ``partners`` is a recordset of 1000
-records. Without prefetching, the loop would make 2000 queries to the database.
-With prefetching, only one query is made::
-
-    for partner in partners:
-        print partner.name          # first pass prefetches 'name' and 'lang'
-                                    # (and other fields) on all 'partners'
-        print partner.lang
-
-The prefetching also works on *secondary records*: when relational fields are
-read, their values (which are records) are  subscribed for future prefetching.
-Accessing one of those secondary records prefetches all secondary records from
-the same model. This makes the following example generate only two queries, one
-for partners and one for countries::
-
-    countries = set()
-    for partner in partners:
-        country = partner.country_id        # first pass prefetches all partners
-        countries.add(country.name)         # first pass prefetches all countries
-
-.. _reference/orm/models:
-.. _reference/orm/model:
-
-Models
-======
+.. rubric:: API
 
 .. autoclass:: odoo.models.BaseModel()
 
@@ -206,300 +94,6 @@ TransientModel
 --------------
 
 .. autoclass:: odoo.models.TransientModel
-
-.. _reference/orm/models/crud:
-
-Common ORM methods
-==================
-
-.. currentmodule:: odoo.models
-
-Create/update
--------------
-
-.. automethod:: Model.create
-
-.. automethod:: Model.copy
-
-.. automethod:: Model.default_get
-
-.. automethod:: Model.name_create
-
-.. automethod:: Model.write
-
-Search/Read
------------
-
-.. automethod:: Model.browse
-
-.. automethod:: Model.search
-
-.. automethod:: Model.search_count
-
-.. automethod:: Model.name_search
-
-.. automethod:: Model.read
-
-.. automethod:: Model.read_group
-
-Fields/Views
-''''''''''''
-
-.. automethod:: Model.fields_get
-
-.. automethod:: Model.fields_view_get
-
-.. _reference/orm/domains:
-
-Search domains
-''''''''''''''
-
-A domain is a list of criteria, each criterion being a triple (either a
-``list`` or a ``tuple``) of ``(field_name, operator, value)`` where:
-
-``field_name`` (``str``)
-    a field name of the current model, or a relationship traversal through
-    a :class:`~odoo.fields.Many2one` using dot-notation e.g. ``'street'``
-    or ``'partner_id.country'``
-
-``operator`` (``str``)
-    an operator used to compare the ``field_name`` with the ``value``. Valid
-    operators are:
-
-    ``=``
-        equals to
-    ``!=``
-        not equals to
-    ``>``
-        greater than
-    ``>=``
-        greater than or equal to
-    ``<``
-        less than
-    ``<=``
-        less than or equal to
-    ``=?``
-        unset or equals to (returns true if ``value`` is either ``None`` or
-        ``False``, otherwise behaves like ``=``)
-    ``=like``
-        matches ``field_name`` against the ``value`` pattern. An underscore
-        ``_`` in the pattern stands for (matches) any single character; a
-        percent sign ``%`` matches any string of zero or more characters.
-    ``like``
-        matches ``field_name`` against the ``%value%`` pattern. Similar to
-        ``=like`` but wraps ``value`` with '%' before matching
-    ``not like``
-        doesn't match against the ``%value%`` pattern
-    ``ilike``
-        case insensitive ``like``
-    ``not ilike``
-        case insensitive ``not like``
-    ``=ilike``
-        case insensitive ``=like``
-    ``in``
-        is equal to any of the items from ``value``, ``value`` should be a
-        list of items
-    ``not in``
-        is unequal to all of the items from ``value``
-    ``child_of``
-        is a child (descendant) of a ``value`` record.
-
-        Takes the semantics of the model into account (i.e following the
-        relationship field named by
-        :attr:`~odoo.models.Model._parent_name`).
-
-``value``
-    variable type, must be comparable (through ``operator``) to the named
-    field
-
-Domain criteria can be combined using logical operators in *prefix* form:
-
-``'&'``
-    logical *AND*, default operation to combine criteria following one
-    another. Arity 2 (uses the next 2 criteria or combinations).
-``'|'``
-    logical *OR*, arity 2.
-``'!'``
-    logical *NOT*, arity 1.
-
-    .. note:: Mostly to negate combinations of criteria
-        Individual criterion generally have a negative form (e.g. ``=`` ->
-        ``!=``, ``<`` -> ``>=``) which is simpler than negating the positive.
-
-.. admonition:: Example
-
-    To search for partners named *ABC*, from belgium or germany, whose language
-    is not english::
-
-        [('name','=','ABC'),
-         ('language.code','!=','en_US'),
-         '|',('country_id.code','=','be'),
-             ('country_id.code','=','de')]
-
-    This domain is interpreted as:
-
-    .. code-block:: text
-
-            (name is 'ABC')
-        AND (language is NOT english)
-        AND (country is Belgium OR Germany)
-
-Unlink
-------
-
-.. automethod:: Model.unlink
-
-.. _reference/orm/records/info:
-
-Record(set) information
------------------------
-
-.. autoattribute:: Model.ids
-
-.. attribute:: env
-
-    :class:`~odoo.api.Environment`
-
-.. todo:: Environment documentation
-
-.. automethod:: Model.exists
-
-.. automethod:: Model.ensure_one
-
-.. automethod:: Model.name_get
-
-.. automethod:: Model.get_metadata
-
-.. _reference/orm/records/operations:
-
-Operations
-----------
-
-Recordsets are immutable, but sets of the same model can be combined using
-various set operations, returning new recordsets. Set operations do *not*
-preserve order.
-
-.. addition preserves order but can introduce duplicates
-
-* ``record in set`` returns whether ``record`` (which must be a 1-element
-  recordset) is present in ``set``. ``record not in set`` is the inverse
-  operation
-* ``set1 <= set2`` and ``set1 < set2`` return whether ``set1`` is a subset
-  of ``set2`` (resp. strict)
-* ``set1 >= set2`` and ``set1 > set2`` return whether ``set1`` is a superset
-  of ``set2`` (resp. strict)
-* ``set1 | set2`` returns the union of the two recordsets, a new recordset
-  containing all records present in either source
-* ``set1 & set2`` returns the intersection of two recordsets, a new recordset
-  containing only records present in both sources
-* ``set1 - set2`` returns a new recordset containing only records of ``set1``
-  which are *not* in ``set2``
-
-Recordsets are iterable so the usual Python tools are available for
-transformation (:func:`python:map`, :func:`python:sorted`,
-:func:`~python:itertools.ifilter`, ...) however these return either a
-:class:`python:list` or an :term:`python:iterator`, removing the ability to
-call methods on their result, or to use set operations.
-
-Recordsets therefore provide the following operations returning recordsets themselves
-(when possible):
-
-Filter
-''''''
-
-.. automethod:: Model.filtered
-
-Map
-'''
-
-.. automethod:: Model.mapped
-
-Sort
-''''
-
-.. automethod:: Model.sorted
-
-.. _reference/orm/environment:
-
-Environment
-===========
-
-The :class:`~odoo.api.Environment` stores various contextual data used by
-the ORM: the database cursor (for database queries), the current user
-(for access rights checking) and the current context (storing arbitrary
-metadata). The environment also stores caches.
-
-All recordsets have an environment, which is immutable, can be accessed
-using :attr:`~odoo.models.Model.env` and gives access to the current user
-(:attr:`~odoo.api.Environment.user`), the cursor
-(:attr:`~odoo.api.Environment.cr`) or the context
-(:attr:`~odoo.api.Environment.context`)::
-
-    >>> records.env
-    <Environment object ...>
-    >>> records.env.user
-    res.user(3)
-    >>> records.env.cr
-    <Cursor object ...)
-
-When creating a recordset from an other recordset, the environment is
-inherited. The environment can be used to get an empty recordset in an
-other model, and query that model::
-
-    >>> self.env['res.partner']
-    res.partner()
-    >>> self.env['res.partner'].search([['is_company', '=', True], ['customer', '=', True]])
-    res.partner(7, 18, 12, 14, 17, 19, 8, 31, 26, 16, 13, 20, 30, 22, 29, 15, 23, 28, 74)
-
-.. currentmodule:: odoo.api
-
-.. automethod:: Environment.ref
-
-.. autoattribute:: Environment.lang
-
-.. autoattribute:: Environment.user
-
-.. TODO cr, uid but not @property or methods of Environment class...
-
-Altering the environment
-------------------------
-
-.. currentmodule:: odoo.models
-
-.. automethod:: Model.with_context
-
-.. automethod:: Model.with_env
-
-.. automethod:: Model.sudo
-
-.. _reference/orm/sql:
-
-SQL Execution
--------------
-
-The :attr:`~odoo.api.Environment.cr` attribute on environments is the
-cursor for the current database transaction and allows executing SQL directly,
-either for queries which are difficult to express using the ORM (e.g. complex
-joins) or for performance reasons::
-
-    self.env.cr.execute("some_sql", param1, param2, param3)
-
-Because models use the same cursor and the :class:`~odoo.api.Environment`
-holds various caches, these caches must be invalidated when *altering* the
-database in raw SQL, or further uses of models may become incoherent. It is
-necessary to clear caches when using ``CREATE``, ``UPDATE`` or ``DELETE`` in
-SQL, but not ``SELECT`` (which simply reads the database).
-
-.. note::
-    Clearing caches can be performed using the
-    :meth:`~odoo.models.Model.invalidate_cache` method.
-
-.. automethod:: Model.invalidate_cache
-
-.. warning::
-    Executing raw SQL bypasses the ORM, and by consequent, Odoo security rules.
-    Please make sure your queries are sanitized when using user input and prefer using
-    ORM utilities if you don't really need to use SQL queries.
 
 .. _reference/fields:
 .. _reference/orm/fields:
@@ -802,6 +396,118 @@ behavior is desired:
   :class:`~odoo.fields.Char`
 
 
+Recordsets
+==========
+
+Interactions with models and records are performed through recordsets, a sorted
+set of records of the same model.
+
+.. warning:: Contrary to what the name implies, it is currently possible for
+             recordsets to contain duplicates. This may change in the future.
+
+Methods defined on a model are executed on a recordset, and their ``self`` is
+a recordset::
+
+    class AModel(models.Model):
+        _name = 'a.model'
+        def a_method(self):
+            # self can be anywhere between 0 records and all records in the
+            # database
+            self.do_operation()
+
+Iterating on a recordset will yield new sets of *a single record*
+("singletons"), much like iterating on a Python string yields strings of a
+single characters::
+
+        def do_operation(self):
+            print(self) # => a.model(1, 2, 3, 4, 5)
+            for record in self:
+                print(record) # => a.model(1), then a.model(2), then a.model(3), ...
+
+Field access
+------------
+
+Recordsets provide an "Active Record" interface: model fields can be read and
+written directly from the record as attributes, but only on singletons
+(single-record recordsets).
+Field values can also be accessed like dict items, which is more elegant and
+safer than ``getattr()`` for dynamic field names.
+Setting a field's value triggers an update to the database::
+
+    >>> record.name
+    Example Name
+    >>> record.company_id.name
+    Company Name
+    >>> record.name = "Bob"
+    >>> field = "name"
+    >>> record[field]
+    Bob
+
+Trying to read or write a field on multiple records will raise an error.
+
+Accessing a relational field (:class:`~odoo.fields.Many2one`,
+:class:`~odoo.fields.One2many`, :class:`~odoo.fields.Many2many`)
+*always* returns a recordset, empty if the field is not set.
+
+.. danger::
+
+    each assignment to a field triggers a database update, when setting
+    multiple fields at the same time or setting fields on multiple records
+    (to the same value), use :meth:`~odoo.models.Model.write`::
+
+        # 3 * len(records) database updates
+        for record in records:
+            record.a = 1
+            record.b = 2
+            record.c = 3
+
+        # len(records) database updates
+        for record in records:
+            record.write({'a': 1, 'b': 2, 'c': 3})
+
+        # 1 database update
+        records.write({'a': 1, 'b': 2, 'c': 3})
+
+Record cache and prefetching
+----------------------------
+
+Odoo maintains a cache for the fields of the records, so that not every field
+access issues a database request, which would be terrible for performance. The
+following example queries the database only for the first statement::
+
+    record.name             # first access reads value from database
+    record.name             # second access gets value from cache
+
+To avoid reading one field on one record at a time, Odoo *prefetches* records
+and fields following some heuristics to get good performance. Once a field must
+be read on a given record, the ORM actually reads that field on a larger
+recordset, and stores the returned values in cache for later use. The prefetched
+recordset is usually the recordset from which the record comes by iteration.
+Moreover, all simple stored fields (boolean, integer, float, char, text, date,
+datetime, selection, many2one) are fetched altogether; they correspond to the
+columns of the model's table, and are fetched efficiently in the same query.
+
+Consider the following example, where ``partners`` is a recordset of 1000
+records. Without prefetching, the loop would make 2000 queries to the database.
+With prefetching, only one query is made::
+
+    for partner in partners:
+        print partner.name          # first pass prefetches 'name' and 'lang'
+                                    # (and other fields) on all 'partners'
+        print partner.lang
+
+The prefetching also works on *secondary records*: when relational fields are
+read, their values (which are records) are  subscribed for future prefetching.
+Accessing one of those secondary records prefetches all secondary records from
+the same model. This makes the following example generate only two queries, one
+for partners and one for countries::
+
+    countries = set()
+    for partner in partners:
+        country = partner.country_id        # first pass prefetches all partners
+        countries.add(country.name)         # first pass prefetches all countries
+
+
 .. _reference/api/decorators:
 
 Method decorators
@@ -829,6 +535,301 @@ Method decorators
   will not trigger any interface update when the field is edited by the user,
   even if there are function fields or explicit onchange depending on that
   field.
+
+.. _reference/orm/environment:
+
+Environment
+===========
+
+The :class:`~odoo.api.Environment` stores various contextual data used by
+the ORM: the database cursor (for database queries), the current user
+(for access rights checking) and the current context (storing arbitrary
+metadata). The environment also stores caches.
+
+All recordsets have an environment, which is immutable, can be accessed
+using :attr:`~odoo.models.Model.env` and gives access to the current user
+(:attr:`~odoo.api.Environment.user`), the cursor
+(:attr:`~odoo.api.Environment.cr`) or the context
+(:attr:`~odoo.api.Environment.context`)::
+
+    >>> records.env
+    <Environment object ...>
+    >>> records.env.user
+    res.user(3)
+    >>> records.env.cr
+    <Cursor object ...)
+
+When creating a recordset from an other recordset, the environment is
+inherited. The environment can be used to get an empty recordset in an
+other model, and query that model::
+
+    >>> self.env['res.partner']
+    res.partner()
+    >>> self.env['res.partner'].search([['is_company', '=', True], ['customer', '=', True]])
+    res.partner(7, 18, 12, 14, 17, 19, 8, 31, 26, 16, 13, 20, 30, 22, 29, 15, 23, 28, 74)
+
+.. currentmodule:: odoo.api
+
+.. automethod:: Environment.ref
+
+.. autoattribute:: Environment.lang
+
+.. autoattribute:: Environment.user
+
+.. TODO cr, uid but not @property or methods of Environment class...
+
+Altering the environment
+------------------------
+
+.. currentmodule:: odoo.models
+
+.. automethod:: Model.with_context
+
+.. automethod:: Model.with_env
+
+.. automethod:: Model.sudo
+
+.. _reference/orm/sql:
+
+SQL Execution
+-------------
+
+The :attr:`~odoo.api.Environment.cr` attribute on environments is the
+cursor for the current database transaction and allows executing SQL directly,
+either for queries which are difficult to express using the ORM (e.g. complex
+joins) or for performance reasons::
+
+    self.env.cr.execute("some_sql", param1, param2, param3)
+
+Because models use the same cursor and the :class:`~odoo.api.Environment`
+holds various caches, these caches must be invalidated when *altering* the
+database in raw SQL, or further uses of models may become incoherent. It is
+necessary to clear caches when using ``CREATE``, ``UPDATE`` or ``DELETE`` in
+SQL, but not ``SELECT`` (which simply reads the database).
+
+.. note::
+    Clearing caches can be performed using the
+    :meth:`~odoo.models.Model.invalidate_cache` method.
+
+.. automethod:: Model.invalidate_cache
+
+.. warning::
+    Executing raw SQL bypasses the ORM, and by consequent, Odoo security rules.
+    Please make sure your queries are sanitized when using user input and prefer using
+    ORM utilities if you don't really need to use SQL queries.
+
+
+.. _reference/orm/models/crud:
+
+Common ORM methods
+==================
+
+.. currentmodule:: odoo.models
+
+Create/update
+-------------
+
+.. automethod:: Model.create
+
+.. automethod:: Model.copy
+
+.. automethod:: Model.default_get
+
+.. automethod:: Model.name_create
+
+.. automethod:: Model.write
+
+Search/Read
+-----------
+
+.. automethod:: Model.browse
+
+.. automethod:: Model.search
+
+.. automethod:: Model.search_count
+
+.. automethod:: Model.name_search
+
+.. automethod:: Model.read
+
+.. automethod:: Model.read_group
+
+Fields/Views
+''''''''''''
+
+.. automethod:: Model.fields_get
+
+.. automethod:: Model.fields_view_get
+
+.. _reference/orm/domains:
+
+Search domains
+''''''''''''''
+
+A domain is a list of criteria, each criterion being a triple (either a
+``list`` or a ``tuple``) of ``(field_name, operator, value)`` where:
+
+``field_name`` (``str``)
+    a field name of the current model, or a relationship traversal through
+    a :class:`~odoo.fields.Many2one` using dot-notation e.g. ``'street'``
+    or ``'partner_id.country'``
+
+``operator`` (``str``)
+    an operator used to compare the ``field_name`` with the ``value``. Valid
+    operators are:
+
+    ``=``
+        equals to
+    ``!=``
+        not equals to
+    ``>``
+        greater than
+    ``>=``
+        greater than or equal to
+    ``<``
+        less than
+    ``<=``
+        less than or equal to
+    ``=?``
+        unset or equals to (returns true if ``value`` is either ``None`` or
+        ``False``, otherwise behaves like ``=``)
+    ``=like``
+        matches ``field_name`` against the ``value`` pattern. An underscore
+        ``_`` in the pattern stands for (matches) any single character; a
+        percent sign ``%`` matches any string of zero or more characters.
+    ``like``
+        matches ``field_name`` against the ``%value%`` pattern. Similar to
+        ``=like`` but wraps ``value`` with '%' before matching
+    ``not like``
+        doesn't match against the ``%value%`` pattern
+    ``ilike``
+        case insensitive ``like``
+    ``not ilike``
+        case insensitive ``not like``
+    ``=ilike``
+        case insensitive ``=like``
+    ``in``
+        is equal to any of the items from ``value``, ``value`` should be a
+        list of items
+    ``not in``
+        is unequal to all of the items from ``value``
+    ``child_of``
+        is a child (descendant) of a ``value`` record.
+
+        Takes the semantics of the model into account (i.e following the
+        relationship field named by
+        :attr:`~odoo.models.Model._parent_name`).
+
+``value``
+    variable type, must be comparable (through ``operator``) to the named
+    field
+
+Domain criteria can be combined using logical operators in *prefix* form:
+
+``'&'``
+    logical *AND*, default operation to combine criteria following one
+    another. Arity 2 (uses the next 2 criteria or combinations).
+``'|'``
+    logical *OR*, arity 2.
+``'!'``
+    logical *NOT*, arity 1.
+
+    .. note:: Mostly to negate combinations of criteria
+        Individual criterion generally have a negative form (e.g. ``=`` ->
+        ``!=``, ``<`` -> ``>=``) which is simpler than negating the positive.
+
+.. admonition:: Example
+
+    To search for partners named *ABC*, from belgium or germany, whose language
+    is not english::
+
+        [('name','=','ABC'),
+         ('language.code','!=','en_US'),
+         '|',('country_id.code','=','be'),
+             ('country_id.code','=','de')]
+
+    This domain is interpreted as:
+
+    .. code-block:: text
+
+            (name is 'ABC')
+        AND (language is NOT english)
+        AND (country is Belgium OR Germany)
+
+Unlink
+------
+
+.. automethod:: Model.unlink
+
+.. _reference/orm/records/info:
+
+Record(set) information
+-----------------------
+
+.. autoattribute:: Model.ids
+
+.. attribute:: env
+
+    :class:`~odoo.api.Environment`
+
+.. todo:: Environment documentation
+
+.. automethod:: Model.exists
+
+.. automethod:: Model.ensure_one
+
+.. automethod:: Model.name_get
+
+.. automethod:: Model.get_metadata
+
+.. _reference/orm/records/operations:
+
+Operations
+----------
+
+Recordsets are immutable, but sets of the same model can be combined using
+various set operations, returning new recordsets. Set operations do *not*
+preserve order.
+
+.. addition preserves order but can introduce duplicates
+
+* ``record in set`` returns whether ``record`` (which must be a 1-element
+  recordset) is present in ``set``. ``record not in set`` is the inverse
+  operation
+* ``set1 <= set2`` and ``set1 < set2`` return whether ``set1`` is a subset
+  of ``set2`` (resp. strict)
+* ``set1 >= set2`` and ``set1 > set2`` return whether ``set1`` is a superset
+  of ``set2`` (resp. strict)
+* ``set1 | set2`` returns the union of the two recordsets, a new recordset
+  containing all records present in either source
+* ``set1 & set2`` returns the intersection of two recordsets, a new recordset
+  containing only records present in both sources
+* ``set1 - set2`` returns a new recordset containing only records of ``set1``
+  which are *not* in ``set2``
+
+Recordsets are iterable so the usual Python tools are available for
+transformation (:func:`python:map`, :func:`python:sorted`,
+:func:`~python:itertools.ifilter`, ...) however these return either a
+:class:`python:list` or an :term:`python:iterator`, removing the ability to
+call methods on their result, or to use set operations.
+
+Recordsets therefore provide the following operations returning recordsets themselves
+(when possible):
+
+Filter
+''''''
+
+.. automethod:: Model.filtered
+
+Map
+'''
+
+.. automethod:: Model.mapped
+
+Sort
+''''
+
+.. automethod:: Model.sorted
 
 .. _reference/orm/inheritance:
 
