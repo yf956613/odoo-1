@@ -503,13 +503,13 @@ msgstr "Forderungen gegen Unternehmen, mit denen ein Beteiligungsverhältnis bes
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_4723
-msgid "Amounts payable to directors, managers and statutory auditors and similar"
+msgid "Amounts payable to directors, managers, statutory auditors and similar"
 msgstr "Verbindlichkeiten gegenüber Verwaltern, Geschäftsführern, Kommissaren und "
 "ähnlichen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_4713
-msgid "Amounts payable to directors, managers,statutory auditors and similar"
+msgid "Amounts payable to directors, managers, statutory auditors and similar"
 msgstr "Verbindlichkeiten gegenüber Verwaltern, Geschäftsführern, Kommissaren und "
 "ähnlichen"
 
@@ -551,12 +551,12 @@ msgstr "Kontogebühren und Bankkommissionen (Verwahrungsrechte von Wertpapieren 
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_65521
-msgid "Banking interests on current accounts"
+msgid "Banking interest on current accounts"
 msgstr "Kontozinsen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_65522
-msgid "Banking interests on financing operations"
+msgid "Banking interest on financing operations"
 msgstr "Bankzinsen auf Finanzoperationen"
 
 #. module: l10n_lu
@@ -1336,8 +1336,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_203
-msgid "Expenses for increases in capital and for various operations (merger, "
-"demergers, change of legal form)"
+msgid "Expenses for increases in capital and for various operations (merger, demerger, change of legal form)"
 msgstr "Kosten für Kapitalerhöhung und für verschiedene umwandlugsrechtliche "
 "Vorgänge (Verschmelzungen, Spaltungen, Formwechsel)"
 
@@ -2665,7 +2664,7 @@ msgstr "Versicherungsentschädigungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6142
-msgid "Insurances on rented assets"
+msgid "Insurance on rented assets"
 msgstr "Versicherung für gemietete Vermögensgegenstände"
 
 #. module: l10n_lu
@@ -2740,17 +2739,17 @@ msgstr "Zinszuschüsse"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_75521
-msgid "Interests on bank accounts"
+msgid "Interest on bank accounts"
 msgstr "Kontozinsen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_65512
-msgid "Interests on debenture loans- other"
+msgid "Interest on debenture loans - other"
 msgstr "Zinsen auf Anleihen - sonstige"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_7553
-msgid "Interests on trade receivables"
+msgid "Interest on trade receivables"
 msgstr "Zinsen auf Handelsforderungen"
 
 #. module: l10n_lu
@@ -3156,7 +3155,7 @@ msgstr "Ausleihungen, geleistete Hinterlegungen und Forderungen (Anlagevermögen
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_75216
-msgid "Loans,deposits and claims held as fixed assets"
+msgid "Loans, deposits and claims held as fixed assets"
 msgstr "Ausleihungen, geleistete Hinterlegungen und Forderungen des Anlagevermögens"
 
 #. module: l10n_lu
@@ -3252,7 +3251,7 @@ msgstr "Transportfahrzeuge"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6466
-msgid "Motor-vehicles taxes"
+msgid "Motor-vehicle taxes"
 msgstr "Kfz-Steuern"
 
 #. module: l10n_lu
@@ -3569,7 +3568,7 @@ msgstr "Sonstige Forderungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_64658
-msgid "Other registration fees, stamps and mortgage duties"
+msgid "Other registration fees, stamp duties and mortgage duties"
 msgstr "Sonstige Eintragungs- und Stempelgebühren und Hypothekensteuern"
 
 #. module: l10n_lu
@@ -3633,7 +3632,7 @@ msgstr "Sonstige entgeltlich erworbene Rechte und Werte"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_212258
-msgid "Other similar rights and values created by the undertaking itself"
+msgid "Other similar rights and assets created by the undertaking itself"
 msgstr "Sonstige vergleichbare vom Unternehmen selbst erstellte Rechte und Werte"
 
 #. module: l10n_lu
@@ -4715,7 +4714,7 @@ msgstr "Gezeichnetes Kapital "
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_103
 msgid "Subscribed capital called but unpaid"
-msgstr "Gezeichnetes eingefordertes und nicht eingezahltes Kapital "
+msgstr "Gezeichnetes eingefordertes und nicht eingezahltes Kapital"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_102

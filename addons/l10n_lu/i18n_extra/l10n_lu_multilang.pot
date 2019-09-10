@@ -495,12 +495,12 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_4723
-msgid "Amounts payable to directors, managers and statutory auditors and similar"
+msgid "Amounts payable to directors, managers, statutory auditors and similar"
 msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_4713
-msgid "Amounts payable to directors, managers,statutory auditors and similar"
+msgid "Amounts payable to directors, managers, statutory auditors and similar"
 msgstr ""
 
 #. module: l10n_lu
@@ -539,12 +539,12 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_65521
-msgid "Banking interests on current accounts"
+msgid "Banking interest on current accounts"
 msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_65522
-msgid "Banking interests on financing operations"
+msgid "Banking interest on financing operations"
 msgstr ""
 
 #. module: l10n_lu
@@ -1317,8 +1317,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_203
-msgid "Expenses for increases in capital and for various operations (merger, "
-"demergers, change of legal form)"
+msgid "Expenses for increases in capital and for various operations (merger, demerger, change of legal form)"
 msgstr ""
 
 #. module: l10n_lu
@@ -2628,7 +2627,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6142
-msgid "Insurances on rented assets"
+msgid "Insurance on rented assets"
 msgstr ""
 
 #. module: l10n_lu
@@ -2700,17 +2699,17 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_75521
-msgid "Interests on bank accounts"
+msgid "Interest on bank accounts"
 msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_65512
-msgid "Interests on debenture loans- other"
+msgid "Interest on debenture loans - other"
 msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_7553
-msgid "Interests on trade receivables"
+msgid "Interest on trade receivables"
 msgstr ""
 
 #. module: l10n_lu
@@ -3116,7 +3115,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_75216
-msgid "Loans,deposits and claims held as fixed assets"
+msgid "Loans, deposits and claims held as fixed assets"
 msgstr ""
 
 #. module: l10n_lu
@@ -3212,7 +3211,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6466
-msgid "Motor-vehicles taxes"
+msgid "Motor-vehicle taxes"
 msgstr ""
 
 #. module: l10n_lu
@@ -3528,7 +3527,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_64658
-msgid "Other registration fees, stamps and mortgage duties"
+msgid "Other registration fees, stamp duties and mortgage duties"
 msgstr ""
 
 #. module: l10n_lu
@@ -3592,7 +3591,7 @@ msgstr ""
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_212258
-msgid "Other similar rights and values created by the undertaking itself"
+msgid "Other similar rights and assets created by the undertaking itself"
 msgstr ""
 
 #. module: l10n_lu
