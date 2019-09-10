@@ -403,6 +403,7 @@ ListRenderer.include({
         if (!record) {
             return Promise.resolve();
         }
+        this.clearLivePreview();
 
         var editMode = (mode === 'edit');
         var $row = this._getRow(recordID);
@@ -508,8 +509,10 @@ ListRenderer.include({
             // If any field has changed and if the list is in multiple edition,
             // we send a truthy boolean to _selectRow to tell it not to select
             // the following record.
+            this.clearLivePreview();
             return changedFields && changedFields.length && this.inMultipleRecordEdition(recordID);
         }).guardedCatch(() => {
+            this.clearLivePreview();
             toggleWidgets(false);
         });
     },
@@ -1203,6 +1206,20 @@ ListRenderer.include({
                 return Promise.reject();
             }
             self.currentFieldIndex = fieldIndex;
+            self.clearLivePreview();
+            self.selection.forEach(recordId => {
+                if (recordId === recordID) {
+                    return;
+                }
+                const relatedCell = self._getRow(recordId)[0]
+                    .getElementsByClassName('o_data_cell')[self.currentFieldIndex];
+                const modifiers = self._registerModifiers(self.columns[fieldIndex], self._getRecord(recordId));
+                if (modifiers.readonly) {
+                    // relatedCell.classList.add('o_live_preview', 'text-muted');
+                } else {
+                    relatedCell.classList.add('o_live_preview', 'text-info');
+                }
+            });
         });
     },
     /**
@@ -1363,6 +1380,11 @@ ListRenderer.include({
      */
     _onFooterClick: function () {
         this.unselectRow();
+    },
+    clearLivePreview: function () {
+        [...this.el.getElementsByClassName('o_live_preview')].forEach(td => {
+            td.classList.remove('o_live_preview', 'text-muted', 'text-info');
+        });
     },
     /**
      * Manages the keyboard events on the list. If the list is not editable, when the user navigates to
