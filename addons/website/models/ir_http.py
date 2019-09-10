@@ -95,7 +95,7 @@ class Http(models.AbstractModel):
         rewrites = dict([(x.url_from, x) for x in request.env['website.rewrite'].search(domain)])
 
         for u, e, r in super(Http, cls)._generate_routing_rules(modules, converters):
-            r = dict(r)
+            # r = dict(r) --> test !           
             if u in rewrites:
                 rewrite = rewrites[u]
                 url_to = rewrite.url_to
