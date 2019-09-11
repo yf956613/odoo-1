@@ -745,7 +745,7 @@ actual arch.
         attr_model = False
         mandatory_fields = {}
         if node.get('name'):
-            attrs = {}
+            attrs = {'select': node.get('select')}
             field = Model._fields.get(node.get('name')) # todo try to remove model_fields or Model._fields
             if field:
                 # apply groups (no tested)
@@ -771,7 +771,7 @@ actual arch.
                         }
                     else:
                         children.append(f)
-                attrs = {'views': views, 'select': node.get('select')}
+                attrs['views'] = views
                 if field.comodel_name in self.env:
                     Comodel = self.env[field.comodel_name]
                     attr_model = Comodel
@@ -788,7 +788,8 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
-
+        for error in errors:
+            _logger.error(error)
         return {'children': children, 'fields': fields, 'modifiers': modifiers, 'attr_model': attr_model, 'mandatory_fields': mandatory_fields, 'editable': editable}
 
     def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, editable=None, **kwargs):
@@ -825,6 +826,9 @@ actual arch.
                 errors.append('field %s does not exist in model %s', (name, Model._name))
         else:
             children = [c for c in node] # group_by is root of sub postprocess_and_fields, no name
+
+        for error in errors:
+            _logger.error(error)
 
         return {'children': children, 'fields': fields, 'mandatory_fields': mandatory_fields}
 
@@ -1011,7 +1015,6 @@ actual arch.
         elif tag in {item[0] for item in type(self.env['ir.ui.view']).type.selection}:
             node_infos['editable'] = False
         node_infos['mandatory_fields'].update(self._attr_check(node_infos['attr_model'], node, view_id))
-
         self._apply_group(model, node, node_infos['modifiers'])
 
         # The view architeture overrides the python model.
@@ -1066,12 +1069,10 @@ actual arch.
                 if parts[0] not in view_validation._get_attrs_symbols():
                     self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
             else:
-                corresponding_field = available_fields.get(field)
-                if corresponding_field:
-                    if corresponding_field['select'] == 'multi':
+                corresponding_field = available_fields.get(str(field))
+                if corresponding_field is not None:
+                    if corresponding_field.get('select') == 'multi':
                         self.raise_view_error('Field %s used in  %s %s is present in view but is in select multi.' % (field, typ, description), view_id)
-                elif field not in Model._fields:
-                    self.raise_view_error('Field %s does not exist on model %s in %s %s' % (field, Model._name, typ, description), view_id)
                 else:
                     self.raise_view_error('Field %s used in  %s %s must be present in view but is missing.' % (field, typ, description), view_id)
         return parent_fields
@@ -1094,7 +1095,7 @@ actual arch.
         Model = self.env[model]
         fields = Model.fields_get(None)
 
-        node = self.add_on_change(model, node)
+        node = self.add_on_change(model, node) # will be done multiple time per node since called for each subview
 
         fields_def, mandatory_fields = self.postprocess(model, node, view_id, False, fields, validate, editable)
         parent_fields = []
