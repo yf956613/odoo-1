@@ -634,7 +634,11 @@ class Field(MetaField('DummyField', (object,), {})):
                 )
         # assign final values to records
         for record, value in zip(records, values):
-            record[self.name] = value[self.related_field.name]
+            record[self.name] = self._transform_related_value(value[self.related_field.name])
+
+    def _transform_related_value(self, value):
+        """No transformation by default, but allows override."""
+        return value
 
     def _inverse_related(self, records):
         """ Inverse the related field ``self`` on ``records``. """
@@ -1870,14 +1874,9 @@ class Binary(Field):
     def read(self, records):
         # values are stored in attachments, retrieve them
         assert self.attachment
-        domain = [
-            ('res_model', '=', records._name),
-            ('res_field', '=', self.name),
-            ('res_id', 'in', records.ids),
-        ]
         # Note: the 'bin_size' flag is handled by the field 'datas' itself
         data = {att.res_id: att.datas
-                for att in records.env['ir.attachment'].sudo().search(domain)}
+                for att in self._get_attachment(records)}
         cache = records.env.cache
         for record in records:
             cache.set(record, self, data.get(record.id, False))
@@ -1921,11 +1920,10 @@ class Binary(Field):
 
         # retrieve the attachments that store the values, and adapt them
         if self.store:
-            atts = records.env['ir.attachment'].sudo().search([
-                ('res_model', '=', self.model_name),
-                ('res_field', '=', self.name),
-                ('res_id', 'in', records.ids),
-            ])
+            if hasattr(self, '_records_attachments'):
+                atts = self._records_attachments.filtered(lambda a: a.res_id in records.ids)
+            else:
+                atts = self._get_attachment(records)
             if value:
                 # update the existing attachments
                 atts.write({'datas': value})
@@ -1947,6 +1945,24 @@ class Binary(Field):
                 atts.unlink()
 
         return records
+
+    def _compute_related(self, records):
+        if self.store:
+            # Get the attachments in batch manually because _compute_related
+            # calls write which would otherwise get the attachments one by one.
+            self._records_attachments = self._get_attachment(records)
+        super(Binary, self)._compute_related(records)
+        if self.store:
+            # Clean to avoid future calls to write from working with potentially
+            # wrong attachments.
+            del self._records_attachments
+
+    def _get_attachment(self, records):
+        return records.env['ir.attachment'].sudo().search([
+            ('res_model', '=', self.model_name),
+            ('res_field', '=', self.name),
+            ('res_id', 'in', records.ids),
+        ])
 
 
 class Image(Binary):
@@ -1975,10 +1991,9 @@ class Image(Binary):
             value = image_process(value, size=(self.max_width, self.max_height))
         return value
 
-    def _compute_related(self, records):
-        super(Image, self)._compute_related(records)
-        for record in records:
-            record[self.name] = self._image_process(record[self.name])
+    def _transform_related_value(self, value):
+        """Override to resize the related value before saving it on self."""
+        return self._image_process(super(Image, self)._transform_related_value(value))
 
 
 class Selection(Field):
