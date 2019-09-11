@@ -423,6 +423,9 @@
         </span>
 
         <div class="d-flex flex-wrap">
+            <span t-if="slide.is_new_slide" class="badge badge-info badge-arrow-right font-weight-normal px-2 py-1 m-1">
+                New
+            </span>
             <span t-if="slide.question_ids" t-att-class="'badge font-weight-bold px-2 py-1 m-1 %s' % ('badge-success' if channel_progress[slide.id].get('completed') else 'badge-warning')">
                 <i t-attf-class="fa fa-fw #{'fa-check' if channel_progress[slide.id].get('completed') else 'fa-flag'}"/>
                 <t t-esc="channel_progress[slide.id].get('quiz_karma_won', 0) if channel_progress[slide.id].get('completed') else channel_progress[slide.id].get('quiz_karma_gain', 0)"/> xp

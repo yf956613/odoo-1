@@ -78,7 +78,6 @@
                     </t>
                 </div>
             </div>
-
             <div class="container o_wslides_home_main">
                 <div class="row">
                     <div t-if="is_public_user" class="col-lg-3 order-3 order-lg-2">
@@ -116,10 +115,14 @@
                                     <div class="col-12 col-sm-6 col-lg-12 d-flex align-items-center">
                                         <t t-call="website_slides.slides_home_user_achievements_small"/>
                                     </div>
+                                    <div class="col-12 col-sm-6 col-lg-12 pl-md-5 pl-lg-0 mt-lg-4">
+                                        <t t-call="website_slides.slides_home_users_small"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="col-lg-9 pr-lg-5 order-lg-1">
                         <div class="o_wslides_home_content_section mb-3"
                             t-if="not channels_popular">
@@ -138,7 +141,9 @@
                                 </div>
                                 <div class="row mx-n2 mt8">
                                     <t t-foreach="channels_my[:3]" t-as="channel">
-                                        <div class="col-md-4 col-sm-6 px-2 col-xs-12 d-flex flex-grow-1" t-call="website_slides.course_card"/>
+                                        <div class="col-md-4 col-sm-6 px-2 col-xs-12 d-flex flex-grow-1">
+                                            <t t-call="website_slides.course_card"/>
+                                        </div>
                                     </t>
                                 </div>
                             </div>
@@ -154,7 +159,9 @@
                             </div>
                             <div class="row mx-n2 mt8">
                                 <t t-foreach="channels_popular[:3]" t-as="channel">
-                                    <div class="col-md-4 col-sm-6 px-2 col-xs-12 d-flex flex-grow-1" t-call="website_slides.course_card"/>
+                                    <div class="col-md-4 col-sm-6 px-2 col-xs-12 d-flex flex-grow-1">
+                                        <t t-call="website_slides.course_card"/>
+                                    </div>
                                 </t>
                             </div>
                         </div>
@@ -169,7 +176,9 @@
                             </div>
                             <div class="row mx-n2 mt8">
                                 <t t-foreach="channels_newest[:3]" t-as="channel">
-                                    <div class="col-md-4 col-sm-6 px-2 col-xs-12 d-flex flex-grow-1" t-call="website_slides.course_card"/>
+                                    <div class="col-md-4 col-sm-6 px-2 col-xs-12 d-flex flex-grow-1">
+                                        <t t-call="website_slides.course_card"/>
+                                    </div>
                                 </t>
                             </div>
                         </div>
@@ -285,7 +294,9 @@
                 </div>
                 <div t-else="" class="row mx-n2">
                     <t t-foreach="channels" t-as="channel">
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 px-2 d-flex flex-grow-1" t-call="website_slides.course_card"/>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 px-2 d-flex flex-grow-1">
+                            <t t-call="website_slides.course_card"/>
+                        </div>
                     </t>
                 </div>
             </div>
@@ -299,6 +310,7 @@
     <div t-attf-class="card w-100 o_wslides_course_card mb-4 #{'o_wslides_course_unpublished' if not channel.is_published else ''}">
         <t t-set="course_image" t-value="website.image_url(channel, 'image_1024')"/>
         <a t-attf-href="/slides/#{slug(channel)}" t-title="channel.name">
+            <t t-call="website_slides.course_card_information"/>
             <div t-if="channel.image_1024" class="card-img-top" t-attf-style="padding-top: 50%; background-image: url(#{course_image}); background-size: cover; background-position:center"/>
             <div t-else="" class="o_wslides_gradient card-img-top position-relative" style="padding-top: 50%; opacity: 0.8">
                 <i class="fa fa-graduation-cap fa-2x mr-3 mb-3 position-absolute text-white-75" style="right:0; bottom: 0"/>
@@ -333,6 +345,17 @@
     </div>
 </template>
 
+<template id="course_card_information" name='Course Information'>
+    <div></div>
+</template>
+
+<template id="course_card_course_card_information_arrow" inherit_id="website_slides.course_card_information"
+    active="True" customize_show="True" name='Ribbon New Content'>
+    <xpath expr="//div" position="inside">
+        <span t-if="channel.has_new_slide" class="o_wslides_arrow">New Content</span>
+    </xpath>
+</template>
+
 <template id='slides_home_achievements_small' name="Latest Achievements">
     <div class="o_wslides_home_aside">
         <div class="row o_wslides_home_aside_title">
@@ -365,8 +388,13 @@
     </div>
 </template>
 
-<template id='slides_home_users_small' name="Latest Users">
+<template id='slides_home_users_small' name="Users">
     <div class="o_wslides_home_aside">
+    </div>
+</template>
+    
+<template id="toggle_leaderboard" inherit_id="website_slides.slides_home_users_small" active="True" customize_show="True" name='Display Leaderboard'>
+    <xpath expr="//div[hasclass('o_wslides_home_aside')]" position="inside">
         <div class="row o_wslides_home_aside_title">
             <div class="col">
                 <a href="/profile/users" class="float-right">View all</a>
@@ -386,7 +414,7 @@
             </t>
             <t t-else=""><p class="col mt8">No leaderboard currently :(</p></t>
         </div>
-    </div>
+    </xpath>
 </template>
 
 <template id='user_quickkarma_card' name="User QuickKarma Card">

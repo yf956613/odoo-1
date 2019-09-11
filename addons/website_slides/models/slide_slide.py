@@ -124,6 +124,7 @@ class Slide(models.Model):
     tag_ids = fields.Many2many('slide.tag', 'rel_slide_tag', 'slide_id', 'tag_id', string='Tags')
     is_preview = fields.Boolean('Is Preview', default=False, help="The course is accessible by anyone : the users don't need to join the channel to access the content of the course.")
     completion_time = fields.Float('Completion Time', digits=(10, 4), help="The estimated completion time for this slide")
+    is_new_slide = fields.Boolean('Is New Slide', compute='_compute_is_new_slide')
     # Categories
     is_category = fields.Boolean('Is a category', default=False)
     category_id = fields.Many2one('slide.slide', string="Category", compute="_compute_category_id", store=True)
@@ -187,6 +188,11 @@ class Slide(models.Model):
     _sql_constraints = [
         ('exclusion_html_content_and_url', "CHECK(html_content IS NULL OR url IS NULL)", "A slide is either filled with a document url or HTML content. Not both.")
     ]
+
+    @api.depends('date_published')
+    def _compute_is_new_slide(self):
+        for slide in self:
+            slide.is_new_slide = datetime.datetime.now() < slide.date_published + datetime.timedelta(days=7) if slide.is_published else False
 
     @api.depends('channel_id.slide_ids.is_category', 'channel_id.slide_ids.sequence')
     def _compute_category_id(self):

@@ -103,6 +103,7 @@ class Channel(models.Model):
     tag_ids = fields.Many2many(
         'slide.channel.tag', 'slide_channel_tag_rel', 'channel_id', 'tag_id',
         string='Tags', help='Used to categorize and filter displayed channels/courses')
+    has_new_slide = fields.Boolean('Has New Content', compute='_compute_has_new_slide')
     # slides: promote, statistics
     slide_ids = fields.One2many('slide.slide', 'channel_id', string="Slides and categories")
     slide_content_ids = fields.One2many('slide.slide', string='Slides', compute="_compute_category_and_slide_ids")
@@ -177,6 +178,11 @@ class Channel(models.Model):
     can_review = fields.Boolean('Can Review', compute='_compute_action_rights')
     can_comment = fields.Boolean('Can Comment', compute='_compute_action_rights')
     can_vote = fields.Boolean('Can Vote', compute='_compute_action_rights')
+
+    @api.depends('slide_content_ids.is_new_slide')
+    def _compute_has_new_slide(self):
+        for channel in self:
+            channel.has_new_slide = any(channel.slide_content_ids.mapped('is_new_slide'))
 
     @api.depends('slide_ids.is_published')
     def _compute_slide_last_update(self):
