@@ -845,7 +845,7 @@ actual arch.
         for f in node:
             if f.tag == 'filter':
                 fields[f.get('name')] = {}
-        return {'fields': fields}
+        return {'fields': fields, 'editable':  False}
 
     def _postprocess_search(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
         searchpanel = [c for c in node if c.tag == 'searchpanel']
@@ -855,7 +855,7 @@ actual arch.
                 check_field_names=False,  # field validation is a bit more tricky and done apart
             ).postprocess_view(Model._name, searchpanel[0], view_id, validate, editable=False)
 
-        return {'children': [c for c in node if c.tag != 'searchpanel']}
+        return {'children': [c for c in node if c.tag != 'searchpanel'], 'editable': False}
 
     #def _postprocess_filter(self, Model=None, node=None, view_id=None, validate=None, **kwargs):
     #    model = Model._name
