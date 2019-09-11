@@ -830,9 +830,7 @@ actual arch.
         result = Model.view_header_get(False, node.tag)
         if result:
             node.set('string', result)
-        # print('____ editable: %s node_editable: %s' % (editable, node.get('editable')))
-        # todo fixme: root form node does not have tag editable. 
-        return {'editable': True}
+        return {} # 'editable': editable is implicit
 
     def _postprocess_tree(self, Model=None, node=None, editable=None, **kwargs):
         res = self._postprocess_form(Model, node)
@@ -906,7 +904,7 @@ actual arch.
             elif attr == 'context':
                 for key, value in view_validation.process_dict_str(expr).items():
                     if key == 'group_by':
-                        self._group_by_check(value, Model)
+                        self._group_by_check(value, Model, expr, view_id)
                     elif isinstance(value, ast.List):
                         domain_fields = view_validation.process_domain(value)
                         mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
@@ -974,7 +972,7 @@ actual arch.
             if not domain:  # []
                 return {}
             domain_fields = view_validation.process_domain_str(domain)
-            return self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'field default domain', domain)
+            return self._get_server_domain_mandatory_fields(self.env[field.comodel_name], domain_fields, view_id, 'field %s default domain' % field.name, domain)
         return {}
 
     @api.model
