@@ -1650,7 +1650,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         return lazy_name_get(recs.with_user(access_rights_uid))
 
     @api.model
-    def _add_missing_default_values(self, values):
+    def _add_missing_default_values(self, values, known_defaults=None):
         # avoid overriding inherited values when parent is set
         avoid_models = {
             parent_model
@@ -1669,8 +1669,12 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         if not missing_defaults:
             return values
 
+        if known_defaults is None:
+            known_defaults = {}
+        known_defaults.update(self.default_get([d for d in missing_defaults if d not in known_defaults]))
+
         # override defaults with the provided values, never allow the other way around
-        defaults = self.default_get(list(missing_defaults))
+        defaults = dict(known_defaults)
         for name, value in defaults.items():
             if self._fields[name].type == 'many2many' and value and isinstance(value[0], int):
                 # convert a list of ids into a list of commands
@@ -3553,9 +3557,12 @@ Record ids: %(records)s
         data_list = []
         inversed_fields = set()
 
+        # Keep defaults that have been computed previously during the iteration
+        # to avoid computing them again.
+        known_defaults = {}
         for vals in vals_list:
             # add missing defaults
-            vals = self._add_missing_default_values(vals)
+            vals = self._add_missing_default_values(vals, known_defaults=known_defaults)
 
             # distribute fields into sets for various purposes
             data = {}
