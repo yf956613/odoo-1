@@ -1090,10 +1090,6 @@ actual arch.
 
         node = self.add_on_change(model, node)
 
-        old = True
-        if old and validate:
-            attrs_fields = view_validation.get_attrs_field_names(self.env, node, Model, editable)
-
         fields_def, mandatory_fields = self.postprocess(model, node, view_id, False, fields, validate, editable)
         parent_fields = []
         if validate:
@@ -1110,20 +1106,6 @@ actual arch.
             else:
                 message = _("Field `%(field_name)s` does not exist") % dict(field_name=field)
                 self.raise_view_error(message, view_id)
-
-        if old and validate:
-            missing = [item for item in attrs_fields if item[0] not in fields]
-            if missing:
-                msg_lines = []
-                msg_fmt = _("Field %r used in attributes must be present in view but is missing:")
-                line_fmt = _(" - %r in %s=%r")
-                for name, lines in itertools.groupby(sorted(missing), itemgetter(0)):
-                    if msg_lines:
-                        msg_lines.append("")
-                    msg_lines.append(msg_fmt % name)
-                    for line in lines:
-                        msg_lines.append(line_fmt % line)
-                self.raise_view_error("\n".join(msg_lines), view_id)
 
         return etree.tostring(node, encoding="unicode").replace('\t', ''), fields, parent_fields
 
