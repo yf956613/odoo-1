@@ -516,6 +516,25 @@ class ComputeOnchange(models.Model):
                 record.baz = record.foo
 
 
+class ComputeIncomplete(models.Model):
+    _name = 'test_new_api.compute.incomplete'
+    _description = "Compute method with not all records set"
+
+    foo = fields.Char()
+    bar = fields.Char(compute='_compute_bar')
+    baz = fields.Char(compute='_compute_baz', store=True)
+
+    @api.depends('foo')
+    def _compute_bar(self):
+        for record in self.filtered(lambda r: r.foo.startswith('foo')):
+            record.bar = record.foo
+
+    @api.depends('foo')
+    def _compute_baz(self):
+        for record in self.filtered(lambda r: r.foo.startswith('foo')):
+            record.baz = record.foo
+
+
 class ModelImage(models.Model):
     _name = 'test_new_api.model_image'
     _description = 'Test Image field'
