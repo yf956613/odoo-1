@@ -917,7 +917,7 @@ actual arch.
                     else:
                         print('*******', key, value)
             elif attr.startswith('decoration-'):
-                for value in view_validation.process_value(value):
+                for value in view_validation.process_value_str(expr):
                     if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
                         mandatory_fields[value] = ('context', expr)
 
@@ -969,7 +969,7 @@ actual arch.
     def get_field_mandatory_field(self, node, field, Model, editable, view_id):
         if editable and not node.get('domain') and field.relational:
             domain = field._description_domain(self.env)
-            if not domain:  # []
+            if not isinstance(domain, str):
                 return {}
             domain_fields = view_validation.process_domain_str(domain)
             return self._get_server_domain_mandatory_fields(self.env[field.comodel_name], domain_fields, view_id, 'field %s default domain' % field.name, domain)
