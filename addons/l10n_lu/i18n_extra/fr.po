@@ -806,9 +806,13 @@ msgstr "Transports collectifs du personnel"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6131
-#: model:account.account.template,name:l10n_lu.lu_2020_account_705
 msgid "Commissions and brokerage fees"
 msgstr "Commissions et courtages"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_705
+msgid "Commissions and brokerage fees"
+msgstr "Commissions et courtages obtenus"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_7453
@@ -1638,9 +1642,13 @@ msgstr "Impôts étrangers "
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65411
-#: model:account.account.template,name:l10n_lu.lu_2020_account_755231
 msgid "From affiliated undertakings"
 msgstr "Sur des entreprises liées"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_755231
+msgid "From affiliated undertakings"
+msgstr "Intérêts sur leasings financiers - entreprises liées"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_755232
@@ -3122,12 +3130,16 @@ msgstr "Prêts"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41122
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41212
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41222
+msgid "Loans and advances"
+msgstr "Prêts et avances"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45112
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45122
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45212
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45222
 msgid "Loans and advances"
-msgstr "Prêts et avances"
+msgstr "Emprunts et avances"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_61332
@@ -3440,9 +3452,13 @@ msgstr "Autres installations"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_7223
-#: model:account.account.template,name:l10n_lu.lu_2011_account_7333
 msgid "Other fixtures and fittings, tools and equipment (included motor vehicles)"
 msgstr "Autres installations, outillage et mobilier (y compris matériel roulant)"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_7333
+msgid "Other fixtures and fittings, tools and equipment (included motor vehicles)"
+msgstr "RCV sur autres installations, outillage et mobilier (y compris matériel roulant)"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_2243
@@ -3547,10 +3563,14 @@ msgstr "Autres achats de matériel incorporés aux ouvrages et produits"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41128
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41218
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41228
-#: model:account.account.template,name:l10n_lu.lu_2011_account_42168
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6454
 msgid "Other receivables"
 msgstr "Autres créances"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_42168
+msgid "Other receivables"
+msgstr "AED – Autres créances"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_64658
@@ -4325,7 +4345,7 @@ msgstr "Constructions / Bâtiments résidentiels"
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_142
 msgid "Result for the financial year"
-msgstr ""
+msgstr "Résultat de l'exercice"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_1412
@@ -4853,10 +4873,14 @@ msgid "Temporary staff"
 msgstr "Personnel intérimaire"
 
 #. module: l10n_lu
-#: model:account.account.template,name:l10n_lu.lu_2011_account_106144
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6146
 msgid "Third-party insurance"
 msgstr "Assurance responsabilité civile"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_106144
+msgid "Third-party insurance"
+msgstr "Responsabilité civile"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_2233
@@ -4868,9 +4892,13 @@ msgstr "Outillage"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41121
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41211
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41221
-#: model:account.account.template,name:l10n_lu.lu_2011_account_6451
 msgid "Trade receivables"
 msgstr "Ventes et prestations de services"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_6451
+msgid "Trade receivables"
+msgstr "Créances résultant de ventes et de prestations de services"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6414
