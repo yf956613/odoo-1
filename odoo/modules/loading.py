@@ -18,7 +18,7 @@ import odoo.modules.migration
 import odoo.modules.registry
 import odoo.tools as tools
 
-from odoo import api, SUPERUSER_ID
+from odoo import api, SUPERUSER_ID, SUPERUSER_COMPANY_ID
 from odoo.modules.module import adapt_version, initialize_sys_path, load_openerp_module
 
 _logger = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ def load_demo(cr, package, idref, mode, report=None):
             "Module %s demo data failed to install, installed without demo data",
             package.name, exc_info=True)
 
-        env = api.Environment(cr, SUPERUSER_ID, {})
+        env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
         todo = env.ref('base.demo_failure_todo', raise_if_not_found=False)
         Failure = env.get('ir.demo_failure')
         if todo and Failure is not None:
@@ -113,7 +113,7 @@ def force_demo(cr):
     for package in graph:
         load_demo(cr, package, {}, 'init')
 
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
     env['ir.module.module'].invalidate_cache(['demo'])
 
 
@@ -208,7 +208,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True,
             mode = 'init'
 
         if needs_update:
-            env = api.Environment(cr, SUPERUSER_ID, {})
+            env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
             # Can't put this line out of the loop: ir.module.module will be
             # registered by init_models() above.
             module = env['ir.module.module'].browse(module_id)
@@ -253,7 +253,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True,
                 env['ir.http']._clear_routing_map()     # force routing map to be rebuilt
                 report.record_result(odoo.modules.module.run_unit_tests(module_name))
                 # tests may have reset the environment
-                env = api.Environment(cr, SUPERUSER_ID, {})
+                env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
                 module = env['ir.module.module'].browse(module_id)
 
             processed_modules.append(package.name)
@@ -371,7 +371,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
 
         # STEP 2: Mark other modules to be loaded/updated
         if update_module:
-            env = api.Environment(cr, SUPERUSER_ID, {})
+            env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
             Module = env['ir.module.module']
             _logger.info('updating modules list')
             Module.update_list()
@@ -429,7 +429,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
 
         # STEP 4: Finish and cleanup installations
         if processed_modules:
-            env = api.Environment(cr, SUPERUSER_ID, {})
+            env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
             cr.execute("""select model,name from ir_model where id NOT IN (select distinct model_id from ir_model_access)""")
             for (model, name) in cr.fetchall():
                 if model in registry and not registry[model]._abstract and not registry[model]._transient:
@@ -464,7 +464,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
             cr.execute("SELECT name, id FROM ir_module_module WHERE state=%s", ('to remove',))
             modules_to_remove = dict(cr.fetchall())
             if modules_to_remove:
-                env = api.Environment(cr, SUPERUSER_ID, {})
+                env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
                 pkgs = reversed([p for p in graph if p.name in modules_to_remove])
                 for pkg in pkgs:
                     uninstall_hook = pkg.info.get('uninstall_hook')
@@ -498,7 +498,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
 
         # STEP 6: verify custom views on every model
         if update_module:
-            env = api.Environment(cr, SUPERUSER_ID, {})
+            env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
             View = env['ir.ui.view']
             for model in registry:
                 try:
@@ -512,7 +512,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
             _logger.info('Modules loaded.')
 
         # STEP 8: call _register_hook on every model
-        env = api.Environment(cr, SUPERUSER_ID, {})
+        env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
         for model in env.values():
             model._register_hook()
         env['base'].flush()

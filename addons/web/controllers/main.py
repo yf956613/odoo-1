@@ -178,7 +178,7 @@ def module_installed_bypass_session(dbname):
         registry = odoo.registry(dbname)
         with registry.cursor() as cr:
             return module_installed(
-                environment=Environment(cr, odoo.SUPERUSER_ID, {}))
+                environment=Environment(cr, odoo.SUPERUSER_ID, odoo.SUPERUSER_COMPANY_ID, {}))
     except Exception:
         pass
     return {}
@@ -668,6 +668,8 @@ class Home(http.Controller):
 
         if not request.uid:
             request.uid = odoo.SUPERUSER_ID
+        if not request.cid:
+            request.cid = odoo.SUPERUSER_COMPANY_ID
 
         values = request.params.copy()
         try:
@@ -678,7 +680,7 @@ class Home(http.Controller):
         if request.httprequest.method == 'POST':
             old_uid = request.uid
             try:
-                uid = request.session.authenticate(request.session.db, request.params['login'], request.params['password'])
+                uid, cid = request.session.authenticate(request.session.db, request.params['login'], request.params['password'])
                 _admin_password_warn(uid)
                 request.params['login_success'] = True
                 return http.redirect_with_hash(self._login_redirect(uid, redirect=redirect))

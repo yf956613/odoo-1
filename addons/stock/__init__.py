@@ -7,12 +7,12 @@ from . import report
 from . import wizard
 
 
-from odoo import api, SUPERUSER_ID
+from odoo import api, SUPERUSER_ID, SUPERUSER_COMPANY_ID
 
 
 # TODO: Apply proper fix & remove in master
 def pre_init_hook(cr):
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
     env['ir.model.data'].search([
         ('model', 'like', '%stock%'),
         ('module', '=', 'stock')

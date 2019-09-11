@@ -22,9 +22,9 @@ def exp_login(db, login, password):
     # TODO: legacy indirection through 'security', should use directly
     # the res.users model
     res = security.login(db, login, password)
-    msg = res and 'successful login' or 'bad login or password'
+    msg = res[0] and 'successful login' or 'bad login or password'
     _logger.info("%s from '%s' using database '%s'", msg, login, db.lower())
-    return res or False
+    return (res[0], res[1]) or (res[0], 1)
 
 def exp_authenticate(db, login, password, user_agent_env):
     res_users = odoo.registry(db)['res.users']

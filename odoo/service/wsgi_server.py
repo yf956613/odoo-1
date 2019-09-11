@@ -108,6 +108,8 @@ def application_unproxied(environ, start_response):
     # method because werkzeug still produces relevant logging afterwards
     if hasattr(threading.current_thread(), 'uid'):
         del threading.current_thread().uid
+    if hasattr(threading.current_thread(), 'cid'):
+        del threading.current_thread().cid
     if hasattr(threading.current_thread(), 'dbname'):
         del threading.current_thread().dbname
     if hasattr(threading.current_thread(), 'url'):

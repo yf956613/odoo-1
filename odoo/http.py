@@ -213,6 +213,7 @@ class WebRequest(object):
         self.auth_method = None
         self._cr = None
         self._uid = None
+        self._cid = None
         self._context = None
         self._env = None
 
@@ -251,6 +252,15 @@ class WebRequest(object):
         self._env = None
 
     @property
+    def cid(self):
+        return self._cid
+
+    @cid.setter
+    def cid(self, val):
+        self._cid = val
+        self._env = None
+
+    @property
     def context(self):
         """ :class:`~collections.Mapping` of context values for the current request """
         if self._context is None:
@@ -266,7 +276,7 @@ class WebRequest(object):
     def env(self):
         """ The :class:`~odoo.api.Environment` bound to current request. """
         if self._env is None:
-            self._env = odoo.api.Environment(self.cr, self.uid, self.context)
+            self._env = odoo.api.Environment(self.cr, self.uid, self.cid, self.context)
         return self._env
 
     @lazy_property
@@ -991,19 +1001,20 @@ class OpenERPSession(werkzeug.contrib.sessions.Session):
                 HTTP_HOST=wsgienv['HTTP_HOST'],
                 REMOTE_ADDR=wsgienv['REMOTE_ADDR'],
             )
-            uid = odoo.registry(db)['res.users'].authenticate(db, login, password, env)
+            uid, cid = odoo.registry(db)['res.users'].authenticate(db, login, password, env)
         else:
             security.check(db, uid, password)
         self.rotate = True
         self.db = db
         self.uid = uid
+        self.cid = cid
         self.login = login
         self.session_token = uid and security.compute_session_token(self, request.env)
         request.uid = uid
         request.disable_db = False
 
         if uid: self.get_context()
-        return uid
+        return uid, cid
 
     def check_security(self):
         """
@@ -1015,7 +1026,7 @@ class OpenERPSession(werkzeug.contrib.sessions.Session):
             raise SessionExpiredException("Session expired")
         # We create our own environment instead of the request's one.
         # to avoid creating it without the uid since request.uid isn't set yet
-        env = odoo.api.Environment(request.cr, self.uid, self.context)
+        env = odoo.api.Environment(request.cr, self.uid, self.cid, self.context)
         # here we check if the session is still valid
         if not security.check_session(self, env):
             raise SessionExpiredException("Session expired")

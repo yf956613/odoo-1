@@ -21,18 +21,19 @@ PG_CONCURRENCY_ERRORS_TO_RETRY = (errorcodes.LOCK_NOT_AVAILABLE, errorcodes.SERI
 MAX_TRIES_ON_CONCURRENCY_FAILURE = 5
 
 def dispatch(method, params):
-    (db, uid, passwd ) = params[0], int(params[1]), params[2]
+    (db, uid, cid, passwd ) = params[0], int(params[1]), int(params[2]), params[3]
 
     # set uid tracker - cleaned up at the WSGI
     # dispatching phase in odoo.service.wsgi_server.application
     threading.current_thread().uid = uid
+    threading.current_thread().cid = cid
 
     params = params[3:]
     if method == 'obj_list':
         raise NameError("obj_list has been discontinued via RPC as of 6.0, please query ir.model directly!")
     if method not in ['execute', 'execute_kw']:
         raise NameError("Method not available %s" % method)
-    security.check(db,uid,passwd)
+    security.check(db,uid,cid,passwd)
     registry = odoo.registry(db).check_signaling()
     fn = globals()[method]
     with registry.manage_changes():
@@ -155,22 +156,22 @@ def check(f):
 
     return wrapper
 
-def execute_cr(cr, uid, obj, method, *args, **kw):
-    recs = odoo.api.Environment(cr, uid, {}).get(obj)
+def execute_cr(cr, uid, cid, obj, method, *args, **kw):
+    recs = odoo.api.Environment(cr, uid, cid, {}).get(obj)
     if recs is None:
         raise UserError(_("Object %s doesn't exist") % obj)
     return odoo.api.call_kw(recs, method, args, kw)
 
 
-def execute_kw(db, uid, obj, method, args, kw=None):
-    return execute(db, uid, obj, method, *args, **kw or {})
+def execute_kw(db, uid, cid, obj, method, args, kw=None):
+    return execute(db, uid, cid, obj, method, *args, **kw or {})
 
 @check
-def execute(db, uid, obj, method, *args, **kw):
+def execute(db, uid, cid, obj, method, *args, **kw):
     threading.currentThread().dbname = db
     with odoo.registry(db).cursor() as cr:
         check_method_name(method)
-        res = execute_cr(cr, uid, obj, method, *args, **kw)
+        res = execute_cr(cr, uid, cid, obj, method, *args, **kw)
         if res is None:
             _logger.info('The method %s of the object %s can not return `None` !', method, obj)
         return res

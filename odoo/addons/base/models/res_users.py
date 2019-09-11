@@ -16,7 +16,7 @@ from lxml import etree
 from lxml.builder import E
 import passlib.context
 
-from odoo import api, fields, models, tools, SUPERUSER_ID, _
+from odoo import api, fields, models, tools, SUPERUSER_ID, SUPERUSER_COMPANY_ID, _
 from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
 from odoo.http import request
 from odoo.osv import expression
@@ -564,7 +564,7 @@ class Users(models.Model):
         ip = request.httprequest.environ['REMOTE_ADDR'] if request else 'n/a'
         try:
             with cls.pool.cursor() as cr:
-                self = api.Environment(cr, SUPERUSER_ID, {})[cls._name]
+                self = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})[cls._name]
                 with self._assert_can_auth():
                     user = self.search(self._get_login_domain(login))
                     if not user:
@@ -572,13 +572,14 @@ class Users(models.Model):
                     user = user.with_user(user)
                     user._check_credentials(password)
                     user._update_last_login()
+                    user = user.with_company(user.sudo().company_id)
         except AccessDenied:
             _logger.info("Login failed for db:%s login:%s from %s", db, login, ip)
             raise
 
         _logger.info("Login successful for db:%s login:%s from %s", db, login, ip)
 
-        return user.id
+        return user.id, user.env.cid
 
     @classmethod
     def authenticate(cls, db, login, password, user_agent_env):
@@ -591,10 +592,10 @@ class Users(models.Model):
            :param dict user_agent_env: environment dictionary describing any
                relevant environment attributes
         """
-        uid = cls._login(db, login, password)
+        uid, cid = cls._login(db, login, password)
         if user_agent_env and user_agent_env.get('base_location'):
             with cls.pool.cursor() as cr:
-                env = api.Environment(cr, uid, {})
+                env = api.Environment(cr, uid, cid, {})
                 if env.user.has_group('base.group_system'):
                     # Successfully logged in as system user!
                     # Attempt to guess the web base url...
@@ -605,10 +606,10 @@ class Users(models.Model):
                             ICP.set_param('web.base.url', base)
                     except Exception:
                         _logger.exception("Failed to update web.base.url configuration parameter")
-        return uid
+        return uid, cid
 
     @classmethod
-    def check(cls, db, uid, passwd):
+    def check(cls, db, uid, cid, passwd):
         """Verifies that the given (uid, password) is authorized for the database ``db`` and
            raise an exception if it is not."""
         if not passwd:
@@ -619,7 +620,7 @@ class Users(models.Model):
             return
         cr = cls.pool.cursor()
         try:
-            self = api.Environment(cr, uid, {})[cls._name]
+            self = api.Environment(cr, uid, cid, {})[cls._name]
             with self._assert_can_auth():
                 self._check_credentials(passwd)
                 cls.__uid_cache[db][uid] = passwd
@@ -663,7 +664,7 @@ class Users(models.Model):
         :raise: odoo.exceptions.AccessDenied when old password is wrong
         :raise: odoo.exceptions.UserError when new password is not set or empty
         """
-        self.check(self._cr.dbname, self._uid, old_passwd)
+        self.check(self._cr.dbname, self._uid, self._cid, old_passwd)
         if new_passwd:
             # use self.env.user here, because it has uid=SUPERUSER_ID
             return self.env.user.write({'password': new_passwd})

@@ -86,6 +86,7 @@ except ImportError:
 #----------------------------------------------------------
 # The hard-coded super-user id (a.k.a. administrator, or root user).
 SUPERUSER_ID = 1
+SUPERUSER_COMPANY_ID = 1
 
 
 def registry(database_name=None):

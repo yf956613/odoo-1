@@ -2,11 +2,11 @@
 
 from . import models
 
-from odoo import api, SUPERUSER_ID
+from odoo import api, SUPERUSER_ID, SUPERUSER_COMPANY_ID
 
 
 def _assign_default_nomeclature_id(cr, registry):
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
     company_ids_without_default_nomenclature_id  = env['res.company'].search([
         ('nomenclature_id', '=', False)
     ])
@@ -15,4 +15,3 @@ def _assign_default_nomeclature_id(cr, registry):
         company_ids_without_default_nomenclature_id.write({
             'nomenclature_id': default_nomenclature_id.id,
         })
-

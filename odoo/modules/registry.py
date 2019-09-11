@@ -14,7 +14,7 @@ import os
 import threading
 
 import odoo
-from .. import SUPERUSER_ID
+from .. import SUPERUSER_ID, SUPERUSER_COMPANY_ID
 from odoo.sql_db import TestCursor
 from odoo.tools import (assertion_report, config, existing_tables,
                         lazy_classproperty, lazy_property, table_exists,
@@ -228,7 +228,7 @@ class Registry(Mapping):
             This must be called after loading modules and before using the ORM.
         """
         lazy_property.reset_all(self)
-        env = odoo.api.Environment(cr, SUPERUSER_ID, {})
+        env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
 
         # add manual models
         if self._init_modules:
@@ -270,7 +270,7 @@ class Registry(Mapping):
         elif context.get('models_to_check', False):
             _logger.info("verifying fields for every extended model")
 
-        env = odoo.api.Environment(cr, SUPERUSER_ID, context)
+        env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, context)
         models = [env[model_name] for model_name in model_names]
 
         for model in models:
@@ -290,7 +290,7 @@ class Registry(Mapping):
         """
         Verify that all tables are present and try to initialize those that are missing.
         """
-        env = odoo.api.Environment(cr, SUPERUSER_ID, {})
+        env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
         table2model = {model._table: name for name, model in env.items() if not model._abstract}
         missing_tables = set(table2model).difference(existing_tables(cr, table2model))
 

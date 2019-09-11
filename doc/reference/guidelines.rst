@@ -751,12 +751,12 @@ before transmitting the answer to the RPC client, approximately like this:
 
 .. code-block:: python
 
-    def execute(self, db_name, uid, obj, method, *args, **kw):
+    def execute(self, db_name, uid, cid, obj, method, *args, **kw):
         db, pool = pooler.get_db_and_pool(db_name)
         # create transaction cursor
         cr = db.cursor()
         try:
-            res = pool.execute_cr(cr, uid, obj, method, *args, **kw)
+            res = pool.execute_cr(cr, uid, cid, obj, method, *args, **kw)
             cr.commit() # all good, we commit
         except Exception:
             cr.rollback() # error, rollback everything atomically

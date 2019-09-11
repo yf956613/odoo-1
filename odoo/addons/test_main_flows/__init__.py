@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, SUPERUSER_ID
+from odoo import api, SUPERUSER_ID, SUPERUSER_COMPANY_ID
 
 #
 # Conditional installation of enterprise modules.
@@ -11,7 +11,7 @@ from odoo import api, SUPERUSER_ID
 # modules dependencies, this post install hook will install account_accountant if exists.
 #
 def _auto_install_enterprise_dependencies(cr, registry):
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
     module_list = ['account_accountant']
     module_ids = env['ir.module.module'].search([('name', 'in', module_list), ('state', '=', 'uninstalled')])
     module_ids.sudo().button_install()

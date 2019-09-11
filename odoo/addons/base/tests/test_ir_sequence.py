@@ -11,6 +11,7 @@ from odoo.tests import common
 from odoo.tests.common import BaseCase
 
 ADMIN_USER_ID = common.ADMIN_USER_ID
+ADMIN_USER_COMPANY_ID = common.ADMIN_USER_COMPANY_ID
 
 @contextmanager
 def environment():
@@ -19,7 +20,7 @@ def environment():
     """
     registry = odoo.registry(common.get_db_name())
     with registry.cursor() as cr:
-        yield odoo.api.Environment(cr, ADMIN_USER_ID, {})
+        yield odoo.api.Environment(cr, ADMIN_USER_ID, ADMIN_USER_COMPANY_ID, {})
 
 
 def drop_sequence(code):

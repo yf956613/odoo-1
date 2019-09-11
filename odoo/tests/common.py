@@ -69,6 +69,7 @@ HOST = '127.0.0.1'
 PORT = odoo.tools.config['http_port']
 # Useless constant, tests are aware of the content of demo data
 ADMIN_USER_ID = odoo.SUPERUSER_ID
+ADMIN_USER_COMPANY_ID = odoo.SUPERUSER_COMPANY_ID
 
 
 def get_db_name():
@@ -402,7 +403,7 @@ class TransactionCase(BaseCase):
         #: current transaction's cursor
         self.cr = self.cursor()
         #: :class:`~odoo.api.Environment` for the current test case
-        self.env = api.Environment(self.cr, odoo.SUPERUSER_ID, {})
+        self.env = api.Environment(self.cr, odoo.SUPERUSER_ID, odoo.SUPERUSER_COMPANY_ID, {})
 
         @self.addCleanup
         def reset():
@@ -437,7 +438,7 @@ class SingleTransactionCase(BaseCase):
         super(SingleTransactionCase, cls).setUpClass()
         cls.registry = odoo.registry(get_db_name())
         cls.cr = cls.registry.cursor()
-        cls.env = api.Environment(cls.cr, odoo.SUPERUSER_ID, {})
+        cls.env = api.Environment(cls.cr, odoo.SUPERUSER_ID, odoo.SUPERUSER_COMPANY_ID, {})
 
     def setUp(self):
         super(SingleTransactionCase, self).setUp()
@@ -749,7 +750,7 @@ class ChromeBrowser():
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
         fname = '%s_screencast_%s.mp4' % (prefix, timestamp)
         outfile = os.path.join(self.screencasts_dir, fname)
-        
+
         try:
             ffmpeg_path = find_in_path('ffmpeg')
         except IOError:
@@ -780,7 +781,7 @@ class ChromeBrowser():
         params = {kw:kwargs[kw] for kw in kwargs if kw in ['url', 'domain', 'path']}
         params.update({'name': name})
         _id = self._websocket_send('Network.deleteCookies', params=params)
-        return self._websocket_wait_id(_id) 
+        return self._websocket_wait_id(_id)
 
     def _wait_ready(self, ready_code, timeout=60):
         self._logger.info('Evaluate ready code "%s"', ready_code)
@@ -968,8 +969,8 @@ class HttpCase(TransactionCase):
             return
 
         db = get_db_name()
-        uid = self.registry['res.users'].authenticate(db, user, password, None)
-        env = api.Environment(self.cr, uid, {})
+        uid, cid = self.registry['res.users'].authenticate(db, user, password, None)
+        env = api.Environment(self.cr, uid, cid, {})
 
         # self.session.authenticate(db, user, password, uid=uid)
         # OpenERPSession.authenticate accesses the current request, which we
@@ -978,6 +979,7 @@ class HttpCase(TransactionCase):
 
         session.db = db
         session.uid = uid
+        session.cid = cid
         session.login = user
         session.session_token = uid and security.compute_session_token(session, env)
         session.context = env['res.users'].context_get() or {}
@@ -2006,7 +2008,7 @@ class TagsSelector(object):
 
         test_module = getattr(test, 'test_module', None)
         test_class = getattr(test, 'test_class', None)
-        test_tags = test.test_tags | {test_module}  # module as test_tags deprecated, keep for retrocompatibility, 
+        test_tags = test.test_tags | {test_module}  # module as test_tags deprecated, keep for retrocompatibility,
         test_method = getattr(test, '_testMethodName', None)
 
         def _is_matching(test_filter):

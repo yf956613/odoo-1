@@ -434,7 +434,7 @@ class Environment(Mapping):
         """
         cls._local.environments = Environments()
 
-    def __new__(cls, cr, uid, context, cid=1, su=False):  # No default company? all env creation in orm to check then :x.
+    def __new__(cls, cr, uid, cid, context, su=False):  # No default company? all env creation in orm to check then :x.
         if uid == SUPERUSER_ID:
             su = True
         assert context is not None
@@ -499,7 +499,7 @@ class Environment(Mapping):
         cid = self.cid if company is None else int(company)
         context = self.context if context is None else context
         su = (user is None and self.su) if su is None else su
-        return Environment(cr, uid, context, cid, su)
+        return Environment(cr, uid, cid, context, su)
 
     def ref(self, xml_id, raise_if_not_found=True):
         """ return the record corresponding to the given ``xml_id`` """

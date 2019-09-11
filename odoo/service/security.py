@@ -11,9 +11,9 @@ def login(db, login, password):
     except odoo.exceptions.AccessDenied:
         return False
 
-def check(db, uid, passwd):
+def check(db, uid, cid, passwd):
     res_users = odoo.registry(db)['res.users']
-    return res_users.check(db, uid, passwd)
+    return res_users.check(db, uid, cid, passwd)
 
 def compute_session_token(session, env):
     self = env['res.users'].browse(session.uid)

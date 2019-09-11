@@ -62,7 +62,7 @@ def _initialize_db(id, db_name, demo, lang, user_password, login='admin', countr
         registry = odoo.modules.registry.Registry.new(db_name, demo, None, update_module=True)
 
         with closing(db.cursor()) as cr:
-            env = odoo.api.Environment(cr, SUPERUSER_ID, {})
+            env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
 
             if lang:
                 modules = env['ir.module.module'].search([('state', '=', 'installed')])
@@ -132,7 +132,7 @@ def exp_duplicate_database(db_original_name, db_name):
     registry = odoo.modules.registry.Registry.new(db_name)
     with registry.cursor() as cr:
         # if it's a copy of a database, force generation of a new dbuuid
-        env = odoo.api.Environment(cr, SUPERUSER_ID, {})
+        env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
         env['ir.config_parameter'].init(force=True)
 
     from_fs = odoo.tools.config.filestore(db_original_name)
@@ -294,7 +294,7 @@ def restore_db(db, dump_file, copy=False):
 
         registry = odoo.modules.registry.Registry.new(db)
         with registry.cursor() as cr:
-            env = odoo.api.Environment(cr, SUPERUSER_ID, {})
+            env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
             if copy:
                 # if it's a copy of a database, force generation of a new dbuuid
                 env['ir.config_parameter'].init(force=True)

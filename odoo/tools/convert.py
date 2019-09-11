@@ -24,7 +24,7 @@ from . import assertion_report, pycompat
 from .config import config
 from .misc import file_open, unquote, ustr, SKIPPED_ELEMENT_TYPES
 from .translate import _
-from odoo import SUPERUSER_ID, api
+from odoo import SUPERUSER_ID, SUPERUSER_COMPANY_ID, api
 
 _logger = logging.getLogger(__name__)
 
@@ -686,7 +686,7 @@ form: module.record_id""" % (xml_id,)
     def __init__(self, cr, module, idref, mode, report=None, noupdate=False, xml_filename=None):
         self.mode = mode
         self.module = module
-        self.envs = [odoo.api.Environment(cr, SUPERUSER_ID, {})]
+        self.envs = [odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})]
         self.idref = {} if idref is None else idref
         if report is None:
             report = assertion_report.assertion_report()
@@ -770,7 +770,7 @@ def convert_csv_import(cr, module, fname, csvcontent, idref=None, mode='init',
         'install_filename': fname,
         'noupdate': noupdate,
     }
-    env = odoo.api.Environment(cr, SUPERUSER_ID, context)
+    env = odoo.api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, context)
     result = env[model].load(fields, datas)
     if any(msg['type'] == 'error' for msg in result['messages']):
         # Report failed import and abort module install

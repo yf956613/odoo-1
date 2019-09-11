@@ -18,7 +18,7 @@ import werkzeug.urls
 import werkzeug.utils
 
 import odoo
-from odoo import api, http, models, tools, SUPERUSER_ID
+from odoo import api, http, models, tools, SUPERUSER_ID, SUPERUSER_COMPANY_ID
 from odoo.exceptions import AccessDenied, AccessError
 from odoo.http import request, STATIC_CACHE, content_disposition
 from odoo.tools import consteq, pycompat, ustr
@@ -146,7 +146,7 @@ class IrHttp(models.AbstractModel):
 
     @classmethod
     def _serve_attachment(cls):
-        env = api.Environment(request.cr, SUPERUSER_ID, request.context)
+        env = api.Environment(request.cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, request.context)
         attach = env['ir.attachment'].get_serve_attachment(request.httprequest.path, extra_fields=['name', 'checksum'])
         if attach:
             wdate = attach[0]['__last_update']
@@ -321,7 +321,7 @@ class IrHttp(models.AbstractModel):
                 record = record_sudo
             elif self.env.user.has_group('base.group_portal'):
                 # Check the read access on the record linked to the attachment
-                # eg: Allow to download an attachment on a task from /my/task/task_id 
+                # eg: Allow to download an attachment on a task from /my/task/task_id
                 record.check('read')
                 record = record_sudo
             # We have prefetched some fields of record, among which the field

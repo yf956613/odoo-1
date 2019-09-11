@@ -6,7 +6,7 @@ import operator
 from collections import defaultdict
 from difflib import get_close_matches
 
-from odoo import api, fields, models, tools, SUPERUSER_ID, _
+from odoo import api, fields, models, tools, SUPERUSER_ID, SUPERUSER_COMPANY_ID, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.modules import get_module_path, get_module_resource
 
@@ -91,7 +91,7 @@ class IrTranslationImport(object):
         cr.execute("DELETE FROM %s WHERE res_id IS NULL AND module IS NOT NULL" % self._table)
 
         # detect the xml_translate fields, where the src must be the same
-        env = api.Environment(cr, SUPERUSER_ID, {})
+        env = api.Environment(cr, SUPERUSER_ID, SUPERUSER_COMPANY_ID, {})
         src_relevant_fields = []
         for model in env:
             for field_name, field in env[model]._fields.items():

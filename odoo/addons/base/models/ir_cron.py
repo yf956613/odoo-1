@@ -52,6 +52,7 @@ class ir_cron(models.Model):
         delegate=True, ondelete='restrict', required=True)
     cron_name = fields.Char('Name', related='ir_actions_server_id.name', store=True, readonly=False)
     user_id = fields.Many2one('res.users', string='Scheduler User', default=lambda self: self.env.user, required=True)
+    company_id = fields.Many2one('res.company', string='Scheduler company', related='user_id.company_id', store=True)
     active = fields.Boolean(default=True)
     interval_number = fields.Integer(default=1, help="Repeat every x.")
     interval_type = fields.Selection([('minutes', 'Minutes'),
@@ -73,7 +74,7 @@ class ir_cron(models.Model):
     def method_direct_trigger(self):
         self.check_access_rights('write')
         for cron in self:
-            self.with_user(cron.user_id).ir_actions_server_id.run()
+            self.with_user(cron.user_id).with_company(cron.company_id).ir_actions_server_id.run()
         return True
 
     @api.model
@@ -121,7 +122,7 @@ class ir_cron(models.Model):
         """
         try:
             with api.Environment.manage():
-                cron = api.Environment(job_cr, job['user_id'], {
+                cron = api.Environment(job_cr, job['user_id'], job['company_id'], {
                     'lastcall': fields.Datetime.from_string(job['lastcall'])
                 })[cls._name]
                 # Use the user's timezone to compare and compute datetimes,
