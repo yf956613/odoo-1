@@ -101,7 +101,7 @@ class WebsiteForum(WebsiteProfile):
         elif my == 'followed':
             domain += [('message_partner_ids', '=', user.partner_id.id)]
         elif my == 'favourites':
-            domain += [('favourite_ids', 'in', user.id)]
+            domain += [('favourite_ids', '=', user.id)]
 
         if sorting:
             # check that sorting is valid

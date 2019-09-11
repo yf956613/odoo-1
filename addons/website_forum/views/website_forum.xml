@@ -513,7 +513,7 @@
 
         <!-- My Favourites -->
         <span t-if="my == 'favourites'" class="nav-link rounded-pill mb-2 active font-weight-bold">
-            <i class="fa fa-star forum_favourite_question fa-fw"/> Favourites
+            <i class="fa fa-star fa-fw"/> Favourites
             <a class="text-reset pull-right no-decoration" t-att-href="location + keep_query( 'search', 'filters', 'sorting')">&#215;</a>
         </span>
         <a t-else="" t-attf-class="nav-link rounded-pill mb-2 text-reset" t-att-href="location + keep_query( 'search', 'filters', 'sorting', my='favourites')">
@@ -765,7 +765,7 @@
             <div class="form-group">
                 <label for="content">Title</label>
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                <input type="text" name="post_name" required="True" pattern=".*\S.*" t-attf-value="#{post_name}"
+                <input type="text" name="post_name" required="required" pattern=".*\S.*" t-attf-value="#{post_name}"
                     class="form-control form-control-lg" placeholder="A clear, explicit and concise question title" title="Title must not be empty"/>
                 <input type="hidden" name="karma" t-attf-value="#{user.karma}" id="karma"/>
                 <div class="form-text small text-muted">
@@ -786,7 +786,7 @@
             <div class="form-group">
                 <label for="content">Description</label>
                 <div class="small form-text text-muted d-inline">, consider <b>adding an example</b>. </div>
-                <textarea name="content" required="True" id="content" class="form-control o_wysiwyg_loader" t-att-data-karma="forum.karma_editor">
+                <textarea name="content" required="required" id="content" class="form-control o_wysiwyg_loader" t-att-data-karma="forum.karma_editor">
                     <t t-esc="question_content"/>
                 </textarea>
             </div>
@@ -818,7 +818,7 @@
             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
             <div t-if="not is_answer" class="form-group">
                 <label for="post_name">Title</label>
-                <input type="text" name="post_name" required="True" pattern=".*\S.*" t-attf-value="#{post.name}"
+                <input type="text" name="post_name" required="required" pattern=".*\S.*" t-attf-value="#{post.name}"
                     class="form-control form-control-lg" placeholder="Edit your Post" title="Title must not be empty"/>
                 <div class="form-text small text-muted">
                     <a data-toggle="collapse" href="#newQuestionExample" role="button" aria-expanded="false" aria-controls="newQuestionExample">
@@ -840,7 +840,7 @@
                 <label t-if="not is_answer" for="content">Description</label>
                 <label t-else="">Your Answer</label>
                 <div t-if="not is_answer" class="small form-text text-muted d-inline">, consider <b>adding an example</b>. </div>
-                <textarea name="content" id="content" required="True" class="form-control o_wysiwyg_loader" t-att-data-karma="forum.karma_editor">
+                <textarea name="content" id="content" required="required" class="form-control o_wysiwyg_loader" t-att-data-karma="forum.karma_editor">
                     <t t-esc="post.content"/>
                 </textarea>
             </div>
@@ -908,12 +908,12 @@
 <!-- Edition: post a reply -->
 <template id="post_reply">
     <div class="css_editable_mode_hidden">
-        <form t-attf-id="reply#{ object._name.replace('.','') + '-' + str(object.id) }" class="collapse js_website_submit_form"
-            t-attf-action="/forum/#{ slug(forum) }/#{slug(object)}/reply" method="post" role="form">
+        <form class="collapse js_website_submit_form"
+            t-attf-action="/forum/#{slug(forum)}/#{slug(object)}/reply" method="post" role="form">
             <h3 class="mt8">Your Reply</h3>
             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
             <input type="hidden" name="karma" t-attf-value="#{user.karma}" id="karma"/>
-            <textarea name="content" t-attf-id="content-#{str(object.id)}" class="form-control o_wysiwyg_loader" required="True" t-att-data-karma="forum.karma_editor"/>
+            <textarea name="content" class="form-control o_wysiwyg_loader" required="required" t-att-data-karma="forum.karma_editor"/>
             <button type="submit" class="btn btn-primary mb16">Post Answer</button>
         </form>
     </div>
@@ -931,7 +931,7 @@
     <form t-attf-action="/forum/#{ slug(forum) }/#{slug(question)}/reply" method="post" class="js_website_submit_form" role="form">
         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
         <input type="hidden" name="karma" t-attf-value="#{user.karma}" id="karma"/>
-        <textarea name="content" t-attf-id="content-#{str(question.id)}" class="form-control o_wysiwyg_loader" required="True" t-att-data-karma="forum.karma_editor"/>
+        <textarea name="content" t-attf-id="content-#{str(question.id)}" class="form-control o_wysiwyg_loader" required="required" t-att-data-karma="forum.karma_editor"/>
         <p class="small mt-2 mb-1">
             <b>Please try to give a substantial answer.</b> If you wanted to comment on the question or answer, just
             <b>use the commenting tool.</b> Please remember that you can always <b>revise your answers</b>
@@ -952,17 +952,18 @@
     <t t-set="can_upvote" t-value="post.can_upvote"/>
     <t t-set="can_downvote" t-value="post.can_downvote"/>
     <div t-attf-class="vote text-center d-inline-flex align-items-center #{vertical and 'o_wforum_vote_vertical flex-md-column'} #{classes}">
-        <a t-attf-class="btn vote_up fa fa-caret-up pl-0 #{'px-md-0 pt-md-0' if vertical else 'pr-2'} #{own_vote == 1 and 'disabled text-success'} #{((own_vote == 1 and not can_downvote) or not can_upvote) and 'karma_required'}"
-            data-active-class="text-success"
-            t-attf-data-karma="#{own_vote == 1 and karma_down or karma_up}"
-            aria-label="Positive vote" title="Positive vote"
-            t-attf-data-href="/forum/#{slug(forum)}/post/#{slug(post)}/upvote"/>
-        <b t-attf-class="vote_count  #{own_vote == 1 and 'text-success' or (own_vote == -1 and 'text-danger' or 'text-muted')}" t-esc="post.vote_count"/>
-        <a t-attf-class="btn vote_down fa fa-caret-down #{'px-md-0' if vertical else 'px-2'} #{own_vote == -1 and 'disabled text-danger'} #{((own_vote == -1 and not can_upvote) or not can_downvote) and 'karma_required'}"
-            data-active-class="text-danger"
-            t-attf-data-karma="#{own_vote == -1 and karma_up or karma_down}"
-            aria-label="Negative vote" title="Negative vote"
-            t-attf-data-href="/forum/#{slug(forum)}/post/#{slug(post)}/downvote"/>
+        <button type="button" t-attf-data-href="/forum/#{slug(forum)}/post/#{slug(post)}/upvote"
+            t-attf-class="btn btn-link vote_up fa fa-caret-up pl-0 #{vertical and 'px-md-0 pt-md-0' or 'pr-2'} #{own_vote == 1 and 'text-success' or 'text-muted'} #{((own_vote == 1 and not can_downvote) or not can_upvote) and 'karma_required'}"
+            t-att-disabled="own_vote == 1 and 'disabled'"
+            t-att-data-karma="karma_down if own_vote == 1 else karma_up"
+            aria-label="Positive vote" title="Positive vote"/>
+        <b t-attf-class="vote_count #{own_vote == 1 and 'text-success' or (own_vote == -1 and 'text-danger' or 'text-muted')}"
+           t-esc="post.vote_count"/>
+        <button type="button" t-attf-data-href="/forum/#{slug(forum)}/post/#{slug(post)}/downvote"
+            t-attf-class="btn btn-link vote_down fa fa-caret-down #{vertical and 'px-md-0' or 'px-2'} #{own_vote == -1 and 'text-danger' or 'text-muted'} #{((own_vote == -1 and not can_upvote) or not can_downvote) and 'karma_required'}"
+            t-att-disabled="own_vote == -1 and 'disabled'"
+            t-att-data-karma="karma_up if own_vote == -1 else karma_down"
+            aria-label="Negative vote" title="Negative vote"/>
         <t t-raw="0"/>
     </div>
 </template>
@@ -1073,6 +1074,7 @@
 
                 <div t-field="question.content" class="o_wforum_post_content o_wforum_readable oe_no_empty"/>
 
+                <t t-set="_question_comment_collapse_uid" t-value="'comment_%s_%s' % (question._name.replace('.', '_'), question.id)"/>
                 <div t-if="question.state == 'active' and question.active != False"
                     class="btn-toolbar mb-3" role="toolbar">
                     <div t-if="not question.uid_has_answered and question.can_answer" class="btn-group btn-group-sm mr-2">
@@ -1084,7 +1086,7 @@
                     </div>
                     <div class="btn-group btn-group-sm">
                         <a t-attf-class="btn px-2 border #{not question.can_comment and 'karma_required text-muted'}" t-att-data-karma="question.karma_comment" t-att-data-toggle="question.can_comment and 'collapse' or None"
-                            t-attf-href="#comment#{ question._name.replace('.','') + '-' + str(question.id) }">
+                            t-attf-href="##{_question_comment_collapse_uid}">
                             <i class=" fa fa-comment text-muted mr-1"/>Comment
                         </a>
                         <a href="javascript:void(0)" class="oe_social_share btn px-2 border"
@@ -1096,13 +1098,14 @@
 
                 <t t-call="website_forum.post_comment">
                     <t t-set="object" t-value="question"/>
+                    <t t-set="_collapse_uid" t-value="_question_comment_collapse_uid"/>
                 </t>
 
-                <section t-if="len(question.child_ids) > 0" t-attf-class="#{'mt-5' if len(question.website_message_ids)> 0 else 'mt-4'}">
+                <section t-if="question.child_ids" t-attf-class="#{question.website_message_ids and 'mt-5' or 'mt-4'}">
                     <h5>
                         <t t-esc="len(question.child_ids)"/>
-                        <t t-if="len(question.child_ids) == 1"> Answer</t>
-                        <t t-else=""> Answers</t>
+                        <t t-if="len(question.child_ids) == 1">Answer</t>
+                        <t t-else="">Answers</t>
                     </h5>
 
                     <t t-foreach="question.child_ids" t-as="post_answer">
@@ -1236,6 +1239,7 @@
 
                     <div t-field="answer.content" class="mb-2 o_wforum_readable oe_no_empty"/>
 
+                    <t t-set="_answer_comment_collapse_uid" t-value="'comment_%s_%s' % (answer._name.replace('.', '_'), answer.id)"/>
                     <div class="btn-toolbar mb-3">
                         <div t-if="question.uid_has_answered and answer.create_uid.id == uid"
                             class="btn-group btn-group-sm mr-1 mr-md-2">
@@ -1251,12 +1255,12 @@
                             <a t-attf-class="btn border px-2 #{not answer.can_comment and 'karma_required text-muted'}"
                                 t-attf-data-karma="#{not answer.can_comment and answer.karma_comment or 0}"
                                 t-att-data-toggle="answer.can_comment and 'collapse' or None"
-                                t-attf-data-target="#comment#{ answer._name.replace('.','') + '-' + str(answer.id) }">
+                                t-attf-data-target="##{_answer_comment_collapse_uid}">
                                 <i t-attf-class="fa fa-comment text-muted #{not answer.can_comment and 'karma_required'}"/>
                                 Comment
                             </a>
                             <a href="javascript:void(0)" class="oe_social_share btn border px-2"
-                                t-attf-data-urlshare="#{request.httprequest.url}#comment#{ answer._name.replace('.','') + '-' + str(answer.id) }"
+                                t-attf-data-urlshare="#{request.httprequest.url}##{_answer_comment_collapse_uid}"
                                 t-attf-data-hashtags="question">
                                 <i class="fa fa-share-alt text-muted"/>
                                 Share
@@ -1302,6 +1306,7 @@
                     </div>
                     <t t-call="website_forum.post_comment">
                         <t t-set="object" t-value="answer"/>
+                        <t t-set="_collapse_uid" t-value="_answer_comment_collapse_uid"/>
                     </t>
                     <div t-foreach="answer.child_ids" t-as="child_answer" class="mt4 mb4">
                        <t t-call="website_forum.post_answers">
@@ -1366,7 +1371,7 @@
             </div>
         </div>
         <div class="css_editable_mode_hidden o_wforum_readable">
-            <form t-attf-id="comment#{ object._name.replace('.','') + '-' + str(object.id) }" class="collapse p-1 oe_comment_grey js_website_submit_form"
+            <form t-att-id="_collapse_uid" class="collapse p-1 oe_comment_grey js_website_submit_form"
                 t-attf-action="/forum/#{slug(forum)}/post/#{slug(object)}/comment" method="POST">
                 <div class="shadow bg-white rounded px-3 pt-3 pb-4 mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -1377,7 +1382,7 @@
                             <textarea name="comment" class="form-control mb-2" placeholder="Comment this post..."/>
                             <div>
                                 <button type="submit" class="btn btn-primary">Post comment</button>
-                                <a t-attf-href="#comment#{ question._name.replace('.','') + '-' + str(question.id) }" data-toggle="collapse" class="btn border">Discard</a>
+                                <a t-attf-href="##{_collapse_uid}" data-toggle="collapse" class="btn border">Discard</a>
                             </div>
                         </div>
                     </div>
@@ -1450,8 +1455,8 @@
                 <label for="filter" class="my-1 mr-2">Show Tags Starting By</label>
                 <select name="filter" class="custom-select" onchange="location = this.value;">
                     <t t-foreach="pager_tag_chars" t-as="tuple_char">
-                        <option t-if="active_char_tag == tuple_char[1]" selected="true" value=""><t t-esc="tuple_char[0]"/></option>
-                        <option t-else="" t-attf-value="/forum/#{slug(forum)}/tag/#{quote_plus(tuple_char[1])}"><t t-esc="tuple_char[0]"/></option>
+                        <option t-if="active_char_tag == tuple_char[1]" selected="selected" value="" t-esc="tuple_char[0]"/>
+                        <option t-else="" t-attf-value="/forum/#{slug(forum)}/tag/#{quote_plus(tuple_char[1])}" t-esc="tuple_char[0]"/>
                     </t>
                 </select>
             </div>
@@ -1459,9 +1464,9 @@
 
         <div class="row mb-5" t-if="tags">
             <div class="col-md-3 mt16 o_js_forum_tag_follow" t-foreach="tags" t-as="tag">
-                <span t-attf-class="badge  border #{'border-success text-success' if tag.message_is_follower else 'badge-light border text-600 '}   px-2">
+                <span t-attf-class="badge border px-2 #{tag.message_is_follower and 'border-success text-success' or 'badge-light text-600'}">
                     <i class="fa fa-tag small"/>
-                    <t t-esc="tag.name"></t>
+                    <t t-esc="tag.name"/>
                     <b class="small align-top">(<t t-esc="tag.posts_count"/>)</b>
                 </span>
                 <div class="o_forum_tag_follow_box text-center">

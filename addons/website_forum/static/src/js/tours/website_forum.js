@@ -67,7 +67,7 @@ odoo.define("website_forum.tour_forum", function (require) {
         trigger: ".modal-header button.close",
         auto: true,
     }, {
-        trigger: ".accept_answer[data-karma=\"20\"]:first",
+        trigger: ".o_wforum_validate_toggler[data-karma=\"20\"]:first",
         content: _t("Click here to accept this answer."),
         position: "right",
     }]);

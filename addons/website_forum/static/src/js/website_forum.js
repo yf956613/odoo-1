@@ -2,6 +2,7 @@ odoo.define('website_forum.website_forum', function (require) {
 'use strict';
 
 var core = require('web.core');
+var weDefaultOptions = require('web_editor.wysiwyg.default_options');
 var wysiwygLoader = require('web_editor.loader');
 var publicWidget = require('web.public.widget');
 var session = require('web.session');
@@ -121,7 +122,6 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
                 ['font', ['bold', 'italic', 'underline', 'clear']],
                 ['para', ['ul', 'ol', 'paragraph']],
                 ['table', ['table']],
-                ['view', ['codeview']],
             ];
             if (hasFullEdit) {
                 toolbar.push(['insert', ['linkPlugin', 'mediaPlugin']]);
@@ -133,8 +133,7 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
                 minHeight: 80,
                 toolbar: toolbar,
                 styleWithSpan: false,
-                // Remove huge titles from the style list
-                styleTags: ['p', 'blockquote', 'pre', 'h4', 'h5', 'h6'],
+                styleTags: _.without(weDefaultOptions.styleTags, 'h1', 'h2', 'h3'),
                 recordInfo: {
                     context: self._getContext(),
                     res_model: 'forum.post',
@@ -154,14 +153,6 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
                     wysiwyg.save();
                 });
             });
-        });
-
-        // Check all answer status to add text-success on answer if needed
-        _.each($('.accept_answer'), function (el) {
-            var $el = $(el);
-            if ($el.hasClass('oe_answer_true')) {
-                $el.addClass('text-success');
-            }
         });
 
         _.each(this.$('.o_wforum_bio_popover'), authorBox => {
@@ -292,9 +283,9 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
     _onVotePostClick: function (ev) {
         var self = this;
         ev.preventDefault();
-        var $link = $(ev.currentTarget);
+        var $btn = $(ev.currentTarget);
         this._rpc({
-            route: $link.data('href'),
+            route: $btn.data('href'),
         }).then(function (data) {
             if (data.error) {
                 var message;
@@ -310,14 +301,20 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
                     sticky: false,
                 });
             } else {
-                var newClass = $link.data('active-class');
+                var newClass = $btn.hasClass('vote_up') ? 'text-success' : 'text-danger';
+                $btn.prop('disabled', true);
+                $btn.addClass(newClass);
 
-                $link.addClass('disabled ' + newClass)
-                    .siblings().removeClass('text-success text-danger text-muted disabled o_forum_vote_animate');
+                var $siblings = $btn.siblings();
+                $siblings.removeClass('text-success text-danger text-muted o_forum_vote_animate');
+                $siblings.prop('disabled', false);
 
-                setTimeout(function () {
-                    $link.siblings('.vote_count').html(data.vote_count).addClass('o_forum_vote_animate ' + newClass);
-                }, 0);
+                void $btn[0].offsetWidth;
+
+                $siblings.filter('.vote_count')
+                    .html(data.vote_count)
+                    .addClass('o_forum_vote_animate')
+                    .addClass(newClass);
             }
         });
     },
@@ -345,27 +342,26 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
      */
     _onAcceptAnswerClick: function (ev) {
         ev.preventDefault();
-        var self = this;
         var $link = $(ev.currentTarget);
         var target = $link.data('target');
 
         this._rpc({
             route: $link.data('href'),
-        }).then(function (data) {
+        }).then(data => {
             if (data.error) {
                 if (data.error === 'anonymous_user') {
                     var message = _t("Sorry, anonymous users cannot choose correct answer.");
                 }
-                self.call('crash_manager', 'show_warning', {
+                this.call('crash_manager', 'show_warning', {
                     message: message,
                     title: _t("Access Denied"),
                 }, {
                     sticky: false,
                 });
             } else {
-                _.each(self.$('.forum_answer'), function (answer) {
+                _.each(this.$('.forum_answer'), answer => {
                     var $answer = $(answer);
-                    var isCorrect = $answer.is(target) && data;
+                    var isCorrect = $answer.is(target) ? data : false;
                     var $toggler = $answer.find('.o_wforum_validate_toggler');
                     var newHelper = isCorrect ? $toggler.data('helper-decline') : $toggler.data('helper-accept');
 
@@ -403,12 +399,11 @@ publicWidget.registry.websiteForum = publicWidget.Widget.extend({
         this._rpc({
             route: $link.closest('form').attr('action'),
         }).then(function () {
-            $link.parents('.o_wforum_post_comment').first().remove();
+            $link.closest('.o_wforum_post_comment').remove();
 
-            if ($container.find('.o_wforum_post_comment').length > 0) {
-                $container.find('.o_wforum_comments_count').text(function () {
-                    return parseInt($(this).text()) - 1;
-                });
+            var count = $container.find('.o_wforum_post_comment').length;
+            if (count) {
+                $container.find('.o_wforum_comments_count').text(count);
             } else {
                 $container.find('.o_wforum_comments_count_header').remove();
             }
