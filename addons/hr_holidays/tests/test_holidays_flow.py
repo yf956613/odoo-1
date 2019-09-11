@@ -207,4 +207,4 @@ class TestHolidaysFlow(TestHrHolidaysBase):
             'emp': [(6, 0, [self.ref('hr.employee_admin'), self.ref('hr.employee_qdp'), self.ref('hr.employee_al')])],
             'holiday_type': 'Approved'
         }
-        test_reports.try_report_action(self.env.cr, self.env.uid, 'action_hr_holidays_summary_employee', wiz_data=data_dict, context=ctx, our_module='hr_holidays')
+        test_reports.try_report_action(self.env.cr, self.env.uid, self.env.cid, 'action_hr_holidays_summary_employee', wiz_data=data_dict, context=ctx, our_module='hr_holidays')

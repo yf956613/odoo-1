@@ -124,4 +124,4 @@ class TestProductPricelist(TransactionCase):
             'qty5': 30,
             'price_list': self.customer_pricelist.id,
         }
-        test_reports.try_report_action(self.cr, self.uid, 'action_product_price_list', wiz_data=data_dict, context=ctx, our_module='product')
+        test_reports.try_report_action(self.cr, self.uid, self.env.cid, 'action_product_price_list', wiz_data=data_dict, context=ctx, our_module='product')

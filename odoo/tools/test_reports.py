@@ -20,7 +20,7 @@ _logger = logging.getLogger(__name__)
 _test_logger = logging.getLogger('odoo.tests')
 
 
-def try_report(cr, uid, rname, ids, data=None, context=None, our_module=None, report_type=None):
+def try_report(cr, uid, cid, rname, ids, data=None, context=None, our_module=None, report_type=None):
     """ Try to render a report <rname> with contents of ids
 
         This function should also check for common pitfalls of reports.
@@ -29,7 +29,7 @@ def try_report(cr, uid, rname, ids, data=None, context=None, our_module=None, re
         context = {}
     _test_logger.info("  - Trying %s.create(%r)", rname, ids)
 
-    env = api.Environment(cr, uid, context)
+    env = api.Environment(cr, uid, cid, context)
 
     report_id = env['ir.actions.report'].search([('report_name', '=', rname)], limit=1)
     if not report_id:
@@ -71,7 +71,7 @@ def try_report(cr, uid, rname, ids, data=None, context=None, our_module=None, re
     _test_logger.info("  + Report %s produced correctly.", rname)
     return True
 
-def try_report_action(cr, uid, action_id, active_model=None, active_ids=None,
+def try_report_action(cr, uid, cid, action_id, active_model=None, active_ids=None,
                 wiz_data=None, wiz_buttons=None,
                 context=None, our_module=None):
     """Take an ir.action.act_window and follow it until a report is produced
@@ -95,7 +95,7 @@ def try_report_action(cr, uid, action_id, active_model=None, active_ids=None,
     context = dict(context or {})
     # TODO context fill-up
 
-    env = api.Environment(cr, uid, context)
+    env = api.Environment(cr, uid, cid, context)
 
     def log_test(msg, *args):
         _test_logger.info("  - " + msg, *args)
@@ -264,7 +264,7 @@ def try_report_action(cr, uid, action_id, active_model=None, active_ids=None,
             ids = datas.get('ids')
             if 'ids' in datas:
                 del datas['ids']
-            res = try_report(cr, uid, action['report_name'], ids, datas, context, our_module=our_module)
+            res = try_report(cr, uid, cid, action['report_name'], ids, datas, context, our_module=our_module)
             return res
         else:
             raise Exception("Cannot handle action of type %s" % act_model)
