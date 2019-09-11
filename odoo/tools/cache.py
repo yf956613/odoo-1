@@ -4,7 +4,7 @@
 # decorator makes wrappers that have the same API as their wrapped function
 from collections import defaultdict
 from decorator import decorator
-from inspect import formatargspec, getargspec
+from inspect import getfullargspec, signature
 import logging
 
 unsafe_eval = eval
@@ -64,7 +64,7 @@ class ormcache(object):
         """ Determine the function that computes a cache key from arguments. """
         if self.skiparg is None:
             # build a string that represents function code and evaluate it
-            args = formatargspec(*getargspec(self.method))[1:-1]
+            args = str(signature(self.method))[1:-1]
             if self.args:
                 code = "lambda %s: (%s,)" % (args, ", ".join(self.args))
             else:
@@ -90,7 +90,7 @@ class ormcache(object):
             value = d[key] = self.method(*args, **kwargs)
             return value
         except TypeError:
-            _logger.warn("cache lookup error on %r", key, exc_info=True)
+            _logger.warning("cache lookup error on %r", key, exc_info=True)
             counter.err += 1
             return self.method(*args, **kwargs)
 
@@ -113,8 +113,8 @@ class ormcache_context(ormcache):
         """ Determine the function that computes a cache key from arguments. """
         assert self.skiparg is None, "ormcache_context() no longer supports skiparg"
         # build a string that represents function code and evaluate it
-        spec = getargspec(self.method)
-        args = formatargspec(*spec)[1:-1]
+        spec = getfullargspec(self.method)
+        args = str(signature(self.method))[1:-1]
         cont_expr = "(context or {})" if 'context' in spec.args else "self._context"
         keys_expr = "tuple(%s.get(k) for k in %r)" % (cont_expr, self.keys)
         if self.args:
@@ -142,8 +142,8 @@ class ormcache_multi(ormcache):
         super(ormcache_multi, self).determine_key()
 
         # key_multi computes the extra element added to the key
-        spec = getargspec(self.method)
-        args = formatargspec(*spec)[1:-1]
+        spec = getfullargspec(self.method)
+        args = str(signature(self.method))[1:-1]
         code_multi = "lambda %s: %s" % (args, self.multi)
         self.key_multi = unsafe_eval(code_multi)
 
