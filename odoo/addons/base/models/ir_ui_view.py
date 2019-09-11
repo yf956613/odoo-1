@@ -1073,7 +1073,7 @@ actual arch.
                 if corresponding_field is not None:
                     if corresponding_field.get('select') == 'multi':
                         self.raise_view_error('Field %s used in  %s %s is present in view but is in select multi.' % (field, typ, description), view_id)
-                else:
+                elif field != 'id':
                     self.raise_view_error('Field %s used in  %s %s must be present in view but is missing.' % (field, typ, description), view_id)
         return parent_fields
 
