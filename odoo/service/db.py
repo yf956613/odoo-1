@@ -18,7 +18,7 @@ from decorator import decorator
 import psycopg2
 
 import odoo
-from odoo import SUPERUSER_ID
+from odoo import SUPERUSER_ID, SUPERUSER_COMPANY_ID
 from odoo.exceptions import AccessDenied
 import odoo.release
 import odoo.sql_db
