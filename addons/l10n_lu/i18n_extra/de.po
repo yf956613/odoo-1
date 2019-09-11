@@ -474,9 +474,13 @@ msgstr "Zuführungen zu Sonderposten mit Rücklageanteil"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6452
 #: model:account.account.template,name:l10n_lu.lu_2011_account_75112
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65212
-#: model:account.account.template,name:l10n_lu.lu_2020_account_75212
 msgid "Amounts owed by affiliated undertakings"
 msgstr "Forderungen gegen verbundene Unternehmen"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_75212
+msgid "Amounts owed by affiliated undertakings"
+msgstr "Forderungen gegen verbundenen Unternehmen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_4212
@@ -515,11 +519,15 @@ msgstr "Verbindlichkeiten gegenüber Verwaltern, Geschäftsführern, Kommissaren
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_4712
-#: model:account.account.template,name:l10n_lu.lu_2020_account_4722
 msgid "Amounts payable to partners and shareholders (others than from affiliated "
 "undertakings)"
 msgstr "Verbindlichkeiten gegenüber Gesellschaftern und Aktionären (andere als "
 "gegnüber verbundenen Unternehmen)"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_4722
+msgid "Amounts payable to partners and shareholders (others than from affiliated undertakings)"
+msgstr "Verbindlichkeiten gegenüber Gesellschaftern und Aktionären (andere als von verbundenen Unternehmen)"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_4714
@@ -619,16 +627,24 @@ msgstr "Buchwert der verkauften immateriellen Anlagewerte"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652261
-#: model:account.account.template,name:l10n_lu.lu_2020_account_752261
 msgid "Book value of yielded loans, deposits and claims held as fixed assets"
 msgstr "Buchwert der verkauften Ausleihungen, geleistete Hinterlegungen und "
 "Forderungen des Umlaufvermögens"
 
 #. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_752261
+msgid "Book value of yielded loans, deposits and claims held as fixed assets"
+msgstr "Buchwert der verkauften Ausleihungen, geleisteten Hinterlegungen und Forderungen des Anlagevermögens"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652231
-#: model:account.account.template,name:l10n_lu.lu_2020_account_752231
 msgid "Book value of yielded participating interests"
 msgstr "Buchwert der verkauften Anteile"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_752231
+msgid "Book value of yielded participating interests"
+msgstr "Buchwert der verkauften Beteiligungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652251
@@ -638,6 +654,10 @@ msgstr "Buchwert der verkauften Wertpapiere des Anlagevermögens"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652211
+msgid "Book value of yielded shares in affiliated undertakings"
+msgstr "Buchwert der verkauften Beteiligungen an verbundenen Unternehmen"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_752211
 msgid "Book value of yielded shares in affiliated undertakings"
 msgstr "Buchwert der verkauften Anteile an verbundenen Unternehmen"
@@ -650,10 +670,18 @@ msgstr "Buchwert der verkauften materiellen Anlagewerte"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_61112
-#: model:account.account.template,name:l10n_lu.lu_2011_account_61221
-#: model:account.account.template,name:l10n_lu.lu_2011_account_61411
 msgid "Buildings"
 msgstr "Bauten/Gebäude"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_61411
+msgid "Buildings"
+msgstr "Gebäudeversicherungen"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_61221
+msgid "Buildings"
+msgstr "Von Bauten/Gebäuden"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_60763
@@ -812,9 +840,13 @@ msgstr "Beförderungen von Personal"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6131
-#: model:account.account.template,name:l10n_lu.lu_2020_account_705
 msgid "Commissions and brokerage fees"
 msgstr "Provisionen und Maklergebühren"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_705
+msgid "Commissions and brokerage fees"
+msgstr "Kommissionen und Courtagen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_7453
@@ -863,13 +895,21 @@ msgstr "Beiträge für Berufsverbände"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_212151
-#: model:account.account.template,name:l10n_lu.lu_2011_account_212251
-#: model:account.account.template,name:l10n_lu.lu_2011_account_64151
-#: model:account.account.template,name:l10n_lu.lu_2011_account_721251
-#: model:account.account.template,name:l10n_lu.lu_2011_account_74151
-#: model:account.account.template,name:l10n_lu.lu_2020_account_703151
 msgid "Copyrights and reproduction rights"
 msgstr "Urheber- und Reproduktionsrechte"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_212251
+#: model:account.account.template,name:l10n_lu.lu_2011_account_721251
+msgid "Copyrights and reproduction rights"
+msgstr "Urheberrechte und Vervielfältigungsrechte"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_64151
+#: model:account.account.template,name:l10n_lu.lu_2020_account_703151
+#: model:account.account.template,name:l10n_lu.lu_2011_account_74151
+msgid "Copyrights and reproduction rights"
+msgstr "Urheber- und Vervielfältigungsrechte"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_42141
@@ -994,9 +1034,13 @@ msgstr "Bebaute Grundstücke"
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_211
 #: model:account.account.template,name:l10n_lu.lu_2011_account_7211
-#: model:account.account.template,name:l10n_lu.lu_2020_account_1611
 msgid "Development costs"
 msgstr "Entwicklungskosten"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_1611
+msgid "Development costs"
+msgstr "Entwicklungslosten"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6432
@@ -1055,9 +1099,13 @@ msgstr "Veräußerungswert der Forderungen gegen Unternehmen, mit denen ein "
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_64412
-#: model:account.account.template,name:l10n_lu.lu_2020_account_74412
 msgid "Disposal proceeds of intangible fixed assets"
 msgstr "Verkaufserlös von immateriellen Anlagewerten"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_74412
+msgid "Disposal proceeds of intangible fixed assets"
+msgstr "Veräußerungswert von immateriellen Anlagewerten"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652262
@@ -1067,9 +1115,13 @@ msgstr "Veräußerungswert der Ausleihungen, geleistete Hinterlegungen und Forde
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652232
-#: model:account.account.template,name:l10n_lu.lu_2020_account_752232
 msgid "Disposal proceeds of participating interests"
 msgstr "Veräußerungswert der Anteile"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_752232
+msgid "Disposal proceeds of participating interests"
+msgstr "Veräußerungswert der Beteiligungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652252
@@ -1079,15 +1131,23 @@ msgstr "Veräußerungswert der Wertpapiere des Anlagevermögens"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_652212
-#: model:account.account.template,name:l10n_lu.lu_2020_account_752212
 msgid "Disposal proceeds of shares in affiliated undertakings"
 msgstr "Veräußerungswert der Anteile an verbundenen Unternehmen"
 
 #. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_752212
+msgid "Disposal proceeds of shares in affiliated undertakings"
+msgstr "Veräußerungswert von Beteiligungen an verbundenen Unternehmen"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_64422
-#: model:account.account.template,name:l10n_lu.lu_2020_account_74422
 msgid "Disposal proceeds of tangible fixed assets"
 msgstr "Verkaufserlös von materiellen Anlagewerten"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_74422
+msgid "Disposal proceeds of tangible fixed assets"
+msgstr "Veräußerungswert von materiellen Anlagewerten"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6181
@@ -1539,9 +1599,13 @@ msgstr "AFV von Anlageimmobilien"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6354
-#: model:account.account.template,name:l10n_lu.lu_2020_account_7354
 msgid "FVA on receivables from current assets"
 msgstr "AFV von Forderungen des Umlaufvermögens"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_7354
+msgid "FVA on receivables from current assets"
+msgstr "Fair Value Anpassungen auf Forderungen des Umlaufvermögens"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6532
@@ -1646,9 +1710,13 @@ msgstr "Ausländische Steuern"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65411
-#: model:account.account.template,name:l10n_lu.lu_2020_account_755231
 msgid "From affiliated undertakings"
 msgstr "Forderungen gegen verbundene Unternehmen"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_755231
+msgid "From affiliated undertakings"
+msgstr "von verbundenen Unternehmen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_755232
@@ -1678,6 +1746,10 @@ msgstr "Mobiliar"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_60313
+msgid "Gas"
+msgstr "Gas"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_61843
 msgid "Gas"
 msgstr "Gasversorgung"
@@ -3135,12 +3207,16 @@ msgstr "Ausleihungen"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41122
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41212
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41222
+msgid "Loans and advances"
+msgstr "Ausleihungen und geleistete Anzahlungen"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45112
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45122
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45212
 #: model:account.account.template,name:l10n_lu.lu_2011_account_45222
 msgid "Loans and advances"
-msgstr "Ausleihungen und geleistete Anzahlungen"
+msgstr "Ausleihungen und erhaltene Anzahlungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_61332
@@ -3148,12 +3224,12 @@ msgid "Loans' issuance expenses"
 msgstr "Emissionskosten von Anleihen"
 
 #. module: l10n_lu
-#: model:account.account.template,name:l10n_lu.lu_2011_account_75116
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65216
 msgid "Loans, deposits and claims held as fixed assets"
 msgstr "Ausleihungen, geleistete Hinterlegungen und Forderungen (Anlagevermögen)"
 
 #. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_75116
 #: model:account.account.template,name:l10n_lu.lu_2020_account_75216
 msgid "Loans, deposits and claims held as fixed assets"
 msgstr "Ausleihungen, geleistete Hinterlegungen und Forderungen des Anlagevermögens"
@@ -3366,10 +3442,14 @@ msgstr "Betriebszuschüsse"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6228
 #: model:account.account.template,name:l10n_lu.lu_2020_account_61128
 #: model:account.account.template,name:l10n_lu.lu_2020_account_61158
-#: model:account.account.template,name:l10n_lu.lu_2020_account_61228
 #: model:account.account.template,name:l10n_lu.lu_2020_account_61858
 msgid "Other"
 msgstr "Sonstige"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_61228
+msgid "Other"
+msgstr "Von Sonstigem"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_106178
@@ -3389,7 +3469,7 @@ msgstr "Sonstige Zulagen"
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_221318
 msgid "Other buildings"
-msgstr "Sonstige  Bauten / Gebäude"
+msgstr "Sonstige Bauten / Gebäude"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_168
@@ -3453,9 +3533,13 @@ msgstr "Sonstige Anlagen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_7223
-#: model:account.account.template,name:l10n_lu.lu_2011_account_7333
 msgid "Other fixtures and fittings, tools and equipment (included motor vehicles)"
 msgstr "Sonstige Anlagen, Betriebs- und Geschäftsausstattung (Fuhrpark inbegriffen)"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_7333
+msgid "Other fixtures and fittings, tools and equipment (included motor vehicles)"
+msgstr "Wertaufholungen von sonstigen Anlagen, Betriebs- und Geschäftsausstattung (Fuhrpark inbegriffen)"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_2243
@@ -3553,7 +3637,7 @@ msgstr "Sonstige Werbung"
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6082
 msgid "Other purchases of material included in the production of goods and services"
-msgstr "Sonstige  Einkäufe von Material, Ausstattungen, Ersatzteilen und Arbeiten "
+msgstr "Sonstige Einkäufe von Material, Ausstattungen, Ersatzteilen und Arbeiten "
 "für Werklieferungen und -leistungen"
 
 #. module: l10n_lu
@@ -3561,10 +3645,14 @@ msgstr "Sonstige  Einkäufe von Material, Ausstattungen, Ersatzteilen und Arbeit
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41128
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41218
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41228
-#: model:account.account.template,name:l10n_lu.lu_2011_account_42168
 #: model:account.account.template,name:l10n_lu.lu_2020_account_6454
 msgid "Other receivables"
 msgstr "Sonstige Forderungen"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_42168
+msgid "Other receivables"
+msgstr "AED - Sonstige Forderungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_64658
@@ -3639,7 +3727,7 @@ msgstr "Sonstige vergleichbare vom Unternehmen selbst erstellte Rechte und Werte
 #: model:account.account.template,name:l10n_lu.lu_2011_account_42178
 #: model:account.account.template,name:l10n_lu.lu_2011_account_4628
 msgid "Other social bodies"
-msgstr "SonstigeEinrichtungen der sozialen Sicherheit"
+msgstr "Sonstige Einrichtungen der sozialen Sicherheit"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6232
@@ -3729,9 +3817,13 @@ msgstr ""
 #: model:account.account.template,name:l10n_lu.lu_2011_account_233
 #: model:account.account.template,name:l10n_lu.lu_2011_account_75113
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65213
-#: model:account.account.template,name:l10n_lu.lu_2020_account_75213
 msgid "Participating interests"
 msgstr "Anteile"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_75213
+msgid "Participating interests"
+msgstr "Beteiligungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_21212
@@ -3792,15 +3884,23 @@ msgstr "Private Gebäude"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_106172
-#: model:account.account.template,name:l10n_lu.lu_2011_account_106242
 msgid "Private car"
 msgstr "Privates Fahrzeug"
 
 #. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_106242
+msgid "Private car"
+msgstr "Privater Wagen"
+
+#. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_106171
-#: model:account.account.template,name:l10n_lu.lu_2011_account_106241
 msgid "Private furniture"
 msgstr "Privates Mobiliar"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_106241
+msgid "Private furniture"
+msgstr "Private Möbel"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_106173
@@ -4346,7 +4446,7 @@ msgstr "Wohngebäude"
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_142
 msgid "Result for the financial year"
-msgstr ""
+msgstr "Ergebnis des Geschäftsjahres"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2020_account_1412
@@ -4391,10 +4491,18 @@ msgstr "Wertaufholungen von Steuerrückstellungen"
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_61123
 #: model:account.account.template,name:l10n_lu.lu_2011_account_61153
-#: model:account.account.template,name:l10n_lu.lu_2011_account_61223
-#: model:account.account.template,name:l10n_lu.lu_2011_account_61412
 msgid "Rolling stock"
 msgstr "Fuhrpark"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_61223
+msgid "Rolling stock"
+msgstr "Vom Fuhrpark"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_61412
+msgid "Rolling stock"
+msgstr "Kfz-Versicherungen"
 
 #. module: l10n_lu
 #: model:account.tax.template,description:l10n_lu.lu_2015_tax_SANS
@@ -4617,11 +4725,15 @@ msgstr "Aktien - Nicht notierte Wertpapiere"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_75481
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65211
 #: model:account.account.template,name:l10n_lu.lu_2020_account_65421
-#: model:account.account.template,name:l10n_lu.lu_2020_account_75211
 #: model:account.account.template,name:l10n_lu.lu_2020_account_75311
 #: model:account.account.template,name:l10n_lu.lu_2020_account_75421
 msgid "Shares in affiliated undertakings"
 msgstr "Anteile an verbundenen Unternehmen"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_75211
+msgid "Shares in affiliated undertakings"
+msgstr "Beteiligungen an verbundenen Unternehmen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_503
@@ -4889,9 +5001,13 @@ msgstr "Werkzeuge"
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41121
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41211
 #: model:account.account.template,name:l10n_lu.lu_2011_account_41221
-#: model:account.account.template,name:l10n_lu.lu_2011_account_6451
 msgid "Trade receivables"
 msgstr "Verkäufe und Dienstleistungen"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_6451
+msgid "Trade receivables"
+msgstr "Forderungen aus Lieferungen und Leistungen"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_6414
@@ -4900,12 +5016,24 @@ msgstr "Warenzeichen und Franchising (Verkaufskonzession/Alleinverkaufsrecht)"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_21214
-#: model:account.account.template,name:l10n_lu.lu_2011_account_21224
-#: model:account.account.template,name:l10n_lu.lu_2011_account_72124
-#: model:account.account.template,name:l10n_lu.lu_2011_account_7414
-#: model:account.account.template,name:l10n_lu.lu_2020_account_70314
 msgid "Trademarks and franchises"
 msgstr "Warenzeichen und Verkaufskonzession / Alleinverkaufsrecht"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2020_account_70314
+#: model:account.account.template,name:l10n_lu.lu_2011_account_72124
+msgid "Trademarks and franchises"
+msgstr "Warenzeichen und Franchising (Verkaufskonzession/Alleinverkaufsrecht)"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_21224
+msgid "Trademarks and franchises"
+msgstr "Warenzeichen und Verkaufskonzession"
+
+#. module: l10n_lu
+#: model:account.account.template,name:l10n_lu.lu_2011_account_7414
+msgid "Trademarks and franchises"
+msgstr "Warenzeichen und Franchising (Verkaufskonzession/Alleinverkaufsrecht)"
 
 #. module: l10n_lu
 #: model:account.account.template,name:l10n_lu.lu_2011_account_484
