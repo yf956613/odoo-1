@@ -771,12 +771,13 @@ actual arch.
                         }
                     else:
                         children.append(f)
-                attrs = {'views': views}
-                if field.comodel_name in self.env and field.type in ('many2one', 'many2many'):
+                attrs = {'views': views, 'select': node.get('select')}
+                if field.comodel_name in self.env:
                     Comodel = self.env[field.comodel_name]
-                    node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
-                    node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
                     attr_model = Comodel
+                    if field.type in ('many2one', 'many2many'):
+                        node.set('can_create', 'true' if Comodel.check_access_rights('create', raise_exception=False) else 'false')
+                        node.set('can_write', 'true' if Comodel.check_access_rights('write', raise_exception=False) else 'false')
                 elif validate and node.get('domain'):
                     errors.append('Domain on field without comodel makes no sence %s for' % (node.get('name')))
             fields[node.get('name')] = attrs
@@ -787,6 +788,7 @@ actual arch.
                 errors.append('field %s does not exist in model %s' % (node.get('name'), Model._name))
         elif validate:
             errors.append('name not found in field node ')
+
         return {'children': children, 'fields': fields, 'modifiers': modifiers, 'attr_model': attr_model, 'mandatory_fields': mandatory_fields, 'editable': editable}
 
     def _postprocess_groupby(self, Model=None, node=None, view_id=None, validate=None, editable=None, **kwargs):
@@ -1054,7 +1056,7 @@ actual arch.
 
         return arch
     @api.model
-    def check_mandatory_fields(self, available_fields, mandatory_fields, Model, view_id):
+    def _check_mandatory_fields(self, available_fields, mandatory_fields, Model, view_id):
         parent_fields = {}
         for field, (typ, description) in mandatory_fields.items():
             parts = field.split('.')
@@ -1063,8 +1065,12 @@ actual arch.
             elif len(parts) > 1:
                 if parts[0] not in view_validation._get_attrs_symbols():
                     self.raise_view_error('Invalid composed field %s in %s %s' % (field, typ, description), view_id)
-            elif field not in available_fields:
-                if field not in Model._fields:
+            else:
+                corresponding_field = available_fields.get(field)
+                if corresponding_field:
+                    if corresponding_field['select'] == 'multi':
+                        self.raise_view_error('Field %s used in  %s %s is present in view but is in select multi.' % (field, typ, description), view_id)
+                elif field not in Model._fields:
                     self.raise_view_error('Field %s does not exist on model %s in %s %s' % (field, Model._name, typ, description), view_id)
                 else:
                     self.raise_view_error('Field %s used in  %s %s must be present in view but is missing.' % (field, typ, description), view_id)
@@ -1093,7 +1099,7 @@ actual arch.
         fields_def, mandatory_fields = self.postprocess(model, node, view_id, False, fields, validate, editable)
         parent_fields = []
         if validate:
-            parent_fields = self.check_mandatory_fields(fields_def, mandatory_fields, Model, view_id)
+            parent_fields = self._check_mandatory_fields(fields_def, mandatory_fields, Model, view_id)
 
         self._postprocess_access_rights(model, node)
 

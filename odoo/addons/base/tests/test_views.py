@@ -1763,7 +1763,8 @@ class TestViews(ViewCase):
                 'model': 'ir.ui.view',
                 'arch': arch % 'invalid_field'
             })
-       
+
+    @mute_logger('odoo.addons.base.models.ir_ui_view')
     def test_domain_invalid_in_filter(self):
         arch = """
             <search string="Search">
@@ -1776,6 +1777,49 @@ class TestViews(ViewCase):
                 'name': 'valid domain',
                 'model': 'ir.ui.view',
                 'arch': arch,
+            })
+
+    @mute_logger('odoo.addons.base.models.ir_ui_view')
+    def test_searchpanel_domain_fields(self):
+        arch = """
+        <search>
+            %s
+            <searchpanel>
+                %s
+                <field select="multi" name="groups_id" domain="[['%s', '=', %s]]"/>
+            </searchpanel>
+        </search>
+        """
+        self.View.create({
+            'name': 'searchpanel domain',
+            'model': 'ir.ui.view',
+            'arch': arch % ('', '<field name="inherit_id"/>', 'view_access', 'inherit_id'),
+        })
+        with self.assertRaises(ValidationError):  # missing field
+            self.View.create({
+                'name': 'searchpanel domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('<field name="inherit_id"/>', '', 'view_access', 'inherit_id')
+            })
+        with self.assertRaises(ValidationError):  # invalid model field
+            self.View.create({
+                'name': 'searchpanel domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('', '<field name="inherit_id"/>', 'view_access', 'view_access')
+            })
+
+        with self.assertRaises(ValidationError):  # invalid comodel field
+            self.View.create({
+                'name': 'searchpanel domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('', '<field name="inherit_id"/>', 'inherit_id', 'inherit_id')
+            })
+
+        with self.assertRaises(ValidationError):  # domain field in multi mode
+            self.View.create({
+                'name': 'searchpanel domain',
+                'model': 'ir.ui.view',
+                'arch': arch % ('', '<field name="inherit_id" select="multi"/>', 'view_access', 'inherit_id')
             })
 
     #@mute_logger('odoo.addons.base.models.ir_ui_view')

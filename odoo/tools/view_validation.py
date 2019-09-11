@@ -295,23 +295,6 @@ def valid_searchpanel_domain_select(arch, **kwargs):
     return True
 
 
-@validate('search')
-def valid_searchpanel_domain_fields(arch, **kwargs):
-    """ In the searchpanel, fields used in the ``domain`` attribute must be present inside the
-        ``searchpanel`` node with ``select`` attribute not set to ``multi``. """
-    searchpanel = arch.xpath('/search/searchpanel')
-    if searchpanel:
-        env = kwargs['env']
-        model = kwargs['model']
-        attrs_fields = [r[0] for r in get_attrs_field_names(env, searchpanel[0], env[model], False)]
-        non_multi_fields = [
-            c.get('name') for c in arch.xpath('/search/searchpanel/field')
-            if c.get('select') != 'multi'
-        ]
-        return len(set(attrs_fields) - set(non_multi_fields)) == 0
-    return True
-
-
 @validate('form')
 def valid_page_in_book(arch, **kwargs):
     """A `page` node must be below a `notebook` node."""
