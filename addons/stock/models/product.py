@@ -94,7 +94,8 @@ class Product(models.Model):
     @api.depends('stock_move_ids.product_qty', 'stock_move_ids.state')
     @api.depends_context(
         'lot_id', 'owner_id', 'package_id', 'from_date', 'to_date',
-        'company_owned', 'location', 'warehouse', 'force_company',
+        'company_owned', 'location', 'warehouse', 'company',
+        'compute_child',
     )
     def _compute_quantities(self):
         products = self.filtered(lambda p: p.type != 'service')
@@ -226,7 +227,7 @@ class Product(models.Model):
         '''
         Parses the context and returns a list of location_ids based on it.
         It will return all stock locations when no parameters are given
-        Possible parameters are shop, warehouse, location, force_company, compute_child
+        Possible parameters are shop, warehouse, location, compute_child
         '''
         Warehouse = self.env['stock.warehouse']
 
@@ -274,7 +275,8 @@ class Product(models.Model):
         warehouse = self.env.context.get('warehouse')
         if warehouse and not isinstance(warehouse, list):
             warehouse = [warehouse]
-        force_company = self.env.context.get('force_company', False)
+        force_company = self.env.cid or False
+        # If the environment isn't company restricted, don't restrict to given company.
         # filter by location and/or warehouse
         if warehouse:
             w_ids = set(Warehouse.browse(_search_ids('stock.warehouse', warehouse, force_company)).mapped('view_location_id').ids)
@@ -289,7 +291,7 @@ class Product(models.Model):
             else:
                 location_ids = set(Warehouse.search([]).mapped('view_location_id').ids)
 
-        return self._get_domain_locations_new(location_ids, company_id=self.env.context.get('force_company', False), compute_child=self.env.context.get('compute_child', True))
+        return self._get_domain_locations_new(location_ids, company_id=force_company, compute_child=self.env.context.get('compute_child', True))
 
     def _get_domain_locations_new(self, location_ids, company_id=False, compute_child=True):
         operator = compute_child and 'child_of' or 'in'
@@ -616,7 +618,7 @@ class ProductTemplate(models.Model):
         'product_variant_ids.stock_move_ids.product_qty',
         'product_variant_ids.stock_move_ids.state',
     )
-    @api.depends_context('company_owned', 'location', 'warehouse', 'force_company')
+    @api.depends_context('company_owned', 'location', 'warehouse', 'company')
     def _compute_quantities(self):
         res = self._compute_quantities_dict()
         for template in self:

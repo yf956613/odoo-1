@@ -294,7 +294,7 @@ class Repair(models.Model):
             # Fallback on the user company as the 'company_id' is not required.
             company = repair.company_id or self.env.user.company_id
 
-            journal = self.env['account.move'].with_context(force_company=company.id, type='out_invoice')._get_default_journal()
+            journal = self.env['account.move'].with_company(company).with_context(type='out_invoice')._get_default_journal()
             if not journal:
                 raise UserError(_('Please define an accounting sales journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
 

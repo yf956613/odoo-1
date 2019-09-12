@@ -743,7 +743,7 @@ class PaymentTransaction(models.Model):
             trans.payment_id = payment
 
         for company in payments:
-            payments[company].with_context(force_company=company, company_id=company).post()
+            payments[company].with_company(company).post()
 
     def _set_transaction_cancel(self):
         '''Move the transaction's payment to the cancel state(e.g. Paypal).'''

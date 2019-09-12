@@ -61,7 +61,8 @@ class StockWarehouse(models.Model):
 
     @api.model
     def _get_production_location(self):
-        location = self.env['stock.location'].with_context(force_company=self.company_id.id).search([('usage', '=', 'production'), ('company_id', '=', self.company_id.id)], limit=1)
+        # VFE FIXME what is the use of the with_company/force_company here?
+        location = self.env['stock.location'].with_company(self.company_id.id).search([('usage', '=', 'production'), ('company_id', '=', self.company_id.id)], limit=1)
         if not location:
             raise UserError(_('Can\'t find any production location.'))
         return location

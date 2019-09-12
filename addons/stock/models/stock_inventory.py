@@ -476,9 +476,9 @@ class InventoryLine(models.Model):
             if float_is_zero(line.difference_qty, precision_rounding=rounding):
                 continue
             if line.difference_qty > 0:  # found more than expected
-                vals = line._get_move_values(line.difference_qty, line.product_id.with_context(force_company=line.company_id.id).property_stock_inventory.id, line.location_id.id, False)
+                vals = line._get_move_values(line.difference_qty, line.product_id.with_company(line.company_id).property_stock_inventory.id, line.location_id.id, False)
             else:
-                vals = line._get_move_values(abs(line.difference_qty), line.location_id.id, line.product_id.with_context(force_company=line.company_id.id).property_stock_inventory.id, True)
+                vals = line._get_move_values(abs(line.difference_qty), line.location_id.id, line.product_id.with_company(line.company_id).property_stock_inventory.id, True)
             vals_list.append(vals)
         return self.env['stock.move'].create(vals_list)
 
