@@ -71,7 +71,7 @@ tour.register('rte_translator', {
     content : "click language dropdown to switch in french after save snippet+edit",
     trigger : '.js_language_selector .dropdown-toggle',
     extra_trigger: 'body:not(.o_wait_reload):not(:has(.note-editor)) a[data-action="edit"]',
-    timeout: 5000,
+    timeout: 1000,
 }, {
     content: "click on french version",
     trigger: '.js_language_selector a[data-url_code="fr_BE"]',
