@@ -271,6 +271,7 @@
                 Create
             </button>
         </t>
+        <button type="button" class="btn btn-secondary fa fa-download o_list_button_export" title="Download xls" aria-label="Download xls"/>
     </div>
 </t>
 

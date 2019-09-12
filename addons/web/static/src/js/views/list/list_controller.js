@@ -8,13 +8,56 @@ odoo.define('web.ListController', function (require) {
  */
 
 var core = require('web.core');
+var session = require('web.session');
+var framework = require('web.framework');
 var BasicController = require('web.BasicController');
 var DataExport = require('web.DataExport');
 var Dialog = require('web.Dialog');
+var fieldUtils = require('web.field_utils');
 var Sidebar = require('web.Sidebar');
 
 var _t = core._t;
 var qweb = core.qweb;
+
+/**
+ * Return data required for exporting the current list to a xls file.
+ * Recursive if some groups are nested.
+ * @param {Array} groups
+ * @param {Array} displayedFields
+ * @param {Array} allFields
+ */
+var processGroups = (groups, displayedFields, allFields) => {
+    let formatRecord = record => {
+        let data = _.pick(record.data, displayedFields)
+        let formattedData = {}
+
+        Object.entries(data).forEach(([field_name, value]) => {
+            let field = allFields[field_name]
+            formattedData[field_name] = fieldUtils.format[field.type](value, field)
+        });
+        return formattedData
+    }
+
+    if (groups.length && groups[0].groupedBy && groups[0].groupedBy.length) {
+        // Recursively process sub-group
+        return groups.map(group => ({
+            isGrouped: true,
+            value: group.value || _t("Undefined"),
+            count: group.count,
+            aggregateValues: _.pick(group.aggregateValues, displayedFields),
+            data: processGroups(group.data, displayedFields, allFields),
+        }))
+    }
+    // process records
+    return groups.map(group => ({
+        hideHeader: !!group.hideHeader,
+        isGrouped: false,
+        value: group.value || _t("Undefined"),
+        count: group.count,
+        aggregateValues: _.pick(group.aggregateValues, displayedFields),
+        data: group.data.map(formatRecord)
+    }))
+}
 
 var ListController = BasicController.extend({
     /**
@@ -22,6 +65,9 @@ var ListController = BasicController.extend({
      * the list view. It can be overridden to add buttons in specific child views.
      */
     buttons_template: 'ListView.buttons',
+    events: _.extend({}, BasicController.prototype.events, {
+        'click .o_list_button_export': '_onExportRecords',
+    }),
     custom_events: _.extend({}, BasicController.prototype.custom_events, {
         activate_next_widget: '_onActivateNextWidget',
         add_record: '_onAddRecord',
@@ -339,6 +385,30 @@ var ListController = BasicController.extend({
         });
     },
     /**
+     * Export the current list data in a xls file.
+     *
+     * @private
+     */
+    _downloadList() {
+        let groups = this.renderer.state.data
+        groups = this.renderer.isGrouped ? groups : [{data: groups, count: groups.length, hideHeader: true}] // Aritificial single group
+
+        let allFields = this.renderer.state.fields
+        let columns = this.renderer.columns.map(column => ({
+            field: column.attrs.name,
+            aggregateValue: column.aggregate && column.aggregate.value,
+            string: allFields[column.attrs.name].string,
+        }))
+
+        groups = processGroups(groups, columns.map(c => c.field), allFields)
+        return session.get_file({
+            url: '/web/list/export_xls',
+            data: {data: JSON.stringify({columns, groups})},
+            complete: framework.unblockUI,
+            error: (error) => this.call('crash_manager', 'rpc_error', error),
+        });
+    },
+    /**
      * @override
      * @private
      */
@@ -612,6 +682,14 @@ var ListController = BasicController.extend({
             return field.attrs.name;
         });
         new DataExport(this, record, defaultExportFields).open();
+    },
+    /**
+     * Export Records
+     *
+     * @private
+     */
+    _onExportRecords() {
+        this._downloadList()
     },
     /**
      * Opens the related form view.
