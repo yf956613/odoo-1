@@ -33,7 +33,7 @@
                             </tree>
                         </field>
                     </page>
-                    <page string="Related products" attrs="{'invisible': [('is_used_on_products', '=', False)]}">
+                    <page string="Related Products" attrs="{'invisible': [('is_used_on_products', '=', False)]}">
                         <field name="product_tmpl_ids">
                             <tree>
                                 <field name="name"/>
