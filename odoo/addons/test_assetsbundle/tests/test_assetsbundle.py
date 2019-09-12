@@ -13,7 +13,7 @@ from odoo.addons.base.models.assetsbundle import AssetsBundle
 from odoo.addons.base.models.ir_attachment import IrAttachment
 from odoo.modules.module import get_resource_path
 from odoo.tests import HttpCase
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, tagged
 
 GETMTINE = os.path.getmtime
 
@@ -511,7 +511,7 @@ class TestJavascriptAssetsBundle(FileTouchable):
     </body>
 </html>""").encode('utf8'))
 
-
+@tagged('-at_install', 'post_install')
 class TestAssetsBundleInBrowser(HttpCase):
     def test_01_js_interpretation(self):
         """ Checks that the javascript of a bundle is correctly interpreted.

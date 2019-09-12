@@ -16,7 +16,7 @@ class TestUi(odoo.tests.HttpCase):
         self.start_tour("/web#action=test_new_api.action_discussions",
             'widget_x2many', step_delay=100, login="admin", timeout=120)
 
-
+@odoo.tests.common.tagged('post_install', '-at_install')
 class TestUiTranslation(odoo.tests.HttpCase):
 
     @mute_logger('odoo.sql_db', 'odoo.http')
