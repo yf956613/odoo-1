@@ -205,6 +205,13 @@ class ProjectTask(models.Model):
             result.setdefault('domain', {})['sale_line_id'] = [('is_service', '=', True), ('is_expense', '=', False), ('order_partner_id', 'child_of', self.partner_id.commercial_partner_id.id), ('state', 'in', ['sale', 'done'])]
         return result
 
+    @api.onchange('parent_id')
+    def _onchange_parent_id(self):
+        super(ProjectTask, self)._onchange_parent_id()
+        # check sale_line_id and customer are coherent
+        if self.sale_line_id and self.partner_id != self.sale_line_id.order_partner_id:
+            self.sale_line_id = False
+
     @api.constrains('sale_line_id')
     def _check_sale_line_type(self):
         for task in self.sudo():
@@ -229,18 +236,9 @@ class ProjectTask(models.Model):
     # ---------------------------------------------------
 
     @api.model
-    def _subtask_implied_fields(self):
-        result = super(ProjectTask, self)._subtask_implied_fields()
+    def _subtask_default_fields(self):
+        result = super(ProjectTask, self)._subtask_default_fields()
         return result + ['sale_line_id']
-
-    def _subtask_write_values(self, values):
-        result = super(ProjectTask, self)._subtask_write_values(values)
-        # changing the partner on a task will reset the sale line of its subtasks
-        if 'partner_id' in result:
-            result['sale_line_id'] = False
-        elif 'sale_line_id' in result:
-            result.pop('sale_line_id')
-        return result
 
     # ---------------------------------------------------
     # Actions

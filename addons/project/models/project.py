@@ -436,9 +436,13 @@ class Task(models.Model):
     @api.model
     def default_get(self, fields_list):
         result = super(Task, self).default_get(fields_list)
-        # force some parent values, if needed
-        if 'parent_id' in result and result['parent_id']:
-            result.update(self._subtask_values_from_parent(result['parent_id']))
+        # find default value from parent for the not given ones
+        parent_task_id = result.get('parent_id') or self._context.get('default_parent_id')
+        if parent_task_id:
+            parent_values = self._subtask_values_from_parent(parent_task_id)
+            for fname, value in parent_values.items():
+                if fname not in result:
+                    result[fname] = value
         return result
 
     @api.model
@@ -538,11 +542,6 @@ class Task(models.Model):
     # customer portal: include comment and incoming emails in communication history
     website_message_ids = fields.One2many(domain=lambda self: [('model', '=', self._name), ('message_type', 'in', ['email', 'comment'])])
 
-    @api.constrains('parent_id')
-    def _check_parent_id(self):
-        if not self._check_recursion():
-            raise ValidationError(_('You cannot create recursive tasks.'))
-
     def _compute_attachment_ids(self):
         for task in self:
             attachment_ids = self.env['ir.attachment'].search([('res_id', '=', task.id), ('res_model', '=', 'project.task')]).ids
@@ -619,8 +618,12 @@ class Task(models.Model):
     @api.onchange('parent_id')
     def _onchange_parent_id(self):
         if self.parent_id:
-            for field_name in self._subtask_implied_fields():
-                self[field_name] = self.parent_id[field_name]
+            for field_name, value in self._subtask_values_from_parent(self.parent_id.id).items():
+                if not self[field_name]:
+                    self[field_name] = value
+            # special case: force the email_from (and sale_line in sale_timesheet) to be consistence with partner
+            if self.partner_id and self.partner_id == self._origin.parent_id:
+                self._onchange_partner_id()
 
     @api.onchange('project_id')
     def _onchange_project(self):
@@ -709,10 +712,6 @@ class Task(models.Model):
     def create(self, vals):
         # context: no_log, because subtype already handle this
         context = dict(self.env.context)
-        # force some parent values, if needed
-        if 'parent_id' in vals and vals['parent_id']:
-            vals.update(self._subtask_values_from_parent(vals['parent_id']))
-            context.pop('default_parent_id', None)
         # for default stage
         if vals.get('project_id') and not context.get('default_project_id'):
             context['default_project_id'] = vals.get('project_id')
@@ -728,9 +727,6 @@ class Task(models.Model):
 
     def write(self, vals):
         now = fields.Datetime.now()
-        # subtask: force some parent values, if needed
-        if 'parent_id' in vals and vals['parent_id']:
-            vals.update(self._subtask_values_from_parent(vals['parent_id']))
         # stage change: update date_last_stage_update
         if 'stage_id' in vals:
             vals.update(self.update_date_end(vals['stage_id']))
@@ -746,12 +742,6 @@ class Task(models.Model):
         # rating on stage
         if 'stage_id' in vals and vals.get('stage_id'):
             self.filtered(lambda x: x.project_id.rating_status == 'stage')._send_task_rating_mail(force_send=True)
-        # subtask: update subtask according to parent values
-        subtask_values_to_write = self._subtask_write_values(vals)
-        if subtask_values_to_write:
-            subtasks = self.filtered(lambda task: not task.parent_id).mapped('child_ids')
-            if subtasks:
-                subtasks.write(subtask_values_to_write)
         return result
 
     def update_date_end(self, stage_id):
@@ -764,27 +754,18 @@ class Task(models.Model):
     # Subtasks
     # ---------------------------------------------------
 
-    @api.model
-    def _subtask_implied_fields(self):
-        """ Return the list of field name to apply on subtask when changing parent_id or when updating parent task. """
+    def _subtask_default_fields(self):
+        """ Return the list of field name for default value when creating a subtask """
         return ['partner_id', 'email_from']
-
-    def _subtask_write_values(self, values):
-        """ Return the values to write on subtask when `values` is written on parent tasks
-            :param values: dict of values to write on parent
-        """
-        result = {}
-        for field_name in self._subtask_implied_fields():
-            if field_name in values:
-                result[field_name] = values[field_name]
-        return result
 
     def _subtask_values_from_parent(self, parent_id):
         """ Get values for substask implied field of the given"""
         result = {}
         parent_task = self.env['project.task'].browse(parent_id)
-        for field_name in self._subtask_implied_fields():
+        for field_name in self._subtask_default_fields():
             result[field_name] = parent_task[field_name]
+        # special case for the subtask default project
+        result['project_id'] = parent_task.project_id.subtask_project_id
         return self._convert_to_write(result)
 
     # ---------------------------------------------------
@@ -942,16 +923,28 @@ class Task(models.Model):
 
     def action_subtask(self):
         action = self.env.ref('project.project_task_action_sub_task').read()[0]
-        ctx = self.env.context.copy()
-        ctx.update({
-            'default_parent_id': self.id,
-            'default_project_id': self.env.context.get('project_id', self.project_id.id),
-            'default_name': self.env.context.get('name', self.name) + ':',
-            'default_partner_id': self.env.context.get('partner_id', self.partner_id.id),
-            'search_default_project_id': self.env.context.get('project_id', self.project_id.id),
-        })
-        action['context'] = ctx
+
+        # only display subtasks of current task
         action['domain'] = [('id', 'child_of', self.id), ('id', '!=', self.id)]
+
+        # update context, with all default values as 'quick_create' does not contains all field in its view
+        if self._context.get('default_project_id'):
+            default_project = self.env['project.project'].browse(self.env.context['default_project_id'])
+        else:
+            default_project = self.project_id.subtask_project_id or self.project_id
+        ctx = dict(self.env.context)
+        ctx.update({
+            'default_name': self.env.context.get('name', self.name) + ':',
+            'default_parent_id': self.id,  # will give default subtask field in `default_get`
+            'default_company_id': default_project.company_id.id if default_project else self.env.company.id,
+            'search_default_parent_id': self.id,
+        })
+        parent_values = self._subtask_values_from_parent(self.id)
+        for fname, value in parent_values.items():
+            if 'default_' + fname not in ctx:
+                ctx['default_' + fname] = value
+        action['context'] = ctx
+
         return action
 
     # ---------------------------------------------------
