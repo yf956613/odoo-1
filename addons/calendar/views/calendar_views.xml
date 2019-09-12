@@ -118,9 +118,9 @@
                             </group>
                             <group>
                                 <group>
-                                    <field name="start" attrs="{'invisible': True}"/>
-                                    <field name="stop" attrs="{'invisible': True}"/>
-                                    <field name="id" attrs="{'invisible': True}"/>
+                                    <field name="start" invisible='1'/>
+                                    <field name="stop" invisible='1'/>
+                                    <field name="id" invisible='1'/>
 
                                     <field name="start_date" string="Starting at" attrs="{'required': [('allday','=',True)], 'invisible': [('allday','=',False)], 'readonly': [('id', '!=', False), ('recurrency','=',True)]}" force_save="1"/>
                                     <field name="stop_date" string="Ending at" attrs="{'required': [('allday','=',True)],'invisible': [('allday','=',False)], 'readonly': [('id', '!=', False), ('recurrency','=',True)]}" force_save="1"/>
