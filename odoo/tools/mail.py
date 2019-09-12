@@ -12,6 +12,7 @@ import time
 
 from email.header import decode_header, Header
 from email.utils import getaddresses, formataddr
+from functools import lru_cache
 from lxml import etree
 
 import odoo
@@ -190,6 +191,7 @@ class _Cleaner(clean.Cleaner):
         return super(_Cleaner, self).allow_element(el)
 
 
+@lru_cache(maxsize=8)
 def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=False, sanitize_style=False, strip_style=False, strip_classes=False):
     if not src:
         return src
