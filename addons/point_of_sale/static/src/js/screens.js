@@ -1320,7 +1320,7 @@ var ClientListScreenWidget = ScreenWidget.extend({
         }
     },
     partner_icon_url: function(id){
-        return '/web/image?model=res.partner&id='+id+'&field=image_64';
+        return '/web/image?model=res.partner&id='+id+'&field=image_128';
     },
 
     // ui handle for the 'edit selected customer' action
