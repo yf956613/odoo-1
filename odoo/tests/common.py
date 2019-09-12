@@ -1006,6 +1006,10 @@ class HttpCase(TransactionCase):
 
         If neither are done before timeout test fails.
         """
+        if not self.registry.ready:
+            # ensure that the registry is fully loaded. If not, some models
+            # could be missing in env when executing the test with '-u'
+            _logger.warning('A browser_js method should be post-install only.')
         # increase timeout if coverage is running
         if any(f.filename.endswith('/coverage/execfile.py') for f in inspect.stack()  if f.filename):
             timeout = timeout * 1.5
