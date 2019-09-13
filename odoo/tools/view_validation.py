@@ -125,6 +125,8 @@ def process_domain_str(domain_str):
     """
     Take an str python expression in param. See process_domain for more info.
     """
+    if not domain_str: # domain="" case
+        return {}
     expr = ast.parse(domain_str.strip(), mode='eval')
 
     assert isinstance(expr, ast.Expression)

@@ -905,8 +905,12 @@ actual arch.
                     elif not isinstance(value, ast.List):
                         _logger.error('not a domain %s in %s', key, expr)
                     else:
-                        domain_fields = view_validation.process_domain(value)
-                        mandatory_fields.update(self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
+                        try:
+                            domain_fields = view_validation.process_domain(value)
+                            mandatory_fields.update(self._get_client_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
+                        except:
+                            _logger.error('invalid domain %s in %s', key, expr)
+                            _logger.error(node)
             elif attr == 'context':
                 for key, value in view_validation.process_dict_str(expr).items():
                     if key == 'group_by':
@@ -914,14 +918,11 @@ actual arch.
                     elif isinstance(value, ast.List):
                         domain_fields = view_validation.process_domain(value)
                         mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
-                    elif isinstance(value, (ast.Attribute, ast.Name, ast.BoolOp)):
+                    else:
                         for value in view_validation.process_value(value):
                             if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
                                 mandatory_fields[value] = ('context', expr)
-                    elif isinstance(value, (ast.Str, ast.NameConstant, ast.Num)):
-                        continue
-                    else:
-                        print('*******', key, value)
+
             elif attr.startswith('decoration-'):
                 for value in view_validation.process_value_str(expr):
                     if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
@@ -1120,7 +1121,12 @@ actual arch.
     def postprocess_and_fields(self, model, node, view_id, validate=True, editable=True):
         arch, fields, mandatory_fields = self.postprocess_view(model, node, view_id, validate=validate, editable=editable)
         if mandatory_fields:
-            self.raise_view_error("All parent.field should have been consummed at root level.", view_id) # TODO xdo better error message
+            msg = []
+            for field in mandatory_fields:
+                msg.append(str(field))
+            _logger.error("All parent.field should have been consummed at root level. \n %s" % '\n'.join(msg)) # TODO xdo better error message
+            # note: this wasn't check before, and it is possible that a embeded view like stock.move.line.operations.tree my acces to field 
+            # of another view
         return arch, fields
 
     def _postprocess_access_rights(self, model, node):
