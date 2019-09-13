@@ -1681,6 +1681,7 @@
     </record>
 
     <record model="account.tax.template" id="tva_export_0">
+<<<<<<< HEAD
         <field name="chart_template_id" ref="l10n_fr_pcg_chart_template"/>
         <field name="name">TVA 0% export (vente)</field>
         <field name="description">TVA 0% Import</field>
@@ -1713,6 +1714,19 @@
                 'repartition_type': 'tax',
             }),
         ]"/>
+=======
+      <field name="chart_template_id" ref="l10n_fr_pcg_chart_template"/>
+      <field name="name">TVA 0% export (vente)</field>
+      <field name="description">TVA 0% Export</field>
+      <field name="amount" eval="0.00"/>
+      <field name="amount_type">percent</field>
+      <field name="refund_account_id" eval="False"/>
+      <field name="account_id" eval="False"/>
+      <field name="sequence" eval="10"/>
+      <field name="type_tax_use">sale</field>
+      <field name="tag_ids" eval="[(6,0,[ref('l10n_fr.tag_fr_93')])]"/>
+      <field name="tax_group_id" ref="tax_group_tva_0"/>
+>>>>>>> 45e4dd1ad68... temp
     </record>
 
     <record model="account.tax.template" id="tva_intra_0">
