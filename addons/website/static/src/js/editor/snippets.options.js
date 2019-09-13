@@ -1015,6 +1015,7 @@ options.registry.gallery = options.Class.extend({
             self._reset();
             self.trigger_up('cover_update');
         });
+        this.$el.find('[data-styling=square]').addClass('active')
         dialog.open();
     },
     /**

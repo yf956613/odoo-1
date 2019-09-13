@@ -1248,7 +1248,7 @@
         <we-collapse-area>
             <we-toggler><i class="fa fa-fw fa-paint-brush"/> Styling</we-toggler>
             <we-collapse>
-                <we-button data-styling="">Square</we-button>
+                <we-button data-styling="square">Square</we-button>
                 <we-button data-styling="rounded">Rounded corners</we-button>
                 <we-button data-styling="img-thumbnail">Thumbnails</we-button>
                 <we-button data-styling="rounded-circle">Circle</we-button>
