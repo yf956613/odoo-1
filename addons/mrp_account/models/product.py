@@ -35,6 +35,7 @@ class ProductProduct(models.Model):
             self.standard_price = price
 
     def action_bom_cost(self):
+        # When/Where is this called?
         real_time_products = self.filtered(lambda p: p.valuation == 'real_time')
         if real_time_products:
             raise UserError(_('The inventory valuation of some products %s is automated. You can only update their cost from the product form.') % (real_time_products.mapped('display_name')))
@@ -45,6 +46,7 @@ class ProductProduct(models.Model):
 
     def _get_price_from_bom(self, boms_to_recompute=False):
         self.ensure_one()
+        # VFE TODO link bom company to product company ?
         bom = self.env['mrp.bom']._bom_find(product=self)
         return self._compute_bom_price(bom, boms_to_recompute=boms_to_recompute)
 

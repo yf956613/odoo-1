@@ -141,6 +141,7 @@ operations.""") % ('\n'.join(overprocessed_moves.mapped('product_id.display_name
 
     def _get_subcontract_bom(self):
         self.ensure_one()
+        # VFE FIXME use with_company instead?
         bom = self.env['mrp.bom'].sudo()._bom_subcontract_find(
             product=self.product_id,
             picking_type=self.picking_type_id,
