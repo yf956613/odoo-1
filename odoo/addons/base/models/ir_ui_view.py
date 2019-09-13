@@ -887,7 +887,6 @@ actual arch.
     @api.model
     def _attr_check(self, Model, node, view_id):
         mandatory_fields = {} # todo make dict of mandatory to avoid duplication
-
         for attr, expr in node.items():
             if attr == 'domain':
                 domain_fields = view_validation.process_domain_str(expr)
@@ -919,8 +918,12 @@ actual arch.
                     if key == 'group_by':
                         self._group_by_check(value, Model, expr, view_id)
                     elif isinstance(value, ast.List):
-                        domain_fields = view_validation.process_domain(value)
-                        mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
+                        try:
+                            domain_fields = view_validation.process_domain(value)
+                            mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
+                        except:
+                            _logger.error('invalid domain %s in %s', key, expr)
+                            _logger.error(node)
                     else:
                         for value in view_validation.process_value(value):
                             if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
@@ -952,6 +955,9 @@ actual arch.
             try:
                 for field in field_chain:
                     current_field = field
+                    if not isinstance(field_Model, models.Model):
+                        msg = 'Trying to access "%s:%s" in path %s while cheking %s %s' % (field_Model, current_field, key, domain_field, domain_str)
+                        self.raise_view_error(_(msg), view_id)
                     _field = field_Model._fields[current_field]
                     if not _field._description_searchable:
                         msg = 'Unsearchable field "%s:%s" in path %s while cheking %s %s on model "%s"' % (field_Model._name, current_field, key, domain_field, domain_str, Model._name)
@@ -1009,6 +1015,7 @@ actual arch.
             attr_model=Model,
             editable=editable
         )
+
         tag = node.tag
         postprocessor = getattr(self, '_postprocess_%s' % tag, False)
         if postprocessor:
@@ -1016,6 +1023,7 @@ actual arch.
             if res is False: # node is removed, ignore him
                 return {}, {}
             node_infos.update(res)
+
         elif tag in {item[0] for item in type(self.env['ir.ui.view']).type.selection}:
             node_infos['editable'] = False
         node_infos['mandatory_fields'].update(self._attr_check(node_infos['attr_model'], node, view_id))
