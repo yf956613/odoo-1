@@ -9,11 +9,7 @@ odoo.define("point_of_sale.Chrome", function(require) {
     class Chrome extends owl.Component {
         constructor() {
             super(...arguments);
-            this.components = {
-                UsernameWidget,
-                ProductScreenWidget,
-                OrderSelectorWidget,
-            };
+
             this.state = {
                 loading: true,
                 loadingMessage: _t("Loading"),
@@ -47,6 +43,12 @@ odoo.define("point_of_sale.Chrome", function(require) {
             this.state.loadingProgress = 0.0;
         }
     }
+
+    Chrome.components = {
+        UsernameWidget,
+        ProductScreenWidget,
+        OrderSelectorWidget,
+    };
 
     return Chrome;
 });

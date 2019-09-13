@@ -4,15 +4,11 @@ odoo.define("point_of_sale.ProductListWidget", function(require) {
     const Product = require("point_of_sale.Product");
 
     class ProductListWidget extends owl.Component {
-        constructor() {
-            super(...arguments);
-            this.components = { Product };
-        }
         selectProduct() {
             return this.props.onSelectProduct(...arguments);
         }
     }
-
+    ProductListWidget.components = { Product };
     ProductListWidget.props = ["products", "pricelist", "unitsByUOM", "onSelectProduct"];
 
     return ProductListWidget;

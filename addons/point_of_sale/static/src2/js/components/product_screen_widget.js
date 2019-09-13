@@ -6,37 +6,37 @@ odoo.define("point_of_sale.ProductScreenWidget", function(require) {
     const OrderWidget = require("point_of_sale.OrderWidget");
     const ActionpadWidget = require("point_of_sale.ActionpadWidget");
     const NumpadWidget = require("point_of_sale.NumpadWidget");
-    const { connect } = require("point_of_sale.BackboneStore");
+    const AbstractPosConnectedComponent = require("point_of_sale.BackboneStore");
 
-    class ProductScreenWidget extends owl.Component {
+    class ProductScreenWidget extends AbstractPosConnectedComponent {
         constructor() {
             super(...arguments);
-            this.components = {
-                ProductListWidget,
-                ProductCategoriesWidget,
-                OrderWidget,
-                ActionpadWidget,
-                NumpadWidget,
-            };
+
             this.selectProduct = this.selectProduct.bind(this);
         }
 
         selectProduct(product) {
             // eslint-disable-next-line no-console
             console.debug(product);
-            if (product.to_weight && this.props.config.iface_electronic_scale) {
+            if (product.to_weight && this.storeProps.config.iface_electronic_scale) {
                 // TODO: this.gui.show_screen('scale',{product: product});
-                this.props.selectedOrder.add_product(product);
+                this.storeProps.selectedOrder.add_product(product);
             } else {
-                this.props.selectedOrder.add_product(product);
+                this.storeProps.selectedOrder.add_product(product);
             }
         }
     }
 
-    ProductScreenWidget.props = ["selectedOrder", "products", "pricelist", "unitsByUOM"];
+    ProductScreenWidget.components = {
+        ProductListWidget,
+        ProductCategoriesWidget,
+        OrderWidget,
+        ActionpadWidget,
+        NumpadWidget,
+    };
 
-    function mapModelToProps(model) {
-        const { currency, dp, units_by_id, config } = model;
+    ProductScreenWidget.mapStoreToProps = function(model) {
+        const {currency, dp, units_by_id, config} = model;
         const selectedOrder = model.get_order();
         let pricelist = model.default_pricelist;
         if (selectedOrder) {
@@ -51,10 +51,9 @@ odoo.define("point_of_sale.ProductScreenWidget", function(require) {
             selectedOrder,
             config,
         };
-    }
+    };
+    ProductScreenWidget.props = ["selectedOrder", "products", "pricelist", "unitsByUOM"];
 
-    return connect(
-        ProductScreenWidget,
-        mapModelToProps
-    );
+
+    return ProductScreenWidget;
 });

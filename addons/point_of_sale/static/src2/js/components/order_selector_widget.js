@@ -1,9 +1,10 @@
 odoo.define("point_of_sale.OrderSelectorWidget", function(require) {
     "use strict";
 
-    const { connect } = require("point_of_sale.BackboneStore");
+    const AbstractPosConnectedComponent = require("point_of_sale.BackboneStore");
 
-    class OrderSelectorWidget extends owl.Component {
+    class OrderSelectorWidget extends AbstractPosConnectedComponent {
+
         selectOrder(ev, elm) {
             const orders = this.env.model.get_order_list();
             const selected = orders.find(order => order.uid === elm.key);
@@ -29,21 +30,16 @@ odoo.define("point_of_sale.OrderSelectorWidget", function(require) {
             }
         }
     }
-
+    OrderSelectorWidget.mapStoreToProps = function(model) {
+        return {
+            orders: model.get_order_list(),
+            selectedOrder: model.get_order(),
+        };
+    };
     OrderSelectorWidget.props = ["orders", "selectedOrder"];
     OrderSelectorWidget.defaultProps = {
         orders: [],
     };
 
-    function mapModelToProps(model) {
-        return {
-            orders: model.get_order_list(),
-            selectedOrder: model.get_order(),
-        };
-    }
-
-    return connect(
-        OrderSelectorWidget,
-        mapModelToProps
-    );
+    return OrderSelectorWidget;
 });

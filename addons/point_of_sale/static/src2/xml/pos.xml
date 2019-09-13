@@ -286,9 +286,9 @@
                         <td class="content-cell">
                             <div class="content-container">
                                 <ProductListWidget
-                                    products="props.products"
-                                    pricelist="props.pricelist"
-                                    unitsByUOM="props.unitsByUOM"
+                                    products="storeProps.products"
+                                    pricelist="storeProps.pricelist"
+                                    unitsByUOM="storeProps.unitsByUOM"
                                     onSelectProduct="selectProduct"/>
                             </div>
                         </td>
@@ -1362,7 +1362,7 @@
         <div class="order-container">
             <div class="order-scroller touch-scrollable">
                 <div class="order">
-                    <t t-if="props.orderlines.length === 0">
+                    <t t-if="storeProps.orderlines.length === 0">
                         <div class="order-empty">
                             <i class="fa fa-shopping-cart" role="img" aria-label="Shopping cart" title="Shopping cart"/>
                             <h1>Your shopping cart is empty</h1>
@@ -1370,14 +1370,14 @@
                     </t>
                     <t t-else="">
                         <ul class="orderlines">
-                            <Orderline t-foreach="props.orderlines" t-as="orderline" t-key="orderline.id"
+                            <Orderline t-foreach="storeProps.orderlines" t-as="orderline" t-key="orderline.id"
                                 line="orderline"/>
                         </ul>
                         <div class="summary clearfix">
                             <div class="line">
                                 <div class="entry total">
-                                    <span class="badge">Total: </span> <span t-esc="env.formatters.formatCurrency(props.total)" class="value"/>
-                                    <div class="subentry">Taxes: <span t-esc="env.formatters.formatCurrency(props.taxes)" class="value"/></div>
+                                    <span class="badge">Total: </span> <span t-esc="env.formatters.formatCurrency(storeProps.total)" class="value"/>
+                                    <div class="subentry">Taxes: <span t-esc="env.formatters.formatCurrency(storeProps.taxes)" class="value"/></div>
                                 </div>
                             </div>
                         </div>
@@ -1469,15 +1469,15 @@
     <t t-name="OrderSelectorWidget">
         <div class="order-selector">
             <span class="orders touch-scrollable">
-                <span t-foreach="props.orders" t-as="order" t-key="order.uid"
+                <span t-foreach="storeProps.orders" t-as="order" t-key="order.uid"
                     t-on-click="selectOrder"
-                    t-attf-class="{{order === props.selectedOrder ? 'selected' : ''}}"
+                    t-attf-class="{{order === storeProps.selectedOrder ? 'selected' : ''}}"
                     class="order-button select-order"
                     t-att-data-uid="order.uid">
                     <span class="order-sequence">
                         <t t-esc="order.sequence_number" />
                     </span>
-                    <t t-if="order === props.selectedOrder">
+                    <t t-if="order === storeProps.selectedOrder">
                         <t t-esc="window.moment(order.creation_date).format('hh:mm')"/>
                     </t>
                 </span>
@@ -1493,7 +1493,7 @@
 
     <t t-name="UsernameWidget">
         <span class="username">
-            <t t-esc="props.name" />
+            <t t-esc="storeProps.name" />
         </span>
     </t>
 

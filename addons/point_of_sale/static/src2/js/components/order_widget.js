@@ -2,18 +2,11 @@ odoo.define("point_of_sale.OrderWidget", function(require) {
     "use strict";
 
     const Orderline = require("point_of_sale.Orderline");
-    const { connect } = require("point_of_sale.BackboneStore");
+    const AbstractPosConnectedComponent = require("point_of_sale.BackboneStore");
 
-    class OrderWidget extends owl.Component {
-        constructor() {
-            super(...arguments);
-            this.components = { Orderline };
-        }
-    }
-
-    OrderWidget.props = ["orderlines", "selectedOrder", "total", "taxes"];
-
-    function mapModelToProps(model) {
+    class OrderWidget extends AbstractPosConnectedComponent {}
+    OrderWidget.components = {Orderline};
+    OrderWidget.mapStoreToProps = function(model) {
         const selectedOrder = model.get_order();
         const orderlines = selectedOrder ? selectedOrder.get_orderlines() : [];
         const total = selectedOrder ? selectedOrder.get_total_with_tax() : 0;
@@ -24,10 +17,8 @@ odoo.define("point_of_sale.OrderWidget", function(require) {
             total,
             taxes,
         };
-    }
+    };
+    OrderWidget.props = ["orderlines", "selectedOrder", "total", "taxes"];
 
-    return connect(
-        OrderWidget,
-        mapModelToProps
-    );
+    return OrderWidget;
 });

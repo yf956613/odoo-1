@@ -1,23 +1,19 @@
 odoo.define("point_of_sale.UsernameWidget", function(require) {
     "use strict";
 
-    const { connect } = require("point_of_sale.BackboneStore");
+    const AbstractPosConnectedComponent = require("point_of_sale.BackboneStore");
 
-    class UsernameWidget extends owl.Component {}
+    class UsernameWidget extends AbstractPosConnectedComponent {}
+    UsernameWidget.mapStoreToProps = function (model) {
+        const { name } = model.get_cashier();
+        return {
+            name,
+        };
+    };
     UsernameWidget.props = ["name"];
     UsernameWidget.defaultProps = {
         name: "unknown",
     };
 
-    function mapModelToProps(model) {
-        const { name } = model.get_cashier();
-        return {
-            name,
-        };
-    }
-
-    return connect(
-        UsernameWidget,
-        mapModelToProps
-    );
+    return UsernameWidget;
 });
