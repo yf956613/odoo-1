@@ -904,6 +904,9 @@ actual arch.
                             # todo
                     elif not isinstance(value, ast.List):
                         _logger.warning('not a domain %s in %s', key, expr)
+                        for value in view_validation.process_value(value):
+                            if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
+                                mandatory_fields[value] = ('context', expr)
                     else:
                         try:
                             domain_fields = view_validation.process_domain(value)
