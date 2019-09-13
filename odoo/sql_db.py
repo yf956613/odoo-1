@@ -233,7 +233,7 @@ class Cursor(object):
             # psycopg2's TypeError is not clear if you mess up the params
             raise ValueError("SQL query parameters should be a tuple, list or dict; got %r" % (params,))
 
-        if self.sql_log or tools.config.rte_debug:
+        if self.sql_log:
             encoding = psycopg2.extensions.encodings[self.connection.encoding]
             _logger.info("query: %s", self._obj.mogrify(query, params).decode(encoding, 'replace'))
         now = time.time()
@@ -248,6 +248,11 @@ class Cursor(object):
         # simple query count is always computed
         self.sql_log_count += 1
         delay = (time.time() - now)
+        if  tools.config.rte_debug and delay > 0.2:
+            _logger.info('Delay: %s', delay)
+            encoding = psycopg2.extensions.encodings[self.connection.encoding]
+            _logger.info("query: %s", self._obj.mogrify(query, params).decode(encoding, 'replace'))
+
         if hasattr(threading.current_thread(), 'query_count'):
             threading.current_thread().query_count += 1
             threading.current_thread().query_time += delay
