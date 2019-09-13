@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_expiry" model="ir.ui.view">
+        <field name="name">stock.picking.inherit.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='picking_type_entire_packs']" position="after" >
+                <field name="has_expired_lot" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//button[@name='button_validate']" position="attributes" >
+                <attribute name="attrs">
+                    {'invisible': ['|', '|', ('state', 'in', ('waiting', 'confirmed')), ('show_validate', '=', False), ('has_expired_lot', '=', True)]}
+                </attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_validate']" position="after" >
+                <button name="button_validate"  string="Validate" type="object"
+                attrs="{'invisible': ['|', '|', ('state', 'in', ('waiting', 'confirmed')), ('show_validate', '=', False), ('has_expired_lot', '=', False)]}"
+                confirm="You are going to delivered some expired products. Do you want to proceed?"
+                class="oe_highlight" groups="stock.group_stock_user"/>
+            </xpath>
+
+            <xpath expr="//button[hasclass('o_btn_validate')]" position="attributes" >
+                <attribute name="attrs">
+                    {'invisible': ['|', '|', ('state', 'not in', ('waiting', 'confirmed')), ('show_validate', '=', False), ('has_expired_lot', '=', True)]}
+                </attribute>
+            </xpath>
+            <xpath expr="//button[hasclass('o_btn_validate')]" position="after" >
+                <button name="button_validate"  string="Validate" type="object"
+                attrs="{'invisible': ['|', '|', ('state', 'not in', ('waiting', 'confirmed')), ('show_validate', '=', False), ('has_expired_lot', '=', False)]}"
+                confirm="You are going to delivered some expired products. Do you want to proceed?"
+                class="o_btn_validate" groups="stock.group_stock_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
