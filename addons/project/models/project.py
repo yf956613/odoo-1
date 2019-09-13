@@ -618,15 +618,14 @@ class Task(models.Model):
             for field_name, value in self._subtask_values_from_parent(self.parent_id.id).items():
                 if not self[field_name]:
                     self[field_name] = value
-            # special case: force the email_from (and sale_line in sale_timesheet) to be consistence with partner
-            if self.partner_id and self.partner_id == self._origin.parent_id:
-                self._onchange_partner_id()
 
     @api.onchange('project_id')
     def _onchange_project(self):
         if self.project_id:
-            if not self.parent_id and self.project_id.partner_id:
+            # find partner
+            if self.project_id.partner_id:
                 self.partner_id = self.project_id.partner_id
+            # find stage
             if self.project_id not in self.stage_id.project_ids:
                 self.stage_id = self.stage_find(self.project_id.id, [('fold', '=', False)])
             # keep multi company consistency
@@ -712,6 +711,11 @@ class Task(models.Model):
         if vals.get('stage_id'):
             vals.update(self.update_date_end(vals['stage_id']))
             vals['date_last_stage_update'] = fields.Datetime.now()
+        # substask default values
+        if vals.get('parent_id'):
+            for fname, value in self._subtask_values_from_parent(vals['parent_id']).items():
+                if fname not in vals:
+                    vals[fname] = value
         task = super(Task, self.with_context(context)).create(vals)
         return task
 
