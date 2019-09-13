@@ -353,5 +353,27 @@ QUnit.test('parse datetime', function (assert) {
     core._t.database.parameters = originalParameters;
 });
 
+QUnit.test('parse date', function (assert) {
+    assert.expect(10);
+
+    var originalParameters = _.clone(core._t.database.parameters);
+
+    _.extend(core._t.database.parameters, {date_format: '%d.%m/%Y'});
+    var dateFormat = "DD.MM/YYYY";
+
+    assert.throws(function () {fieldUtils.parse.date("a0101")}, /is not a correct/, "Wrongly formated dates should be invalid");
+    assert.throws(function () {fieldUtils.parse.date("101")}, /is not a correct/, "Wrongly formated dates should be invalid");
+    assert.throws(function () {fieldUtils.parse.date("11")}, /is not a correct/, "Wrongly formated dates should be invalid");
+    assert.throws(function () {fieldUtils.parse.date("1197")}, /is not a correct/, "Wrongly formated dates should be invalid");
+    assert.throws(function () {fieldUtils.parse.date("0131")}, /is not a correct/, "Wrongly formated dates should be invalid");
+    assert.throws(function () {fieldUtils.parse.date("970131")}, /is not a correct/, "Wrongly formated dates should be invalid");
+    assert.equal(fieldUtils.parse.date("3101").format(dateFormat), "31.01/" + moment.utc().year());
+    assert.equal(fieldUtils.parse.date("310197").format(dateFormat), "31.01/1997");
+    assert.equal(fieldUtils.parse.date("310117").format(dateFormat), "31.01/2017");
+    assert.equal(fieldUtils.parse.date("31011985").format(dateFormat), "31.01/1985");
+
+    core._t.database.parameters = originalParameters;
+});
+
 });
 });

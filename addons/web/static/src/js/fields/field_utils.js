@@ -411,11 +411,18 @@ function parseDate(value, field, options) {
     }
     var datePattern = time.getLangDateFormat();
     var datePatternWoZero = datePattern.replace('MM','M').replace('DD','D');
+    var dataPatternWoSeparator = datePattern.replace(/[^M|D|Y]/g, '');
+    var dataPatternWoSeparatorWSmallYear = dataPatternWoSeparator.replace('YYYY', 'YY');
+    var dataPatternWoSeparatorWoYear = dataPatternWoSeparator.replace('YYYY', '');
     var date;
     if (options && options.isUTC) {
         date = moment.utc(value);
     } else {
-        date = moment.utc(value, [datePattern, datePatternWoZero, moment.ISO_8601], true);
+        date = moment.utc(value, [datePattern,
+                                  datePatternWoZero,
+                                  dataPatternWoSeparator,
+                                  dataPatternWoSeparatorWSmallYear,
+                                  dataPatternWoSeparatorWoYear, moment.ISO_8601], true);
     }
     if (date.isValid()) {
         if (date.year() === 0) {
