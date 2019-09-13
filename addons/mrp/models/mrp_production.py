@@ -20,10 +20,9 @@ class MrpProduction(models.Model):
 
     @api.model
     def _get_default_picking_type(self):
-        company_id = self.env.context.get('default_company_id', self.env.company.id)
         return self.env['stock.picking.type'].search([
             ('code', '=', 'mrp_operation'),
-            ('warehouse_id.company_id', '=', company_id),
+            ('warehouse_id.company_id', '=', self.env.company.id),
         ], limit=1).id
 
     @api.model

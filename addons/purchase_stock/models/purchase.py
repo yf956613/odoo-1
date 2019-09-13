@@ -14,7 +14,7 @@ class PurchaseOrder(models.Model):
 
     @api.model
     def _default_picking_type(self):
-        return self._get_picking_type(self.env.context.get('company_id') or self.env.company.id)
+        return self._get_picking_type(self.env.company.id)
 
     incoterm_id = fields.Many2one('account.incoterms', 'Incoterm', states={'done': [('readonly', True)]}, help="International Commercial Terms are a series of predefined commercial terms used in international transactions.")
 

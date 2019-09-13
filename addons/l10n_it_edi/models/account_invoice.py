@@ -325,7 +325,7 @@ class AccountMove(models.Model):
                 company = elements and self.env['res.company'].search([('l10n_it_codice_fiscale', 'ilike', elements[0].text)], limit=1)
 
             if company:
-                self_ctx = self_ctx.with_context(company_id=company.id)
+                self_ctx = self_ctx.with_company(company)
             else:
                 company = self.env.company
                 if elements:

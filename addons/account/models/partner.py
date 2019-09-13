@@ -225,7 +225,7 @@ class ResPartner(models.Model):
 
     @api.depends_context('company')
     def _credit_debit_get(self):
-        tables, where_clause, where_params = self.env['account.move.line'].with_context(company_id=self.env.company.id)._query_get()
+        tables, where_clause, where_params = self.env['account.move.line'].with_company(self.env.company)._query_get()
         where_params = [tuple(self.ids)] + where_params
         if where_clause:
             where_clause = 'AND ' + where_clause
@@ -366,7 +366,7 @@ class ResPartner(models.Model):
 
     def mark_as_reconciled(self):
         self.env['account.partial.reconcile'].check_access_rights('write')
-        return self.sudo().with_context(company_id=self.env.company.id).write({'last_time_entries_checked': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
+        return self.sudo().write({'last_time_entries_checked': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
 
     def _get_company_currency(self):
         for partner in self:

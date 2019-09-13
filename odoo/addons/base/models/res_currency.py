@@ -62,7 +62,7 @@ class Currency(models.Model):
     @api.depends('rate_ids.rate')
     def _compute_current_rate(self):
         date = self._context.get('date') or fields.Date.today()
-        company = self.env['res.company'].browse(self._context.get('company_id')) or self.env.company
+        company = self.env.company
         # the subquery selects the last rate before 'date' for the given currency/company
         currency_rates = self._get_rates(company, date)
         for currency in self:
@@ -202,13 +202,13 @@ class Currency(models.Model):
     def _compute(self, from_currency, to_currency, from_amount, round=True):
         _logger.warning('The `_compute` method is deprecated. Use `_convert` instead')
         date = self._context.get('date') or fields.Date.today()
-        company = self.env['res.company'].browse(self._context.get('company_id')) or self.env.company
+        company = self.env.company
         return from_currency._convert(from_amount, to_currency, company, date)
 
     def compute(self, from_amount, to_currency, round=True):
         _logger.warning('The `compute` method is deprecated. Use `_convert` instead')
         date = self._context.get('date') or fields.Date.today()
-        company = self.env['res.company'].browse(self._context.get('company_id')) or self.env.company
+        company = self.env.company
         return self._convert(from_amount, to_currency, company, date)
 
     def _select_companies_rates(self):

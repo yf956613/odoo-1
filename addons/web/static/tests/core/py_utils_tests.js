@@ -683,6 +683,7 @@ QUnit.module('core', function () {
     });
 
     QUnit.test('conditional context', function (assert) {
+        // VFE change the test to not use company_id but any other field.
         assert.expect(2);
 
         var d = {

@@ -452,7 +452,7 @@ class MonetaryConverter(models.AbstractModel):
         if 'date' not in options:
             options['date'] = record._context.get('date')
         if 'company_id' not in options:
-            options['company_id'] = record._context.get('company_id')
+            options['company_id'] = record.env.company.id
 
         return super(MonetaryConverter, self).record_to_html(record, field_name, options)
 

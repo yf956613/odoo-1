@@ -433,7 +433,7 @@ class ProductProduct(models.Model):
             partner_ids = [partner_id, self.env['res.partner'].browse(partner_id).commercial_partner_id.id]
         else:
             partner_ids = []
-        company_id = self.env.context.get('company_id')
+        company_id = self.env.company.id
 
         # all user don't have access to seller and partner
         # check access and use superuser

@@ -3573,8 +3573,11 @@ class AccountMoveLine(models.Model):
         if state and state.lower() != 'all':
             domain += [('move_id.state', '=', state)]
 
-        if context.get('company_id'):
-            domain += [('company_id', '=', context['company_id'])]
+        if self.env.cid:
+            # VFE FIXME analyze and remove/adapt.
+            # can't this be managed by record rules only ?
+            # or use self.env.companies.ids
+            domain += [('company_id', '=', self.env.cid)]
 
         if 'company_ids' in context:
             domain += [('company_id', 'in', context['company_ids'])]
