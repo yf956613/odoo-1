@@ -903,7 +903,7 @@ actual arch.
                             continue
                             # todo
                     elif not isinstance(value, ast.List):
-                        _logger.error('not a domain %s in %s', key, expr)
+                        _logger.warning('not a domain %s in %s', key, expr)
                     else:
                         try:
                             domain_fields = view_validation.process_domain(value)
