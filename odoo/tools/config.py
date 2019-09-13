@@ -696,3 +696,4 @@ class configmanager(object):
             return True
 
 config = configmanager()
+config.rte_debug = False
