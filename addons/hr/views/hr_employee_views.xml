@@ -69,7 +69,8 @@
                                     <span class="o_stat_value" attrs="{'invisible': [('last_activity_time', '!=', False)]}">
                                         <field name="last_activity"/>
                                     </span>
-                                    <span class="o_stat_text">Connected Since</span>
+                                    <span class="o_stat_text">Connected</span>
+                                    <span class="o_stat_text">Since</span>
                                 </div>
                             </button>
                         </div>
@@ -148,11 +149,6 @@
                                         <field name="marital"/>
                                         <field name="spouse_complete_name" attrs="{'invisible': [('marital', 'not in', ['married', 'cohabitant'])]}" groups="hr.group_hr_user"/>
                                         <field name="spouse_birthdate" attrs="{'invisible': [('marital', 'not in', ['married', 'cohabitant'])]}" groups="hr.group_hr_user"/>
-                                    </group>
-                                    <group string="Education">
-                                        <field name="certificate"/>
-                                        <field name="study_field"/>
-                                        <field name="study_school"/>
                                     </group>
                                     <group string="Dependant">
                                         <field name="children"/>
