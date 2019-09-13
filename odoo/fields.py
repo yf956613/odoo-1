@@ -632,9 +632,16 @@ class Field(MetaField('DummyField', (object,), {})):
                         'document_model': records._name,
                     }
                 )
+
+        # group record ids by vals, to update in batch when possible
+        updates = defaultdict(list)
+        for rid, value in zip(records.ids, values):
+            updates[value[self.related_field.name]].append(rid)
+
         # assign final values to records
-        for record, value in zip(records, values):
-            record[self.name] = self._transform_related_value(value[self.related_field.name])
+        Model = records.env[records._name]
+        for value, ids in updates.items():
+            Model.browse(ids).__setitem__(self.name, self._transform_related_value(value))
 
     def _transform_related_value(self, value):
         """No transformation by default, but allows override."""
