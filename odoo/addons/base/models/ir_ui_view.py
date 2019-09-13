@@ -921,7 +921,11 @@ actual arch.
                         try:
                             domain_fields = view_validation.process_domain(value)
                             mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
+                            _logger.warning('This is usefull, domain in context %s in %s', key, expr)
                         except:
+                            # note, some context like {'default_composition_mode': 'forward','hide_forward_type': 1 , 'default_partner_ids': [partner_assigned_id]}
+                            # in context case we should just fallback on process_value
+                            # will fail 
                             _logger.error('invalid domain %s in %s', key, expr)
                             _logger.error(node)
                     else:
