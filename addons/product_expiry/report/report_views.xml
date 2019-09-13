@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report id="label_lot_template_expiry"
+        model="stock.production.lot"
+        string="Lot/Serial Number (ZPL) with expiry dates"
+        name="product_expiry.label_lot_template_view_expiry"
+        file="product_expiry.label_lot_template_view_expiry"
+        report_type="qweb-text"
+    />
+</odoo>

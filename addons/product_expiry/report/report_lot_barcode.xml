@@ -16,4 +16,45 @@
         </tr>
     </xpath>
 </template>
+
+<template id="label_lot_template_view_expiry">
+    <t t-foreach="docs" t-as="lot">
+        <t t-translation="off">
+^XA
+^FO100,50
+^A0N,44,33^FD<t t-esc="lot.display_name"/>^FS
+^FO100,100
+^A0N,44,33^FDLN/SN: <t t-esc="lot.name"/>^FS
+<t t-if="lot.expiration_date and lot.use_date">
+^FO100,150
+^A0N,44,33^FDBest before: <t t-esc="lot.use_date" t-options='{"widget": "date"}'/>^FS
+<t t-if="lot.life_date">
+^FO100,200
+^A0N,44,33^FDUse by: <t t-esc="lot.life_date" t-options='{"widget": "date"}'/>^FS
+^FO100,250^BY3
+^BCN,100,Y,N,N
+^FD<t t-esc="lot.name"/>^FS
+</t>
+<t t-else="">
+^FO100,200^BY3
+^BCN,100,Y,N,N
+^FD<t t-esc="lot.name"/>^FS
+</t>
+</t>
+<t t-elif="lot.expiration_date and lot.life_date">
+^FO100,150
+^A0N,44,33^FDUse by: <t t-esc="lot.life_date" t-options='{"widget": "date"}'/>^FS
+^FO100,200^BY3
+^BCN,100,Y,N,N
+^FD<t t-esc="lot.name"/>^FS
+</t>
+<t t-else="">
+^FO100,150^BY3
+^BCN,100,Y,N,N
+^FD<t t-esc="lot.name"/>^FS
+</t>
+^XZ
+        </t>
+    </t>
+</template>
 </odoo>
