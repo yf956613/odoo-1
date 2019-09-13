@@ -85,7 +85,12 @@ class TestUiHtmlEditor(odoo.tests.HttpCase):
 
 @odoo.tests.tagged('-at_install', 'post_install')
 class TestUiTranslate(odoo.tests.HttpCase):
+    
+    def tearDown(self):
+        odoo.tools.config.rte_debug = False
+    
     def test_admin_tour_rte_translator(self):
+        odoo.tools.config.rte_debug = True
         self.start_tour("/", 'rte_translator', login='admin', timeout=120)
 
 
