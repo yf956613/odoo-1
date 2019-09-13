@@ -149,11 +149,7 @@ class AccountChartTemplate(models.Model):
         of accounts had been created for it yet.
         """
         # do not use `request.env` here, it can cause deadlocks
-        if not company:
-            if request and hasattr(request, 'allowed_company_ids'):
-                company = self.env['res.company'].browse(request.allowed_company_ids[0])
-            else:
-                company = self.env.company
+        company = company or self.env.company
         # If we don't have any chart of account on this company, install this chart of account
         if not company.chart_template_id and not self.existing_accounting(company):
             for template in self:
