@@ -1,7 +1,7 @@
 # coding: utf-8
-from odoo.tests import HttpCase, tagged
+from odoo.tests import HttpCase
 
-@tagged('dbetest')
+
 class WebsiteVisitorTests(HttpCase):
     def test_create_visitor_on_tracked_page(self):
         Page = self.env['website.page']
@@ -17,7 +17,7 @@ class WebsiteVisitorTests(HttpCase):
                         </t>
                     </t>''',
             'key': 'test.base_view',
-            'track': False
+            'track': False,
         })
         tracked_view = View.create({
             'name': 'Base',
@@ -28,29 +28,29 @@ class WebsiteVisitorTests(HttpCase):
                         </t>
                     </t>''',
             'key': 'test.base_view',
-            'track': True
+            'track': True,
         })
         [untracked_page, tracked_page, untracked_view, tracked_view] = Page.create([
             {
                 'view_id': untracked_view.id,
                 'url': '/untracked_page_1',
-                'website_published': True
+                'website_published': True,
             },
             {
                 'view_id': untracked_view.id,
                 'url': '/tracked_page_1',
                 'website_published': True,
-                'is_tracked': True
+                'track': True,
             },
             {
                 'view_id': untracked_view.id,
                 'url': '/untracked_view',
-                'website_published': True
+                'website_published': True,
             },
             {
                 'view_id': tracked_view.id,
                 'url': '/tracked_view',
-                'website_published': True
+                'website_published': True,
             },
         ])
 

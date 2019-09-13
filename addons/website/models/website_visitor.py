@@ -56,6 +56,14 @@ class WebsiteVisitor(models.Model):
     time_since_last_action = fields.Char('Last action', compute="_compute_time_statistics", help='Time since last page view. E.g.: 2 minutes ago')
     is_connected = fields.Boolean('Is connected ?', compute='_compute_time_statistics', help='A visitor is considered as connected if his last page view was within the last 5 minutes.')
 
+    @api.depends('name')
+    def name_get(self):
+        ret_list = []
+        for record in self:
+            name = '%s #%d' % (record.name, record.id)
+            ret_list.append((record.id, name))
+        return ret_list
+
     @api.model
     def _search_last_connection(self, operator, value):
         assert operator in expression.TERM_OPERATORS
@@ -128,7 +136,7 @@ class WebsiteVisitor(models.Model):
             'url': url,
             'visit_datetime': datetime.now(),
         }
-        if website_page and website_page.is_tracked:
+        if website_page:
             website_track_values['page_id'] = website_page.id
             domain = [('page_id', '=', website_page.id)]
         else:

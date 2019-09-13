@@ -95,7 +95,7 @@ class Http(models.AbstractModel):
         website_page = getattr(main_object, '_name', False) == 'website.page' and main_object
         template = response.qcontext.get('response_template')
         view = template and request.env['website'].get_template(template)
-        if (website_page and website_page.is_tracked) or (view and view.track):
+        if (website_page and website_page.track) or (view and view.track):
             request.env['website.visitor']._handle_webpage_dispatch(response, website_page)
 
     @classmethod
