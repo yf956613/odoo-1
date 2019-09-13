@@ -444,6 +444,17 @@ class Environment(Mapping):
         if uid == SUPERUSER_ID:
             su = True
         assert context is not None
+        if 'company' in context:
+            1 / 0
+            raise Exception("Use of 'company' as context key")
+            # _logger.warning("Use of forbidden 'company' context key, use with_company or allowed_company_ids instead.")
+        if 'force_company' in context:
+            1 / 0
+            raise Exception("Use of 'force_company' as context key")
+            # _logger.warning("Use of removed 'force_company' context key, use self.with_company(company) instead.")
+        if 'company_id' in context:
+            1 / 0
+            raise Exception("Use of 'company_id' as context key")
         args = (cr, uid, cid, context, su)
 
         # if env already exists, return it
@@ -500,6 +511,18 @@ class Environment(Mapping):
             :param context: optional context dictionary to change the current context
             :param su: optional boolean to change the superuser mode
         """
+        if context:
+            if 'company' in context:
+                1 / 0
+                raise Exception("Use of 'company' as context key")
+                # _logger.warning("Use of forbidden 'company' context key, use with_company or allowed_company_ids instead.")
+            if 'force_company' in context:
+                1 / 0
+                raise Exception("Use of 'force_company' as context key")
+                # _logger.warning("Use of removed 'force_company' context key, use self.with_company(company) instead.")
+            if 'company_id' in context:
+                1 / 0
+                raise Exception("Use of 'company_id' as context key")
         cr = self.cr if cr is None else cr
         uid = self.uid if user is None else int(user)
         context = self.context if context is None else context
