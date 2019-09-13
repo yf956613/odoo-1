@@ -917,17 +917,6 @@ actual arch.
                 for key, value in view_validation.process_dict_str(expr).items():
                     if key == 'group_by':
                         self._group_by_check(value, Model, expr, view_id)
-                    elif isinstance(value, ast.List):
-                        try:
-                            domain_fields = view_validation.process_domain(value)
-                            mandatory_fields.update(self._get_server_domain_mandatory_fields(Model, domain_fields, view_id, 'attr', expr))
-                            _logger.warning('This is usefull, domain in context %s in %s', key, expr)
-                        except:
-                            # note, some context like {'default_composition_mode': 'forward','hide_forward_type': 1 , 'default_partner_ids': [partner_assigned_id]}
-                            # in context case we should just fallback on process_value
-                            # will fail 
-                            _logger.error('invalid domain %s in %s', key, expr)
-                            _logger.error(node)
                     else:
                         for value in view_validation.process_value(value):
                             if value not in view_validation._get_attrs_symbols(): # may be moved to process_value, but maybe not a good idea for client domain
