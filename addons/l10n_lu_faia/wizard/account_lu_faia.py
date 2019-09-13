@@ -98,15 +98,14 @@ class AccountLuFaia(models.TransientModel):
     def _prepare_supplier_customer_structure(self, partners):
 
         def _prepare_opening_closing_balance(partner):
+            # TODO
             return {
                 'debit': '%.2f' % (partner.debit - partner.credit if partner.debit - partner.credit >= 0 else 0),
                 'credit': '%.2f' % (abs(partner.debit - partner.credit) if partner.debit - partner.credit < 0 else 0),
             }
 
-        supplier_list = []
-        customer_list = []
-
-        company_structure = self._prepare_company_structure(self.env.company)
+        partner_list = []
+        is_customer = self._context.get('customers')
 
         for partner in partners:
             contacts = partner.child_ids.filtered(lambda p: p.type == 'contact')
@@ -124,14 +123,13 @@ class AccountLuFaia(models.TransientModel):
                 'opening_balance': _prepare_opening_closing_balance(partner.with_context(date_to=self.date_from)),
                 'closing_balance': _prepare_opening_closing_balance(partner.with_context(date_to=self.date_to)),
             }
-            if partner.supplier:
-                partner_data['supplier_id'] = partner.id
-                supplier_list.append(partner_data)
-            if partner.customer:
+            if is_customer:
                 partner_data['customer_id'] = partner.id
-                customer_list.append(partner_data)
+            else:
+                partner_data['supplier_id'] = partner.id
+            partner_list.append(partner_data)
 
-        return (supplier_list, customer_list)
+        return partner_list
 
     def _prepare_account_structure(self, accounts):
 
@@ -452,8 +450,15 @@ class AccountLuFaia(models.TransientModel):
         ])
         general_ledger_data = self._prepare_general_ledger_structure(move_lines)
 
-        partners = move_lines.mapped('partner_id')
-        supplier_list, customer_list = self._prepare_supplier_customer_structure(partners)
+        suppliers = customers = self.env['res.partner']
+        for move_line in move_lines:
+            if move_line.journal_id.type == 'sale':
+                customers |= move_line.partner_id
+            elif move_line.journal_id.type == 'purchase':
+                suppliers |= move_line.partner_id
+
+        customer_list = self.with_context({'customers': True})._prepare_supplier_customer_structure(customers)
+        supplier_list = self._prepare_supplier_customer_structure(suppliers)
 
         accounts = move_lines.mapped('account_id')
         account_list = self._prepare_account_structure(accounts)
