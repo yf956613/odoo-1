@@ -181,25 +181,28 @@ class PosSession(models.Model):
         # installation we do the minimal configuration. Impossible to do in
         # the .xml files as the CoA is not yet installed.
         pos_config = self.env['pos.config'].browse(config_id)
-        ctx = dict(self.env.context, company_id=pos_config.company_id.id)
 
-        pos_name = self.env['ir.sequence'].with_context(ctx).next_by_code('pos.session')
+        self = self.with_company(pos_config.company_id)
+
+        pos_name = self.env['ir.sequence'].next_by_code('pos.session')
         if values.get('name'):
             pos_name += ' ' + values['name']
 
         uid = SUPERUSER_ID if self.env.user.has_group('point_of_sale.group_pos_user') else self.env.user.id
+        # VFE FIXME wtf are those with_user(SUPERUSER_ID) ??? use sudo instead...
 
         cash_payment_methods = pos_config.payment_method_ids.filtered(lambda pm: pm.is_cash_count)
         statement_ids = self.env['account.bank.statement']
+        ctxt_journal_id = None
         for cash_journal in cash_payment_methods.mapped('cash_journal_id'):
-            ctx['journal_id'] = cash_journal.id if pos_config.cash_control and cash_journal.type == 'cash' else False
+            ctxt_journal_id = cash_journal.id if pos_config.cash_control and cash_journal.type == 'cash' else False
             st_values = {
                 'journal_id': cash_journal.id,
                 'user_id': self.env.user.id,
                 'name': pos_name,
                 'balance_start': self.env["account.bank.statement"]._get_opening_balance(cash_journal.id) if cash_journal.type == 'cash' else 0
             }
-            statement_ids |= statement_ids.with_context(ctx).with_user(uid).create(st_values)
+            statement_ids |= statement_ids.with_context(journal_id=ctxt_journal_id).with_user(uid).create(st_values)
 
         values.update({
             'name': pos_name,
@@ -207,7 +210,7 @@ class PosSession(models.Model):
             'config_id': config_id,
         })
 
-        res = super(PosSession, self.with_context(ctx).with_user(uid)).create(values)
+        res = super(PosSession, self.with_context(journal_id=ctxt_journal_id).with_user(uid)).create(values)
         if not pos_config.cash_control:
             res.action_pos_session_open()
 
