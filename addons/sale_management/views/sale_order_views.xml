@@ -83,7 +83,7 @@
             </xpath>
 
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                <field name="sale_order_template_id" context="{'company_id': company_id}"
+                <field name="sale_order_template_id" context="{'default_company_id': company_id}"
                     options="{'no_create': True, 'no_open': True}"
                     groups="sale_management.group_sale_order_template"
                 />
