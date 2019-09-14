@@ -346,7 +346,7 @@
                                             <field name="product_updatable" invisible="1"/>
                                             <field name="product_id"
                                                 domain="[('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
-                                                context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                                context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'default_company_id': parent.company_id}"
                                                 attrs="{
                                                     'readonly': [('product_updatable', '=', False)],
                                                     'required': [('display_type', '=', False)],
@@ -364,7 +364,7 @@
                                             <label for="product_uom_qty"/>
                                             <div class="o_row" name="ordered_qty">
                                                 <field
-                                                    context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'uom_qty_change':True, 'company_id': parent.company_id}"
+                                                    context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'uom_qty_change':True, 'default_company_id': parent.company_id}"
                                                     name="product_uom_qty"/>
                                                 <field
                                                     name="product_uom"
@@ -448,7 +448,7 @@
                                             'quantity': product_uom_qty,
                                             'pricelist': parent.pricelist_id,
                                             'uom':product_uom,
-                                            'company_id': parent.company_id,
+                                            'default_company_id': parent.company_id,
                                             'default_lst_price': price_unit,
                                             'default_description_sale': name
                                         }"
@@ -468,7 +468,7 @@
                                           'quantity': product_uom_qty,
                                           'pricelist': parent.pricelist_id,
                                           'uom':product_uom,
-                                          'company_id': parent.company_id,
+                                          'default_company_id': parent.company_id,
                                           'default_lst_price': price_unit,
                                           'default_description_sale': name
                                       }"
@@ -490,7 +490,7 @@
                                             'quantity': product_uom_qty,
                                             'pricelist': parent.pricelist_id,
                                             'uom': product_uom,
-                                            'company_id': parent.company_id
+                                            'default_company_id': parent.company_id
                                         }"
                                     />
                                     <field
@@ -519,7 +519,7 @@
                                             'readonly': [('state', 'in', ('sale','done', 'cancel'))],
                                             'required': [('display_type', '=', False)],
                                         }"
-                                        context="{'company_id': parent.company_id}"
+                                        context="{'default_company_id': parent.company_id}"
                                         groups="uom.group_uom"
                                         options='{"no_open": True}'
                                         optional="show"
